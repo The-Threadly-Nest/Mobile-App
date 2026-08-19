@@ -1,0 +1,195 @@
+// The Threadly Nest — full schema. Auth is fully custom (Express-owned):
+// email + password with bcrypt hashing. No Supabase, no OTP.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  passwordHash        String?   // null until a Staff account is activated
+  role                String    // admin | staff | customer
+  fashionHouseId      String?   // set for staff; null for admin (owns via FashionHouse.adminId) and customer
+  active              Boolean   @default(true) // false for Staff pending activation
+  resetTokenHash      String?
+  resetTokenExpiresAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  fashionHouseOwned FashionHouse?   @relation("FashionHouseAdmin")
+  fashionHouse      FashionHouse?   @relation("FashionHouseStaff", fields: [fashionHouseId], references: [id])
+  delegatedOrders   Order[]         @relation("StaffOrders")
+  bookings          Booking[]
+  chatEscalations   ChatEscalation[]
+
+  @@index([fashionHouseId])
+  @@map("users")
+}
+
+model FashionHouse {
+  id        String   @id @default(uuid())
+  adminId   String   @unique
+  shopName  String
+  location  String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  admin           User             @relation("FashionHouseAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+  staff           User[]           @relation("FashionHouseStaff")
+  customers       Customer[]
+  catalogItems    CatalogItem[]
+  orders          Order[]
+  availableSlots  AvailableSlot[]
+  bookings        Booking[]
+  chatEscalations ChatEscalation[]
+  sketches        Sketch[]
+
+  @@map("fashion_houses")
+}
+
+model Customer {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  name           String
+  phone          String?
+  sheetUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  fashionHouse FashionHouse  @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  measurements Measurement[]
+  orders       Order[]
+
+  @@index([fashionHouseId])
+  @@map("customers")
+}
+
+model Measurement {
+  id         String   @id @default(uuid())
+  customerId String
+  field      String
+  value      Float
+  unit       String   @default("in")
+  recordedAt DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@map("measurements")
+}
+
+model Order {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  customerId     String
+  staffId        String?
+  itemName       String
+  price          Int
+  status         String   @default("order_placed") // order_placed | in_production | ready | delivered
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  staff        User?        @relation("StaffOrders", fields: [staffId], references: [id])
+  invoice      Invoice?
+
+  @@index([fashionHouseId])
+  @@index([staffId])
+  @@map("orders")
+}
+
+model Invoice {
+  id        String   @id @default(uuid())
+  orderId   String   @unique
+  total     Int
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("invoices")
+}
+
+model CatalogItem {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  name           String
+  priceFrom      Int
+  imageUrl       String
+  createdAt      DateTime @default(now())
+
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+
+  @@index([fashionHouseId])
+  @@map("catalog_items")
+}
+
+model AvailableSlot {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  date           String
+  time           String
+  booked         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+
+  @@index([fashionHouseId, booked])
+  @@map("available_slots")
+}
+
+model Booking {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  customerId     String
+  styleNotes     String
+  preferredDate  DateTime
+  preferredTime  String
+  status         String   @default("pending_admin_review")
+  createdAt      DateTime @default(now())
+
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  customer     User         @relation(fields: [customerId], references: [id])
+
+  @@index([fashionHouseId, status])
+  @@map("bookings")
+}
+
+model ChatEscalation {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  customerId     String
+  reason         String
+  summary        String
+  transcript     String   @db.Text
+  resolved       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  customer     User         @relation(fields: [customerId], references: [id])
+
+  @@index([fashionHouseId, resolved])
+  @@map("chat_escalations")
+}
+
+model Sketch {
+  id             String   @id @default(uuid())
+  fashionHouseId String
+  title          String
+  imageUrl       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  fashionHouse   FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+
+  @@index([fashionHouseId])
+  @@map("sketches")
+}
