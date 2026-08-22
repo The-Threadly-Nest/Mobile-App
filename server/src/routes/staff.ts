@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRole } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { inviteStaffSchema } from "@/schemas/staff.schema";
-import { generateResetToken, hashResetToken } from "@/lib/password";
-import { sendStaffActivationEmail } from "@/lib/mailer";
+import { prisma } from "../lib/prisma";
+import { requireAuth, requireRole } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { inviteStaffSchema } from "../schemas/staff.schema";
+import { generateResetToken, hashResetToken } from "../lib/password";
+import { sendStaffActivationEmail } from "../lib/mailer";
 
 const router = Router();
 router.use(requireAuth, requireRole("admin"));

@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { randomUUID } from "crypto";
-import { requireAuth } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { presignUploadSchema } from "@/schemas/upload.schema";
-import { generatePresignedUploadUrl } from "@/lib/s3";
-import { prisma } from "@/lib/prisma";
+import { requireAuth } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { presignUploadSchema } from "../schemas/upload.schema";
+import { generatePresignedUploadUrl } from "../lib/s3";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
 router.use(requireAuth);

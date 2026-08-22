@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AppError } from "@/utils/errors";
+import { AppError } from "../utils/errors";
 
 export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   let status = 500;

@@ -1,11 +1,11 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
-import { prisma } from "@/lib/prisma";
-import { validate } from "@/middleware/validate";
-import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, activateAccountSchema } from "@/schemas/auth.schema";
-import { hashPassword, verifyPassword, generateResetToken, hashResetToken } from "@/lib/password";
-import { sendPasswordResetEmail, sendWelcomeEmail } from "@/lib/mailer";
+import { prisma } from "../lib/prisma";
+import { validate } from "../middleware/validate";
+import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, activateAccountSchema } from "../schemas/auth.schema";
+import { hashPassword, verifyPassword, generateResetToken, hashResetToken } from "../lib/password";
+import { sendPasswordResetEmail, sendWelcomeEmail } from "../lib/mailer";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;

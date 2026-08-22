@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRole, getOwnFashionHouseId } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { createAvailableSlotSchema, updateAvailableSlotSchema } from "@/schemas/slots.schema";
+import { prisma } from "../lib/prisma";
+import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { createAvailableSlotSchema, updateAvailableSlotSchema } from "../schemas/slots.schema";
 
 const router = Router();
 router.use(requireAuth);

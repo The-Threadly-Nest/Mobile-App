@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { sendChatMessageSchema } from "@/schemas/chat.schema";
-import { getModel, buildSystemPrompt } from "@/lib/gemini";
-import { buildTruncatedHistory, shouldForceEscalate } from "@/lib/chatHistory";
-import { checkMessageGuardrails } from "@/lib/chatGuardrails";
+import { prisma } from "../lib/prisma";
+import { requireAuth } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { sendChatMessageSchema } from "../schemas/chat.schema";
+import { getModel, buildSystemPrompt } from "../lib/gemini";
+import { buildTruncatedHistory, shouldForceEscalate } from "../lib/chatHistory";
+import { checkMessageGuardrails } from "../lib/chatGuardrails";
 
 const router = Router();
 router.use(requireAuth);

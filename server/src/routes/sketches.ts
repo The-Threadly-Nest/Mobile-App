@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRole, getOwnFashionHouseId } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { createSketchSchema } from "@/schemas/sketch.schema";
+import { prisma } from "../lib/prisma";
+import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { createSketchSchema } from "../schemas/sketch.schema";
 
 const router = Router();
 router.use(requireAuth, requireRole("admin", "staff"));

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRole, getOwnFashionHouseId } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
+import { prisma } from "../lib/prisma";
+import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
+import { validate } from "../middleware/validate";
 
 const generateInvoiceSchema = z.object({
   orderId: z.string().uuid(),

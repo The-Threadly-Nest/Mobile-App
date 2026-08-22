@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { preferenceSchema } from "@/schemas/preferences.schema";
+import { prisma } from "../lib/prisma";
+import { requireAuth } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { preferenceSchema } from "../schemas/preferences.schema";
 
 const router = Router();
 router.use(requireAuth);

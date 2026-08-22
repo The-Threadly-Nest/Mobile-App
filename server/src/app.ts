@@ -4,21 +4,21 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 
-import authRouter from "@/routes/auth";
-import staffRouter from "@/routes/staff";
-import chatRouter from "@/routes/chat";
-import escalationsRouter from "@/routes/escalations";
-import uploadRouter from "@/routes/upload";
-import sketchesRouter from "@/routes/sketches";
-import ordersRouter from "@/routes/orders";
-import measurementsRouter from "@/routes/measurements";
-import invoicesRouter from "@/routes/invoices";
-import catalogRouter from "@/routes/catalog";
-import slotsRouter from "@/routes/slots";
-import preferencesRouter from "@/routes/preferences";
-import { errorHandler } from "@/middleware/errorHandler";
+import authRouter from "./routes/auth";
+import staffRouter from "./routes/staff";
+import chatRouter from "./routes/chat";
+import escalationsRouter from "./routes/escalations";
+import uploadRouter from "./routes/upload";
+import sketchesRouter from "./routes/sketches";
+import ordersRouter from "./routes/orders";
+import measurementsRouter from "./routes/measurements";
+import invoicesRouter from "./routes/invoices";
+import catalogRouter from "./routes/catalog";
+import slotsRouter from "./routes/slots";
+import preferencesRouter from "./routes/preferences";
+import { errorHandler } from "./middleware/errorHandler";
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "@/utils/swagger";
+import { swaggerSpec } from "./utils/swagger";
 
 export const app = express();
 

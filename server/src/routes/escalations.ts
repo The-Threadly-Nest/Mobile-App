@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/middleware/auth";
-import { validate } from "@/middleware/validate";
-import { escalationIdParamSchema, resolveEscalationSchema } from "@/schemas/escalation.schema";
+import { prisma } from "../lib/prisma";
+import { requireAuth } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { escalationIdParamSchema, resolveEscalationSchema } from "../schemas/escalation.schema";
 
 const router = Router();
 router.use(requireAuth);
