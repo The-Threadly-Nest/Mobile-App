@@ -1,89 +1,412 @@
-import React, { useState } from "react";
-import { View, ScrollView, TextInput, Pressable, KeyboardAvoidingView, Platform, Text } from "react-native";
+import React from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  Pressable,
+  StyleSheet,
+  ImageSourcePropType,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { ChevronLeft, Send } from "lucide-react-native";
-import { Headline } from "@/shared/components/Headline";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { Star } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { MOCK_TAILORS } from "../(tabs)/browse";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const PORTFOLIO_IMAGES: Record<string, ImageSourcePropType[]> = {
+  "1": [
+    require("../../../assets/tailor-1.png"),
+    require("../../../assets/tailor-2.png"),
+    require("../../../assets/tailor-3.png"),
+    require("../../../assets/tailor-4.png"),
+    require("../../../assets/tailor-1.png"),
+    require("../../../assets/tailor-2.png"),
+  ],
+  "2": [
+    require("../../../assets/tailor-2.png"),
+    require("../../../assets/tailor-1.png"),
+    require("../../../assets/tailor-4.png"),
+    require("../../../assets/tailor-3.png"),
+    require("../../../assets/tailor-2.png"),
+    require("../../../assets/tailor-4.png"),
+  ],
+  "3": [
+    require("../../../assets/tailor-3.png"),
+    require("../../../assets/tailor-4.png"),
+    require("../../../assets/tailor-1.png"),
+    require("../../../assets/tailor-2.png"),
+    require("../../../assets/tailor-3.png"),
+    require("../../../assets/tailor-1.png"),
+  ],
+  "4": [
+    require("../../../assets/tailor-4.png"),
+    require("../../../assets/tailor-3.png"),
+    require("../../../assets/tailor-2.png"),
+    require("../../../assets/tailor-1.png"),
+    require("../../../assets/tailor-4.png"),
+    require("../../../assets/tailor-3.png"),
+  ],
+};
 
-interface Turn { role: "user" | "model"; text: string }
+const ABOUT_TEXT: Record<string, string> = {
+  "1": "Adaeze Couture has dressed brides across Lagos and Abuja for twelve years, known for hand-beaded aso-ebi and structured bridal gowns that hold their shape through a full owambe weekend.",
+  "2": "The Gele Room is Akure's premier gele studio. Their master tyers transform yards of aso-oke into sculptural headpieces that complement any occasion, from owambe to intimate family ceremonies.",
+  "3": "Iyanuade Atelier specialises in agbada and senator styles, blending traditional Nigerian silhouettes with contemporary tailoring for the modern Nigerian gentleman.",
+  "4": "Kaftan & Co curates the finest native wear fabrics and brings them to life with skilled artisans, delivering bespoke kaftans that speak to culture and elegance.",
+};
 
-export default function BookingChatScreen() {
+const MOCK_REVIEWS: Record<string, { name: string; text: string; rating: number }[]> = {
+  "1": [
+    { name: "Chiamaka O.", text: "My bridal aso-ebi fit perfectly at the first try-on. Worth every naira.", rating: 5 },
+    { name: "Blessing A.", text: "Delivered three days ahead of my wedding. Very calm communication throughout.", rating: 5 },
+  ],
+  "2": [
+    { name: "Temi F.", text: "The gele was absolutely stunning. Everyone was asking who tied it.", rating: 5 },
+    { name: "Amaka N.", text: "Professional service and beautiful results. Will definitely return.", rating: 4 },
+  ],
+  "3": [
+    { name: "Kunle B.", text: "Best agbada I've ever owned. The embroidery work is exceptional.", rating: 5 },
+    { name: "Tunde M.", text: "Ready before the promised date and fits like a glove.", rating: 5 },
+  ],
+  "4": [
+    { name: "Chidi O.", text: "Beautiful fabrics and expert craftsmanship. The kaftan is stunning.", rating: 5 },
+    { name: "Emeka P.", text: "Ordered for Eid and it was delivered on time. Very satisfied.", rating: 4 },
+  ],
+};
+
+function renderStars(rating: number) {
+  return Array.from({ length: 5 }).map((_, i) => (
+    <Star
+      key={i}
+      size={14}
+      color="#E5A817"
+      fill={i < Math.floor(rating) ? "#E5A817" : "transparent"}
+      style={{ marginRight: 2 }}
+    />
+  ));
+}
+
+export default function FashionHouseScreen() {
   const { fashionHouseId } = useLocalSearchParams<{ fashionHouseId: string }>();
-  const [history, setHistory] = useState<Turn[]>([
-    { role: "model", text: "Hi! I can help you book a fitting. What are you thinking?" },
-  ]);
-  const [draft, setDraft] = useState("");
-  const [sending, setSending] = useState(false);
-  const [bookingConfirmed, setBookingConfirmed] = useState(false);
-  const token = useAuthStore((s) => s.token);
-
-  const send = async () => {
-    if (!draft.trim()) return;
-    const userTurn: Turn = { role: "user", text: draft.trim() };
-    const nextHistory = [...history, userTurn];
-    setHistory(nextHistory);
-    setDraft("");
-    setSending(true);
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ fashionHouseId, message: userTurn.text, history }),
-      });
-      const body = await res.json();
-
-      if (body.type === "booking_created") {
-        setBookingConfirmed(true);
-        setHistory([...nextHistory, { role: "model", text: "Your appointment request has been sent! The fashion house will confirm shortly." }]);
-      } else {
-        setHistory([...nextHistory, { role: "model", text: body.reply }]);
-      }
-    } catch {
-      setHistory([...nextHistory, { role: "model", text: "Something went wrong — please try again." }]);
-    } finally {
-      setSending(false);
-    }
-  };
+  const tailor = MOCK_TAILORS.find((t) => t.id === fashionHouseId) ?? MOCK_TAILORS[0];
+  const portfolioImages = PORTFOLIO_IMAGES[fashionHouseId ?? "1"] ?? PORTFOLIO_IMAGES["1"];
+  const aboutText = ABOUT_TEXT[fashionHouseId ?? "1"] ?? ABOUT_TEXT["1"];
+  const reviews = MOCK_REVIEWS[fashionHouseId ?? "1"] ?? MOCK_REVIEWS["1"];
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
-      <View className="flex-row items-center px-5 pt-4 pb-2 bg-oxblood">
-        <Pressable onPress={() => router.back()} className="mr-3">
-          <ChevronLeft size={24} color="#FBF7EF" />
-        </Pressable>
-        <Text className="font-body-semibold text-cream text-base">Booking Assistant</Text>
-      </View>
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Hero Image */}
+        <View style={styles.heroContainer}>
+          <Image
+            source={typeof tailor.image === "string" ? { uri: tailor.image } : tailor.image}
+            style={styles.heroImage}
+          />
+          {/* Gradient overlay */}
+          <View style={styles.heroOverlay} />
 
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1">
-        <ScrollView className="flex-1 px-5 pt-3">
-          {history.map((turn, i) => (
-            <View key={i} className={`mb-3 max-w-[85%] ${turn.role === "user" ? "self-end items-end" : "self-start items-start"}`}>
-              <View className={`px-4 py-2.5 rounded-2xl ${turn.role === "user" ? "bg-oxblood" : "bg-white border border-grey100"}`}>
-                <Text className={`font-body ${turn.role === "user" ? "text-cream" : "text-ink"}`}>{turn.text}</Text>
-              </View>
+          {/* Back Button */}
+          <Pressable style={styles.backBtn} onPress={() => router.back()}>
+            <BackArrowIcon size={20} color="#3A2E1A" />
+          </Pressable>
+
+          {/* Hero Title */}
+          <View style={styles.heroTitle}>
+            <Text style={styles.heroName}>{tailor.name}</Text>
+            <View style={styles.heroRatingRow}>
+              {renderStars(tailor.rating)}
+              <Text style={styles.heroRatingText}>
+                {tailor.rating} ({tailor.reviewsCount})
+              </Text>
             </View>
-          ))}
-        </ScrollView>
+          </View>
+        </View>
 
-        {!bookingConfirmed && (
-          <View className="flex-row items-center px-5 py-3 border-t border-grey100">
-            <TextInput
-              value={draft}
-              onChangeText={setDraft}
-              placeholder="Type a message"
-              placeholderTextColor="#A6926B"
-              className="flex-1 border border-grey100 rounded-pill px-4 py-3 mr-2 bg-white font-body text-ink"
-            />
-            <Pressable onPress={send} disabled={sending} className="w-11 h-11 bg-oxblood rounded-full items-center justify-center">
-              <Send size={18} color="#FBF7EF" />
+        {/* Stats Row */}
+        <View style={styles.statsCard}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>
+              {tailor.turnaround.replace(" turnaround", "").replace("-week", " wks")}
+            </Text>
+            <Text style={styles.statLabel}>TURNAROUND</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{tailor.price.replace("₦ ", "₦")}</Text>
+            <Text style={styles.statLabel}>PRICE RANGE</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{tailor.location}</Text>
+            <Text style={styles.statLabel}>LOCATION</Text>
+          </View>
+        </View>
+
+        {/* About Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>ABOUT</Text>
+          <Text style={styles.aboutText}>{aboutText}</Text>
+        </View>
+
+        {/* Portfolio Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>PORTFOLIO</Text>
+          <View style={styles.portfolioGrid}>
+            {portfolioImages.map((img, i) => (
+              <Image key={i} source={img} style={styles.portfolioImage} />
+            ))}
+          </View>
+        </View>
+
+        {/* Reviews Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>REVIEWS</Text>
+          <View style={styles.reviewsCard}>
+            {reviews.map((review, i) => (
+              <View key={i}>
+                <View style={styles.reviewItem}>
+                  <View style={styles.reviewHeader}>
+                    <Text style={styles.reviewName}>{review.name}</Text>
+                    <View style={styles.reviewStars}>{renderStars(review.rating)}</View>
+                  </View>
+                  <Text style={styles.reviewText}>{review.text}</Text>
+                </View>
+                {i < reviews.length - 1 && <View style={styles.reviewDashedDivider} />}
+              </View>
+            ))}
+
+            {/* See all reviews */}
+            <Pressable
+              style={styles.seeAllBtn}
+              onPress={() => router.push(`/(customer)/reviews/${fashionHouseId}`)}
+            >
+              <Text style={styles.seeAllText}>See all reviews</Text>
             </Pressable>
           </View>
-        )}
-      </KeyboardAvoidingView>
+        </View>
+
+        {/* CTAs — inside scroll, below reviews */}
+        <View style={styles.ctaContainer}>
+          <Pressable
+            style={styles.bookingBtn}
+            onPress={() => router.push(`/(customer)/chat/${fashionHouseId}`)}
+          >
+            <Text style={styles.bookingBtnText}>Start Booking</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FBF7EF",
+  },
+  heroContainer: {
+    position: "relative",
+    height: 300,
+  },
+  heroImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  heroOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: "60%",
+    backgroundColor: "transparent",
+    // gradient-like fade from transparent to semi-black
+  },
+  backBtn: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  heroTitle: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+  },
+  heroName: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 26,
+    color: "#FFFFFF",
+    marginBottom: 4,
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  heroRatingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  heroRatingText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#FFFFFF",
+    marginLeft: 4,
+  },
+  statsCard: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 20,
+    marginTop: -16,
+    borderRadius: 16,
+    paddingVertical: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+    zIndex: 10,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statValue: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 16,
+    color: "#1A150E",
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontFamily: "WorkSans_500Medium",
+    fontSize: 10,
+    color: "#6B5E4C",
+    letterSpacing: 0.6,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: "#E8E1D5",
+    marginVertical: 4,
+  },
+  section: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  sectionTitle: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 12,
+    color: "#4A080C",
+    letterSpacing: 1.2,
+    marginBottom: 10,
+  },
+  aboutText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    color: "#3A2E1A",
+    lineHeight: 22,
+  },
+  portfolioGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  portfolioImage: {
+    width: "31.5%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    resizeMode: "cover",
+  },
+  reviewsCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  reviewItem: {
+    paddingVertical: 14,
+  },
+  reviewDashedDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#C8BFB0",
+    borderStyle: "dashed",
+    marginVertical: 2,
+  },
+  reviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  reviewName: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14,
+    color: "#1A150E",
+  },
+  reviewStars: {
+    flexDirection: "row",
+  },
+  reviewText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#4A4235",
+    lineHeight: 20,
+  },
+  seeAllBtn: {
+    marginTop: 8,
+    paddingVertical: 14,
+    backgroundColor: "#E8E1D5",
+    borderRadius: 50,
+    alignItems: "center",
+  },
+  seeAllText: {
+    fontFamily: "WorkSans_500Medium",
+    fontSize: 14,
+    color: "#3A2E1A",
+  },
+  ctaContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 36,
+    gap: 12,
+  },
+  checkFashionHouseBtn: {
+    borderWidth: 1.5,
+    borderColor: "#4A080C",
+    borderRadius: 50,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  checkFashionHouseBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: "#4A080C",
+  },
+  bookingBtn: {
+    backgroundColor: "#4A080C",
+    borderRadius: 50,
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  bookingBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+});

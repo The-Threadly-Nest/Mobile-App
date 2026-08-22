@@ -94,3 +94,8 @@ export type ChatEscalation = Prisma.ChatEscalationModel
  * 
  */
 export type Sketch = Prisma.SketchModel
+/**
+ * Model CustomerPreference
+ * 
+ */
+export type CustomerPreference = Prisma.CustomerPreferenceModel

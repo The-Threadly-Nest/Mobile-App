@@ -61,7 +61,8 @@ export const ModelName = {
   AvailableSlot: 'AvailableSlot',
   Booking: 'Booking',
   ChatEscalation: 'ChatEscalation',
-  Sketch: 'Sketch'
+  Sketch: 'Sketch',
+  CustomerPreference: 'CustomerPreference'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -221,6 +222,19 @@ export const SketchScalarFieldEnum = {
 } as const
 
 export type SketchScalarFieldEnum = (typeof SketchScalarFieldEnum)[keyof typeof SketchScalarFieldEnum]
+
+
+export const CustomerPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  styles: 'styles',
+  budget: 'budget',
+  timeline: 'timeline',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalarFieldEnum)[keyof typeof CustomerPreferenceScalarFieldEnum]
 
 
 export const SortOrder = {

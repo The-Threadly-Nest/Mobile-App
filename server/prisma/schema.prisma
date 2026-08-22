@@ -28,6 +28,7 @@ model User {
   delegatedOrders   Order[]         @relation("StaffOrders")
   bookings          Booking[]
   chatEscalations   ChatEscalation[]
+  preference        CustomerPreference?
 
   @@index([fashionHouseId])
   @@map("users")
@@ -192,4 +193,18 @@ model Sketch {
 
   @@index([fashionHouseId])
   @@map("sketches")
+}
+
+model CustomerPreference {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  styles    String[]
+  budget    String
+  timeline  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_preferences")
 }

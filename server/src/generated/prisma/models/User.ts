@@ -227,6 +227,7 @@ export type UserWhereInput = {
   delegatedOrders?: Prisma.OrderListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   chatEscalations?: Prisma.ChatEscalationListRelationFilter
+  preference?: Prisma.XOR<Prisma.CustomerPreferenceNullableScalarRelationFilter, Prisma.CustomerPreferenceWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -245,6 +246,7 @@ export type UserOrderByWithRelationInput = {
   delegatedOrders?: Prisma.OrderOrderByRelationAggregateInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
   chatEscalations?: Prisma.ChatEscalationOrderByRelationAggregateInput
+  preference?: Prisma.CustomerPreferenceOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -266,6 +268,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   delegatedOrders?: Prisma.OrderListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   chatEscalations?: Prisma.ChatEscalationListRelationFilter
+  preference?: Prisma.XOR<Prisma.CustomerPreferenceNullableScalarRelationFilter, Prisma.CustomerPreferenceWhereInput> | null
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -315,6 +318,7 @@ export type UserCreateInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -332,6 +336,7 @@ export type UserUncheckedCreateInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -349,6 +354,7 @@ export type UserUpdateInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -366,6 +372,7 @@ export type UserUncheckedUpdateInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -585,6 +592,20 @@ export type UserUpdateOneRequiredWithoutChatEscalationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutChatEscalationsInput, Prisma.UserUpdateWithoutChatEscalationsInput>, Prisma.UserUncheckedUpdateWithoutChatEscalationsInput>
 }
 
+export type UserCreateNestedOneWithoutPreferenceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreferenceInput, Prisma.UserUncheckedCreateWithoutPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPreferenceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreferenceInput, Prisma.UserUncheckedCreateWithoutPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreferenceInput
+  upsert?: Prisma.UserUpsertWithoutPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPreferenceInput, Prisma.UserUpdateWithoutPreferenceInput>, Prisma.UserUncheckedUpdateWithoutPreferenceInput>
+}
+
 export type UserCreateWithoutFashionHouseOwnedInput = {
   id?: string
   email: string
@@ -599,6 +620,7 @@ export type UserCreateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
@@ -615,6 +637,7 @@ export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFashionHouseOwnedInput = {
@@ -636,6 +659,7 @@ export type UserCreateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFashionHouseInput = {
@@ -652,6 +676,7 @@ export type UserUncheckedCreateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFashionHouseInput = {
@@ -689,6 +714,7 @@ export type UserUpdateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
@@ -705,6 +731,7 @@ export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutFashionHouseInput = {
@@ -753,6 +780,7 @@ export type UserCreateWithoutDelegatedOrdersInput = {
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
@@ -769,6 +797,7 @@ export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDelegatedOrdersInput = {
@@ -801,6 +830,7 @@ export type UserUpdateWithoutDelegatedOrdersInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
@@ -817,6 +847,7 @@ export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBookingsInput = {
@@ -833,6 +864,7 @@ export type UserCreateWithoutBookingsInput = {
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBookingsInput = {
@@ -849,6 +881,7 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBookingsInput = {
@@ -881,6 +914,7 @@ export type UserUpdateWithoutBookingsInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBookingsInput = {
@@ -897,6 +931,7 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatEscalationsInput = {
@@ -913,6 +948,7 @@ export type UserCreateWithoutChatEscalationsInput = {
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatEscalationsInput = {
@@ -929,6 +965,7 @@ export type UserUncheckedCreateWithoutChatEscalationsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatEscalationsInput = {
@@ -961,6 +998,7 @@ export type UserUpdateWithoutChatEscalationsInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatEscalationsInput = {
@@ -977,6 +1015,91 @@ export type UserUncheckedUpdateWithoutChatEscalationsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPreferenceInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  role: string
+  active?: boolean
+  resetTokenHash?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
+  fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
+  delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+}
+
+export type UserUncheckedCreateWithoutPreferenceInput = {
+  id?: string
+  email: string
+  passwordHash?: string | null
+  role: string
+  fashionHouseId?: string | null
+  active?: boolean
+  resetTokenHash?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
+  delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type UserCreateOrConnectWithoutPreferenceInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreferenceInput, Prisma.UserUncheckedCreateWithoutPreferenceInput>
+}
+
+export type UserUpsertWithoutPreferenceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPreferenceInput, Prisma.UserUncheckedUpdateWithoutPreferenceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreferenceInput, Prisma.UserUncheckedCreateWithoutPreferenceInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPreferenceInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPreferenceInput, Prisma.UserUncheckedUpdateWithoutPreferenceInput>
+}
+
+export type UserUpdateWithoutPreferenceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
+  fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
+  delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPreferenceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
+  delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type UserCreateManyFashionHouseInput = {
@@ -1005,6 +1128,7 @@ export type UserUpdateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFashionHouseInput = {
@@ -1021,6 +1145,7 @@ export type UserUncheckedUpdateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutFashionHouseInput = {
@@ -1100,6 +1225,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   delegatedOrders?: boolean | Prisma.User$delegatedOrdersArgs<ExtArgs>
   bookings?: boolean | Prisma.User$bookingsArgs<ExtArgs>
   chatEscalations?: boolean | Prisma.User$chatEscalationsArgs<ExtArgs>
+  preference?: boolean | Prisma.User$preferenceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1151,6 +1277,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   delegatedOrders?: boolean | Prisma.User$delegatedOrdersArgs<ExtArgs>
   bookings?: boolean | Prisma.User$bookingsArgs<ExtArgs>
   chatEscalations?: boolean | Prisma.User$chatEscalationsArgs<ExtArgs>
+  preference?: boolean | Prisma.User$preferenceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1168,6 +1295,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     delegatedOrders: Prisma.$OrderPayload<ExtArgs>[]
     bookings: Prisma.$BookingPayload<ExtArgs>[]
     chatEscalations: Prisma.$ChatEscalationPayload<ExtArgs>[]
+    preference: Prisma.$CustomerPreferencePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1579,6 +1707,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   delegatedOrders<T extends Prisma.User$delegatedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$delegatedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookings<T extends Prisma.User$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatEscalations<T extends Prisma.User$chatEscalationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatEscalationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatEscalationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preference<T extends Prisma.User$preferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preferenceArgs<ExtArgs>>): Prisma.Prisma__CustomerPreferenceClient<runtime.Types.Result.GetResult<Prisma.$CustomerPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2126,6 +2255,25 @@ export type User$chatEscalationsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ChatEscalationScalarFieldEnum | Prisma.ChatEscalationScalarFieldEnum[]
+}
+
+/**
+ * User.preference
+ */
+export type User$preferenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerPreference
+   */
+  select?: Prisma.CustomerPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerPreference
+   */
+  omit?: Prisma.CustomerPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerPreferenceInclude<ExtArgs> | null
+  where?: Prisma.CustomerPreferenceWhereInput
 }
 
 /**

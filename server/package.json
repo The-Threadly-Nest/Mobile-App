@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^9.0.5",
     "pg": "^8.23.0",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -35,6 +36,7 @@
     "@types/node": "^20.12.12",
     "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.23.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "@vercel/node": "^5.10.1",
     "nodemon": "^3.1.14",
     "prisma": "^7.9.1",

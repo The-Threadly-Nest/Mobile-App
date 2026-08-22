@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { prisma } from "@/lib/prisma";
 
 declare global {
   namespace Express {
@@ -39,4 +40,20 @@ export function requireRole(...allowed: Array<"admin" | "staff" | "customer">) {
     }
     next();
   };
+}
+
+export async function getOwnFashionHouseId(userId: string, role: string): Promise<string> {
+  if (role === "admin") {
+    const admin = await prisma.user.findUnique({ where: { id: userId }, include: { fashionHouseOwned: true } });
+    if (!admin || !admin.fashionHouseOwned) {
+      throw Object.assign(new Error("Fashion house not found for this admin"), { status: 404 });
+    }
+    return admin.fashionHouseOwned.id;
+  } else {
+    const staff = await prisma.user.findUnique({ where: { id: userId } });
+    if (!staff || !staff.fashionHouseId) {
+      throw Object.assign(new Error("Fashion house not found for this staff member"), { status: 404 });
+    }
+    return staff.fashionHouseId;
+  }
 }

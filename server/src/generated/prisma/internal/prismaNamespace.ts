@@ -407,7 +407,8 @@ export const ModelName = {
   AvailableSlot: 'AvailableSlot',
   Booking: 'Booking',
   ChatEscalation: 'ChatEscalation',
-  Sketch: 'Sketch'
+  Sketch: 'Sketch',
+  CustomerPreference: 'CustomerPreference'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch"
+    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1241,6 +1242,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CustomerPreference: {
+      payload: Prisma.$CustomerPreferencePayload<ExtArgs>
+      fields: Prisma.CustomerPreferenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CustomerPreferenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CustomerPreferenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        findFirst: {
+          args: Prisma.CustomerPreferenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CustomerPreferenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        findMany: {
+          args: Prisma.CustomerPreferenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>[]
+        }
+        create: {
+          args: Prisma.CustomerPreferenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        createMany: {
+          args: Prisma.CustomerPreferenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CustomerPreferenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>[]
+        }
+        delete: {
+          args: Prisma.CustomerPreferenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        update: {
+          args: Prisma.CustomerPreferenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        deleteMany: {
+          args: Prisma.CustomerPreferenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CustomerPreferenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CustomerPreferenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>[]
+        }
+        upsert: {
+          args: Prisma.CustomerPreferenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CustomerPreferencePayload>
+        }
+        aggregate: {
+          args: Prisma.CustomerPreferenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCustomerPreference>
+        }
+        groupBy: {
+          args: Prisma.CustomerPreferenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPreferenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CustomerPreferenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CustomerPreferenceCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1421,6 +1496,19 @@ export const SketchScalarFieldEnum = {
 } as const
 
 export type SketchScalarFieldEnum = (typeof SketchScalarFieldEnum)[keyof typeof SketchScalarFieldEnum]
+
+
+export const CustomerPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  styles: 'styles',
+  budget: 'budget',
+  timeline: 'timeline',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalarFieldEnum)[keyof typeof CustomerPreferenceScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1677,6 +1765,7 @@ export type GlobalOmitConfig = {
   booking?: Prisma.BookingOmit
   chatEscalation?: Prisma.ChatEscalationOmit
   sketch?: Prisma.SketchOmit
+  customerPreference?: Prisma.CustomerPreferenceOmit
 }
 
 /* Types for Logging */
