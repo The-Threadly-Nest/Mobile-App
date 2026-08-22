@@ -39,6 +39,14 @@ app.use(cors({ origin: process.env.ALLOWED_ORIGIN ?? "*" }));
 app.use(express.json({ limit: "1mb" }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false }));
 
+app.get("/", (_req, res) =>
+  res.json({
+    name: "The Threadly Nest API",
+    status: "ok",
+    health: "/health",
+    docs: "/api-docs",
+  })
+);
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

@@ -7,6 +7,10 @@ export const swaggerSpec = {
   },
   servers: [
     {
+      url: "https://tth-server.vercel.app",
+      description: "Production Server",
+    },
+    {
       url: "http://localhost:4000",
       description: "Development Server",
     },
