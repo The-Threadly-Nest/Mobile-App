@@ -42,4 +42,5 @@ Thumbs.db
 
 # Local Agent Customizations
 GEMINI.md
-.agents/rules/design_rules.md
+.agents/
+**/ .agents/
