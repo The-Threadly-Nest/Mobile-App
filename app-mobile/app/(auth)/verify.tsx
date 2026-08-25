@@ -13,18 +13,29 @@ import { useLocalSearchParams, router } from "expo-router";
 import Svg, { Rect, Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { API_BASE_URL } from "@/api/config";
 
 export default function VerifyEmailScreen() {
   const params = useLocalSearchParams<{ email?: string }>();
   const storeEmail = useAuthStore((s) => s.email);
   const email = params.email || storeEmail || "janeteb@zmail.com";
   const userRole = useAuthStore((s) => s.role);
+  const setIsVerifiedStore = useAuthStore((s) => s.setIsVerified);
+  const resendAvailableAt = useAuthStore((s) => s.resendAvailableAt);
+  const setResendAvailableAt = useAuthStore((s) => s.setResendAvailableAt);
+
+  const getRemainingSeconds = () => {
+    if (!resendAvailableAt) return 60;
+    const diff = Math.ceil((resendAvailableAt - Date.now()) / 1000);
+    return diff > 0 ? diff : 0;
+  };
 
   const [code, setCode] = useState<string[]>(["", "", "", ""]);
-  const [timer, setTimer] = useState<number>(36);
-  const [canResend, setCanResend] = useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(getRemainingSeconds);
+  const [canResend, setCanResend] = useState<boolean>(getRemainingSeconds() === 0);
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [successMsg, setSuccessMsg] = useState<string>("");
 
   const inputRefs = [
     useRef<TextInput>(null),
@@ -54,11 +65,13 @@ export default function VerifyEmailScreen() {
 
   const handleCodeChange = (text: string, index: number) => {
     setError("");
+    setSuccessMsg("");
     const newCode = [...code];
+    const upperText = text.toUpperCase();
 
     // Handle pasted multi-character code
-    if (text.length > 1) {
-      const pasted = text.slice(0, 4).split("");
+    if (upperText.length > 1) {
+      const pasted = upperText.slice(0, 4).split("");
       pasted.forEach((char, i) => {
         if (i < 4) newCode[i] = char;
       });
@@ -70,7 +83,7 @@ export default function VerifyEmailScreen() {
       return;
     }
 
-    newCode[index] = text;
+    newCode[index] = upperText;
     setCode(newCode);
 
     // Auto-advance focus
@@ -91,17 +104,62 @@ export default function VerifyEmailScreen() {
     }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!canResend) return;
-    setTimer(36);
-    setCanResend(false);
     setError("");
+    setSuccessMsg("");
+    try {
+      const targetUrl = `${API_BASE_URL}/api/auth/resend-code`;
+      console.log(`[Verify] POST to ${targetUrl}`);
+      const res = await fetch(targetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const rawText = await res.text();
+      let data: any = {};
+      try { data = JSON.parse(rawText); } catch { }
+      if (!res.ok) throw new Error(data.error ?? "Could not send verification code. Please try again.");
+
+      setSuccessMsg("A new 4-digit PIN has been sent to your email.");
+      setCode(["", "", "", ""]);
+      setResendAvailableAt(Date.now() + 60000);
+      setTimer(60);
+      setCanResend(false);
+      inputRefs[0].current?.focus();
+    } catch (e: any) {
+      if (e.message?.includes("Network request failed") || e.name === "TypeError") {
+        setError("Unable to connect to server. Please check your internet connection.");
+      } else {
+        setError(e.message ?? "Could not send verification code. Please try again.");
+      }
+    }
   };
 
-  const handleVerify = (enteredCode: string) => {
+  const handleVerify = async (enteredCode: string) => {
     setError("");
-    // Show verified screen
-    setIsVerified(true);
+    try {
+      const targetUrl = `${API_BASE_URL}/api/auth/verify-code`;
+      console.log(`[Verify] POST to ${targetUrl}`);
+      const res = await fetch(targetUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: enteredCode }),
+      });
+      const rawText = await res.text();
+      let data: any = {};
+      try { data = JSON.parse(rawText); } catch { }
+      if (!res.ok) throw new Error(data.error ?? "Invalid or expired code. Please try again.");
+
+      setIsVerifiedStore(true);
+      setIsVerified(true);
+    } catch (e: any) {
+      if (e.message?.includes("Network request failed") || e.name === "TypeError") {
+        setError("Unable to connect to server. Please check your internet connection.");
+      } else {
+        setError(e.message ?? "Invalid or expired code. Please try again.");
+      }
+    }
   };
 
   const handleContinueExperience = () => {
@@ -111,6 +169,14 @@ export default function VerifyEmailScreen() {
       router.replace("/(staff)/dashboard");
     } else {
       router.replace("/(auth)/personalize");
+    }
+  };
+
+  const handleBackNav = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(auth)/signup");
     }
   };
 
@@ -157,7 +223,7 @@ export default function VerifyEmailScreen() {
       >
         <View style={styles.content}>
           {/* Back Button */}
-          <Pressable style={styles.backBtn} onPress={() => router.back()}>
+          <Pressable style={styles.backBtn} onPress={handleBackNav}>
             <BackArrowIcon size={20} color="#3A2E1A" />
           </Pressable>
 
@@ -177,7 +243,7 @@ export default function VerifyEmailScreen() {
           {/* Title and Subtitle */}
           <Text style={styles.title}>Verify your email</Text>
           <Text style={styles.subtitle}>
-            We sent a 4-digit code to{" "}
+            We sent a 4-digit PIN to{" "}
             <Text style={styles.emailHighlight}>{email}</Text>
           </Text>
 
@@ -196,7 +262,8 @@ export default function VerifyEmailScreen() {
                   value={digit}
                   onChangeText={(text) => handleCodeChange(text, idx)}
                   onKeyPress={(e) => handleKeyPress(e, idx)}
-                  keyboardType="number-pad"
+                  keyboardType="default"
+                  autoCapitalize="characters"
                   maxLength={1}
                   selectTextOnFocus
                 />
@@ -205,6 +272,7 @@ export default function VerifyEmailScreen() {
           </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {successMsg ? <Text style={styles.successText}>{successMsg}</Text> : null}
 
           {/* Resend Code Row */}
           <View style={styles.resendRow}>
@@ -223,7 +291,7 @@ export default function VerifyEmailScreen() {
           </View>
 
           {/* Change Email Address */}
-          <Pressable style={styles.changeEmailBtn} onPress={() => router.back()}>
+          <Pressable style={styles.changeEmailBtn} onPress={handleBackNav}>
             <Text style={styles.changeEmailText}>Change email address</Text>
           </Pressable>
         </View>
@@ -306,6 +374,13 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_400Regular",
     fontSize: 13,
     color: "#D32F2F",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  successText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#2E7D32",
     textAlign: "center",
     marginBottom: 16,
   },

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   ImageBackground,
   StyleSheet,
 } from "react-native";
+import * as NavigationBar from "expo-navigation-bar";
 import { router } from "expo-router";
 
 const slides = [
@@ -30,6 +31,13 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const slide = slides[currentIndex];
   const isLast = currentIndex === slides.length - 1;
+
+  useEffect(() => {
+    // Transparent nav bar so background image fills edge-to-edge
+    NavigationBar.setBackgroundColorAsync("transparent");
+    NavigationBar.setBehaviorAsync("overlay-swipe");
+    NavigationBar.setButtonStyleAsync("light");
+  }, []);
 
   const handleNext = () => {
     if (isLast) {

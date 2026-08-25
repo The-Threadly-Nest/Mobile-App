@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, Pressable, Text, Modal, Image, ActivityIndicator } from "react-native";
+import { View, FlatList, Pressable, Text, Modal, Image, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, PenTool, X } from "lucide-react-native";
+import { Plus, PenTool, X, Trash2, CheckCircle, Paintbrush } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
+import DrawingCanvasModal from "@/shared/components/DrawingCanvasModal";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
 
@@ -15,6 +16,7 @@ interface Sketch {
   id: string;
   title: string;
   imageUrl: string;
+  promotedToCatalog?: boolean;
   createdAt: string;
 }
 
@@ -25,6 +27,7 @@ export default function MoodBoardScreen() {
   
   // Modal states
   const [modalVisible, setModalVisible] = useState(false);
+  const [canvasModalVisible, setCanvasModalVisible] = useState(false);
   const [selectedUri, setSelectedUri] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
@@ -35,7 +38,7 @@ export default function MoodBoardScreen() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/sketches`, {
+      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -76,6 +79,38 @@ export default function MoodBoardScreen() {
     }
   };
 
+  const handleSaveDrawing = async (svgDataUri: string, drawingTitle: string) => {
+    try {
+      const filename = `drawing-${Date.now()}.svg`;
+      const contentType = "image/svg+xml";
+
+      // 1. Upload SVG data URI to R2 storage
+      const uploadResult = await uploadFile(svgDataUri, filename, contentType);
+
+      // 2. Save sketch metadata to backend DB
+      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: drawingTitle,
+          imageUrl: uploadResult.fileUrl,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to save drawing to database.");
+      }
+
+      setSketches((prev) => [data, ...prev]);
+    } catch (e: any) {
+      alert(e.message ?? "Could not save drawing.");
+    }
+  };
+
   const handleUploadSketch = async () => {
     if (!selectedUri || !title.trim()) {
       setError("Please provide a title for your sketch.");
@@ -91,11 +126,11 @@ export default function MoodBoardScreen() {
       if (ext === "jpeg") ext = "jpg";
       const contentType = `image/${ext === "png" ? "png" : ext === "gif" ? "gif" : "jpeg"}`;
 
-      // 1. Upload to storage
+      // 1. Upload to storage (Cloudflare R2 / S3)
       const uploadResult = await uploadFile(selectedUri, filename, contentType);
 
       // 2. Save sketch to backend DB
-      const res = await fetch(`${API_BASE_URL}/api/sketches`, {
+      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -123,16 +158,58 @@ export default function MoodBoardScreen() {
     }
   };
 
+  const handleDeleteSketch = (id: string, itemTitle: string) => {
+    Alert.alert(
+      "Delete Sketch",
+      `Are you sure you want to delete "${itemTitle}"?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await fetch(`${API_BASE_URL}/api/moodboard/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (res.ok) {
+                setSketches((prev) => prev.filter((s) => s.id !== id));
+              } else {
+                const data = await res.json();
+                alert(data.error ?? "Could not delete sketch.");
+              }
+            } catch (e) {
+              console.error("Failed to delete sketch", e);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
       <View className="flex-row justify-between items-center px-5 pt-4 pb-2">
         <Headline className="text-2xl">My Mood Board</Headline>
-        <Pressable
-          onPress={handlePickImage}
-          className="w-10 h-10 bg-oxblood rounded-full items-center justify-center"
-        >
-          <Plus size={20} color="#FBF7EF" />
-        </Pressable>
+        
+        {/* Action Buttons: Draw Canvas & Pick Photo */}
+        <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={() => setCanvasModalVisible(true)}
+            className="flex-row items-center bg-oxblood/10 border border-oxblood/30 px-3 py-2 rounded-full gap-1.5"
+          >
+            <Paintbrush size={14} color="#4A080C" />
+            <Text className="font-body-semibold text-oxblood text-xs">Draw</Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handlePickImage}
+            className="w-9 h-9 bg-oxblood rounded-full items-center justify-center"
+          >
+            <Plus size={18} color="#FBF7EF" />
+          </Pressable>
+        </View>
       </View>
       <Subtext className="text-xs px-5 mb-4">Private sketches — Admin can move any into the public catalog</Subtext>
 
@@ -156,8 +233,25 @@ export default function MoodBoardScreen() {
             </View>
           }
           renderItem={({ item }) => (
-            <View className="flex-1 mb-4 border border-grey100 bg-white rounded-xl overflow-hidden aspect-square">
+            <View className="flex-1 mb-4 border border-grey100 bg-white rounded-xl overflow-hidden aspect-square relative">
               <Image source={{ uri: item.imageUrl }} className="w-full h-3/4" style={{ resizeMode: "cover" }} />
+              
+              {/* Promoted Badge */}
+              {item.promotedToCatalog && (
+                <View className="absolute top-2 left-2 bg-oxblood/90 px-2 py-1 rounded-full flex-row items-center gap-1">
+                  <CheckCircle size={10} color="#C4A763" />
+                  <Text className="font-body text-[10px] text-cream">Promoted</Text>
+                </View>
+              )}
+
+              {/* Delete Button */}
+              <Pressable
+                onPress={() => handleDeleteSketch(item.id, item.title)}
+                className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full items-center justify-center"
+              >
+                <Trash2 size={14} color="#FFFFFF" />
+              </Pressable>
+
               <View className="h-1/4 bg-white px-2 justify-center">
                 <Text className="font-body text-ink text-xs text-center" numberOfLines={1}>
                   {item.title}
@@ -206,6 +300,13 @@ export default function MoodBoardScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Interactive Sketchpad Drawing Canvas Modal */}
+      <DrawingCanvasModal
+        visible={canvasModalVisible}
+        onClose={() => setCanvasModalVisible(false)}
+        onSave={handleSaveDrawing}
+      />
     </SafeAreaView>
   );
 }

@@ -17,6 +17,7 @@ import Svg, { Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -28,6 +29,7 @@ export default function LoginScreen() {
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
   const setRoleStore = useAuthStore((s) => s.setRole);
+  const isVerified = useAuthStore((s) => s.isVerified);
 
   const isGmail = (e: string) => {
     const clean = e.trim().toLowerCase();
@@ -66,8 +68,13 @@ export default function LoginScreen() {
       setEmailStore(body.user.email);
       setRoleStore(body.user.role);
 
-      if (body.user.role === "admin") router.replace("/(admin)/dashboard");
-      else if (body.user.role === "staff") router.replace("/(staff)/dashboard");
+      if (body.user.role === "admin") {
+        if (!isVerified) {
+          router.replace({ pathname: "/(auth)/verify", params: { email: body.user.email } });
+        } else {
+          router.replace("/(admin)/dashboard");
+        }
+      } else if (body.user.role === "staff") router.replace("/(staff)/dashboard");
       else router.replace("/(customer)/browse");
     } catch (e: any) {
       if (e.message === "Network request failed" || e.name === "TypeError") {
@@ -80,8 +87,10 @@ export default function LoginScreen() {
     }
   };
 
+  const { promptAsync: triggerGoogleAuth, error: googleError } = useGoogleAuth("customer");
+
   const handleGoogleAuth = () => {
-    console.log("Google Auth pressed");
+    triggerGoogleAuth();
   };
 
   return (
@@ -161,7 +170,7 @@ export default function LoginScreen() {
             </Pressable>
 
             {/* Error Message */}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error || googleError ? <Text style={styles.errorText}>{error || googleError}</Text> : null}
 
             {/* Log In Button */}
             <Pressable

@@ -16,6 +16,7 @@ import invoicesRouter from "./routes/invoices";
 import catalogRouter from "./routes/catalog";
 import slotsRouter from "./routes/slots";
 import preferencesRouter from "./routes/preferences";
+import moodboardRouter from "./routes/moodboard";
 import { errorHandler } from "./middleware/errorHandler";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./utils/swagger";
@@ -62,5 +63,6 @@ app.use("/api/invoices", invoicesRouter);
 app.use("/api/catalog", catalogRouter);
 app.use("/api/slots", slotsRouter);
 app.use("/api/preferences", preferencesRouter);
+app.use("/api/moodboard", moodboardRouter);
 
 app.use(errorHandler);

@@ -77,3 +77,8 @@ export type Sketch = Prisma.SketchModel
  * 
  */
 export type CustomerPreference = Prisma.CustomerPreferenceModel
+/**
+ * Model MoodBoardSketch
+ * 
+ */
+export type MoodBoardSketch = Prisma.MoodBoardSketchModel

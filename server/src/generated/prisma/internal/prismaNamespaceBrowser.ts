@@ -62,7 +62,8 @@ export const ModelName = {
   Booking: 'Booking',
   ChatEscalation: 'ChatEscalation',
   Sketch: 'Sketch',
-  CustomerPreference: 'CustomerPreference'
+  CustomerPreference: 'CustomerPreference',
+  MoodBoardSketch: 'MoodBoardSketch'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -84,6 +85,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  googleId: 'googleId',
   passwordHash: 'passwordHash',
   role: 'role',
   fashionHouseId: 'fashionHouseId',
@@ -235,6 +237,18 @@ export const CustomerPreferenceScalarFieldEnum = {
 } as const
 
 export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalarFieldEnum)[keyof typeof CustomerPreferenceScalarFieldEnum]
+
+
+export const MoodBoardSketchScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  imageUrl: 'imageUrl',
+  title: 'title',
+  promotedToCatalog: 'promotedToCatalog',
+  createdAt: 'createdAt'
+} as const
+
+export type MoodBoardSketchScalarFieldEnum = (typeof MoodBoardSketchScalarFieldEnum)[keyof typeof MoodBoardSketchScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -14,10 +14,13 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 export function generateResetToken(): string {
   const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let token = "";
-  for (let i = 0; i < 4; i++) {
-    const randomIndex = crypto.randomInt(0, chars.length);
-    token += chars.charAt(randomIndex);
-  }
+  do {
+    token = "";
+    for (let i = 0; i < 4; i++) {
+      const randomIndex = crypto.randomInt(0, chars.length);
+      token += chars.charAt(randomIndex);
+    }
+  } while (!/[0-9]/.test(token) || !/[A-Z]/.test(token));
   return token;
 }
 

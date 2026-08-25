@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { ChevronLeft } from "lucide-react-native";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
+import { API_BASE_URL } from "@/api/config";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-
-/**
- * Opened via the deep link in the password reset email:
- *   thefashionhouse://reset-password?token=...&email=...
- */
 export default function ResetPasswordScreen() {
   const { token, email } = useLocalSearchParams<{ token: string; email: string }>();
   const [inputEmail, setInputEmail] = useState(email || "");
@@ -34,13 +30,27 @@ export default function ResetPasswordScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: inputEmail.trim(), token: inputToken.trim(), newPassword }),
       });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Could not reset password.");
+      const rawText = await res.text();
+      let body: any = {};
+      try { body = JSON.parse(rawText); } catch {}
+      if (!res.ok) throw new Error(body.error ?? "Could not reset password. Please check your PIN.");
       setSuccess(true);
     } catch (e: any) {
-      setError(e.message);
+      if (e.message?.includes("Network request failed") || e.name === "TypeError") {
+        setError("Unable to connect to server. Please check your internet connection.");
+      } else {
+        setError(e.message ?? "Could not reset password.");
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(auth)/forgot-password");
     }
   };
 
@@ -56,8 +66,12 @@ export default function ResetPasswordScreen() {
 
   return (
     <View className="flex-1 bg-cream px-6 justify-center">
+      <Pressable onPress={handleBack} className="absolute top-14 left-6">
+        <ChevronLeft size={24} color="#4A080C" />
+      </Pressable>
+
       <Headline className="text-2xl mb-1">Set a new password</Headline>
-      <Subtext className="text-sm mb-6">Enter your email and the 4-character code sent to you</Subtext>
+      <Subtext className="text-sm mb-6">Enter your email, the 4-digit PIN sent to you, and your new password.</Subtext>
 
       <Input
         placeholder="Email address"
@@ -65,15 +79,14 @@ export default function ResetPasswordScreen() {
         autoCapitalize="none"
         value={inputEmail}
         onChangeText={setInputEmail}
-        editable={!email} // Lock if prefilled from deep link
+        editable={!email}
       />
       <Input
-        placeholder="4-character verification code"
+        placeholder="4-digit PIN"
         autoCapitalize="characters"
         maxLength={4}
         value={inputToken}
         onChangeText={(val) => setInputToken(val.toUpperCase())}
-        editable={!token} // Lock if prefilled from deep link
       />
       <Input placeholder="New password" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
       <Input placeholder="Confirm new password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />

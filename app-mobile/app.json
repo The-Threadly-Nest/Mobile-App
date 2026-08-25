@@ -1,15 +1,50 @@
 {
   "expo": {
-    "name": "The Threadly Nest",
+    "name": "Threadly Nest",
     "slug": "the-threadly-nest",
-    "scheme": "thethreadlynest",
+    "scheme": "threadlynest",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
-    "ios": { "supportsTablet": false, "bundleIdentifier": "com.thethreadlynest.app" },
-    "android": { "package": "com.thethreadlynest.app" },
-    "plugins": ["expo-router"],
-    "extra": { "router": { "origin": false } }
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FBF7EF"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.thethreadlynest.app",
+      "icon": "./assets/icon.png"
+    },
+    "android": {
+      "package": "com.thethreadlynest.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FBF7EF"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.89436354582-frsggnbi0vl8r99tguao1la81mntfkgv"
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2252ee06-e6c4-4df6-a8d8-880893822e3f"
+      }
+    },
+    "owner": "nouth"
   }
 }

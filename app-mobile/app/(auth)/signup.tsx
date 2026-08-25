@@ -16,6 +16,7 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 
 export default function SignupScreen() {
   const [role, setRole] = useState<"admin" | "customer">("customer");
@@ -29,6 +30,8 @@ export default function SignupScreen() {
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
   const setRoleStore = useAuthStore((s) => s.setRole);
+  const setIsVerified = useAuthStore((s) => s.setIsVerified);
+  const setResendAvailableAt = useAuthStore((s) => s.setResendAvailableAt);
 
   const isGmail = (e: string) => {
     const clean = e.trim().toLowerCase();
@@ -79,6 +82,8 @@ export default function SignupScreen() {
       setToken(body.token);
       setEmailStore(body.user.email);
       setRoleStore(body.user.role);
+      setIsVerified(role !== "admin");
+      setResendAvailableAt(Date.now() + 60000);
       router.replace(
         role === "admin"
           ? { pathname: "/(auth)/verify", params: { email: email.trim().toLowerCase() } }
@@ -95,8 +100,10 @@ export default function SignupScreen() {
     }
   };
 
+  const { promptAsync: triggerGoogleAuth, error: googleError, loading: googleLoading } = useGoogleAuth(role);
+
   const handleGoogleAuth = () => {
-    console.log("Google Auth pressed");
+    triggerGoogleAuth();
   };
 
   return (
@@ -113,7 +120,10 @@ export default function SignupScreen() {
           {/* Top Header */}
           <View style={styles.header}>
             <Pressable
-              onPress={() => router.back()}
+              onPress={() => {
+                if (router.canGoBack()) router.back();
+                else router.replace("/onboarding");
+              }}
               style={({ pressed }) => [
                 styles.backBtn,
                 { opacity: pressed ? 0.7 : 1 },
@@ -189,7 +199,7 @@ export default function SignupScreen() {
             </Text>
 
             {/* Error Message */}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {error || googleError ? <Text style={styles.errorText}>{error || googleError}</Text> : null}
 
             {/* Role Switcher */}
             <View style={styles.roleToggleRow}>

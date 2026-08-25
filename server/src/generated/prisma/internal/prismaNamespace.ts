@@ -408,7 +408,8 @@ export const ModelName = {
   Booking: 'Booking',
   ChatEscalation: 'ChatEscalation',
   Sketch: 'Sketch',
-  CustomerPreference: 'CustomerPreference'
+  CustomerPreference: 'CustomerPreference',
+  MoodBoardSketch: 'MoodBoardSketch'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -424,7 +425,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference"
+    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference" | "moodBoardSketch"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1316,6 +1317,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MoodBoardSketch: {
+      payload: Prisma.$MoodBoardSketchPayload<ExtArgs>
+      fields: Prisma.MoodBoardSketchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MoodBoardSketchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MoodBoardSketchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>
+        }
+        findFirst: {
+          args: Prisma.MoodBoardSketchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MoodBoardSketchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>
+        }
+        findMany: {
+          args: Prisma.MoodBoardSketchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>[]
+        }
+        create: {
+          args: Prisma.MoodBoardSketchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>
+        }
+        createMany: {
+          args: Prisma.MoodBoardSketchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MoodBoardSketchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>[]
+        }
+        delete: {
+          args: Prisma.MoodBoardSketchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>
+        }
+        update: {
+          args: Prisma.MoodBoardSketchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>
+        }
+        deleteMany: {
+          args: Prisma.MoodBoardSketchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MoodBoardSketchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MoodBoardSketchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>[]
+        }
+        upsert: {
+          args: Prisma.MoodBoardSketchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MoodBoardSketchPayload>
+        }
+        aggregate: {
+          args: Prisma.MoodBoardSketchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMoodBoardSketch>
+        }
+        groupBy: {
+          args: Prisma.MoodBoardSketchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoodBoardSketchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MoodBoardSketchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MoodBoardSketchCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1358,6 +1433,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
+  googleId: 'googleId',
   passwordHash: 'passwordHash',
   role: 'role',
   fashionHouseId: 'fashionHouseId',
@@ -1509,6 +1585,18 @@ export const CustomerPreferenceScalarFieldEnum = {
 } as const
 
 export type CustomerPreferenceScalarFieldEnum = (typeof CustomerPreferenceScalarFieldEnum)[keyof typeof CustomerPreferenceScalarFieldEnum]
+
+
+export const MoodBoardSketchScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  imageUrl: 'imageUrl',
+  title: 'title',
+  promotedToCatalog: 'promotedToCatalog',
+  createdAt: 'createdAt'
+} as const
+
+export type MoodBoardSketchScalarFieldEnum = (typeof MoodBoardSketchScalarFieldEnum)[keyof typeof MoodBoardSketchScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1766,6 +1854,7 @@ export type GlobalOmitConfig = {
   chatEscalation?: Prisma.ChatEscalationOmit
   sketch?: Prisma.SketchOmit
   customerPreference?: Prisma.CustomerPreferenceOmit
+  moodBoardSketch?: Prisma.MoodBoardSketchOmit
 }
 
 /* Types for Logging */

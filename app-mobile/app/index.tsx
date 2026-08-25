@@ -3,14 +3,21 @@ import { View, Text, Animated, Easing } from "react-native";
 import { router } from "expo-router";
 import Svg, { Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
+import * as NavigationBar from "expo-navigation-bar";
 
 export default function SplashScreen() {
   const token = useAuthStore((state) => state.token);
   const role = useAuthStore((state) => state.role);
+  const isVerified = useAuthStore((state) => state.isVerified);
+  const email = useAuthStore((state) => state.email);
   const progress = useRef(new Animated.Value(0)).current;
   const rotation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Match Android nav bar to oxblood splash background
+    NavigationBar.setBackgroundColorAsync("#4A080C");
+    NavigationBar.setButtonStyleAsync("light");
+
     // Spin the outer dotted circle continuously
     Animated.loop(
       Animated.timing(rotation, {
@@ -30,7 +37,11 @@ export default function SplashScreen() {
       // Navigate once the progress bar is completely filled
       if (token && role) {
         if (role === "admin") {
-          router.replace("/(admin)/dashboard");
+          if (!isVerified) {
+            router.replace({ pathname: "/(auth)/verify", params: { email } });
+          } else {
+            router.replace("/(admin)/dashboard");
+          }
         } else if (role === "staff") {
           router.replace("/(staff)/dashboard");
         } else {
@@ -40,7 +51,7 @@ export default function SplashScreen() {
         router.replace("/onboarding");
       }
     });
-  }, [token, role]);
+  }, [token, role, isVerified, email]);
 
   // Interpolate progress value to percentage width
   const fillWidth = progress.interpolate({

@@ -15,6 +15,7 @@ datasource db {
 model User {
   id                  String    @id @default(uuid())
   email               String    @unique
+  googleId            String?   @unique
   passwordHash        String?   // null until a Staff account is activated
   role                String    // admin | staff | customer
   fashionHouseId      String?   // set for staff; null for admin (owns via FashionHouse.adminId) and customer
@@ -30,6 +31,7 @@ model User {
   bookings          Booking[]
   chatEscalations   ChatEscalation[]
   preference        CustomerPreference?
+  moodBoardSketches MoodBoardSketch[] @relation("StaffMoodBoardSketches")
 
   @@index([fashionHouseId])
   @@map("users")
@@ -208,4 +210,18 @@ model CustomerPreference {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("customer_preferences")
+}
+
+model MoodBoardSketch {
+  id                String   @id @default(uuid())
+  staffId           String
+  imageUrl          String
+  title             String
+  promotedToCatalog Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  staff User @relation("StaffMoodBoardSketches", fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+  @@map("mood_board_sketches")
 }

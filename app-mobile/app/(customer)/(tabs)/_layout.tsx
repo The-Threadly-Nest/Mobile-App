@@ -1,7 +1,15 @@
+import { useEffect } from "react";
 import { Tabs } from "expo-router";
 import { Home, ShoppingCart, UserRound } from "lucide-react-native";
+import * as NavigationBar from "expo-navigation-bar";
 
 export default function TabsLayout() {
+  useEffect(() => {
+    // Match nav bar to tab bar background — blends seamlessly
+    NavigationBar.setBackgroundColorAsync("#FBF7EF");
+    NavigationBar.setButtonStyleAsync("dark");
+  }, []);
+
   return (
     <Tabs
       screenOptions={{

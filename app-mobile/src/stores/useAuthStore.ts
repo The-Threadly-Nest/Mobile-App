@@ -8,9 +8,13 @@ interface AuthState {
   role: Role;
   email: string;
   token: string | null;
+  isVerified: boolean;
+  resendAvailableAt: number | null;
   setRole: (role: Role) => void;
   setEmail: (email: string) => void;
   setToken: (token: string) => void;
+  setIsVerified: (isVerified: boolean) => void;
+  setResendAvailableAt: (timestamp: number | null) => void;
   logout: () => void;
 }
 
@@ -26,10 +30,14 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       email: "",
       token: null,
+      isVerified: false,
+      resendAvailableAt: null,
       setRole: (role) => set({ role }),
       setEmail: (email) => set({ email }),
       setToken: (token) => set({ token }),
-      logout: () => set({ role: null, email: "", token: null }),
+      setIsVerified: (isVerified) => set({ isVerified }),
+      setResendAvailableAt: (resendAvailableAt) => set({ resendAvailableAt }),
+      logout: () => set({ role: null, email: "", token: null, isVerified: false, resendAvailableAt: null }),
     }),
     { name: "threadly-nest-auth", storage: createJSONStorage(() => secureStorage) }
   )
