@@ -8,8 +8,7 @@ import { Card } from "@/shared/components/Card";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { API_BASE_URL } from "@/api/config";
 
 interface StaffMember {
   id: string;
@@ -22,6 +21,7 @@ export default function StaffScreen() {
   const [showInvite, setShowInvite] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchingStaff, setFetchingStaff] = useState(false);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
@@ -52,18 +52,32 @@ export default function StaffScreen() {
 
   const handleInvite = async () => {
     setError("");
+    if (!name.trim()) {
+      setError("Staff full name is required.");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Staff email is required.");
+      return;
+    }
+    if (!password || password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/staff/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Could not send invite.");
+      if (!res.ok) throw new Error(body.error ?? "Could not create staff account.");
       setShowInvite(false);
       setName("");
       setEmail("");
+      setPassword("");
       fetchStaff();
     } catch (e: any) {
       setError(e.message);
@@ -92,7 +106,7 @@ export default function StaffScreen() {
           contentContainerStyle={{ padding: 20 }}
           ListEmptyComponent={
             <View className="py-12 items-center">
-              <Text className="font-body text-grey700 text-sm text-center">No staff members found. Tap + to invite staff.</Text>
+              <Text className="font-body text-grey700 text-sm text-center">No staff members found. Tap + to add staff.</Text>
             </View>
           }
           renderItem={({ item }) => (
@@ -137,12 +151,13 @@ export default function StaffScreen() {
       <Modal visible={showInvite} animationType="slide" transparent>
         <View className="flex-1 justify-end bg-black/40">
           <View className="bg-cream p-6 rounded-t-2xl">
-            <Headline className="text-xl mb-4">Add Staff</Headline>
+            <Headline className="text-xl mb-4">Add Staff Account</Headline>
             <Input placeholder="Full name" value={name} onChangeText={setName} />
             <Input placeholder="Email" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
-            <Subtext className="text-xs mb-4">They'll receive an email to set their password and activate their account.</Subtext>
+            <Input placeholder="Password (min. 8 chars)" secureTextEntry value={password} onChangeText={setPassword} />
+            <Subtext className="text-xs mb-4">The staff member can log in directly using this email and password.</Subtext>
             {error ? <Text className="font-body text-red-500 text-xs mb-3">{error}</Text> : null}
-            <Button label="Send Invitation" onPress={handleInvite} loading={loading} disabled={!name || !email} />
+            <Button label="Create Staff Account" onPress={handleInvite} loading={loading} disabled={!name || !email || !password} />
             <Pressable onPress={() => setShowInvite(false)} className="mt-3">
               <Text className="font-body text-center text-grey700 text-sm">Cancel</Text>
             </Pressable>

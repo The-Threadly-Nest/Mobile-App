@@ -25,6 +25,7 @@ export default function RootLayout() {
     WorkSans_500Medium,
     WorkSans_600SemiBold,
     "Fraunces-Bold": require("../assets/fonts/Fraunces-Bold.ttf"),
+    "Fraunces-SemiBold": require("../assets/fonts/Fraunces-Bold.ttf"),
     "Fraunces-Regular": require("../assets/fonts/Fraunces-Regular.ttf"),
   });
 

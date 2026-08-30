@@ -3,8 +3,8 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { inviteStaffSchema } from "../schemas/staff.schema";
-import { generateResetToken, hashResetToken } from "../lib/password";
-import { sendStaffActivationEmail } from "../lib/mailer";
+import { hashPassword } from "../lib/password";
+import { sendWelcomeEmail } from "../lib/mailer";
 
 const router = Router();
 router.use(requireAuth, requireRole("admin"));
@@ -18,21 +18,25 @@ async function getOwnFashionHouse(adminUserId: string) {
 router.post("/invite", validate({ body: inviteStaffSchema }), async (req, res, next) => {
   try {
     const fh = await getOwnFashionHouse(req.authUserId!);
-    const { name, email } = req.body;
+    const { name, email, password } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(400).json({ error: "An account with this email already exists." });
 
-    const rawToken = generateResetToken();
-    const resetTokenHash = hashResetToken(rawToken);
-    const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const passwordHash = await hashPassword(password);
 
     const staffUser = await prisma.user.create({
-      data: { email, passwordHash: null, role: "staff", fashionHouseId: fh.id, active: false, resetTokenHash, resetTokenExpiresAt },
+      data: {
+        email,
+        passwordHash,
+        role: "staff",
+        fashionHouseId: fh.id,
+        active: true,
+      },
     });
 
-    await sendStaffActivationEmail(email, name, fh.shopName, rawToken);
-    res.status(201).json({ id: staffUser.id, email: staffUser.email, active: staffUser.active, message: "Invitation sent." });
+    await sendWelcomeEmail(email, name).catch(() => {});
+    res.status(201).json({ id: staffUser.id, email: staffUser.email, active: staffUser.active, message: "Staff account created successfully." });
   } catch (err) {
     next(err);
   }

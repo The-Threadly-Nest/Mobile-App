@@ -30,6 +30,7 @@ model User {
   delegatedOrders   Order[]         @relation("StaffOrders")
   bookings          Booking[]
   chatEscalations   ChatEscalation[]
+  chatSessions      ChatSession[]   @relation("CustomerChatSessions")
   preference        CustomerPreference?
   moodBoardSketches MoodBoardSketch[] @relation("StaffMoodBoardSketches")
 
@@ -38,13 +39,18 @@ model User {
 }
 
 model FashionHouse {
-  id        String   @id @default(uuid())
-  adminId   String   @unique
-  shopName  String
-  location  String?
-  bio       String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  adminId             String   @unique
+  shopName            String
+  location            String?
+  phone               String?
+  bio                 String?
+  brandLogoUrl        String?
+  categories          String[] @default([])
+  currency            String   @default("NGN")
+  onboardingCompleted Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   admin           User             @relation("FashionHouseAdmin", fields: [adminId], references: [id], onDelete: Cascade)
   staff           User[]           @relation("FashionHouseStaff")
@@ -54,6 +60,7 @@ model FashionHouse {
   availableSlots  AvailableSlot[]
   bookings        Booking[]
   chatEscalations ChatEscalation[]
+  chatSessions    ChatSession[]
   sketches        Sketch[]
 
   @@map("fashion_houses")
@@ -224,4 +231,20 @@ model MoodBoardSketch {
 
   @@index([staffId])
   @@map("mood_board_sketches")
+}
+
+model ChatSession {
+  id             String   @id @default(uuid())
+  customerId     String
+  fashionHouseId String
+  history        Json     @default("[]")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  customer     User         @relation("CustomerChatSessions", fields: [customerId], references: [id], onDelete: Cascade)
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, fashionHouseId])
+  @@index([customerId])
+  @@map("chat_sessions")
 }

@@ -162,9 +162,15 @@ export default function VerifyEmailScreen() {
     }
   };
 
+  const onboardingCompleted = useAuthStore((s) => s.onboardingCompleted);
+
   const handleContinueExperience = () => {
     if (userRole === "admin") {
-      router.replace("/(admin)/dashboard");
+      if (!onboardingCompleted) {
+        router.replace("/(admin)/onboarding");
+      } else {
+        router.replace("/(admin)/dashboard");
+      }
     } else if (userRole === "staff") {
       router.replace("/(staff)/dashboard");
     } else {

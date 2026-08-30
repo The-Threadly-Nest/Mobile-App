@@ -235,6 +235,7 @@ export type UserWhereInput = {
   delegatedOrders?: Prisma.OrderListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   chatEscalations?: Prisma.ChatEscalationListRelationFilter
+  chatSessions?: Prisma.ChatSessionListRelationFilter
   preference?: Prisma.XOR<Prisma.CustomerPreferenceNullableScalarRelationFilter, Prisma.CustomerPreferenceWhereInput> | null
   moodBoardSketches?: Prisma.MoodBoardSketchListRelationFilter
 }
@@ -256,6 +257,7 @@ export type UserOrderByWithRelationInput = {
   delegatedOrders?: Prisma.OrderOrderByRelationAggregateInput
   bookings?: Prisma.BookingOrderByRelationAggregateInput
   chatEscalations?: Prisma.ChatEscalationOrderByRelationAggregateInput
+  chatSessions?: Prisma.ChatSessionOrderByRelationAggregateInput
   preference?: Prisma.CustomerPreferenceOrderByWithRelationInput
   moodBoardSketches?: Prisma.MoodBoardSketchOrderByRelationAggregateInput
 }
@@ -280,6 +282,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   delegatedOrders?: Prisma.OrderListRelationFilter
   bookings?: Prisma.BookingListRelationFilter
   chatEscalations?: Prisma.ChatEscalationListRelationFilter
+  chatSessions?: Prisma.ChatSessionListRelationFilter
   preference?: Prisma.XOR<Prisma.CustomerPreferenceNullableScalarRelationFilter, Prisma.CustomerPreferenceWhereInput> | null
   moodBoardSketches?: Prisma.MoodBoardSketchListRelationFilter
 }, "id" | "email" | "googleId">
@@ -334,6 +337,7 @@ export type UserCreateInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
@@ -354,6 +358,7 @@ export type UserUncheckedCreateInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
@@ -374,6 +379,7 @@ export type UserUpdateInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
@@ -394,6 +400,7 @@ export type UserUncheckedUpdateInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
@@ -649,6 +656,20 @@ export type UserUpdateOneRequiredWithoutMoodBoardSketchesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMoodBoardSketchesInput, Prisma.UserUpdateWithoutMoodBoardSketchesInput>, Prisma.UserUncheckedUpdateWithoutMoodBoardSketchesInput>
 }
 
+export type UserCreateNestedOneWithoutChatSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutChatSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatSessionsInput
+  upsert?: Prisma.UserUpsertWithoutChatSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutChatSessionsInput, Prisma.UserUpdateWithoutChatSessionsInput>, Prisma.UserUncheckedUpdateWithoutChatSessionsInput>
+}
+
 export type UserCreateWithoutFashionHouseOwnedInput = {
   id?: string
   email: string
@@ -664,6 +685,7 @@ export type UserCreateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
@@ -683,6 +705,7 @@ export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
@@ -707,6 +730,7 @@ export type UserCreateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
@@ -726,6 +750,7 @@ export type UserUncheckedCreateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
@@ -766,6 +791,7 @@ export type UserUpdateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
@@ -785,6 +811,7 @@ export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
@@ -837,6 +864,7 @@ export type UserCreateWithoutDelegatedOrdersInput = {
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
@@ -856,6 +884,7 @@ export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
@@ -891,6 +920,7 @@ export type UserUpdateWithoutDelegatedOrdersInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
@@ -910,6 +940,7 @@ export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
@@ -929,6 +960,7 @@ export type UserCreateWithoutBookingsInput = {
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
@@ -948,6 +980,7 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
@@ -983,6 +1016,7 @@ export type UserUpdateWithoutBookingsInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
@@ -1002,6 +1036,7 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
@@ -1021,6 +1056,7 @@ export type UserCreateWithoutChatEscalationsInput = {
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
@@ -1040,6 +1076,7 @@ export type UserUncheckedCreateWithoutChatEscalationsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
@@ -1075,6 +1112,7 @@ export type UserUpdateWithoutChatEscalationsInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
@@ -1094,6 +1132,7 @@ export type UserUncheckedUpdateWithoutChatEscalationsInput = {
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
@@ -1114,6 +1153,7 @@ export type UserCreateWithoutPreferenceInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
 }
 
@@ -1133,6 +1173,7 @@ export type UserUncheckedCreateWithoutPreferenceInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
 }
 
@@ -1168,6 +1209,7 @@ export type UserUpdateWithoutPreferenceInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
 
@@ -1187,6 +1229,7 @@ export type UserUncheckedUpdateWithoutPreferenceInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
 
@@ -1206,6 +1249,7 @@ export type UserCreateWithoutMoodBoardSketchesInput = {
   delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
 }
 
@@ -1225,6 +1269,7 @@ export type UserUncheckedCreateWithoutMoodBoardSketchesInput = {
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
@@ -1260,6 +1305,7 @@ export type UserUpdateWithoutMoodBoardSketchesInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
 }
 
@@ -1279,7 +1325,104 @@ export type UserUncheckedUpdateWithoutMoodBoardSketchesInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutChatSessionsInput = {
+  id?: string
+  email: string
+  googleId?: string | null
+  passwordHash?: string | null
+  role: string
+  active?: boolean
+  resetTokenHash?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
+  fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
+  delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
+  moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
+}
+
+export type UserUncheckedCreateWithoutChatSessionsInput = {
+  id?: string
+  email: string
+  googleId?: string | null
+  passwordHash?: string | null
+  role: string
+  fashionHouseId?: string | null
+  active?: boolean
+  resetTokenHash?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
+  delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
+  moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
+}
+
+export type UserCreateOrConnectWithoutChatSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
+}
+
+export type UserUpsertWithoutChatSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutChatSessionsInput, Prisma.UserUncheckedUpdateWithoutChatSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutChatSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutChatSessionsInput, Prisma.UserUncheckedUpdateWithoutChatSessionsInput>
+}
+
+export type UserUpdateWithoutChatSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
+  fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
+  delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
+  moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
+}
+
+export type UserUncheckedUpdateWithoutChatSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
+  delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type UserCreateManyFashionHouseInput = {
@@ -1310,6 +1453,7 @@ export type UserUpdateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
 }
@@ -1329,6 +1473,7 @@ export type UserUncheckedUpdateWithoutFashionHouseInput = {
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
 }
@@ -1355,6 +1500,7 @@ export type UserCountOutputType = {
   delegatedOrders: number
   bookings: number
   chatEscalations: number
+  chatSessions: number
   moodBoardSketches: number
 }
 
@@ -1362,6 +1508,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   delegatedOrders?: boolean | UserCountOutputTypeCountDelegatedOrdersArgs
   bookings?: boolean | UserCountOutputTypeCountBookingsArgs
   chatEscalations?: boolean | UserCountOutputTypeCountChatEscalationsArgs
+  chatSessions?: boolean | UserCountOutputTypeCountChatSessionsArgs
   moodBoardSketches?: boolean | UserCountOutputTypeCountMoodBoardSketchesArgs
 }
 
@@ -1399,6 +1546,13 @@ export type UserCountOutputTypeCountChatEscalationsArgs<ExtArgs extends runtime.
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountChatSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChatSessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountMoodBoardSketchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MoodBoardSketchWhereInput
 }
@@ -1421,6 +1575,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   delegatedOrders?: boolean | Prisma.User$delegatedOrdersArgs<ExtArgs>
   bookings?: boolean | Prisma.User$bookingsArgs<ExtArgs>
   chatEscalations?: boolean | Prisma.User$chatEscalationsArgs<ExtArgs>
+  chatSessions?: boolean | Prisma.User$chatSessionsArgs<ExtArgs>
   preference?: boolean | Prisma.User$preferenceArgs<ExtArgs>
   moodBoardSketches?: boolean | Prisma.User$moodBoardSketchesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1477,6 +1632,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   delegatedOrders?: boolean | Prisma.User$delegatedOrdersArgs<ExtArgs>
   bookings?: boolean | Prisma.User$bookingsArgs<ExtArgs>
   chatEscalations?: boolean | Prisma.User$chatEscalationsArgs<ExtArgs>
+  chatSessions?: boolean | Prisma.User$chatSessionsArgs<ExtArgs>
   preference?: boolean | Prisma.User$preferenceArgs<ExtArgs>
   moodBoardSketches?: boolean | Prisma.User$moodBoardSketchesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1496,6 +1652,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     delegatedOrders: Prisma.$OrderPayload<ExtArgs>[]
     bookings: Prisma.$BookingPayload<ExtArgs>[]
     chatEscalations: Prisma.$ChatEscalationPayload<ExtArgs>[]
+    chatSessions: Prisma.$ChatSessionPayload<ExtArgs>[]
     preference: Prisma.$CustomerPreferencePayload<ExtArgs> | null
     moodBoardSketches: Prisma.$MoodBoardSketchPayload<ExtArgs>[]
   }
@@ -1910,6 +2067,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   delegatedOrders<T extends Prisma.User$delegatedOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$delegatedOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bookings<T extends Prisma.User$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatEscalations<T extends Prisma.User$chatEscalationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatEscalationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatEscalationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chatSessions<T extends Prisma.User$chatSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preference<T extends Prisma.User$preferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preferenceArgs<ExtArgs>>): Prisma.Prisma__CustomerPreferenceClient<runtime.Types.Result.GetResult<Prisma.$CustomerPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   moodBoardSketches<T extends Prisma.User$moodBoardSketchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$moodBoardSketchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MoodBoardSketchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2460,6 +2618,30 @@ export type User$chatEscalationsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ChatEscalationScalarFieldEnum | Prisma.ChatEscalationScalarFieldEnum[]
+}
+
+/**
+ * User.chatSessions
+ */
+export type User$chatSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChatSession
+   */
+  select?: Prisma.ChatSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChatSession
+   */
+  omit?: Prisma.ChatSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChatSessionInclude<ExtArgs> | null
+  where?: Prisma.ChatSessionWhereInput
+  orderBy?: Prisma.ChatSessionOrderByWithRelationInput | Prisma.ChatSessionOrderByWithRelationInput[]
+  cursor?: Prisma.ChatSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChatSessionScalarFieldEnum | Prisma.ChatSessionScalarFieldEnum[]
 }
 
 /**

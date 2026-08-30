@@ -10,7 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
@@ -19,8 +19,12 @@ import { API_BASE_URL } from "@/api/config";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 
 export default function SignupScreen() {
-  const [role, setRole] = useState<"admin" | "customer">("customer");
+  const params = useLocalSearchParams<{ role?: "admin" | "customer" }>();
+  const [role, setRole] = useState<"admin" | "customer">(
+    params.role === "admin" ? "admin" : "customer"
+  );
   const [name, setName] = useState("");
+  const [businessName, setBusinessName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +33,11 @@ export default function SignupScreen() {
 
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
+  const setNameStore = useAuthStore((s) => s.setName);
   const setRoleStore = useAuthStore((s) => s.setRole);
   const setIsVerified = useAuthStore((s) => s.setIsVerified);
   const setResendAvailableAt = useAuthStore((s) => s.setResendAvailableAt);
+  const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
 
   const isGmail = (e: string) => {
     const clean = e.trim().toLowerCase();
@@ -43,6 +49,10 @@ export default function SignupScreen() {
 
     if (!name.trim()) {
       setError("Full name is required.");
+      return;
+    }
+    if (role === "admin" && !businessName.trim()) {
+      setError("Business name is required.");
       return;
     }
     if (!email.trim()) {
@@ -58,7 +68,7 @@ export default function SignupScreen() {
       return;
     }
     if (password.length < 8 || !/[0-9]/.test(password)) {
-      setError("Password must be at least 8 characters and include a number.");
+      setError("Password must be at least 8 characters long and contain at least 1 number.");
       return;
     }
 
@@ -74,6 +84,7 @@ export default function SignupScreen() {
           password,
           role,
           name: name.trim(),
+          businessName: role === "admin" ? businessName.trim() : undefined,
         }),
       });
       const body = await res.json();
@@ -81,6 +92,8 @@ export default function SignupScreen() {
 
       setToken(body.token);
       setEmailStore(body.user.email);
+      setNameStore(name.trim());
+      setCreatedAt(new Date().toISOString());
       setRoleStore(body.user.role);
       setIsVerified(role !== "admin");
       setResendAvailableAt(Date.now() + 60000);
@@ -152,6 +165,24 @@ export default function SignupScreen() {
               />
             </View>
 
+            {/* Business Name Input (Admin / Fashion House Flow) */}
+            {role === "admin" && (
+              <View style={styles.inputContainer}>
+                <View style={styles.labelWrapper}>
+                  <Text style={styles.labelText}>Business Name</Text>
+                </View>
+                <TextInput
+                  style={styles.textInput}
+                  value={businessName}
+                  onChangeText={(text) => {
+                    setBusinessName(text);
+                    if (error) setError("");
+                  }}
+                  autoCapitalize="words"
+                />
+              </View>
+            )}
+
             {/* Email Input */}
             <View style={styles.inputContainer}>
               <View style={styles.labelWrapper}>
@@ -200,20 +231,6 @@ export default function SignupScreen() {
 
             {/* Error Message */}
             {error || googleError ? <Text style={styles.errorText}>{error || googleError}</Text> : null}
-
-            {/* Role Switcher */}
-            <View style={styles.roleToggleRow}>
-              <Text style={styles.roleToggleLabel}>Account Type:</Text>
-              <Pressable
-                onPress={() =>
-                  setRole((r) => (r === "customer" ? "admin" : "customer"))
-                }
-              >
-                <Text style={styles.roleToggleValue}>
-                  {role === "customer" ? "Customer" : "Fashion House"} (Tap to change)
-                </Text>
-              </Pressable>
-            </View>
 
             {/* Create Account Button */}
             <Pressable

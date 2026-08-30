@@ -1,12 +1,30 @@
-import { GoogleSignin, isSuccessResponse, isCancelledResponse } from "@react-native-google-signin/google-signin";
 import { useState } from "react";
+import { NativeModules } from "react-native";
 import { API_BASE_URL } from "@/api/config";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { router } from "expo-router";
 
-GoogleSignin.configure({
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
-});
+// Dynamically import Google Sign-In to prevent crashing in Expo Go
+let GoogleSignin: any = null;
+let isSuccessResponse: any = null;
+let isCancelledResponse: any = null;
+
+const hasNativeModule = !!NativeModules.RNGoogleSignin;
+
+if (hasNativeModule) {
+  try {
+    const googleModule = require("@react-native-google-signin/google-signin");
+    GoogleSignin = googleModule.GoogleSignin;
+    isSuccessResponse = googleModule.isSuccessResponse;
+    isCancelledResponse = googleModule.isCancelledResponse;
+
+    GoogleSignin.configure({
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    });
+  } catch (e) {
+    console.warn("Google Sign-In initialization failed:", e);
+  }
+}
 
 export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
   const [loading, setLoading] = useState(false);
@@ -18,13 +36,19 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
 
   const promptAsync = async () => {
     setError("");
+
+    if (!hasNativeModule || !GoogleSignin) {
+      setError("Google Sign-In requires a Development Build (npx expo run:android) and cannot run in Expo Go.");
+      return;
+    }
+
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
+      await GoogleSignin.signOut().catch(() => {});
       const response = await GoogleSignin.signIn();
 
       if (isCancelledResponse(response)) {
-        // User cancelled — do nothing
         return;
       }
 
@@ -32,7 +56,7 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
         throw new Error("Google Sign-In failed. Please try again.");
       }
 
-      const idToken = response.data.idToken;
+      const idToken = response.data?.idToken;
       if (!idToken) throw new Error("Google Sign-In failed. No token received.");
 
       const res = await fetch(`${API_BASE_URL}/api/auth/google`, {
@@ -63,5 +87,5 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
     }
   };
 
-  return { promptAsync, loading, error, disabled: false };
+  return { promptAsync, loading, error, disabled: !hasNativeModule };
 }

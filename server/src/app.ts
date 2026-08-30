@@ -5,6 +5,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 
 import authRouter from "./routes/auth";
+import adminRouter from "./routes/admin";
 import staffRouter from "./routes/staff";
 import chatRouter from "./routes/chat";
 import escalationsRouter from "./routes/escalations";
@@ -52,6 +53,7 @@ app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth", authRouter);
+app.use("/api/admin", adminRouter);
 app.use("/api/staff", staffRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/escalations", escalationsRouter);

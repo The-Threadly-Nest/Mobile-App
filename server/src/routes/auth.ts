@@ -1,6 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
+import { OAuth2Client } from "google-auth-library";
 import { prisma } from "../lib/prisma";
 import { validate } from "../middleware/validate";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, activateAccountSchema } from "../schemas/auth.schema";
@@ -9,26 +10,28 @@ import { sendPasswordResetEmail, sendWelcomeEmail } from "../lib/mailer";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 
 function issueToken(userId: string, email: string, role: string) {
   if (!JWT_SECRET) throw Object.assign(new Error("Server misconfiguration"), { status: 500 });
-  return jwt.sign({ sub: userId, email, role }, JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ sub: userId, email, role }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 // Only Admin and Customer self-register. Staff accounts are created
 // exclusively by an Admin via POST /api/staff/invite.
 router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req, res, next) => {
   try {
-    const { email, password, role, name } = req.body;
+    const { email, password, role, name, businessName } = req.body;
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return res.status(400).json({ error: "An account with this email already exists. Please log in instead." });
 
     const passwordHash = await hashPassword(password);
-    const code = generateResetToken();
-    const resetTokenHash = hashResetToken(code);
-    const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const isAdmin = role === "admin";
+    const code = isAdmin ? generateResetToken() : undefined;
+    const resetTokenHash = code ? hashResetToken(code) : null;
+    const resetTokenExpiresAt = code ? new Date(Date.now() + 10 * 60 * 1000) : null;
 
     const user = await prisma.$transaction(async (tx) => {
       const newUser = await tx.user.create({
@@ -42,7 +45,7 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
         },
       });
       if (role === "admin") {
-        await tx.fashionHouse.create({ data: { adminId: newUser.id, shopName: name } });
+        await tx.fashionHouse.create({ data: { adminId: newUser.id, shopName: businessName || name } });
       }
       return newUser;
     });
@@ -200,15 +203,32 @@ router.post("/resend-code", authLimiter, async (req, res, next) => {
 
 router.post("/google", authLimiter, async (req, res, next) => {
   try {
-    const { idToken, role = "customer" } = req.body;
+    const { idToken, role } = req.body;
     if (!idToken) return res.status(400).json({ error: "ID token is required." });
 
-    // Verify token with Google's tokeninfo API
-    const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
-    if (!verifyRes.ok) return res.status(401).json({ error: "Invalid Google token." });
+    // Restrict self-registration to customer or admin only (staff are invited by admins)
+    const safeRole: "admin" | "customer" = role === "admin" ? "admin" : "customer";
 
-    const googleUser: any = await verifyRes.json();
-    const { sub: googleId, email, name } = googleUser;
+    // Verify token with Google and check audience matches THIS app's client ID
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ error: "Server misconfiguration: missing GOOGLE_CLIENT_ID." });
+    }
+    let googleId: string;
+    let email: string;
+    let name: string | undefined;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      if (!payload) throw new Error("Empty payload");
+      googleId = payload.sub;
+      email = payload.email!;
+      name = payload.name;
+    } catch {
+      return res.status(401).json({ error: "Invalid or expired Google token." });
+    }
 
     if (!email) return res.status(400).json({ error: "Google account did not provide an email address." });
 
@@ -223,12 +243,12 @@ router.post("/google", authLimiter, async (req, res, next) => {
           data: {
             email,
             googleId,
-            role,
+            role: safeRole,
             active: true,
           },
         });
 
-        if (role === "admin") {
+        if (safeRole === "admin") {
           await tx.fashionHouse.create({
             data: { adminId: newUser.id, shopName: name || "My Fashion House" },
           });

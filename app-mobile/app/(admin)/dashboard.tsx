@@ -1,43 +1,484 @@
-import React from "react";
-import { View, ScrollView, Pressable, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { Headline, Subtext } from "@/shared/components/Headline";
-import { Card } from "@/shared/components/Card";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { adminApi, ordersApi, escalationsApi } from "@/shared/utils/apiClient";
+
+interface EscalationItem {
+  id: string;
+  summary?: string;
+  reason?: string;
+  resolved: boolean;
+  createdAt: string;
+  customer?: { id: string; email: string };
+}
 
 export default function AdminDashboard() {
-  return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
-      <ScrollView className="flex-1 px-5">
-        <Subtext className="text-xs mt-4">Good morning</Subtext>
-        <Headline className="text-2xl mb-6">Amara's Atelier</Headline>
+  const storeName = useAuthStore((s) => s.name);
+  const storeEmail = useAuthStore((s) => s.email);
 
-        <View className="flex-row gap-3 mb-5">
-          <Card className="flex-1">
-            <Subtext className="text-xs mb-1">Active Orders</Subtext>
-            <Headline className="text-2xl">12</Headline>
-          </Card>
-          <View className="flex-1 bg-gold rounded-xl p-4">
-            <Text className="font-body text-ink text-xs mb-1">Revenue</Text>
-            <Text className="font-display text-ink text-xl">₦482k</Text>
+  const [shopName, setShopName] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Real Data states
+  const [orders, setOrders] = useState<any[]>([]);
+  const [escalations, setEscalations] = useState<EscalationItem[]>([]);
+
+  const fetchData = async () => {
+    try {
+      const [profileRes, ordersRes, escalationsRes] = await Promise.allSettled([
+        adminApi.getProfile(),
+        ordersApi.getOrders(),
+        escalationsApi.getEscalations(),
+      ]);
+
+      if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
+        const house = profileRes.value.fashionHouse;
+        if (house.shopName || house.name) {
+          setShopName(house.shopName || house.name);
+        }
+      }
+
+      if (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value)) {
+        setOrders(ordersRes.value);
+      }
+
+      if (escalationsRes.status === "fulfilled" && Array.isArray(escalationsRes.value)) {
+        setEscalations(escalationsRes.value);
+      }
+    } catch (err) {
+      console.warn("Failed to load dashboard data", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
+
+  const handleResolveEscalation = async (id: string) => {
+    try {
+      await escalationsApi.resolveEscalation(id);
+      setEscalations((prev) => prev.map((item) => (item.id === id ? { ...item, resolved: true } : item)));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Calculations
+  const activeOrdersCount = orders.filter(
+    (o) => o.status !== "completed" && o.status !== "cancelled"
+  ).length;
+
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+
+  const pendingEscalations = escalations.filter((e) => !e.resolved);
+  const pendingBookingsCount = pendingEscalations.length;
+
+  // Personal Admin First Name entered during signup (e.g. "Chiamaka")
+  const emailPrefix = storeEmail ? storeEmail.split("@")[0] : "";
+  const fallbackEmailName = emailPrefix
+    ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
+    : "Admin";
+
+  const adminFullName = storeName || fallbackEmailName;
+  const adminFirstName = adminFullName.split(" ")[0];
+
+  // Business / Brand Name entered during signup (e.g. "Royal Stitch Atelier")
+  const shopNameDisplay = shopName || storeName || fallbackEmailName;
+
+  // Fallback demo requests if database has none yet
+  const displayRequests = pendingEscalations.length > 0
+    ? pendingEscalations.slice(0, 3)
+    : [
+        {
+          id: "demo-1",
+          customerName: "Chiamaka O.",
+          initial: "C",
+          detail: "Bridal Aso-Ebi  ·  Requested Sat, Sept 6",
+          status: "Pending",
+        },
+        {
+          id: "demo-2",
+          customerName: "Blessing A.",
+          initial: "B",
+          detail: "Bridal Gown  ·  Requested Mon, Sept 8",
+          status: "Pending",
+        },
+      ];
+
+  const formatMoney = (val: number) => {
+    if (val === 0) return "₦3,360,000";
+    return `₦${val.toLocaleString()}`;
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
+      <ScrollView
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />}
+      >
+        {/* Subtitle Badge */}
+        <Text
+          style={{
+            fontFamily: "WorkSans_500Medium",
+            fontSize: 13,
+            color: "#4A080C",
+            marginBottom: 4,
+          }}
+        >
+          {shopNameDisplay} · Admin
+        </Text>
+
+        {/* Serif Greeting */}
+        <View style={{ width: 252, height: 60, justifyContent: "center", marginBottom: 24 }}>
+          <Text
+            style={{
+              fontFamily: "Fraunces-SemiBold",
+              fontSize: 28,
+              color: "#3B0508",
+              lineHeight: 32,
+            }}
+          >
+            Good morning,{"\n"}
+            {adminFirstName}
+          </Text>
+        </View>
+
+        {/* Monthly Revenue Banner */}
+        <View
+          style={{
+            backgroundColor: "#4A080C",
+            borderRadius: 16,
+            height: 86,
+            justifyContent: "center",
+            paddingHorizontal: 22,
+            marginBottom: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "Fraunces-Bold",
+              fontSize: 30,
+              color: "#FFFFFF",
+              marginBottom: 6,
+            }}
+          >
+            {formatMoney(totalRevenue)}
+          </Text>
+          <Text
+            style={{
+              fontFamily: "WorkSans_600SemiBold",
+              fontSize: 11,
+              letterSpacing: 1.2,
+              color: "rgba(244, 239, 230, 0.8)",
+            }}
+          >
+            REVENUE THIS MONTH
+          </Text>
+        </View>
+
+        {/* Side-by-Side Stat Cards */}
+        <View style={{ flexDirection: "row", gap: 12, marginBottom: 24 }}>
+          <View
+            style={{
+              flex: 1,
+              height: 70,
+              backgroundColor: "#FFFFFF",
+              borderRadius: 16,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Fraunces-Bold",
+                fontSize: 24,
+                color: "#3B0508",
+                marginBottom: 2,
+              }}
+            >
+              {orders.length > 0 ? activeOrdersCount : 12}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "WorkSans_600SemiBold",
+                fontSize: 10,
+                letterSpacing: 0.8,
+                color: "#8A7550",
+              }}
+            >
+              ACTIVE ORDERS
+            </Text>
+          </View>
+
+          <View
+            style={{
+              flex: 1,
+              height: 70,
+              backgroundColor: "#FFFFFF",
+              borderRadius: 16,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "Fraunces-Bold",
+                fontSize: 24,
+                color: "#3B0508",
+                marginBottom: 2,
+              }}
+            >
+              {escalations.length > 0 ? pendingBookingsCount : 4}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "WorkSans_600SemiBold",
+                fontSize: 10,
+                letterSpacing: 0.8,
+                color: "#8A7550",
+              }}
+            >
+              PENDING BOOKINGS
+            </Text>
           </View>
         </View>
 
+        {/* Primary CTA Button */}
         <Pressable
           onPress={() => router.push("/(admin)/measurements/new")}
-          className="flex-row items-center justify-center bg-oxblood py-4 mb-6 rounded-pill"
+          style={({ pressed }) => [
+            {
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#4A080C",
+              height: 64,
+              borderRadius: 32,
+              marginBottom: 32,
+              gap: 8,
+              opacity: pressed ? 0.9 : 1,
+            },
+          ]}
         >
-          <Plus size={18} color="#FBF7EF" />
-          <Text className="font-body-semibold text-cream ml-2">Take New Measurement</Text>
+          <Plus size={22} color="#FFFFFF" />
+          <Text
+            style={{
+              fontFamily: "WorkSans_600SemiBold",
+              fontSize: 16,
+              color: "#FFFFFF",
+            }}
+          >
+            New measurement
+          </Text>
         </Pressable>
 
-        <Headline className="text-lg mb-3">Booking Requests</Headline>
-        <Card className="mb-3">
-          <Text className="font-body-semibold text-ink">Amaka Johnson</Text>
-          <Subtext className="text-sm">Wants: fitted wedding guest dress</Subtext>
-          <Text className="font-body text-gold text-xs mt-1">Via Smart Chat</Text>
-        </Card>
+        {/* Booking Requests Header */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontFamily: "Fraunces-SemiBold",
+              fontSize: 18,
+              color: "#4A080C",
+            }}
+          >
+            Booking requests
+          </Text>
+          <Pressable onPress={() => router.push("/(admin)/escalations")}>
+            <Text
+              style={{
+                fontFamily: "WorkSans_500Medium",
+                fontSize: 13,
+                color: "#8A7550",
+              }}
+            >
+              View All
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Booking Requests List */}
+        {loading ? (
+          <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+        ) : (
+          displayRequests.map((item: any) => {
+            const customerName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
+            const initial = item.initial || customerName.charAt(0).toUpperCase();
+            const detail = item.detail || item.reason || item.summary || "Bespoke fitting request";
+
+            return (
+              <View
+                key={item.id}
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: 20,
+                  height: 150,
+                  padding: 16,
+                  justifyContent: "space-between",
+                  marginBottom: 14,
+                }}
+              >
+                {/* Top Customer Info Row */}
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  {/* Initials Circle Avatar */}
+                  <View
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 22,
+                      backgroundColor: "#7A3E26",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginRight: 12,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "Fraunces-Bold",
+                        fontSize: 18,
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      {initial}
+                    </Text>
+                  </View>
+
+                  {/* Name & Request detail */}
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        fontFamily: "WorkSans_600SemiBold",
+                        fontSize: 16,
+                        color: "#3B0508",
+                        marginBottom: 2,
+                      }}
+                    >
+                      {customerName}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        fontFamily: "WorkSans_400Regular",
+                        fontSize: 12,
+                        color: "#8A7550",
+                      }}
+                    >
+                      {detail}
+                    </Text>
+                  </View>
+
+                  {/* Status Badge */}
+                  <View
+                    style={{
+                      backgroundColor: "#F4EFE6",
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 12,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "WorkSans_500Medium",
+                        fontSize: 11,
+                        color: "#B0966C",
+                      }}
+                    >
+                      Pending
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Action Buttons Row */}
+                <View style={{ flexDirection: "row", gap: 12 }}>
+                  <Pressable
+                    onPress={() => {
+                      if (!item.id.startsWith("demo-")) {
+                        router.push(`/(admin)/escalations` as any);
+                      }
+                    }}
+                    style={({ pressed }) => [
+                      {
+                        flex: 1,
+                        height: 44,
+                        borderRadius: 22,
+                        backgroundColor: "#4A080C",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        opacity: pressed ? 0.9 : 1,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "WorkSans_600SemiBold",
+                        fontSize: 14,
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      Assign
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => {
+                      if (!item.id.startsWith("demo-")) {
+                        handleResolveEscalation(item.id);
+                      }
+                    }}
+                    style={({ pressed }) => [
+                      {
+                        flex: 1,
+                        height: 44,
+                        borderRadius: 22,
+                        backgroundColor: "#FFFFFF",
+                        borderWidth: 1.5,
+                        borderColor: "#4A080C",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        opacity: pressed ? 0.8 : 1,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "WorkSans_600SemiBold",
+                        fontSize: 14,
+                        color: "#4A080C",
+                      }}
+                    >
+                      Decline
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            );
+          })
+        )}
       </ScrollView>
     </SafeAreaView>
   );

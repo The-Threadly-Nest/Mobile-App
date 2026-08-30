@@ -1,6 +1,5 @@
+import { API_BASE_URL } from "@/api/config";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 interface UploadResult {
   fileUrl: string;

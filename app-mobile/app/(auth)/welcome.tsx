@@ -30,7 +30,7 @@ export default function WelcomeScreen() {
         <View style={styles.buttonsContainer}>
           {/* Create Account - Solid Oxblood */}
           <Pressable
-            onPress={() => router.push("/(auth)/signup")}
+            onPress={() => router.push("/(auth)/role-select")}
             style={({ pressed }) => [
               styles.createAccountBtn,
               { opacity: pressed ? 0.85 : 1 },

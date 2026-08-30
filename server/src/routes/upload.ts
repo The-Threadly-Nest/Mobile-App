@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { randomUUID } from "crypto";
+import path from "path";
 import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { presignUploadSchema } from "../schemas/upload.schema";
@@ -33,14 +34,15 @@ router.post("/presign", validate({ body: presignUploadSchema }), async (req, res
     // Safety: generate a unique file key prefixed by context to prevent path traversal
     // and isolate files by tenant (fashion house) or customer
     const fileUuid = randomUUID();
+    const safeName = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, "_");
     let key = "";
     
     if (fashionHouseId) {
-      key = `houses/${fashionHouseId}/${fileUuid}-${filename}`;
+      key = `houses/${fashionHouseId}/${fileUuid}-${safeName}`;
     } else if (user.role === "customer") {
-      key = `customers/${user.id}/${fileUuid}-${filename}`;
+      key = `customers/${user.id}/${fileUuid}-${safeName}`;
     } else {
-      key = `users/${user.id}/${fileUuid}-${filename}`;
+      key = `users/${user.id}/${fileUuid}-${safeName}`;
     }
 
     const presignedData = await generatePresignedUploadUrl(key, contentType);

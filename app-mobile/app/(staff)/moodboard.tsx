@@ -9,8 +9,7 @@ import { Button } from "@/shared/components/Button";
 import DrawingCanvasModal from "@/shared/components/DrawingCanvasModal";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { API_BASE_URL } from "@/api/config";
 
 interface Sketch {
   id: string;
@@ -65,7 +64,7 @@ export default function MoodBoardScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,

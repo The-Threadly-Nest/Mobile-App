@@ -9,28 +9,28 @@ import {
 import * as NavigationBar from "expo-navigation-bar";
 import { router } from "expo-router";
 
-const slides = [
+const adminSlides = [
   {
-    image: require("../assets/onboarding-1.png"),
-    headline: "Find the right tailor,\nfirst time.",
-    subtitle: "Discover trusted fashion \nhouses across Nigeria.",
+    image: require("../assets/admin-onboarding-1.png"),
+    headline: "Your whole atelier,\nin one dashboard",
+    subtitle: "Track bookings, revenue,\norders, and staff in one place.",
   },
   {
-    image: require("../assets/onboarding-2.png"),
-    headline: "Book a fitting in\nminutes.",
-    subtitle: "Answer a few questions and \nsecure your appointment. No \nback-and-forth.",
+    image: require("../assets/admin-onboarding-2.png"),
+    headline: "Assign work to your\ntailors in seconds",
+    subtitle: "Assign bookings and track\norders effortlessly.",
   },
   {
-    image: require("../assets/onboarding-3.png"),
-    headline: "Track your outfit\nevery step.",
-    subtitle: "See real progress, photos, and delivery dates.",
+    image: require("../assets/admin-onboarding-3.png"),
+    headline: "Invoice and get\npaid, all in the app",
+    subtitle: "Generate invoices and save\ncustomer measurements.",
   },
 ];
 
-export default function OnboardingScreen() {
+export default function AdminOnboardingSlidesScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const slide = slides[currentIndex];
-  const isLast = currentIndex === slides.length - 1;
+  const slide = adminSlides[currentIndex];
+  const isLast = currentIndex === adminSlides.length - 1;
 
   useEffect(() => {
     // Transparent nav bar so background image fills edge-to-edge
@@ -41,14 +41,14 @@ export default function OnboardingScreen() {
 
   const handleNext = () => {
     if (isLast) {
-      router.push({ pathname: "/(auth)/signup", params: { role: "customer" } });
+      router.push({ pathname: "/(auth)/signup", params: { role: "admin" } });
     } else {
       setCurrentIndex((i) => i + 1);
     }
   };
 
   const handleSkip = () => {
-    router.push({ pathname: "/(auth)/signup", params: { role: "customer" } });
+    router.push({ pathname: "/(auth)/signup", params: { role: "admin" } });
   };
 
   return (
@@ -87,9 +87,9 @@ export default function OnboardingScreen() {
         {/* Headline */}
         <Text
           style={{
-            fontFamily: "Fraunces-Bold",
-            fontSize: 36,
-            lineHeight: 44,
+            fontFamily: "Fraunces-SemiBold",
+            fontSize: 32,
+            lineHeight: 40,
             color: "#FFFFFF",
             marginBottom: 12,
             textAlign: "center",
@@ -103,10 +103,7 @@ export default function OnboardingScreen() {
           style={{
             fontFamily: "WorkSans_400Regular",
             fontSize: 20,
-            lineHeight: 26,
-            width: 308,
-            minHeight: 46,
-            alignSelf: "center",
+            lineHeight: 28,
             color: "rgba(255,255,255,0.80)",
             textAlign: "center",
             marginBottom: 28,
@@ -125,7 +122,7 @@ export default function OnboardingScreen() {
             marginBottom: 32,
           }}
         >
-          {slides.map((_, i) => (
+          {adminSlides.map((_, i) => (
             <View
               key={i}
               style={{
@@ -140,13 +137,12 @@ export default function OnboardingScreen() {
 
         {/* Buttons Row — last slide: single full-width Get Started; others: Skip + Next */}
         {isLast ? (
-          /* Get Started — full width oxblood */
           <Pressable
             onPress={handleNext}
             style={({ pressed }) => ({
               width: "100%",
               height: 63,
-              borderRadius: 31,
+              borderRadius: 31.5,
               backgroundColor: "#4A080C",
               alignItems: "center",
               justifyContent: "center",
@@ -172,7 +168,7 @@ export default function OnboardingScreen() {
               style={({ pressed }) => ({
                 flex: 1,
                 height: 63,
-                borderRadius: 31,
+                borderRadius: 31.5,
                 borderWidth: 1,
                 borderColor: "#FFFFFF",
                 alignItems: "center",
@@ -198,7 +194,7 @@ export default function OnboardingScreen() {
               style={({ pressed }) => ({
                 flex: 1,
                 height: 63,
-                borderRadius: 31,
+                borderRadius: 31.5,
                 backgroundColor: "#4A080C",
                 alignItems: "center",
                 justifyContent: "center",

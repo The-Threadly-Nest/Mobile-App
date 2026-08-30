@@ -15,8 +15,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Rect, Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { API_BASE_URL } from "@/api/config";
 
 export default function ActivateAccountScreen() {
   const { token, email } = useLocalSearchParams<{ token: string; email: string }>();

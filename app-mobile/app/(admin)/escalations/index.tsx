@@ -7,8 +7,7 @@ import { Headline, Subtext } from "@/shared/components/Headline";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { API_BASE_URL } from "@/api/config";
 
 interface Handoff {
   id: string;

@@ -104,3 +104,8 @@ export type CustomerPreference = Prisma.CustomerPreferenceModel
  * 
  */
 export type MoodBoardSketch = Prisma.MoodBoardSketchModel
+/**
+ * Model ChatSession
+ * 
+ */
+export type ChatSession = Prisma.ChatSessionModel

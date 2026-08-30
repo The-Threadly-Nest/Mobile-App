@@ -42,5 +42,7 @@ Thumbs.db
 
 # Local Agent Customizations
 GEMINI.md
+FIGMA_MOCK_DATA.md
 .agents/
-**/ .agents/
+**/.agents/
+.agents/rules/figma_mock_data.md

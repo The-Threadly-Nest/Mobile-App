@@ -1,7 +1,6 @@
 import { Alert } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+import { API_BASE_URL } from "@/api/config";
 
 export interface ApiErrorDetail {
   status: number;
@@ -100,7 +99,9 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
   } catch (error) {
     // Handle network disconnect/offline errors
     if (!(error instanceof ApiError)) {
-      console.error("[API Client] Network or parsing crash:", error);
+      if (!options.silent) {
+        console.error("[API Client] Network or parsing crash:", error);
+      }
       const networkErrorDetail: ApiErrorDetail = {
         status: 0,
         code: "NETWORK_DISCONNECTED",
@@ -114,3 +115,46 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     throw error;
   }
 }
+
+export interface AdminOnboardingPayload {
+  shopName: string;
+  location: string;
+  phone?: string;
+  bio?: string;
+  categories: string[];
+  brandLogoUrl?: string;
+  currency?: string;
+}
+
+export const adminApi = {
+  getProfile: async () => {
+    return apiFetch<{ fashionHouse: any }>("/api/admin/profile", { silent: true });
+  },
+  completeOnboarding: async (data: AdminOnboardingPayload) => {
+    return apiFetch<{ message: string; fashionHouse: any }>("/api/admin/onboarding", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+export const ordersApi = {
+  getOrders: async () => {
+    return apiFetch<any[]>("/api/orders", { silent: true });
+  },
+};
+
+export const escalationsApi = {
+  getEscalations: async () => {
+    return apiFetch<any[]>("/api/escalations", { silent: true });
+  },
+  resolveEscalation: async (escalationId: string, assignToStaffId?: string) => {
+    return apiFetch<any>(`/api/escalations/${escalationId}/resolve`, {
+      method: "PATCH",
+      body: JSON.stringify({ assignToStaffId }),
+      silent: true,
+    });
+  },
+};
+
+

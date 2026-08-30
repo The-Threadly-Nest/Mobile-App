@@ -7,6 +7,7 @@ export const signupSchema = z.object({
   password: passwordSchema,
   role: z.enum(["admin", "customer"]), // staff accounts are created by an Admin invite only
   name: z.string().min(2).max(80),
+  businessName: z.string().min(2).max(80).optional(),
 });
 
 export const loginSchema = z.object({

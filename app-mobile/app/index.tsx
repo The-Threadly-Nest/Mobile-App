@@ -9,6 +9,7 @@ export default function SplashScreen() {
   const token = useAuthStore((state) => state.token);
   const role = useAuthStore((state) => state.role);
   const isVerified = useAuthStore((state) => state.isVerified);
+  const onboardingCompleted = useAuthStore((state) => state.onboardingCompleted);
   const email = useAuthStore((state) => state.email);
   const progress = useRef(new Animated.Value(0)).current;
   const rotation = useRef(new Animated.Value(0)).current;
@@ -39,6 +40,8 @@ export default function SplashScreen() {
         if (role === "admin") {
           if (!isVerified) {
             router.replace({ pathname: "/(auth)/verify", params: { email } });
+          } else if (!onboardingCompleted) {
+            router.replace("/(admin)/onboarding");
           } else {
             router.replace("/(admin)/dashboard");
           }
@@ -48,10 +51,10 @@ export default function SplashScreen() {
           router.replace("/(customer)/browse");
         }
       } else {
-        router.replace("/onboarding");
+        router.replace("/(auth)/role-select");
       }
     });
-  }, [token, role, isVerified, email]);
+  }, [token, role, isVerified, onboardingCompleted, email]);
 
   // Interpolate progress value to percentage width
   const fillWidth = progress.interpolate({
@@ -145,7 +148,7 @@ export default function SplashScreen() {
               style={{ width: "100%", textAlign: "center", letterSpacing: 1.5 }}
               className="font-body-semibold text-[11px] text-gold uppercase"
             >
-              BESPOKE. HANDLED WITH CARE.
+              A HUB FOR FASHION.
             </Text>
           </View>
 
