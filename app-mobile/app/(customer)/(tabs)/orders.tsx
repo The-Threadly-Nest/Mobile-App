@@ -14,12 +14,16 @@ export default function CustomerOrdersScreen() {
     async function fetchCustomerOrders() {
       try {
         const fetched = await apiFetch<OrderItem[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
-        if (mounted && Array.isArray(fetched) && fetched.length > 0) {
-          // Merge fetched server orders with store orders preventing duplicates
-          const mergedMap = new Map<string, OrderItem>();
-          storeOrders.forEach((o) => mergedMap.set(o.id, o));
-          fetched.forEach((f) => mergedMap.set(f.id, f));
-          setStoreOrders(Array.from(mergedMap.values()));
+        if (mounted && Array.isArray(fetched)) {
+          if (fetched.length > 0) {
+            // Deduplicate server orders and store orders by orderNumber or id
+            const map = new Map<string, OrderItem>();
+            fetched.forEach((f) => {
+              const key = f.orderNumber || f.id;
+              map.set(key, f);
+            });
+            setStoreOrders(Array.from(map.values()));
+          }
         }
       } catch (err) {
         console.log("Could not fetch server orders:", err);

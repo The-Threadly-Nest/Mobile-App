@@ -108,25 +108,8 @@ export default function AdminDashboard() {
   const adminFullName = isPersonalNameValid ? storeName : fallbackEmailName;
   const adminFirstName = adminFullName.split(" ")[0];
 
-  // Fallback demo requests if database has none yet
-  const displayRequests = pendingEscalations.length > 0
-    ? pendingEscalations.slice(0, 3)
-    : [
-        {
-          id: "demo-1",
-          customerName: "Chiamaka O.",
-          initial: "C",
-          detail: "Bridal Aso-Ebi  ·  Requested Sat, Sept 6",
-          status: "Pending",
-        },
-        {
-          id: "demo-2",
-          customerName: "Blessing A.",
-          initial: "B",
-          detail: "Bridal Gown  ·  Requested Mon, Sept 8",
-          status: "Pending",
-        },
-      ];
+  // Display real pending escalations from database
+  const displayRequests = pendingEscalations.slice(0, 3);
 
   const formatMoney = (val: number) => {
     if (val === 0) return "₦3,360,000";
@@ -364,6 +347,27 @@ export default function AdminDashboard() {
         {/* Booking Requests List */}
         {loading ? (
           <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+        ) : displayRequests.length === 0 ? (
+          <View
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: 20,
+              padding: 24,
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 14,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "WorkSans_400Regular",
+                fontSize: 14,
+                color: "rgba(74, 8, 12, 0.6)",
+              }}
+            >
+              No pending booking requests.
+            </Text>
+          </View>
         ) : (
           displayRequests.map((item: any) => {
             const customerName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";

@@ -93,7 +93,8 @@ const CATEGORIES = ["Aso-ebi", "Agbada", "Kaftan", "Gele & Accessories"];
 export default function BrowseScreen() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [tailorsList, setTailorsList] = useState<TailorItem[]>(MOCK_TAILORS);
+  const [tailorsList, setTailorsList] = useState<TailorItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const savedLocation = useAuthStore((s) => s.location);
@@ -113,9 +114,14 @@ export default function BrowseScreen() {
           if (!map.has(item.id)) map.set(item.id, item);
         });
         setTailorsList(Array.from(map.values()));
+      } else {
+        setTailorsList(MOCK_TAILORS);
       }
     } catch (err) {
       console.log("Could not fetch real fashion houses:", err);
+      setTailorsList(MOCK_TAILORS);
+    } finally {
+      setLoading(false);
     }
   };
 

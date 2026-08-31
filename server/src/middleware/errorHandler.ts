@@ -7,7 +7,19 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
   let message = "Something went wrong on our end. We are looking into it.";
   let details: any = undefined;
 
-  if (err instanceof AppError) {
+  if (err.code === "P2002") {
+    status = 400;
+    code = "DUPLICATE_ENTRY";
+    message = "An account with this email address already exists. Please log in or try a different email.";
+  } else if (err.code === "P2025") {
+    status = 404;
+    code = "NOT_FOUND";
+    message = "The requested item or atelier record could not be found.";
+  } else if (err.name === "ZodError" || err.issues) {
+    status = 400;
+    code = "INVALID_INPUT";
+    message = "Please make sure all required fields are filled out correctly.";
+  } else if (err instanceof AppError) {
     status = err.status;
     code = err.code;
     message = err.message;

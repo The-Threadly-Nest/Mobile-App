@@ -320,7 +320,7 @@ router.post("/google", authLimiter, async (req, res, next) => {
     }
 
     const token = issueToken(user.id, user.email, user.role);
-    res.json({ token, user: { id: user.id, email: user.email, role: user.role, name: name ?? "" } });
+    res.json({ token, user: { id: user.id, email: user.email, role: user.role, name: user.name ?? "" } });
   } catch (err) {
     next(err);
   }
