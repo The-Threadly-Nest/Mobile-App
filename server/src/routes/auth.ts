@@ -289,11 +289,12 @@ router.post("/google", authLimiter, async (req, res, next) => {
 
     let user = await prisma.user.findFirst({
       where: { OR: [{ googleId }, { email }] },
+      include: { fashionHouseOwned: true },
     });
 
     if (!user) {
       // Create new user with selected role
-      user = await prisma.$transaction(async (tx) => {
+      const createdUserId = await prisma.$transaction(async (tx) => {
         const newUser = await tx.user.create({
           data: {
             email,
@@ -306,21 +307,39 @@ router.post("/google", authLimiter, async (req, res, next) => {
 
         if (safeRole === "admin") {
           await tx.fashionHouse.create({
-            data: { adminId: newUser.id, shopName: name || "My Fashion House" },
+            data: { adminId: newUser.id, shopName: name || "My Fashion House", onboardingCompleted: false },
           });
         }
-        return newUser;
+        return newUser.id;
       });
+
+      user = (await prisma.user.findUnique({
+        where: { id: createdUserId },
+        include: { fashionHouseOwned: true },
+      }))!;
     } else if (!user.googleId) {
       // Link Google ID to existing email account
       user = await prisma.user.update({
         where: { id: user.id },
         data: { googleId },
+        include: { fashionHouseOwned: true },
       });
     }
 
+    const onboardingCompleted = user.fashionHouseOwned?.onboardingCompleted ?? false;
     const token = issueToken(user.id, user.email, user.role);
-    res.json({ token, user: { id: user.id, email: user.email, role: user.role, name: user.name ?? "" } });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name ?? "",
+        shopName: user.fashionHouseOwned?.shopName ?? "",
+        onboardingCompleted,
+        isVerified: true,
+      },
+    });
   } catch (err) {
     next(err);
   }

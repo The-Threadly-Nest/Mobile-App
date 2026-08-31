@@ -33,8 +33,11 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
   const setNameStore = useAuthStore((s) => s.setName);
+  const setShopNameStore = useAuthStore((s) => s.setShopName);
   const setRoleStore = useAuthStore((s) => s.setRole);
   const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
+  const setIsVerified = useAuthStore((s) => s.setIsVerified);
+  const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
 
   const promptAsync = async () => {
     setError("");
@@ -71,14 +74,25 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       try { data = JSON.parse(rawText); } catch {}
       if (!res.ok) throw new Error(data.error ?? "Google authentication failed.");
 
+      const userVerified = data.user.isVerified ?? true;
+      const userOnboardingCompleted = data.user.onboardingCompleted ?? false;
+
       setToken(data.token);
       setEmailStore(data.user.email);
       setNameStore(data.user.name ?? "");
+      setShopNameStore(data.user.shopName ?? "");
       setRoleStore(data.user.role);
       setCreatedAt(data.user.createdAt ?? new Date().toISOString());
+      setIsVerified(userVerified);
+      setOnboardingCompleted(userOnboardingCompleted);
 
-      if (data.user.role === "admin") router.replace("/(admin)/dashboard");
-      else if (data.user.role === "staff") router.replace("/(staff)/dashboard");
+      if (data.user.role === "admin") {
+        if (!userOnboardingCompleted) {
+          router.replace("/(admin)/onboarding");
+        } else {
+          router.replace("/(admin)/dashboard");
+        }
+      } else if (data.user.role === "staff") router.replace("/(staff)/dashboard");
       else router.replace("/(customer)/browse");
     } catch (e: any) {
       if (e.message?.includes("Network request failed") || e.name === "TypeError") {

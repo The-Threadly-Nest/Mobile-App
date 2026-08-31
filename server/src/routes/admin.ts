@@ -32,24 +32,27 @@ router.get("/profile", async (req, res, next) => {
 // PUT /api/admin/onboarding - Complete or update Admin onboarding setup
 router.put("/onboarding", validate({ body: adminOnboardingSchema }), async (req, res, next) => {
   try {
-    const fashionHouse = await prisma.fashionHouse.findUnique({
+    const updatedHouse = await prisma.fashionHouse.upsert({
       where: { adminId: req.authUserId! },
-    });
-
-    if (!fashionHouse) {
-      return res.status(404).json({ error: "Fashion house profile not found." });
-    }
-
-    const updatedHouse = await prisma.fashionHouse.update({
-      where: { id: fashionHouse.id },
-      data: {
+      create: {
+        adminId: req.authUserId!,
+        shopName: req.body.shopName || "My Fashion House",
+        location: req.body.location,
+        phone: req.body.phone,
+        bio: req.body.bio,
+        brandLogoUrl: req.body.brandLogoUrl,
+        categories: req.body.categories || [],
+        currency: req.body.currency || "NGN",
+        onboardingCompleted: true,
+      },
+      update: {
         ...req.body,
         onboardingCompleted: true,
       },
     });
 
     res.json({
-      message: "Admin onboarding saved successfully.",
+      message: "Admin profile and onboarding saved successfully.",
       fashionHouse: updatedHouse,
     });
   } catch (err) {

@@ -169,7 +169,7 @@ model Booking {
   createdAt      DateTime @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
-  customer     User         @relation(fields: [customerId], references: [id])
+  customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([fashionHouseId, status])
   @@map("bookings")
@@ -186,7 +186,7 @@ model ChatEscalation {
   createdAt      DateTime @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
-  customer     User         @relation(fields: [customerId], references: [id])
+  customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([fashionHouseId, resolved])
   @@map("chat_escalations")
