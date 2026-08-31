@@ -38,6 +38,7 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
         data: {
           email,
           passwordHash,
+          name,
           role,
           active: true,
           resetTokenHash,
@@ -52,7 +53,30 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
 
     await sendWelcomeEmail(email, name, code).catch(() => {});
     const token = issueToken(user.id, user.email, user.role);
-    res.status(201).json({ token, user: { id: user.id, email: user.email, role: user.role } });
+
+    let shopName: string | null = null;
+    let onboardingCompleted = false;
+    if (user.role === "admin") {
+      const fh = await prisma.fashionHouse.findUnique({ where: { adminId: user.id } });
+      if (fh) {
+        if (fh.shopName) shopName = fh.shopName;
+        onboardingCompleted = fh.onboardingCompleted ?? false;
+      }
+    }
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name ?? "",
+        shopName,
+        isVerified: user.resetTokenHash === null,
+        onboardingCompleted,
+        createdAt: user.createdAt,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -71,7 +95,30 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
     if (!valid) return res.status(401).json({ error: "Incorrect email or password." });
 
     const token = issueToken(user.id, user.email, user.role);
-    res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+
+    let shopName: string | null = null;
+    let onboardingCompleted = false;
+    if (user.role === "admin") {
+      const fh = await prisma.fashionHouse.findUnique({ where: { adminId: user.id } });
+      if (fh) {
+        if (fh.shopName) shopName = fh.shopName;
+        onboardingCompleted = fh.onboardingCompleted ?? false;
+      }
+    }
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name ?? "",
+        shopName,
+        isVerified: user.resetTokenHash === null,
+        onboardingCompleted,
+        createdAt: user.createdAt,
+      },
+    });
   } catch (err) {
     next(err);
   }
@@ -81,14 +128,19 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
 // exists — standard defense against email enumeration.
 router.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSchema }), async (req, res, next) => {
   try {
-    const { email } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = req.body.email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (user) {
       const rawToken = generateResetToken();
       const resetTokenHash = hashResetToken(rawToken);
       const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
       await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash, resetTokenExpiresAt } });
-      await sendPasswordResetEmail(email, rawToken);
+      console.log(`[AUTH] Reset PIN generated for ${normalizedEmail}: ${rawToken}`);
+      try {
+        await sendPasswordResetEmail(normalizedEmail, rawToken);
+      } catch (mailErr) {
+        console.error("Failed to send password reset email:", mailErr);
+      }
     }
     res.json({ message: "If an account exists for this email, a reset link has been sent." });
   } catch (err) {
@@ -98,8 +150,11 @@ router.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSche
 
 router.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema }), async (req, res, next) => {
   try {
-    const { email, token, newPassword } = req.body;
-    const user = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = req.body.email.toLowerCase().trim();
+    const normalizedToken = req.body.token.trim().toUpperCase();
+    const { newPassword } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (!user || !user.resetTokenHash || !user.resetTokenExpiresAt) {
       return res.status(400).json({ error: "Invalid or expired code." });
     }
@@ -107,7 +162,7 @@ router.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema
       await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash: null, resetTokenExpiresAt: null } });
       return res.status(400).json({ error: "This code has expired. Request a new one." });
     }
-    if (hashResetToken(token) !== user.resetTokenHash) {
+    if (hashResetToken(normalizedToken) !== user.resetTokenHash) {
       return res.status(400).json({ error: "Invalid or expired code." });
     }
 
@@ -243,6 +298,7 @@ router.post("/google", authLimiter, async (req, res, next) => {
           data: {
             email,
             googleId,
+            name: name ?? "",
             role: safeRole,
             active: true,
           },
@@ -264,7 +320,7 @@ router.post("/google", authLimiter, async (req, res, next) => {
     }
 
     const token = issueToken(user.id, user.email, user.role);
-    res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+    res.json({ token, user: { id: user.id, email: user.email, role: user.role, name: name ?? "" } });
   } catch (err) {
     next(err);
   }

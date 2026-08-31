@@ -18,6 +18,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
+import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
 
 const SPECIALIZATION_CATEGORIES = [
   "Bespoke Suits",
@@ -44,6 +45,7 @@ export default function AdminOnboardingScreen() {
   const [error, setError] = useState<string>("");
 
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
+  const setStoredShopName = useAuthStore((s) => s.setShopName);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -140,6 +142,7 @@ export default function AdminOnboardingScreen() {
       });
 
       setOnboardingCompleted(true);
+      setStoredShopName(shopName.trim());
       router.replace("/(admin)/dashboard");
     } catch (err: any) {
       setError(err.message || "Failed to save profile. Please try again.");
@@ -159,26 +162,24 @@ export default function AdminOnboardingScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Back Arrow (above progress bar) */}
-          <View style={styles.topBackHeader}>
-            {step > 1 ? (
-              <Pressable
-                onPress={() => setStep((s) => s - 1)}
-                style={({ pressed }) => [styles.topBackBtn, { opacity: pressed ? 0.7 : 1 }]}
-              >
-                <ArrowLeft size={20} color="#3B0508" />
-              </Pressable>
-            ) : (
-              <View style={styles.topBackPlaceholder} />
-            )}
-          </View>
-
           {/* Top Progress Bar */}
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${(step / 3) * 100}%` }]} />
           </View>
 
-          {/* Header */}
+          {/* Back Arrow (shown only on step 2) */}
+          {step === 2 && (
+            <View style={styles.topBackHeader}>
+              <Pressable
+                onPress={() => setStep((s) => s - 1)}
+                style={({ pressed }) => [styles.topBackBtn, { opacity: pressed ? 0.7 : 1 }]}
+              >
+                <ArrowLeft size={18} color="#3B0508" />
+              </Pressable>
+            </View>
+          )}
+
+          {/* Step Badge */}
           <Text style={styles.stepBadge}>FASHION OWNER SETUP · STEP {step} OF 3</Text>
 
           {step === 1 && (
@@ -281,14 +282,11 @@ export default function AdminOnboardingScreen() {
               </View>
 
               <View style={styles.inputWrapper}>
-                <Text style={styles.label}>Official Business Phone (Optional)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="e.g. +234 801 234 5678"
-                  placeholderTextColor="#8A7550"
-                  keyboardType="phone-pad"
+                <PhoneInputWithCountry
+                  label="Official Business Phone (Optional)"
+                  placeholder="801 234 5678"
                   value={phone}
-                  onChangeText={setPhone}
+                  onChangePhone={setPhone}
                 />
               </View>
             </View>
@@ -365,7 +363,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 8,
     paddingBottom: 40,
   },
   progressTrack: {
@@ -373,7 +371,8 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: "rgba(74, 8, 12, 0.15)",
     borderRadius: 2,
-    marginBottom: 20,
+    marginTop: 4,
+    marginBottom: 14,
   },
   progressFill: {
     height: "100%",
@@ -385,7 +384,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 1.2,
     color: "#4A080C",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   stepContainer: {
     marginBottom: 32,

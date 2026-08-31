@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { useOrdersStore } from "@/stores/useOrdersStore";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function BookingConfirmationScreen() {
   const params = useLocalSearchParams<{
@@ -25,6 +27,29 @@ export default function BookingConfirmationScreen() {
   const estimate = params.estimate || "₦850,000 – ₦1,000,000";
 
   const [isFavourite, setIsFavourite] = useState(false);
+  const addOrder = useOrdersStore((s) => s.addOrder);
+
+  useEffect(() => {
+    if (fashionHouseName && garment) {
+      const randomId = Math.floor(2300 + Math.random() * 900);
+      addOrder({
+        id: `booking-${Date.now()}`,
+        atelierName: fashionHouseName,
+        garmentType: garment,
+        orderNumber: `#TFH-${randomId}`,
+        estimatedReady: fittingDate ? `Fitting: ${fittingDate}` : "In 2 weeks",
+        progressPercent: 15,
+        imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
+        status: "active",
+      });
+
+      apiFetch("/api/orders/my-orders", {
+        method: "POST",
+        body: JSON.stringify({ fashionHouseName, garment, fittingDate }),
+        silent: true,
+      }).catch(() => {});
+    }
+  }, [fashionHouseName, garment, fittingDate, addOrder]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top", "bottom"]}>

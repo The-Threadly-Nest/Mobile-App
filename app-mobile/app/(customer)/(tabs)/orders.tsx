@@ -1,46 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, Text, Pressable, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-interface OrderItem {
-  id: string;
-  atelierName: string;
-  garmentType: string;
-  orderNumber: string;
-  estimatedReady: string;
-  progressPercent: number;
-  imageUrl: string;
-  status: "active" | "completed";
-}
-
-const MOCK_ORDERS: OrderItem[] = [
-  {
-    id: "1",
-    atelierName: "Adaeze Couture",
-    garmentType: "Aso-Ebi",
-    orderNumber: "#TFH-2291",
-    estimatedReady: "27 Sept, 2026",
-    progressPercent: 65,
-    imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
-    status: "active",
-  },
-  {
-    id: "2",
-    atelierName: "Kaftan & Co.",
-    garmentType: "Agbada",
-    orderNumber: "#TFH-2291",
-    estimatedReady: "03 Oct, 2026",
-    progressPercent: 40,
-    imageUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=300&q=80",
-    status: "active",
-  },
-];
+import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function CustomerOrdersScreen() {
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
+  const storeOrders = useOrdersStore((s) => s.orders);
+  const setStoreOrders = useOrdersStore((s) => s.setOrders);
 
-  const activeOrders = MOCK_ORDERS.filter((o) => o.status === "active");
-  const completedOrders = MOCK_ORDERS.filter((o) => o.status === "completed");
+  useEffect(() => {
+    let mounted = true;
+    async function fetchCustomerOrders() {
+      try {
+        const fetched = await apiFetch<OrderItem[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
+        if (mounted && Array.isArray(fetched) && fetched.length > 0) {
+          // Merge fetched server orders with store orders preventing duplicates
+          const mergedMap = new Map<string, OrderItem>();
+          storeOrders.forEach((o) => mergedMap.set(o.id, o));
+          fetched.forEach((f) => mergedMap.set(f.id, f));
+          setStoreOrders(Array.from(mergedMap.values()));
+        }
+      } catch (err) {
+        console.log("Could not fetch server orders:", err);
+      }
+    }
+
+    fetchCustomerOrders();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const activeOrders = storeOrders.filter((o) => o.status === "active");
+  const completedOrders = storeOrders.filter((o) => o.status === "completed");
   const displayedOrders = activeTab === "active" ? activeOrders : completedOrders;
 
   return (

@@ -7,7 +7,10 @@ type Role = "admin" | "staff" | "customer" | null;
 interface AuthState {
   role: Role;
   name: string;
+  shopName: string;
   email: string;
+  phone: string;
+  location: string;
   token: string | null;
   isVerified: boolean;
   onboardingCompleted: boolean;
@@ -15,7 +18,10 @@ interface AuthState {
   createdAt: string | null;
   setRole: (role: Role) => void;
   setName: (name: string) => void;
+  setShopName: (shopName: string) => void;
   setEmail: (email: string) => void;
+  setPhone: (phone: string) => void;
+  setLocation: (location: string) => void;
   setToken: (token: string) => void;
   setIsVerified: (isVerified: boolean) => void;
   setOnboardingCompleted: (completed: boolean) => void;
@@ -35,7 +41,10 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       role: null,
       name: "",
+      shopName: "",
       email: "",
+      phone: "",
+      location: "Lagos, Nigeria",
       token: null,
       isVerified: false,
       onboardingCompleted: false,
@@ -43,7 +52,10 @@ export const useAuthStore = create<AuthState>()(
       createdAt: null,
       setRole: (role) => set({ role }),
       setName: (name) => set({ name }),
+      setShopName: (shopName) => set({ shopName }),
       setEmail: (email) => set({ email }),
+      setPhone: (phone) => set({ phone }),
+      setLocation: (location) => set({ location }),
       setToken: (token) => set({ token }),
       setIsVerified: (isVerified) => set({ isVerified }),
       setOnboardingCompleted: (onboardingCompleted) => set({ onboardingCompleted }),
@@ -53,7 +65,10 @@ export const useAuthStore = create<AuthState>()(
         set({
           role: null,
           name: "",
+          shopName: "",
           email: "",
+          phone: "",
+          location: "Lagos, Nigeria",
           token: null,
           isVerified: false,
           onboardingCompleted: false,

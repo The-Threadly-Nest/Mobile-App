@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,10 +9,15 @@ import {
   Image,
   ImageSourcePropType,
   StyleSheet,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { MapPin, Search, Star } from "lucide-react-native";
+import * as Location from "expo-location";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export interface TailorItem {
   id: string;
@@ -88,22 +93,92 @@ const CATEGORIES = ["Aso-ebi", "Agbada", "Kaftan", "Gele & Accessories"];
 export default function BrowseScreen() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [tailorsList, setTailorsList] = useState<TailorItem[]>(MOCK_TAILORS);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  const filteredTailors = MOCK_TAILORS.filter((item) => {
+  const savedLocation = useAuthStore((s) => s.location);
+  const setStoreLocation = useAuthStore((s) => s.setLocation);
+
+  const [currentLocation, setCurrentLocation] = useState<string>(savedLocation || "Lagos, Nigeria");
+  const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
+
+  const fetchFashionHouses = async () => {
+    try {
+      const fetched = await apiFetch<TailorItem[]>("/api/fashion-houses", { silent: true }).catch(() => []);
+      if (Array.isArray(fetched) && fetched.length > 0) {
+        // Merge real database records with fallback mock tailors preventing duplicate IDs
+        const map = new Map<string, TailorItem>();
+        fetched.forEach((item) => map.set(item.id, item));
+        MOCK_TAILORS.forEach((item) => {
+          if (!map.has(item.id)) map.set(item.id, item);
+        });
+        setTailorsList(Array.from(map.values()));
+      }
+    } catch (err) {
+      console.log("Could not fetch real fashion houses:", err);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([fetchFashionHouses(), fetchCurrentLocation()]);
+    setRefreshing(false);
+  };
+
+  const fetchCurrentLocation = async () => {
+    try {
+      setIsFetchingLocation(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setIsFetchingLocation(false);
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const geocode = await Location.reverseGeocodeAsync({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+      });
+
+      if (geocode && geocode.length > 0) {
+        const place = geocode[0];
+        const city = place.city || place.subregion || place.region || "Lagos";
+        const country = place.country || "Nigeria";
+        const formatted = `${city}, ${country}`;
+        setCurrentLocation(formatted);
+        setStoreLocation(formatted);
+      }
+    } catch (err) {
+      console.log("Could not auto-fetch location:", err);
+    } finally {
+      setIsFetchingLocation(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentLocation();
+    fetchFashionHouses();
+  }, []);
+
+  const filteredTailors = tailorsList.filter((item) => {
     const matchesCategory =
       !selectedCategory ||
-      item.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      item.badge.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      item.categoryTag.toLowerCase().includes(selectedCategory.toLowerCase());
+      (item.category && item.category.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+      (item.badge && item.badge.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+      (item.categoryTag && item.categoryTag.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+    const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.badge.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.categoryTag.toLowerCase().includes(searchQuery.toLowerCase());
+      !q ||
+      item.name.toLowerCase().includes(q) ||
+      item.location.toLowerCase().includes(q) ||
+      (item.badge && item.badge.toLowerCase().includes(q)) ||
+      (item.categoryTag && item.categoryTag.toLowerCase().includes(q));
+
     return matchesCategory && matchesSearch;
   });
 
-  // Display all mock tailors if search & filter yield all, ensure all 4 render seamlessly
-  const displayTailors = filteredTailors.length > 0 ? filteredTailors : MOCK_TAILORS;
+  const displayTailors = filteredTailors.length > 0 ? filteredTailors : tailorsList;
 
   const renderStarRating = (rating: number) => {
     const stars = [];
@@ -128,20 +203,25 @@ export default function BrowseScreen() {
       {/* Header Area */}
       <View style={styles.header}>
         {/* Location Row */}
-        <View style={styles.locationRow}>
+        <Pressable style={styles.locationRow} onPress={fetchCurrentLocation}>
           <MapPin size={16} color="#000000" style={{ marginRight: 6 }} />
-          <Text style={styles.locationText}>Lagos, Nigeria</Text>
-        </View>
+          <Text style={styles.locationText}>
+            {isFetchingLocation ? "Detecting location..." : currentLocation}
+          </Text>
+          {isFetchingLocation && (
+            <ActivityIndicator size="small" color="#4A080C" style={{ marginLeft: 6 }} />
+          )}
+        </Pressable>
 
         {/* Title */}
-        <Text style={styles.title}>Find your tailor</Text>
+        <Text style={styles.title}>Find your Fashion House</Text>
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
           <Search size={18} color="#404040" style={{ marginRight: 8 }} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search agbada, aso-ebi, kaftan..."
+            placeholder="Search fashion house by name or location..."
             placeholderTextColor="#404040"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -191,6 +271,9 @@ export default function BrowseScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />
+        }
         renderItem={({ item }) => (
           <Pressable
             style={({ pressed }) => [

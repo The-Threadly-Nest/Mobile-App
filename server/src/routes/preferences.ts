@@ -11,12 +11,27 @@ router.use(requireAuth);
 router.post("/", validate({ body: preferenceSchema }), async (req, res, next) => {
   try {
     const userId = req.authUserId!;
-    const { styles, budget, timeline } = req.body;
+    const { styles, budget, timeline, phone, location } = req.body;
+
+    const existing = await prisma.customerPreference.findUnique({ where: { userId } });
 
     const preference = await prisma.customerPreference.upsert({
       where: { userId },
-      update: { styles, budget, timeline },
-      create: { userId, styles, budget, timeline },
+      update: {
+        ...(styles !== undefined && { styles }),
+        ...(budget !== undefined && { budget }),
+        ...(timeline !== undefined && { timeline }),
+        ...(phone !== undefined && { phone }),
+        ...(location !== undefined && { location }),
+      },
+      create: {
+        userId,
+        styles: styles || [],
+        budget: budget || "mid",
+        timeline: timeline || "2-4 weeks",
+        phone: phone || null,
+        location: location || null,
+      },
     });
 
     res.json(preference);

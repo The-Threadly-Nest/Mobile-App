@@ -67,4 +67,39 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatal
   }
 });
 
+// Delete Catalog Item (Admin/Staff only)
+router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
+  try {
+    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+
+    const existing = await prisma.catalogItem.findFirst({
+      where: { id: req.params.id, fashionHouseId: fhId },
+    });
+    if (!existing) {
+      return res.status(404).json({ error: "Catalog item not found." });
+    }
+
+    await prisma.catalogItem.delete({
+      where: { id: req.params.id },
+    });
+
+    res.json({ message: "Catalog item deleted successfully." });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Public GET catalog items for a fashion house
+router.get("/fashion-house/:fashionHouseId", async (req, res, next) => {
+  try {
+    const catalog = await prisma.catalogItem.findMany({
+      where: { fashionHouseId: req.params.fashionHouseId },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(catalog);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

@@ -14,7 +14,7 @@ router.get("/profile", async (req, res, next) => {
       where: { adminId: req.authUserId! },
       include: {
         admin: {
-          select: { id: true, email: true, role: true },
+          select: { id: true, email: true, name: true, role: true },
         },
       },
     });

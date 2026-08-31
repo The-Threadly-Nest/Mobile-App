@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import * as NavigationBar from "expo-navigation-bar";
 import { router } from "expo-router";
+import { ArrowLeft } from "lucide-react-native";
 
 const slides = [
   {
@@ -51,6 +52,15 @@ export default function OnboardingScreen() {
     router.push({ pathname: "/(auth)/signup", params: { role: "customer" } });
   };
 
+  const handleBack = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((i) => i - 1);
+    } else {
+      if (router.canGoBack()) router.back();
+      else router.replace("/(auth)/role-select");
+    }
+  };
+
   return (
     <ImageBackground
       key={currentIndex}
@@ -74,6 +84,26 @@ export default function OnboardingScreen() {
           backgroundColor: "rgba(0,0,0,0.50)",
         }}
       />
+
+      {/* Back button — top-left */}
+      <Pressable
+        onPress={handleBack}
+        style={{
+          position: "absolute",
+          top: 56,
+          left: 24,
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.5)",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 10,
+        }}
+      >
+        <ArrowLeft size={20} color="#FFFFFF" />
+      </Pressable>
 
       {/* Bottom content */}
       <View

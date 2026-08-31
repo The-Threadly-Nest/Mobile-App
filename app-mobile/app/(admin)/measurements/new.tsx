@@ -69,7 +69,7 @@ export default function NewMeasurementScreen() {
         <Pressable onPress={() => router.back()} className="mr-3">
           <ChevronLeft size={24} color="#4A080C" />
         </Pressable>
-        <Headline className="text-xl">New Measurement</Headline>
+        <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 20, color: "#3B0508" }}>New Measurement</Text>
       </View>
 
       <ScrollView className="flex-1 px-5">

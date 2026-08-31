@@ -3,8 +3,8 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { inviteStaffSchema } from "../schemas/staff.schema";
-import { hashPassword } from "../lib/password";
-import { sendWelcomeEmail } from "../lib/mailer";
+import { hashPassword, generateResetToken, hashResetToken } from "../lib/password";
+import { sendWelcomeEmail, sendStaffActivationEmail } from "../lib/mailer";
 
 const router = Router();
 router.use(requireAuth, requireRole("admin"));

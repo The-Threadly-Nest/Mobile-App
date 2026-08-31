@@ -32,7 +32,9 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
 
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
+  const setNameStore = useAuthStore((s) => s.setName);
   const setRoleStore = useAuthStore((s) => s.setRole);
+  const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
 
   const promptAsync = async () => {
     setError("");
@@ -71,7 +73,9 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
 
       setToken(data.token);
       setEmailStore(data.user.email);
+      setNameStore(data.user.name ?? "");
       setRoleStore(data.user.role);
+      setCreatedAt(data.user.createdAt ?? new Date().toISOString());
 
       if (data.user.role === "admin") router.replace("/(admin)/dashboard");
       else if (data.user.role === "staff") router.replace("/(staff)/dashboard");

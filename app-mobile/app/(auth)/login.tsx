@@ -28,8 +28,12 @@ export default function LoginScreen() {
 
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
+  const setNameStore = useAuthStore((s) => s.setName);
   const setRoleStore = useAuthStore((s) => s.setRole);
-  const isVerified = useAuthStore((s) => s.isVerified);
+  const setShopName = useAuthStore((s) => s.setShopName);
+  const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
+  const setIsVerified = useAuthStore((s) => s.setIsVerified);
+  const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
 
   const isGmail = (e: string) => {
     const clean = e.trim().toLowerCase();
@@ -64,13 +68,23 @@ export default function LoginScreen() {
       const body = await res.json();
       if (!res.ok) throw new Error(body.error ?? "Invalid email or password.");
 
+      const userVerified = body.user.isVerified ?? true;
+      const userOnboardingCompleted = body.user.onboardingCompleted ?? false;
+
       setToken(body.token);
       setEmailStore(body.user.email);
+      setNameStore(body.user.name ?? "");
+      setShopName(body.user.shopName ?? "");
       setRoleStore(body.user.role);
+      setCreatedAt(body.user.createdAt ?? null);
+      setIsVerified(userVerified);
+      setOnboardingCompleted(userOnboardingCompleted);
 
       if (body.user.role === "admin") {
-        if (!isVerified) {
+        if (!userVerified) {
           router.replace({ pathname: "/(auth)/verify", params: { email: body.user.email } });
+        } else if (!userOnboardingCompleted) {
+          router.replace("/(admin)/onboarding");
         } else {
           router.replace("/(admin)/dashboard");
         }
@@ -107,7 +121,10 @@ export default function LoginScreen() {
           {/* Top Header */}
           <View style={styles.header}>
             <Pressable
-              onPress={() => router.replace("/onboarding")}
+              onPress={() => {
+                if (router.canGoBack()) router.back();
+                else router.replace("/(auth)/role-select");
+              }}
               style={({ pressed }) => [
                 styles.backBtn,
                 { opacity: pressed ? 0.7 : 1 },

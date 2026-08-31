@@ -88,6 +88,7 @@ export const UserScalarFieldEnum = {
   email: 'email',
   googleId: 'googleId',
   passwordHash: 'passwordHash',
+  name: 'name',
   role: 'role',
   fashionHouseId: 'fashionHouseId',
   active: 'active',
@@ -238,6 +239,8 @@ export const CustomerPreferenceScalarFieldEnum = {
   styles: 'styles',
   budget: 'budget',
   timeline: 'timeline',
+  phone: 'phone',
+  location: 'location',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

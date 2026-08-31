@@ -29,6 +29,8 @@ export type CustomerPreferenceMinAggregateOutputType = {
   userId: string | null
   budget: string | null
   timeline: string | null
+  phone: string | null
+  location: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +40,8 @@ export type CustomerPreferenceMaxAggregateOutputType = {
   userId: string | null
   budget: string | null
   timeline: string | null
+  phone: string | null
+  location: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +52,8 @@ export type CustomerPreferenceCountAggregateOutputType = {
   styles: number
   budget: number
   timeline: number
+  phone: number
+  location: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -59,6 +65,8 @@ export type CustomerPreferenceMinAggregateInputType = {
   userId?: true
   budget?: true
   timeline?: true
+  phone?: true
+  location?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -68,6 +76,8 @@ export type CustomerPreferenceMaxAggregateInputType = {
   userId?: true
   budget?: true
   timeline?: true
+  phone?: true
+  location?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -78,6 +88,8 @@ export type CustomerPreferenceCountAggregateInputType = {
   styles?: true
   budget?: true
   timeline?: true
+  phone?: true
+  location?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -161,6 +173,8 @@ export type CustomerPreferenceGroupByOutputType = {
   styles: string[]
   budget: string
   timeline: string
+  phone: string | null
+  location: string | null
   createdAt: Date
   updatedAt: Date
   _count: CustomerPreferenceCountAggregateOutputType | null
@@ -192,6 +206,8 @@ export type CustomerPreferenceWhereInput = {
   styles?: Prisma.StringNullableListFilter<"CustomerPreference">
   budget?: Prisma.StringFilter<"CustomerPreference"> | string
   timeline?: Prisma.StringFilter<"CustomerPreference"> | string
+  phone?: Prisma.StringNullableFilter<"CustomerPreference"> | string | null
+  location?: Prisma.StringNullableFilter<"CustomerPreference"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerPreference"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerPreference"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -203,6 +219,8 @@ export type CustomerPreferenceOrderByWithRelationInput = {
   styles?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   timeline?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  location?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -217,6 +235,8 @@ export type CustomerPreferenceWhereUniqueInput = Prisma.AtLeast<{
   styles?: Prisma.StringNullableListFilter<"CustomerPreference">
   budget?: Prisma.StringFilter<"CustomerPreference"> | string
   timeline?: Prisma.StringFilter<"CustomerPreference"> | string
+  phone?: Prisma.StringNullableFilter<"CustomerPreference"> | string | null
+  location?: Prisma.StringNullableFilter<"CustomerPreference"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CustomerPreference"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CustomerPreference"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -228,6 +248,8 @@ export type CustomerPreferenceOrderByWithAggregationInput = {
   styles?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   timeline?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  location?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CustomerPreferenceCountOrderByAggregateInput
@@ -244,6 +266,8 @@ export type CustomerPreferenceScalarWhereWithAggregatesInput = {
   styles?: Prisma.StringNullableListFilter<"CustomerPreference">
   budget?: Prisma.StringWithAggregatesFilter<"CustomerPreference"> | string
   timeline?: Prisma.StringWithAggregatesFilter<"CustomerPreference"> | string
+  phone?: Prisma.StringNullableWithAggregatesFilter<"CustomerPreference"> | string | null
+  location?: Prisma.StringNullableWithAggregatesFilter<"CustomerPreference"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerPreference"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CustomerPreference"> | Date | string
 }
@@ -253,6 +277,8 @@ export type CustomerPreferenceCreateInput = {
   styles?: Prisma.CustomerPreferenceCreatestylesInput | string[]
   budget: string
   timeline: string
+  phone?: string | null
+  location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPreferenceInput
@@ -264,6 +290,8 @@ export type CustomerPreferenceUncheckedCreateInput = {
   styles?: Prisma.CustomerPreferenceCreatestylesInput | string[]
   budget: string
   timeline: string
+  phone?: string | null
+  location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -273,6 +301,8 @@ export type CustomerPreferenceUpdateInput = {
   styles?: Prisma.CustomerPreferenceUpdatestylesInput | string[]
   budget?: Prisma.StringFieldUpdateOperationsInput | string
   timeline?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPreferenceNestedInput
@@ -284,6 +314,8 @@ export type CustomerPreferenceUncheckedUpdateInput = {
   styles?: Prisma.CustomerPreferenceUpdatestylesInput | string[]
   budget?: Prisma.StringFieldUpdateOperationsInput | string
   timeline?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -294,6 +326,8 @@ export type CustomerPreferenceCreateManyInput = {
   styles?: Prisma.CustomerPreferenceCreatestylesInput | string[]
   budget: string
   timeline: string
+  phone?: string | null
+  location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -303,6 +337,8 @@ export type CustomerPreferenceUpdateManyMutationInput = {
   styles?: Prisma.CustomerPreferenceUpdatestylesInput | string[]
   budget?: Prisma.StringFieldUpdateOperationsInput | string
   timeline?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -313,6 +349,8 @@ export type CustomerPreferenceUncheckedUpdateManyInput = {
   styles?: Prisma.CustomerPreferenceUpdatestylesInput | string[]
   budget?: Prisma.StringFieldUpdateOperationsInput | string
   timeline?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -328,6 +366,8 @@ export type CustomerPreferenceCountOrderByAggregateInput = {
   styles?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   timeline?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  location?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -337,6 +377,8 @@ export type CustomerPreferenceMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   timeline?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  location?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -346,6 +388,8 @@ export type CustomerPreferenceMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   timeline?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  location?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -396,6 +440,8 @@ export type CustomerPreferenceCreateWithoutUserInput = {
   styles?: Prisma.CustomerPreferenceCreatestylesInput | string[]
   budget: string
   timeline: string
+  phone?: string | null
+  location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -405,6 +451,8 @@ export type CustomerPreferenceUncheckedCreateWithoutUserInput = {
   styles?: Prisma.CustomerPreferenceCreatestylesInput | string[]
   budget: string
   timeline: string
+  phone?: string | null
+  location?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -430,6 +478,8 @@ export type CustomerPreferenceUpdateWithoutUserInput = {
   styles?: Prisma.CustomerPreferenceUpdatestylesInput | string[]
   budget?: Prisma.StringFieldUpdateOperationsInput | string
   timeline?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,6 +489,8 @@ export type CustomerPreferenceUncheckedUpdateWithoutUserInput = {
   styles?: Prisma.CustomerPreferenceUpdatestylesInput | string[]
   budget?: Prisma.StringFieldUpdateOperationsInput | string
   timeline?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -451,6 +503,8 @@ export type CustomerPreferenceSelect<ExtArgs extends runtime.Types.Extensions.In
   styles?: boolean
   budget?: boolean
   timeline?: boolean
+  phone?: boolean
+  location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -462,6 +516,8 @@ export type CustomerPreferenceSelectCreateManyAndReturn<ExtArgs extends runtime.
   styles?: boolean
   budget?: boolean
   timeline?: boolean
+  phone?: boolean
+  location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -473,6 +529,8 @@ export type CustomerPreferenceSelectUpdateManyAndReturn<ExtArgs extends runtime.
   styles?: boolean
   budget?: boolean
   timeline?: boolean
+  phone?: boolean
+  location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -484,11 +542,13 @@ export type CustomerPreferenceSelectScalar = {
   styles?: boolean
   budget?: boolean
   timeline?: boolean
+  phone?: boolean
+  location?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CustomerPreferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "styles" | "budget" | "timeline" | "createdAt" | "updatedAt", ExtArgs["result"]["customerPreference"]>
+export type CustomerPreferenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "styles" | "budget" | "timeline" | "phone" | "location" | "createdAt" | "updatedAt", ExtArgs["result"]["customerPreference"]>
 export type CustomerPreferenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -510,6 +570,8 @@ export type $CustomerPreferencePayload<ExtArgs extends runtime.Types.Extensions.
     styles: string[]
     budget: string
     timeline: string
+    phone: string | null
+    location: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["customerPreference"]>
@@ -941,6 +1003,8 @@ export interface CustomerPreferenceFieldRefs {
   readonly styles: Prisma.FieldRef<"CustomerPreference", 'String[]'>
   readonly budget: Prisma.FieldRef<"CustomerPreference", 'String'>
   readonly timeline: Prisma.FieldRef<"CustomerPreference", 'String'>
+  readonly phone: Prisma.FieldRef<"CustomerPreference", 'String'>
+  readonly location: Prisma.FieldRef<"CustomerPreference", 'String'>
   readonly createdAt: Prisma.FieldRef<"CustomerPreference", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CustomerPreference", 'DateTime'>
 }

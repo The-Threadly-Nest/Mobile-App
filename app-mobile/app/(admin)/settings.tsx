@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Pressable, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ChevronRight, Users, User, Bell, HelpCircle, Shield, LogOut } from "lucide-react-native";
+import { ChevronRight, Users, User, Bell, HelpCircle, Shield, LogOut, Tag } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi } from "@/shared/utils/apiClient";
 
@@ -39,6 +39,11 @@ export default function AdminSettingsScreen() {
     {
       title: "Team & Business",
       items: [
+        {
+          label: "Garment Catalog & Clothes",
+          icon: Tag,
+          onPress: () => router.push("/(admin)/catalog" as any),
+        },
         {
           label: "Staff Management",
           icon: Users,

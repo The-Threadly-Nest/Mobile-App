@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Plus } from "lucide-react-native";
+import { Plus, Tag } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi, ordersApi, escalationsApi } from "@/shared/utils/apiClient";
 
@@ -18,8 +18,10 @@ interface EscalationItem {
 export default function AdminDashboard() {
   const storeName = useAuthStore((s) => s.name);
   const storeEmail = useAuthStore((s) => s.email);
+  const storedShopName = useAuthStore((s) => s.shopName);
+  const setStoredShopName = useAuthStore((s) => s.setShopName);
 
-  const [shopName, setShopName] = useState("");
+  const [shopName, setShopName] = useState(storedShopName || "");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -37,8 +39,13 @@ export default function AdminDashboard() {
 
       if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
         const house = profileRes.value.fashionHouse;
+        if (house.admin?.name) {
+          useAuthStore.getState().setName(house.admin.name);
+        }
         if (house.shopName || house.name) {
-          setShopName(house.shopName || house.name);
+          const name = house.shopName || house.name;
+          setShopName(name);
+          setStoredShopName(name);
         }
       }
 
@@ -85,17 +92,21 @@ export default function AdminDashboard() {
   const pendingEscalations = escalations.filter((e) => !e.resolved);
   const pendingBookingsCount = pendingEscalations.length;
 
+  // Business / Brand Name entered during signup (e.g. "Royal Stitch Atelier")
+  const shopNameDisplay = shopName || storedShopName || "Fashion House";
+
   // Personal Admin First Name entered during signup (e.g. "Chiamaka")
   const emailPrefix = storeEmail ? storeEmail.split("@")[0] : "";
   const fallbackEmailName = emailPrefix
     ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
     : "Admin";
 
-  const adminFullName = storeName || fallbackEmailName;
+  // Ensure personal name does not accidentally match brand name
+  const isPersonalNameValid =
+    storeName &&
+    storeName.trim().toLowerCase() !== shopNameDisplay.trim().toLowerCase();
+  const adminFullName = isPersonalNameValid ? storeName : fallbackEmailName;
   const adminFirstName = adminFullName.split(" ")[0];
-
-  // Business / Brand Name entered during signup (e.g. "Royal Stitch Atelier")
-  const shopNameDisplay = shopName || storeName || fallbackEmailName;
 
   // Fallback demo requests if database has none yet
   const displayRequests = pendingEscalations.length > 0
@@ -256,34 +267,68 @@ export default function AdminDashboard() {
           </View>
         </View>
 
-        {/* Primary CTA Button */}
-        <Pressable
-          onPress={() => router.push("/(admin)/measurements/new")}
-          style={({ pressed }) => [
-            {
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#4A080C",
-              height: 64,
-              borderRadius: 32,
-              marginBottom: 32,
-              gap: 8,
-              opacity: pressed ? 0.9 : 1,
-            },
-          ]}
-        >
-          <Plus size={22} color="#FFFFFF" />
-          <Text
-            style={{
-              fontFamily: "WorkSans_600SemiBold",
-              fontSize: 16,
-              color: "#FFFFFF",
-            }}
+        {/* Quick Action Buttons Row */}
+        <View style={{ flexDirection: "row", gap: 12, marginBottom: 32 }}>
+          <Pressable
+            onPress={() => router.push("/(admin)/measurements/new")}
+            style={({ pressed }) => [
+              {
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#4A080C",
+                height: 56,
+                borderRadius: 28,
+                gap: 6,
+                paddingHorizontal: 12,
+                opacity: pressed ? 0.9 : 1,
+              },
+            ]}
           >
-            New measurement
-          </Text>
-        </Pressable>
+            <Plus size={18} color="#FFFFFF" />
+            <Text
+              style={{
+                fontFamily: "WorkSans_500Medium",
+                fontSize: 14,
+                color: "#FFFFFF",
+              }}
+            >
+              New measurement
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push("/(admin)/catalog" as any)}
+            style={({ pressed }) => [
+              {
+                flex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "#FFFFFF",
+                borderWidth: 1.5,
+                borderColor: "#4A080C",
+                height: 56,
+                borderRadius: 28,
+                gap: 6,
+                paddingHorizontal: 12,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Tag size={18} color="#4A080C" />
+            <Text
+              style={{
+                fontFamily: "WorkSans_500Medium",
+                fontSize: 14,
+                color: "#4A080C",
+              }}
+            >
+              Upload Clothes
+            </Text>
+          </Pressable>
+        </View>
 
         {/* Booking Requests Header */}
         <View

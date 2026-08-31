@@ -108,11 +108,16 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       await createEscalation(fashionHouseId, customerId, history, args.reason, args.conversationSummary);
       // Clear session after escalation
       await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] } });
-      return res.json({ type: "escalated", reason: args.reason, reply: "I've flagged this for the team — they'll follow up with you directly." });
+      return res.json({ type: "escalated", reason: args.reason, reply: "I've flagged this for the team, and someone will follow up with you directly." });
     }
 
     // 7. Save the new exchange to DB (user message + model reply)
-    const modelReply = response.text();
+    let modelReply = response.text() || "";
+    modelReply = modelReply
+      .replace(/—/g, ", ")
+      .replace(/--/g, ", ")
+      .replace(/_/g, "");
+
     const updatedHistory: ChatTurn[] = [
       ...history,
       { role: "user", text: message },

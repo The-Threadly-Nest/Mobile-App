@@ -29,6 +29,7 @@ export type UserMinAggregateOutputType = {
   email: string | null
   googleId: string | null
   passwordHash: string | null
+  name: string | null
   role: string | null
   fashionHouseId: string | null
   active: boolean | null
@@ -43,6 +44,7 @@ export type UserMaxAggregateOutputType = {
   email: string | null
   googleId: string | null
   passwordHash: string | null
+  name: string | null
   role: string | null
   fashionHouseId: string | null
   active: boolean | null
@@ -57,6 +59,7 @@ export type UserCountAggregateOutputType = {
   email: number
   googleId: number
   passwordHash: number
+  name: number
   role: number
   fashionHouseId: number
   active: number
@@ -73,6 +76,7 @@ export type UserMinAggregateInputType = {
   email?: true
   googleId?: true
   passwordHash?: true
+  name?: true
   role?: true
   fashionHouseId?: true
   active?: true
@@ -87,6 +91,7 @@ export type UserMaxAggregateInputType = {
   email?: true
   googleId?: true
   passwordHash?: true
+  name?: true
   role?: true
   fashionHouseId?: true
   active?: true
@@ -101,6 +106,7 @@ export type UserCountAggregateInputType = {
   email?: true
   googleId?: true
   passwordHash?: true
+  name?: true
   role?: true
   fashionHouseId?: true
   active?: true
@@ -188,6 +194,7 @@ export type UserGroupByOutputType = {
   email: string
   googleId: string | null
   passwordHash: string | null
+  name: string | null
   role: string
   fashionHouseId: string | null
   active: boolean
@@ -223,6 +230,7 @@ export type UserWhereInput = {
   email?: Prisma.StringFilter<"User"> | string
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  name?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.StringFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
@@ -245,6 +253,7 @@ export type UserOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -270,6 +279,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  name?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.StringFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
@@ -292,6 +302,7 @@ export type UserOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   googleId?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  name?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -312,6 +323,7 @@ export type UserScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   googleId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  name?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   role?: Prisma.StringWithAggregatesFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -326,6 +338,7 @@ export type UserCreateInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -347,6 +360,7 @@ export type UserUncheckedCreateInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -368,6 +382,7 @@ export type UserUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -389,6 +404,7 @@ export type UserUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -410,6 +426,7 @@ export type UserCreateManyInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -424,6 +441,7 @@ export type UserUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -437,6 +455,7 @@ export type UserUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -451,6 +470,7 @@ export type UserCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -465,6 +485,7 @@ export type UserMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -479,6 +500,7 @@ export type UserMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   googleId?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  name?: Prisma.SortOrder
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   active?: Prisma.SortOrder
@@ -675,6 +697,7 @@ export type UserCreateWithoutFashionHouseOwnedInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -695,6 +718,7 @@ export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -720,6 +744,7 @@ export type UserCreateWithoutFashionHouseInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -740,6 +765,7 @@ export type UserUncheckedCreateWithoutFashionHouseInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -781,6 +807,7 @@ export type UserUpdateWithoutFashionHouseOwnedInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -801,6 +828,7 @@ export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -840,6 +868,7 @@ export type UserScalarWhereInput = {
   email?: Prisma.StringFilter<"User"> | string
   googleId?: Prisma.StringNullableFilter<"User"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  name?: Prisma.StringNullableFilter<"User"> | string | null
   role?: Prisma.StringFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
@@ -854,6 +883,7 @@ export type UserCreateWithoutDelegatedOrdersInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -874,6 +904,7 @@ export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -910,6 +941,7 @@ export type UserUpdateWithoutDelegatedOrdersInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -930,6 +962,7 @@ export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -950,6 +983,7 @@ export type UserCreateWithoutBookingsInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -970,6 +1004,7 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -1006,6 +1041,7 @@ export type UserUpdateWithoutBookingsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1026,6 +1062,7 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1046,6 +1083,7 @@ export type UserCreateWithoutChatEscalationsInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -1066,6 +1104,7 @@ export type UserUncheckedCreateWithoutChatEscalationsInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -1102,6 +1141,7 @@ export type UserUpdateWithoutChatEscalationsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1122,6 +1162,7 @@ export type UserUncheckedUpdateWithoutChatEscalationsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1142,6 +1183,7 @@ export type UserCreateWithoutPreferenceInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -1162,6 +1204,7 @@ export type UserUncheckedCreateWithoutPreferenceInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -1198,6 +1241,7 @@ export type UserUpdateWithoutPreferenceInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1218,6 +1262,7 @@ export type UserUncheckedUpdateWithoutPreferenceInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1238,6 +1283,7 @@ export type UserCreateWithoutMoodBoardSketchesInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -1258,6 +1304,7 @@ export type UserUncheckedCreateWithoutMoodBoardSketchesInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -1294,6 +1341,7 @@ export type UserUpdateWithoutMoodBoardSketchesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1314,6 +1362,7 @@ export type UserUncheckedUpdateWithoutMoodBoardSketchesInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1334,6 +1383,7 @@ export type UserCreateWithoutChatSessionsInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -1354,6 +1404,7 @@ export type UserUncheckedCreateWithoutChatSessionsInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   fashionHouseId?: string | null
   active?: boolean
@@ -1390,6 +1441,7 @@ export type UserUpdateWithoutChatSessionsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1410,6 +1462,7 @@ export type UserUncheckedUpdateWithoutChatSessionsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1430,6 +1483,7 @@ export type UserCreateManyFashionHouseInput = {
   email: string
   googleId?: string | null
   passwordHash?: string | null
+  name?: string | null
   role: string
   active?: boolean
   resetTokenHash?: string | null
@@ -1443,6 +1497,7 @@ export type UserUpdateWithoutFashionHouseInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1463,6 +1518,7 @@ export type UserUncheckedUpdateWithoutFashionHouseInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1483,6 +1539,7 @@ export type UserUncheckedUpdateManyWithoutFashionHouseInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1563,6 +1620,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   email?: boolean
   googleId?: boolean
   passwordHash?: boolean
+  name?: boolean
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
@@ -1586,6 +1644,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   googleId?: boolean
   passwordHash?: boolean
+  name?: boolean
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
@@ -1601,6 +1660,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   email?: boolean
   googleId?: boolean
   passwordHash?: boolean
+  name?: boolean
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
@@ -1616,6 +1676,7 @@ export type UserSelectScalar = {
   email?: boolean
   googleId?: boolean
   passwordHash?: boolean
+  name?: boolean
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
@@ -1625,7 +1686,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "passwordHash" | "role" | "fashionHouseId" | "active" | "resetTokenHash" | "resetTokenExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "passwordHash" | "name" | "role" | "fashionHouseId" | "active" | "resetTokenHash" | "resetTokenExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouseOwned?: boolean | Prisma.User$fashionHouseOwnedArgs<ExtArgs>
   fashionHouse?: boolean | Prisma.User$fashionHouseArgs<ExtArgs>
@@ -1661,6 +1722,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string
     googleId: string | null
     passwordHash: string | null
+    name: string | null
     role: string
     fashionHouseId: string | null
     active: boolean
@@ -2103,6 +2165,7 @@ export interface UserFieldRefs {
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly googleId: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
+  readonly name: Prisma.FieldRef<"User", 'String'>
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly fashionHouseId: Prisma.FieldRef<"User", 'String'>
   readonly active: Prisma.FieldRef<"User", 'Boolean'>

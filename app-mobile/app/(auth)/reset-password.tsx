@@ -32,7 +32,7 @@ export default function ResetPasswordScreen() {
       });
       const rawText = await res.text();
       let body: any = {};
-      try { body = JSON.parse(rawText); } catch {}
+      try { body = JSON.parse(rawText); } catch { }
       if (!res.ok) throw new Error(body.error ?? "Could not reset password. Please check your PIN.");
       setSuccess(true);
     } catch (e: any) {
@@ -82,11 +82,11 @@ export default function ResetPasswordScreen() {
         editable={!email}
       />
       <Input
-        placeholder="4-digit PIN"
+        placeholder="4-DIGIT PIN"
         autoCapitalize="characters"
         maxLength={4}
         value={inputToken}
-        onChangeText={(val) => setInputToken(val.toUpperCase())}
+        onChangeText={(val) => setInputToken(val.trim().toUpperCase())}
       />
       <Input placeholder="New password" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
       <Input placeholder="Confirm new password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />

@@ -30,10 +30,18 @@ interface Turn {
   slots?: Slot[];
 }
 
+function sanitizeText(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/—/g, ", ")
+    .replace(/--/g, ", ")
+    .replace(/_/g, "");
+}
+
 const DEFAULT_INITIAL_TURNS: Turn[] = [
   {
     role: "model",
-    text: "Hi! I’ll help you book with Adaeze Couture. What’s the occasion?",
+    text: "Welcome to Adaeze Couture! We are delighted to assist you with your fitting. What occasion are we styling for today?",
     options: ["Wedding", "Owambe", "Just for me"],
   },
 ];
@@ -64,7 +72,7 @@ export default function BookingChatScreen() {
             const body = await res.json();
             const serverHistory: Turn[] = body.history ?? [];
             if (serverHistory.length > 0) {
-              setHistory(serverHistory);
+              setHistory(serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) })));
             }
           }
         }
@@ -100,7 +108,7 @@ export default function BookingChatScreen() {
         });
         if (res.ok) {
           const body = await res.json();
-          replyText = body.reply;
+          replyText = sanitizeText(body.reply);
           responseType = body.type;
         }
       }
@@ -109,7 +117,7 @@ export default function BookingChatScreen() {
         setBookingConfirmed(true);
         const confirmTurn: Turn = {
           role: "model",
-          text: replyText || "Your appointment request has been sent! The fashion house will confirm shortly.",
+          text: replyText || `Your fitting request with ${fashionHouseName} has been received! Our team will confirm shortly.`,
         };
         setHistory((prev) => [...prev, confirmTurn]);
 
@@ -132,14 +140,14 @@ export default function BookingChatScreen() {
       // Interactive turn generation based on conversation stage
       let responseTurn: Turn = {
         role: "model",
-        text: replyText || "Lovely — congratulations! What are we making?",
+        text: replyText || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
       };
 
       if (lower.includes("wedding") || lower.includes("owambe") || lower.includes("just for me")) {
-        responseTurn.text = replyText || "Lovely — congratulations! What are we making?";
+        responseTurn.text = replyText || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
         responseTurn.options = ["Bridal Gown", "Aso-Ebi", "Both"];
       } else if (lower.includes("gown") || lower.includes("aso-ebi") || lower.includes("both")) {
-        responseTurn.text = replyText || "Great choice. Here are the nearest fitting slots at the atelier:";
+        responseTurn.text = replyText || `Excellent choice. Here are the upcoming fitting slots available at ${fashionHouseName}:`;
         responseTurn.slots = [
           { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
           { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
@@ -152,12 +160,12 @@ export default function BookingChatScreen() {
       // Fallback interactive response
       let responseTurn: Turn = {
         role: "model",
-        text: "Lovely — congratulations! What are we making?",
+        text: `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
         options: ["Bridal Gown", "Aso-Ebi", "Both"],
       };
 
       if (lower.includes("gown") || lower.includes("aso-ebi") || lower.includes("both")) {
-        responseTurn.text = "Great choice. Here are the nearest fitting slots at the atelier:";
+        responseTurn.text = `Excellent choice. Here are the upcoming fitting slots available at ${fashionHouseName}:`;
         responseTurn.options = undefined;
         responseTurn.slots = [
           { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
@@ -166,7 +174,7 @@ export default function BookingChatScreen() {
         ];
       } else if (lower.includes("slot") || lower.includes("sep")) {
         setBookingConfirmed(true);
-        responseTurn.text = "Your appointment request has been sent! The fashion house will confirm shortly.";
+        responseTurn.text = `Your fitting request with ${fashionHouseName} has been received! Our team will confirm shortly.`;
         responseTurn.options = undefined;
 
         const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Sat, 6 Sep · 10:00 AM";
@@ -254,7 +262,7 @@ export default function BookingChatScreen() {
                         isUser ? "text-white" : "text-white"
                       }`}
                     >
-                      {turn.text}
+                      {sanitizeText(turn.text)}
                     </Text>
                   </View>
 

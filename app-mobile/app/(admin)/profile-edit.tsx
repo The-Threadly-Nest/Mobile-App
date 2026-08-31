@@ -18,6 +18,7 @@ import { ArrowLeft, Upload, Check } from "lucide-react-native";
 import { adminApi, AdminOnboardingPayload } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
 
 const SPECIALIZATIONS = [
   "Bridal Wear",
@@ -42,6 +43,7 @@ export default function AdminProfileEditScreen() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const setStoreName = useAuthStore((s) => s.setName);
+  const setStoredShopName = useAuthStore((s) => s.setShopName);
 
   useEffect(() => {
     async function loadProfile() {
@@ -123,7 +125,7 @@ export default function AdminProfileEditScreen() {
       };
 
       await adminApi.completeOnboarding(payload);
-      setStoreName(shopName.trim());
+      setStoredShopName(shopName.trim());
 
       Alert.alert("Success", "Your profile & business info have been updated.", [
         { text: "OK", onPress: () => router.back() },
@@ -296,34 +298,11 @@ export default function AdminProfileEditScreen() {
             />
 
             {/* Phone */}
-            <Text
-              style={{
-                fontFamily: "WorkSans_600SemiBold",
-                fontSize: 13,
-                color: "#4A080C",
-                marginBottom: 8,
-              }}
-            >
-              Phone Number
-            </Text>
-            <TextInput
+            <PhoneInputWithCountry
+              label="Official Business Phone"
+              placeholder="801 234 5678"
               value={phone}
-              onChangeText={setPhone}
-              placeholder="e.g. +234 801 234 5678"
-              keyboardType="phone-pad"
-              placeholderTextColor="#B0966C"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                paddingHorizontal: 16,
-                height: 52,
-                fontFamily: "WorkSans_500Medium",
-                fontSize: 15,
-                color: "#3B0508",
-                borderWidth: 1,
-                borderColor: "rgba(0,0,0,0.08)",
-                marginBottom: 20,
-              }}
+              onChangePhone={setPhone}
             />
 
             {/* Brand Bio / Motto */}

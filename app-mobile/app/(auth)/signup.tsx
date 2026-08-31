@@ -35,6 +35,7 @@ export default function SignupScreen() {
   const setEmailStore = useAuthStore((s) => s.setEmail);
   const setNameStore = useAuthStore((s) => s.setName);
   const setRoleStore = useAuthStore((s) => s.setRole);
+  const setShopName = useAuthStore((s) => s.setShopName);
   const setIsVerified = useAuthStore((s) => s.setIsVerified);
   const setResendAvailableAt = useAuthStore((s) => s.setResendAvailableAt);
   const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
@@ -93,6 +94,9 @@ export default function SignupScreen() {
       setToken(body.token);
       setEmailStore(body.user.email);
       setNameStore(name.trim());
+      if (role === "admin" && businessName) {
+        setShopName(businessName.trim());
+      }
       setCreatedAt(new Date().toISOString());
       setRoleStore(body.user.role);
       setIsVerified(role !== "admin");
@@ -135,7 +139,7 @@ export default function SignupScreen() {
             <Pressable
               onPress={() => {
                 if (router.canGoBack()) router.back();
-                else router.replace("/onboarding");
+                else router.replace(role === "admin" ? "/admin-onboarding" : "/onboarding");
               }}
               style={({ pressed }) => [
                 styles.backBtn,

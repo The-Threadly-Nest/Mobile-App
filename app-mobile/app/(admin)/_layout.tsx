@@ -192,6 +192,8 @@ export default function AdminLayout() {
       {/* Hidden Non-Tab Routes */}
       <Tabs.Screen name="onboarding" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="profile-edit" options={{ href: null }} />
+      <Tabs.Screen name="catalog/index" options={{ href: null }} />
+      <Tabs.Screen name="catalog/new" options={{ href: null }} />
       <Tabs.Screen name="staff/index" options={{ href: null }} />
       <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null }} />
       <Tabs.Screen name="measurements/new" options={{ href: null }} />

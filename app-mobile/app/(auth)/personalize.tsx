@@ -32,12 +32,9 @@ const BUDGET_OPTIONS = [
 const TIMING_OPTIONS = ["2-4 weeks", "This week", "Just browsing"];
 
 export default function PersonalizeScreen() {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    "Bridal",
-    "Aso-Ebi",
-  ]);
-  const [selectedBudget, setSelectedBudget] = useState<string>("mid");
-  const [selectedTiming, setSelectedTiming] = useState<string>("2-4 weeks");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBudget, setSelectedBudget] = useState<string>("");
+  const [selectedTiming, setSelectedTiming] = useState<string>("");
 
   const token = useAuthStore((s) => s.token);
   const [loading, setLoading] = useState(false);
@@ -124,6 +121,7 @@ export default function PersonalizeScreen() {
                   onPress={() => toggleCategory(item)}
                   style={({ pressed }) => [
                     styles.pillButton,
+                    styles.pillButtonEqual,
                     isSelected ? styles.pillSelected : styles.pillUnselected,
                     { opacity: pressed ? 0.8 : 1 },
                   ]}
@@ -322,10 +320,14 @@ const styles = StyleSheet.create({
   pillButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 28,
     borderWidth: 1,
+  },
+  pillButtonEqual: {
+    width: "47%",
   },
   pillUnselected: {
     backgroundColor: "transparent",
