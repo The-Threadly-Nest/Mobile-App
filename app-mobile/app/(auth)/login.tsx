@@ -35,9 +35,9 @@ export default function LoginScreen() {
   const setIsVerified = useAuthStore((s) => s.setIsVerified);
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
 
-  const isGmail = (e: string) => {
+  const isValidEmail = (e: string) => {
     const clean = e.trim().toLowerCase();
-    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(clean);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean);
   };
 
   const handleLogin = async () => {
@@ -47,8 +47,8 @@ export default function LoginScreen() {
       setError("Email address is required.");
       return;
     }
-    if (!isGmail(email)) {
-      setError("Please enter a valid Gmail address (e.g., name@gmail.com).");
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
     if (!password) {

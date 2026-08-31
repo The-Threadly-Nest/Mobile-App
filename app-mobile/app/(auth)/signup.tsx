@@ -40,9 +40,9 @@ export default function SignupScreen() {
   const setResendAvailableAt = useAuthStore((s) => s.setResendAvailableAt);
   const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
 
-  const isGmail = (e: string) => {
+  const isValidEmail = (e: string) => {
     const clean = e.trim().toLowerCase();
-    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(clean);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean);
   };
 
   const handleSignup = async () => {
@@ -60,8 +60,8 @@ export default function SignupScreen() {
       setError("Email address is required.");
       return;
     }
-    if (!isGmail(email)) {
-      setError("Please enter a valid Gmail address (e.g., name@gmail.com).");
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
     if (!password) {
