@@ -307,7 +307,7 @@ router.post("/google", authLimiter, async (req, res, next) => {
 
         if (safeRole === "admin") {
           await tx.fashionHouse.create({
-            data: { adminId: newUser.id, shopName: name || "My Fashion House", onboardingCompleted: false },
+            data: { adminId: newUser.id, shopName: "", onboardingCompleted: false },
           });
         }
         return newUser.id;
@@ -317,6 +317,11 @@ router.post("/google", authLimiter, async (req, res, next) => {
         where: { id: createdUserId },
         include: { fashionHouseOwned: true },
       }))!;
+
+      // Send welcome email to newly created Google user (no PIN required)
+      sendWelcomeEmail(user.email, user.name || "there").catch((mailErr) => {
+        console.error("[AUTH] Failed to send Google welcome email:", mailErr);
+      });
     } else if (!user.googleId) {
       // Link Google ID to existing email account
       user = await prisma.user.update({
