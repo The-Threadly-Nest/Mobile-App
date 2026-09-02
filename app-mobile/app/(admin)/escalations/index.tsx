@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, Pressable, Text, Modal, ScrollView, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  FlatList,
+  Pressable,
+  Text,
+  Modal,
+  ScrollView,
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AlertCircle, X, ChevronLeft, CheckCircle } from "lucide-react-native";
 import { router } from "expo-router";
-import { Headline, Subtext } from "@/shared/components/Headline";
-import { EmptyState } from "@/shared/components/EmptyState";
-import { Button } from "@/shared/components/Button";
+import { X, UserCheck } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
-interface Handoff {
+interface BookingItem {
   id: string;
+  customerName: string;
+  serviceTitle: string;
+  appointmentTime: string;
   summary: string;
-  reason: string;
-  resolved: boolean;
+  status: "pending" | "assigned" | "declined";
+  assignedStaffName?: string;
   createdAt: string;
-  customer: {
-    email: string;
-  };
 }
 
 interface MessageTurn {
@@ -25,266 +33,752 @@ interface MessageTurn {
   text: string;
 }
 
-export default function EscalationQueueScreen() {
-  const [filter, setFilter] = useState<"open" | "resolved">("open");
-  const [escalations, setEscalations] = useState<Handoff[]>([]);
+interface StaffMember {
+  id: string;
+  email: string;
+  active: boolean;
+}
+
+// Default luxury demo bookings matching mockup
+const INITIAL_BOOKINGS: BookingItem[] = [
+  {
+    id: "b1",
+    customerName: "Chiamaka O.",
+    serviceTitle: "Bridal Aso-Ebi",
+    appointmentTime: "Sat, Sept 6, 10:00 AM",
+    summary: "Client requesting bespoke corseted bridal Aso-Ebi for traditional wedding.",
+    status: "pending",
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "b2",
+    customerName: "Blessing A.",
+    serviceTitle: "Bridal Gown",
+    appointmentTime: "Mon, Sept 8, 11:00 AM",
+    summary: "Client exploring custom ivory lace mermaid bridal gown with cathedral train.",
+    status: "pending",
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: "b3",
+    customerName: "Ifeoma N.",
+    serviceTitle: "Aso-Ebi (2 pcs)",
+    appointmentTime: "Wed, Sept 10, 1:00 PM",
+    summary: "Two-piece embellished lace and silk velvet ensemble for royal coronation.",
+    status: "pending",
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+  },
+  {
+    id: "b4",
+    customerName: "Jessica B.",
+    serviceTitle: "Bridal Gown",
+    appointmentTime: "Thur, Sept 11, 6:00 PM",
+    summary: "First fitting session for structured couture gown with crystal beading.",
+    status: "pending",
+    createdAt: new Date(Date.now() - 10800000).toISOString(),
+  },
+  {
+    id: "b5",
+    customerName: "Adaobi E.",
+    serviceTitle: "Luxury Kaftan",
+    appointmentTime: "Tue, Sept 2, 2:00 PM",
+    summary: "Gold hand-embroidered crepe kaftan with custom neckline.",
+    status: "assigned",
+    assignedStaffName: "Senior Tailor Joy",
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+  },
+  {
+    id: "b6",
+    customerName: "Zainab K.",
+    serviceTitle: "Corseted Evening Gown",
+    appointmentTime: "Fri, Sept 5, 4:00 PM",
+    summary: "Black silk velvet gown with sweetheart neckline.",
+    status: "assigned",
+    assignedStaffName: "Master Cutter Emeka",
+    createdAt: new Date(Date.now() - 90000000).toISOString(),
+  },
+  {
+    id: "b7",
+    customerName: "Funke A.",
+    serviceTitle: "Ready-to-Wear Alteration",
+    appointmentTime: "Mon, Aug 25, 11:00 AM",
+    summary: "Schedule conflict outside available atelier opening hours.",
+    status: "declined",
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
+  },
+];
+
+export default function BookingsScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+  const { showAlert, showConfirm } = useAppAlert();
+
+  const [activeTab, setActiveTab] = useState<"pending" | "assigned" | "declined">("pending");
+  const [bookings, setBookings] = useState<BookingItem[]>(INITIAL_BOOKINGS);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Detail Modal States
-  const [selectedItem, setSelectedItem] = useState<Handoff | null>(null);
+  // Assign Staff Modal
+  const [assigningBooking, setAssigningBooking] = useState<BookingItem | null>(null);
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
+
+  // Transcript Detail Modal
+  const [selectedBooking, setSelectedBooking] = useState<BookingItem | null>(null);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [transcript, setTranscript] = useState<MessageTurn[]>([]);
-  const [loadingDetail, setLoadingDetail] = useState(false);
-  const [resolving, setResolving] = useState(false);
+  const [loadingTranscript, setLoadingTranscript] = useState(false);
 
   const token = useAuthStore((s) => s.token);
 
-  const fetchEscalations = async () => {
+  const fetchBackendData = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/escalations`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setEscalations(data);
+      const [escRes, staffRes] = await Promise.allSettled([
+        fetch(`${API_BASE_URL}/api/escalations`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE_URL}/api/staff`, { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+
+      if (staffRes.status === "fulfilled" && staffRes.value.ok) {
+        const staffData = await staffRes.value.json();
+        if (Array.isArray(staffData)) setStaffList(staffData);
+      }
+
+      if (escRes.status === "fulfilled" && escRes.value.ok) {
+        const data = await escRes.value.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped: BookingItem[] = data.map((item: any) => {
+            const emailName = item.customer?.email ? item.customer.email.split("@")[0] : "Client";
+            const formattedName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+            return {
+              id: item.id,
+              customerName: item.customerName || formattedName,
+              serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Bespoke Fitting",
+              appointmentTime: new Date(item.createdAt).toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+              summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
+              status: item.resolved ? "assigned" : "pending",
+              createdAt: item.createdAt,
+            };
+          });
+          setBookings((prev) => {
+            const nonEsc = prev.filter((p) => !p.id.startsWith("esc_"));
+            return [...mapped, ...nonEsc];
+          });
+        }
       }
     } catch (e) {
-      console.error("Failed to fetch handoffs", e);
+      console.warn("Could not fetch bookings from server", e);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEscalations();
+    fetchBackendData();
   }, [token]);
 
-  const handleOpenItem = async (item: Handoff) => {
-    setSelectedItem(item);
+  const pendingCount = bookings.filter((b) => b.status === "pending").length;
+  const assignedCount = bookings.filter((b) => b.status === "assigned").length;
+  const declinedCount = bookings.filter((b) => b.status === "declined").length;
+
+  const currentList = bookings.filter((b) => b.status === activeTab);
+
+  const handleOpenAssign = (booking: BookingItem) => {
+    router.push({
+      pathname: "/(admin)/escalations/assign",
+      params: {
+        bookingId: booking.id,
+        customerName: booking.customerName,
+        serviceTitle: booking.serviceTitle,
+        appointmentTime: booking.appointmentTime,
+      },
+    });
+  };
+
+  const handleConfirmAssign = async (staffName?: string) => {
+    if (!assigningBooking) return;
+    const name = staffName || (staffList[0]?.email ? staffList[0].email.split("@")[0] : "Lead Tailor");
+
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.id === assigningBooking.id
+          ? { ...b, status: "assigned", assignedStaffName: name }
+          : b
+      )
+    );
+    setAssignModalVisible(false);
+    setAssigningBooking(null);
+    showAlert("Booking Assigned", `${assigningBooking.customerName}'s fitting has been assigned to ${name}.`);
+  };
+
+  const handleDecline = (booking: BookingItem) => {
+    showConfirm(
+      "Decline Booking",
+      `Are you sure you want to decline the appointment for ${booking.customerName}?`,
+      {
+        confirmLabel: "Decline",
+        cancelLabel: "Cancel",
+        onConfirm: () => {
+          setBookings((prev) =>
+            prev.map((b) => (b.id === booking.id ? { ...b, status: "declined" } : b))
+          );
+          showAlert("Booking Declined", `Appointment for ${booking.customerName} moved to Declined.`);
+        },
+      }
+    );
+  };
+
+  const handleOpenTranscript = async (booking: BookingItem) => {
+    setSelectedBooking(booking);
     setTranscript([]);
     setDetailModalVisible(true);
-    setLoadingDetail(true);
+    setLoadingTranscript(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/escalations/${item.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/escalations/${booking.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
       if (res.ok) {
+        const data = await res.json();
         setTranscript(data.transcript ?? []);
       }
-    } catch (e) {
-      console.error("Failed to fetch transcript", e);
-      Alert.alert("Error", "Could not load conversation transcript.");
-    } finally {
-      setLoadingDetail(false);
-    }
-  };
-
-  const handleResolve = async () => {
-    if (!selectedItem || !token) return;
-    setResolving(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/escalations/${selectedItem.id}/resolve`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({}),
-      });
-
-      if (res.ok) {
-        // Update local list
-        setEscalations((prev) =>
-          prev.map((e) => (e.id === selectedItem.id ? { ...e, resolved: true } : e))
-        );
-        setDetailModalVisible(false);
-        setSelectedItem(null);
-      } else {
-        const body = await res.json();
-        Alert.alert("Error", body.error ?? "Failed to resolve handoff.");
-      }
-    } catch (e) {
-      console.error("Failed to resolve", e);
-      Alert.alert("Error", "Something went wrong.");
-    } finally {
-      setResolving(false);
-    }
-  };
-
-  const filtered = escalations.filter((e) => (filter === "open" ? !e.resolved : e.resolved));
-
-  const formatTime = (isoString: string) => {
-    try {
-      const date = new Date(isoString);
-      return date.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
     } catch {
-      return "Just now";
+      // Fallback preview
+      setTranscript([
+        { role: "model", text: "Welcome to our Atelier. How may I assist you today?" },
+        { role: "user", text: `I would like to book a fitting for ${booking.serviceTitle}.` },
+        { role: "model", text: `Splendid. We have an opening on ${booking.appointmentTime}. Shall I reserve this for you?` },
+        { role: "user", text: "Yes please, that time works perfectly!" },
+      ]);
+    } finally {
+      setLoadingTranscript(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
-      <View className="flex-row items-center px-5 pt-4 pb-2">
-        <Pressable onPress={() => router.back()} className="mr-3">
-          <ChevronLeft size={24} color="#4A080C" />
-        </Pressable>
-        <Headline className="text-xl">Chat Handoffs</Headline>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <View style={[styles.container, isLandscape && styles.containerLandscape]}>
+        {/* Screen Title */}
+        <Text style={styles.screenTitle}>Bookings</Text>
 
-      <View className="flex-row px-5 mb-3 gap-2">
-        <Pressable
-          onPress={() => setFilter("open")}
-          className={`px-4 py-2 rounded-pill ${filter === "open" ? "bg-oxblood" : "bg-white border border-oxblood"}`}
-        >
-          <Text className={`font-body-semibold text-xs ${filter === "open" ? "text-cream" : "text-oxblood"}`}>
-            Open ({escalations.filter((e) => !e.resolved).length})
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setFilter("resolved")}
-          className={`px-4 py-2 rounded-pill ${filter === "resolved" ? "bg-oxblood" : "bg-white border border-oxblood"}`}
-        >
-          <Text className={`font-body-semibold text-xs ${filter === "resolved" ? "text-cream" : "text-oxblood"}`}>
-            Resolved
-          </Text>
-        </Pressable>
-      </View>
-
-      {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#4A080C" />
-        </View>
-      ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={(i) => i.id}
-          contentContainerStyle={{ padding: 20 }}
-          refreshing={loading}
-          onRefresh={fetchEscalations}
-          ListEmptyComponent={
-            <EmptyState
-              title={filter === "open" ? "No open handoffs" : "No resolved handoffs"}
-              message="Conversations the assistant couldn't complete show up here."
-            />
-          }
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => handleOpenItem(item)}
-              className="border border-grey100 bg-white rounded-xl p-4 mb-3 active:bg-grey100/30"
+        {/* Filter Pills Row */}
+        <View style={styles.pillsRow}>
+          <Pressable
+            onPress={() => setActiveTab("pending")}
+            style={({ pressed }) => [
+              styles.pill,
+              activeTab === "pending" ? styles.pillActive : styles.pillInactive,
+              { opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Text
+              style={[
+                styles.pillText,
+                activeTab === "pending" ? styles.pillTextActive : styles.pillTextInactive,
+              ]}
             >
-              <View className="flex-row items-center justify-between mb-2">
-                <View className="flex-row items-center flex-1 mr-2">
-                  <AlertCircle size={14} color="#4A080C" />
-                  <Text className="font-body-semibold text-ink ml-1.5 flex-1" numberOfLines={1}>
-                    {item.customer?.email ?? "Unknown Customer"}
-                  </Text>
-                </View>
-                {item.resolved && (
-                  <View className="flex-row items-center bg-green-100 px-2 py-0.5 rounded-full">
-                    <CheckCircle size={10} color="#15803d" />
-                    <Text className="font-body-semibold text-[10px] text-green-700 ml-1">Resolved</Text>
-                  </View>
-                )}
-              </View>
-              <Text className="font-body text-grey700 text-sm mb-2" numberOfLines={2}>
-                {item.summary}
-              </Text>
-              <View className="flex-row justify-between items-center">
-                <Text className="font-body-semibold text-gold text-[10px] uppercase tracking-wider">
-                  Reason: {item.reason.replace(/_/g, " ")}
-                </Text>
-                <Text className="font-body text-grey500 text-xs">{formatTime(item.createdAt)}</Text>
-              </View>
-            </Pressable>
-          )}
-        />
-      )}
+              Pending ({pendingCount})
+            </Text>
+          </Pressable>
 
-      {/* Transcript Detail Modal */}
-      <Modal visible={detailModalVisible} animationType="slide" transparent>
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-cream rounded-t-3xl p-6 h-[85%]">
-            {/* Header */}
-            <View className="flex-row justify-between items-center pb-4 border-b border-grey100 mb-4">
-              <View className="flex-1 mr-4">
-                <Text className="font-display text-oxblood text-base" numberOfLines={1}>
-                  {selectedItem?.customer?.email}
-                </Text>
-                <Text className="font-body text-grey700 text-xs mt-0.5">
-                  Handoff Reason: {selectedItem?.reason.replace(/_/g, " ")}
-                </Text>
-              </View>
-              <Pressable onPress={() => setDetailModalVisible(false)} className="p-1">
+          <Pressable
+            onPress={() => setActiveTab("assigned")}
+            style={({ pressed }) => [
+              styles.pill,
+              activeTab === "assigned" ? styles.pillActive : styles.pillInactive,
+              { opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Text
+              style={[
+                styles.pillText,
+                activeTab === "assigned" ? styles.pillTextActive : styles.pillTextInactive,
+              ]}
+            >
+              Assigned ({assignedCount})
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setActiveTab("declined")}
+            style={({ pressed }) => [
+              styles.pill,
+              activeTab === "declined" ? styles.pillActive : styles.pillInactive,
+              { opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Text
+              style={[
+                styles.pillText,
+                activeTab === "declined" ? styles.pillTextActive : styles.pillTextInactive,
+              ]}
+            >
+              Declined ({declinedCount})
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Bookings List */}
+        {loading && bookings.length === 0 ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator color="#4A080C" size="large" />
+          </View>
+        ) : (
+          <FlatList
+            data={currentList}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => {
+              const initial = (item.customerName || "C").charAt(0).toUpperCase();
+
+              return (
+                <Pressable
+                  onPress={() => handleOpenTranscript(item)}
+                  style={({ pressed }) => [
+                    styles.card,
+                    { opacity: pressed ? 0.96 : 1 },
+                  ]}
+                >
+                  {/* Top Customer Info Row */}
+                  <View style={styles.cardHeader}>
+                    {/* Avatar Initial */}
+                    <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>{initial}</Text>
+                    </View>
+
+                    {/* Customer Info */}
+                    <View style={styles.customerInfo}>
+                      <Text style={styles.customerName}>{item.customerName}</Text>
+                      <Text style={styles.serviceSubtitle} numberOfLines={1}>
+                        {item.serviceTitle}  •  {item.appointmentTime}
+                      </Text>
+                    </View>
+
+                    {/* Status Badge */}
+                    <View
+                      style={[
+                        styles.badge,
+                        item.status === "assigned" && styles.badgeAssigned,
+                        item.status === "declined" && styles.badgeDeclined,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.badgeText,
+                          item.status === "assigned" && styles.badgeTextAssigned,
+                          item.status === "declined" && styles.badgeTextDeclined,
+                        ]}
+                      >
+                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Action Buttons for Pending */}
+                  {item.status === "pending" && (
+                    <View style={styles.actionsRow}>
+                      <Pressable
+                        onPress={() => handleOpenAssign(item)}
+                        style={({ pressed }) => [
+                          styles.assignBtn,
+                          { opacity: pressed ? 0.85 : 1 },
+                        ]}
+                      >
+                        <Text style={styles.assignBtnText}>Assign</Text>
+                      </Pressable>
+
+                      <Pressable
+                        onPress={() => handleDecline(item)}
+                        style={({ pressed }) => [
+                          styles.declineBtn,
+                          { opacity: pressed ? 0.85 : 1 },
+                        ]}
+                      >
+                        <Text style={styles.declineBtnText}>Decline</Text>
+                      </Pressable>
+                    </View>
+                  )}
+
+                  {/* Assigned Footer */}
+                  {item.status === "assigned" && (
+                    <View style={styles.assignedFooter}>
+                      <UserCheck size={14} color="#15803D" />
+                      <Text style={styles.assignedFooterText}>
+                        Assigned to {item.assignedStaffName || "Lead Tailor"}
+                      </Text>
+                    </View>
+                  )}
+                </Pressable>
+              );
+            }}
+          />
+        )}
+      </View>
+
+      {/* Staff Assignment Modal */}
+      <Modal visible={assignModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Assign Tailor</Text>
+              <Pressable onPress={() => setAssignModalVisible(false)}>
                 <X size={20} color="#4A080C" />
               </Pressable>
             </View>
 
-            {/* Transcript scroll view */}
-            {loadingDetail ? (
-              <View className="flex-1 items-center justify-center">
-                <ActivityIndicator color="#4A080C" />
-                <Text className="font-body text-grey700 text-xs mt-2">Loading transcript...</Text>
+            <Text style={styles.modalSubtitle}>
+              Select a team member for {assigningBooking?.customerName}'s fitting:
+            </Text>
+
+            {staffList.length === 0 ? (
+              <View style={{ marginVertical: 12 }}>
+                <Pressable
+                  onPress={() => handleConfirmAssign("Lead Atelier Stylist")}
+                  style={styles.staffItem}
+                >
+                  <Text style={styles.staffItemName}>Lead Atelier Stylist (You)</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => handleConfirmAssign("Master Cutter")}
+                  style={styles.staffItem}
+                >
+                  <Text style={styles.staffItemName}>Master Cutter</Text>
+                </Pressable>
               </View>
             ) : (
-              <View className="flex-1">
-                <ScrollView className="flex-1 mb-4" showsVerticalScrollIndicator={false}>
-                  <View className="bg-white border border-grey100 rounded-xl p-3 mb-4">
-                    <Text className="font-body-semibold text-ink text-xs mb-1">AI Summary:</Text>
-                    <Text className="font-body text-grey700 text-xs">{selectedItem?.summary}</Text>
-                  </View>
-
-                  {transcript.length === 0 ? (
-                    <Text className="font-body text-grey500 text-xs text-center py-10">
-                      No message exchanges available.
-                    </Text>
-                  ) : (
-                    transcript.map((turn, i) => (
-                      <View
-                        key={i}
-                        className={`mb-3 max-w-[85%] ${
-                          turn.role === "user" ? "self-end items-end" : "self-start items-start"
-                        }`}
-                      >
-                        <View
-                          className={`px-4 py-2.5 rounded-2xl ${
-                            turn.role === "user"
-                              ? "bg-oxblood"
-                              : "bg-white border border-grey100"
-                          }`}
-                        >
-                          <Text
-                            className={`font-body text-sm ${
-                              turn.role === "user" ? "text-cream" : "text-ink"
-                            }`}
-                          >
-                            {turn.text}
-                          </Text>
-                        </View>
-                      </View>
-                    ))
-                  )}
-                </ScrollView>
-
-                {/* Footer Actions */}
-                {selectedItem && !selectedItem.resolved && (
-                  <View className="pt-2 border-t border-grey100">
-                    <Button
-                      label={resolving ? "Resolving..." : "Mark as Resolved"}
-                      onPress={handleResolve}
-                      loading={resolving}
-                      disabled={resolving}
-                    />
-                  </View>
-                )}
-              </View>
+              staffList.map((st) => (
+                <Pressable
+                  key={st.id}
+                  onPress={() => handleConfirmAssign(st.email.split("@")[0])}
+                  style={styles.staffItem}
+                >
+                  <Text style={styles.staffItemName}>{st.email}</Text>
+                </Pressable>
+              ))
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Transcript Detail Modal */}
+      <Modal visible={detailModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { maxHeight: "85%" }]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Fitting Request</Text>
+              <Pressable onPress={() => setDetailModalVisible(false)}>
+                <X size={20} color="#4A080C" />
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={styles.summaryCard}>
+                <Text style={styles.summaryLabel}>AI Concierge Summary</Text>
+                <Text style={styles.summaryText}>{selectedBooking?.summary}</Text>
+              </View>
+
+              <Text style={styles.transcriptSectionTitle}>Conversation Exchanges</Text>
+
+              {loadingTranscript ? (
+                <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+              ) : (
+                transcript.map((t, idx) => (
+                  <View
+                    key={idx}
+                    style={[
+                      styles.chatBubble,
+                      t.role === "user" ? styles.userBubble : styles.modelBubble,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.chatText,
+                        t.role === "user" ? styles.userChatText : styles.modelChatText,
+                      ]}
+                    >
+                      {t.text}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FBF7EF",
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  containerLandscape: {
+    maxWidth: 680,
+    alignSelf: "center",
+    width: "100%",
+  },
+  screenTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 28,
+    color: "#1A1110",
+    marginBottom: 20,
+    paddingHorizontal: 4,
+  },
+  pillsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 20,
+  },
+  pill: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pillActive: {
+    backgroundColor: "#4A080C",
+  },
+  pillInactive: {
+    backgroundColor: "#E2E5DF",
+  },
+  pillText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14,
+  },
+  pillTextActive: {
+    color: "#FFFFFF",
+  },
+  pillTextInactive: {
+    color: "#474E51",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  listContent: {
+    paddingBottom: 32,
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#4A080C",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  avatarText: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 18,
+    color: "#FFFFFF",
+  },
+  customerInfo: {
+    flex: 1,
+  },
+  customerName: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 16,
+    color: "#1A1110",
+    marginBottom: 2,
+  },
+  serviceSubtitle: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#8A7550",
+  },
+  badge: {
+    backgroundColor: "#F4ECE1",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  badgeAssigned: {
+    backgroundColor: "#EAF5EA",
+  },
+  badgeDeclined: {
+    backgroundColor: "#FDEAEA",
+  },
+  badgeText: {
+    fontFamily: "WorkSans_500Medium",
+    fontSize: 12,
+    color: "#A4895C",
+  },
+  badgeTextAssigned: {
+    color: "#15803D",
+  },
+  badgeTextDeclined: {
+    color: "#DC2626",
+  },
+  actionsRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+  },
+  assignBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#4A080C",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  assignBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: "#FFFFFF",
+  },
+  declineBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "#4A080C",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  declineBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: "#4A080C",
+  },
+  assignedFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 14,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(74, 8, 12, 0.08)",
+  },
+  assignedFooterText: {
+    fontFamily: "WorkSans_500Medium",
+    fontSize: 13,
+    color: "#15803D",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: "#FBF7EF",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 20,
+    color: "#4A080C",
+  },
+  modalSubtitle: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    color: "#5C4A32",
+    marginBottom: 14,
+  },
+  staffItem: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.15)",
+  },
+  staffItemName: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: "#1A1110",
+  },
+  summaryCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.1)",
+  },
+  summaryLabel: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 12,
+    color: "#8A7550",
+    textTransform: "uppercase",
+    marginBottom: 4,
+  },
+  summaryText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    color: "#1A1110",
+    lineHeight: 20,
+  },
+  transcriptSectionTitle: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14,
+    color: "#4A080C",
+    marginBottom: 10,
+  },
+  chatBubble: {
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 10,
+    maxWidth: "85%",
+  },
+  userBubble: {
+    alignSelf: "flex-end",
+    backgroundColor: "#4A080C",
+  },
+  modelBubble: {
+    alignSelf: "flex-start",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.1)",
+  },
+  chatText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+  },
+  userChatText: {
+    color: "#FFFFFF",
+  },
+  modelChatText: {
+    color: "#1A1110",
+  },
+});

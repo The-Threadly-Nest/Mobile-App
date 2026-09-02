@@ -117,6 +117,7 @@ export function PhoneInputWithCountry({
 
         {/* Phone Input */}
         <TextInput
+          disableFullscreenUI={true}
           style={styles.textInput}
           placeholder={placeholder}
           placeholderTextColor="#8A7550"
@@ -144,6 +145,7 @@ export function PhoneInputWithCountry({
             <View style={styles.searchBox}>
               <Search size={16} color="#8A7550" style={{ marginRight: 8 }} />
               <TextInput
+                disableFullscreenUI={true}
                 style={styles.searchInput}
                 placeholder="Search country or code..."
                 placeholderTextColor="#8A7550"

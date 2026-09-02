@@ -11,6 +11,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -91,6 +92,9 @@ export const MOCK_TAILORS: TailorItem[] = [
 const CATEGORIES = ["Aso-ebi", "Agbada", "Kaftan", "Gele & Accessories"];
 
 export default function BrowseScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [tailorsList, setTailorsList] = useState<TailorItem[]>([]);
@@ -186,7 +190,7 @@ export default function BrowseScreen() {
 
   const displayTailors = filteredTailors.length > 0 ? filteredTailors : tailorsList;
 
-  const renderStarRating = (rating: number) => {
+  const renderStarRating = (rating: number, starSize = 13) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     for (let i = 0; i < 5; i++) {
@@ -194,7 +198,7 @@ export default function BrowseScreen() {
       stars.push(
         <Star
           key={i}
-          size={13}
+          size={starSize}
           color="#E5A817"
           fill={isFilled ? "#E5A817" : "transparent"}
           style={{ marginRight: 2 }}
@@ -207,26 +211,27 @@ export default function BrowseScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header Area */}
-      <View style={styles.header}>
+      <View style={[styles.header, isLandscape && { paddingHorizontal: 16, paddingTop: 2, paddingBottom: 4, marginBottom: 4 }]}>
         {/* Location Row */}
-        <Pressable style={styles.locationRow} onPress={fetchCurrentLocation}>
-          <MapPin size={16} color="#000000" style={{ marginRight: 6 }} />
-          <Text style={styles.locationText}>
+        <Pressable style={[styles.locationRow, isLandscape && { marginBottom: 4 }]} onPress={fetchCurrentLocation}>
+          <MapPin size={14} color="#000000" style={{ marginRight: 4 }} />
+          <Text style={[styles.locationText, isLandscape && { fontSize: 12 }]}>
             {isFetchingLocation ? "Detecting location..." : currentLocation}
           </Text>
           {isFetchingLocation && (
-            <ActivityIndicator size="small" color="#4A080C" style={{ marginLeft: 6 }} />
+            <ActivityIndicator size="small" color="#4A080C" style={{ marginLeft: 4 }} />
           )}
         </Pressable>
 
-        {/* Title */}
-        <Text style={styles.title}>Find your Fashion House</Text>
+        {/* Title — Hidden in landscape to maximize card space */}
+        {!isLandscape && <Text style={styles.title}>Find your Fashion House</Text>}
 
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Search size={18} color="#404040" style={{ marginRight: 8 }} />
+        <View style={[styles.searchContainer, isLandscape && { height: 38, marginBottom: 6, paddingHorizontal: 12, borderRadius: 19 }]}>
+          <Search size={16} color="#404040" style={{ marginRight: 6 }} />
           <TextInput
-            style={styles.searchInput}
+            disableFullscreenUI={true}
+            style={[styles.searchInput, isLandscape && { fontSize: 13 }]}
             placeholder="Search fashion house by name or location..."
             placeholderTextColor="#404040"
             value={searchQuery}
@@ -238,7 +243,7 @@ export default function BrowseScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesScroll}
+          contentContainerStyle={[styles.categoriesScroll, isLandscape && { gap: 6 }]}
         >
           {CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat;
@@ -250,6 +255,7 @@ export default function BrowseScreen() {
                 }
                 style={[
                   styles.categoryPill,
+                  isLandscape && { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
                   isSelected
                     ? styles.categoryPillSelected
                     : styles.categoryPillUnselected,
@@ -258,6 +264,7 @@ export default function BrowseScreen() {
                 <Text
                   style={[
                     styles.categoryText,
+                    isLandscape && { fontSize: 12 },
                     isSelected
                       ? styles.categoryTextSelected
                       : styles.categoryTextUnselected,
@@ -273,9 +280,15 @@ export default function BrowseScreen() {
 
       {/* Tailor Cards List */}
       <FlatList
+        key={`browse-${isLandscape ? "landscape" : "portrait"}`}
         data={displayTailors}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
+        numColumns={isLandscape ? 2 : 1}
+        columnWrapperStyle={isLandscape ? { gap: 12, marginBottom: 12 } : undefined}
+        contentContainerStyle={[
+          styles.listContainer,
+          isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%", paddingHorizontal: 16, paddingTop: 2, paddingBottom: 64 },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />
@@ -284,12 +297,13 @@ export default function BrowseScreen() {
           <Pressable
             style={({ pressed }) => [
               styles.card,
+              isLandscape && { flex: 1, marginBottom: 0, borderRadius: 16 },
               { transform: [{ scale: pressed ? 0.985 : 1 }] },
             ]}
             onPress={() => router.push(`/(customer)/fashion-house/${item.id}`)}
           >
             {/* Image Container with Badge */}
-            <View style={styles.imageContainer}>
+            <View style={[styles.imageContainer, isLandscape && { height: 125 }]}>
               <Image
                 source={
                   typeof item.image === "string"
@@ -298,37 +312,37 @@ export default function BrowseScreen() {
                 }
                 style={styles.cardImage}
               />
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{item.badge}</Text>
+              <View style={[styles.badge, isLandscape && { bottom: 8, left: 8, paddingHorizontal: 10, paddingVertical: 3 }]}>
+                <Text style={[styles.badgeText, isLandscape && { fontSize: 10 }]}>{item.badge}</Text>
               </View>
             </View>
 
             {/* Content Container */}
-            <View style={styles.cardContent}>
+            <View style={[styles.cardContent, isLandscape && { padding: 8 }]}>
               {/* Row 1: Name and Price */}
-              <View style={styles.rowBetween}>
-                <Text style={styles.cardTitle}>{item.name}</Text>
-                <Text style={styles.cardPrice}>{item.price}</Text>
+              <View style={[styles.rowBetween, isLandscape && { marginBottom: 2 }]}>
+                <Text style={[styles.cardTitle, isLandscape && { fontSize: 14 }]}>{item.name}</Text>
+                <Text style={[styles.cardPrice, isLandscape && { fontSize: 14 }]}>{item.price}</Text>
               </View>
 
               {/* Row 2: Location and Rating */}
-              <View style={styles.ratingRow}>
-                <Text style={styles.locationSub}>{item.location} · </Text>
+              <View style={[styles.ratingRow, isLandscape && { marginBottom: 6 }]}>
+                <Text style={[styles.locationSub, isLandscape && { fontSize: 11 }]}>{item.location} · </Text>
                 <View style={styles.starsContainer}>
-                  {renderStarRating(item.rating)}
+                  {renderStarRating(item.rating, isLandscape ? 11 : 13)}
                 </View>
-                <Text style={styles.ratingText}>
+                <Text style={[styles.ratingText, isLandscape && { fontSize: 11 }]}>
                   {item.rating} ({item.reviewsCount})
                 </Text>
               </View>
 
               {/* Row 3: Tags */}
-              <View style={styles.tagsRow}>
-                <View style={styles.tagPill}>
-                  <Text style={styles.tagText}>{item.turnaround}</Text>
+              <View style={[styles.tagsRow, isLandscape && { gap: 6 }]}>
+                <View style={[styles.tagPill, isLandscape && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }]}>
+                  <Text style={[styles.tagText, isLandscape && { fontSize: 10 }]}>{item.turnaround}</Text>
                 </View>
-                <View style={styles.tagPill}>
-                  <Text style={styles.tagText}>{item.categoryTag}</Text>
+                <View style={[styles.tagPill, isLandscape && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }]}>
+                  <Text style={[styles.tagText, isLandscape && { fontSize: 10 }]}>{item.categoryTag}</Text>
                 </View>
               </View>
             </View>

@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   ImageSourcePropType,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
@@ -58,20 +59,17 @@ const ABOUT_TEXT: Record<string, string> = {
 
 const MOCK_REVIEWS: Record<string, { name: string; text: string; rating: number }[]> = {
   "1": [
-    { name: "Chiamaka O.", text: "My bridal aso-ebi fit perfectly at the first try-on. Worth every naira.", rating: 5 },
-    { name: "Blessing A.", text: "Delivered three days ahead of my wedding. Very calm communication throughout.", rating: 5 },
+    { name: "Folake A.", text: "Made my traditional wedding outfit in 10 days flat. Fitting was 100% on point.", rating: 5 },
+    { name: "Kemi O.", text: "Beautiful beading work! Adaeze is so attentive to customer details.", rating: 5 },
   ],
   "2": [
-    { name: "Temi F.", text: "The gele was absolutely stunning. Everyone was asking who tied it.", rating: 5 },
-    { name: "Amaka N.", text: "Professional service and beautiful results. Will definitely return.", rating: 4 },
+    { name: "Tolu B.", text: "Best gele styling in Akure hands down. Stayed in place all through the event.", rating: 5 },
   ],
   "3": [
-    { name: "Kunle B.", text: "Best agbada I've ever owned. The embroidery work is exceptional.", rating: 5 },
-    { name: "Tunde M.", text: "Ready before the promised date and fits like a glove.", rating: 5 },
+    { name: "Chuka E.", text: "The senator suit cut was crisp. Fits better than off-the-rack luxury brands.", rating: 4 },
   ],
   "4": [
-    { name: "Chidi O.", text: "Beautiful fabrics and expert craftsmanship. The kaftan is stunning.", rating: 5 },
-    { name: "Emeka P.", text: "Ordered for Eid and it was delivered on time. Very satisfied.", rating: 4 },
+    { name: "Segun M.", text: "Lightweight fabric, perfect stitching. Got so many compliments at the event.", rating: 5 },
   ],
 };
 
@@ -88,6 +86,9 @@ function renderStars(rating: number) {
 }
 
 export default function FashionHouseScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const { fashionHouseId } = useLocalSearchParams<{ fashionHouseId: string }>();
   const tailor = MOCK_TAILORS.find((t) => t.id === fashionHouseId) ?? MOCK_TAILORS[0];
   const portfolioImages = PORTFOLIO_IMAGES[fashionHouseId ?? "1"] ?? PORTFOLIO_IMAGES["1"];
@@ -98,7 +99,7 @@ export default function FashionHouseScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
-        <View style={styles.heroContainer}>
+        <View style={[styles.heroContainer, isLandscape && { height: 180 }]}>
           <Image
             source={typeof tailor.image === "string" ? { uri: tailor.image } : tailor.image}
             style={styles.heroImage}
@@ -113,7 +114,7 @@ export default function FashionHouseScreen() {
 
           {/* Hero Title */}
           <View style={styles.heroTitle}>
-            <Text style={styles.heroName}>{tailor.name}</Text>
+            <Text style={[styles.heroName, isLandscape && { fontSize: 20 }]}>{tailor.name}</Text>
             <View style={styles.heroRatingRow}>
               {renderStars(tailor.rating)}
               <Text style={styles.heroRatingText}>
@@ -124,7 +125,7 @@ export default function FashionHouseScreen() {
         </View>
 
         {/* Stats Row */}
-        <View style={styles.statsCard}>
+        <View style={[styles.statsCard, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>
               {tailor.turnaround.replace(" turnaround", "").replace("-week", " wks")}
@@ -144,17 +145,21 @@ export default function FashionHouseScreen() {
         </View>
 
         {/* About Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <Text style={styles.sectionTitle}>ABOUT</Text>
           <Text style={styles.aboutText}>{aboutText}</Text>
         </View>
 
         {/* Portfolio Section */}
-        <View style={styles.section}>
+        <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <Text style={styles.sectionTitle}>PORTFOLIO</Text>
           <View style={styles.portfolioGrid}>
             {portfolioImages.map((img, i) => (
-              <Image key={i} source={img} style={styles.portfolioImage} />
+              <Image
+                key={i}
+                source={img}
+                style={[styles.portfolioImage, isLandscape && { width: "31%", height: 110 }]}
+              />
             ))}
           </View>
         </View>

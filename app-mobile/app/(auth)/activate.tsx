@@ -114,7 +114,12 @@ export default function ActivateAccountScreen() {
           }),
         });
         const body = await res.json();
-        if (!res.ok) throw new Error(body.error ?? "Could not activate account.");
+        if (!res.ok) {
+          const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
+            ? body.issues.map((i: any) => i.message).join(". ")
+            : null;
+          throw new Error(issueMsg || body.error || "Could not activate account.");
+        }
 
         setToken(body.token);
         setEmailStore(body.user.email);

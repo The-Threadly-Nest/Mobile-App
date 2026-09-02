@@ -5,7 +5,9 @@ import {
   Pressable,
   ImageBackground,
   StyleSheet,
+  useWindowDimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
@@ -29,6 +31,9 @@ const adminSlides = [
 ];
 
 export default function AdminOnboardingSlidesScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const slide = adminSlides[currentIndex];
   const isLast = currentIndex === adminSlides.length - 1;
@@ -60,6 +65,182 @@ export default function AdminOnboardingSlidesScreen() {
       else router.replace("/(auth)/role-select");
     }
   };
+
+  if (isLandscape) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#2A0406" }} edges={["top", "bottom", "left", "right"]}>
+        <View style={{ flex: 1, flexDirection: "row", padding: 16, gap: 20, maxWidth: 900, alignSelf: "center", width: "100%" }}>
+          {/* Left Column: Inset Image Card */}
+          <View style={{ width: "42%", height: "100%", borderRadius: 20, overflow: "hidden", position: "relative" }}>
+            <ImageBackground
+              key={currentIndex}
+              source={slide.image}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="cover"
+            >
+              <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.15)" }]} />
+            </ImageBackground>
+
+            {/* Back Button */}
+            <Pressable
+              onPress={handleBack}
+              style={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                width: 38,
+                height: 38,
+                borderRadius: 19,
+                borderWidth: 1,
+                borderColor: "rgba(255,255,255,0.6)",
+                backgroundColor: "rgba(0,0,0,0.3)",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 10,
+              }}
+            >
+              <ArrowLeft size={18} color="#FFFFFF" />
+            </Pressable>
+          </View>
+
+          {/* Right Column: Slide Text, Dots & Action Buttons */}
+          <View style={{ flex: 1, justifyContent: "center", paddingVertical: 12, paddingRight: 8 }}>
+            {/* Headline */}
+            <Text
+              style={{
+                fontFamily: "Fraunces-SemiBold",
+                fontSize: 24,
+                lineHeight: 32,
+                color: "#FFFFFF",
+                marginBottom: 8,
+              }}
+            >
+              {slide.headline}
+            </Text>
+
+            {/* Subtitle */}
+            <Text
+              style={{
+                fontFamily: "WorkSans_400Regular",
+                fontSize: 14,
+                lineHeight: 20,
+                color: "rgba(255,255,255,0.85)",
+                marginBottom: 20,
+              }}
+            >
+              {slide.subtitle}
+            </Text>
+
+            {/* Progress Dots */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 24,
+              }}
+            >
+              {adminSlides.map((_, i) => (
+                <View
+                  key={i}
+                  style={{
+                    height: 8,
+                    width: i === currentIndex ? 36 : 8,
+                    borderRadius: 4,
+                    backgroundColor: i === currentIndex ? "#FFFFFF" : "#ABABAB",
+                  }}
+                />
+              ))}
+            </View>
+
+            {/* Action Buttons */}
+            {isLast ? (
+              <Pressable
+                onPress={handleNext}
+                style={({ pressed }) => ({
+                  width: "100%",
+                  height: 48,
+                  borderRadius: 24,
+                  backgroundColor: "#4A080C",
+                  borderWidth: 1,
+                  borderColor: "rgba(255,255,255,0.2)",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: pressed ? 0.85 : 1,
+                })}
+              >
+                <Text
+                  style={{
+                    fontFamily: "WorkSans_600SemiBold",
+                    fontSize: 15,
+                    color: "#FFFFFF",
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  Get Started
+                </Text>
+              </Pressable>
+            ) : (
+              <View style={{ flexDirection: "row", gap: 12 }}>
+                {/* Skip */}
+                <Pressable
+                  onPress={handleSkip}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    height: 48,
+                    borderRadius: 24,
+                    borderWidth: 1,
+                    borderColor: "rgba(255,255,255,0.6)",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: pressed ? 0.75 : 1,
+                  })}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "WorkSans_600SemiBold",
+                      fontSize: 15,
+                      color: "#FFFFFF",
+                      letterSpacing: 0.2,
+                    }}
+                  >
+                    Skip
+                  </Text>
+                </Pressable>
+
+                {/* Next */}
+                <Pressable
+                  onPress={handleNext}
+                  style={({ pressed }) => ({
+                    flex: 1,
+                    height: 48,
+                    borderRadius: 24,
+                    backgroundColor: "#4A080C",
+                    borderWidth: 1,
+                    borderColor: "rgba(255,255,255,0.2)",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    opacity: pressed ? 0.85 : 1,
+                  })}
+                >
+                  <Text
+                    style={{
+                      fontFamily: "WorkSans_600SemiBold",
+                      fontSize: 15,
+                      color: "#FFFFFF",
+                      letterSpacing: 0.2,
+                    }}
+                  >
+                    Next
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <ImageBackground
@@ -112,6 +293,7 @@ export default function AdminOnboardingSlidesScreen() {
           justifyContent: "flex-end",
           paddingBottom: 48,
           paddingHorizontal: 24,
+          width: "100%",
         }}
       >
         {/* Headline */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl } from "react-native";
+import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Plus, Tag } from "lucide-react-native";
@@ -16,6 +16,9 @@ interface EscalationItem {
 }
 
 export default function AdminDashboard() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const storeName = useAuthStore((s) => s.name);
   const storeEmail = useAuthStore((s) => s.email);
   const storedShopName = useAuthStore((s) => s.shopName);
@@ -119,7 +122,10 @@ export default function AdminDashboard() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
+        contentContainerStyle={[
+          { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
+          isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />}
       >
@@ -150,108 +156,114 @@ export default function AdminDashboard() {
           </Text>
         </View>
 
-        {/* Monthly Revenue Banner */}
-        <View
-          style={{
-            backgroundColor: "#4A080C",
-            borderRadius: 16,
-            height: 86,
-            justifyContent: "center",
-            paddingHorizontal: 22,
-            marginBottom: 16,
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: "Fraunces-Bold",
-              fontSize: 30,
-              color: "#FFFFFF",
-              marginBottom: 6,
-            }}
-          >
-            {formatMoney(totalRevenue)}
-          </Text>
-          <Text
-            style={{
-              fontFamily: "WorkSans_600SemiBold",
-              fontSize: 11,
-              letterSpacing: 1.2,
-              color: "rgba(244, 239, 230, 0.8)",
-            }}
-          >
-            REVENUE THIS MONTH
-          </Text>
-        </View>
-
-        {/* Side-by-Side Stat Cards */}
-        <View style={{ flexDirection: "row", gap: 12, marginBottom: 24 }}>
+        {/* Top Metrics Row: Side-by-side in landscape, stacked in portrait */}
+        <View style={isLandscape ? { flexDirection: "row", gap: 12, marginBottom: 20 } : { marginBottom: 24 }}>
+          {/* Monthly Revenue Banner */}
           <View
-            style={{
-              flex: 1,
-              height: 70,
-              backgroundColor: "#FFFFFF",
-              borderRadius: 16,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            style={[
+              {
+                backgroundColor: "#4A080C",
+                borderRadius: 16,
+                height: 86,
+                justifyContent: "center",
+                paddingHorizontal: 22,
+                marginBottom: 16,
+              },
+              isLandscape && { flex: 1, marginBottom: 0 },
+            ]}
           >
             <Text
               style={{
                 fontFamily: "Fraunces-Bold",
-                fontSize: 24,
-                color: "#3B0508",
-                marginBottom: 2,
+                fontSize: 28,
+                color: "#FFFFFF",
+                marginBottom: 4,
               }}
             >
-              {orders.length > 0 ? activeOrdersCount : 12}
+              {formatMoney(totalRevenue)}
             </Text>
             <Text
               style={{
                 fontFamily: "WorkSans_600SemiBold",
-                fontSize: 10,
-                letterSpacing: 0.8,
-                color: "#8A7550",
+                fontSize: 11,
+                letterSpacing: 1.2,
+                color: "rgba(244, 239, 230, 0.8)",
               }}
             >
-              ACTIVE ORDERS
+              REVENUE THIS MONTH
             </Text>
           </View>
 
-          <View
-            style={{
-              flex: 1,
-              height: 70,
-              backgroundColor: "#FFFFFF",
-              borderRadius: 16,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
+          {/* Side-by-Side Stat Cards */}
+          <View style={[{ flexDirection: "row", gap: 12 }, isLandscape && { flex: 1 }]}>
+            <View
               style={{
-                fontFamily: "Fraunces-Bold",
-                fontSize: 24,
-                color: "#3B0508",
-                marginBottom: 2,
+                flex: 1,
+                height: 86,
+                backgroundColor: "#FFFFFF",
+                borderRadius: 16,
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              {escalations.length > 0 ? pendingBookingsCount : 4}
-            </Text>
-            <Text
+              <Text
+                style={{
+                  fontFamily: "Fraunces-Bold",
+                  fontSize: 24,
+                  color: "#3B0508",
+                  marginBottom: 2,
+                }}
+              >
+                {orders.length > 0 ? activeOrdersCount : 12}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "WorkSans_600SemiBold",
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                  color: "#8A7550",
+                }}
+              >
+                ACTIVE ORDERS
+              </Text>
+            </View>
+
+            <View
               style={{
-                fontFamily: "WorkSans_600SemiBold",
-                fontSize: 10,
-                letterSpacing: 0.8,
-                color: "#8A7550",
+                flex: 1,
+                height: 86,
+                backgroundColor: "#FFFFFF",
+                borderRadius: 16,
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              PENDING BOOKINGS
-            </Text>
+              <Text
+                style={{
+                  fontFamily: "Fraunces-Bold",
+                  fontSize: 24,
+                  color: "#3B0508",
+                  marginBottom: 2,
+                }}
+              >
+                {escalations.length > 0 ? pendingBookingsCount : 4}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "WorkSans_600SemiBold",
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                  color: "#8A7550",
+                }}
+              >
+                PENDING BOOKINGS
+              </Text>
+            </View>
           </View>
         </View>
 
         {/* Quick Action Buttons Row */}
-        <View style={{ flexDirection: "row", gap: 12, marginBottom: 32 }}>
+        <View style={{ flexDirection: "row", gap: 12, marginBottom: 28 }}>
           <Pressable
             onPress={() => router.push("/(admin)/measurements/new")}
             style={({ pressed }) => [
@@ -261,8 +273,8 @@ export default function AdminDashboard() {
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: "#4A080C",
-                height: 56,
-                borderRadius: 28,
+                height: 52,
+                borderRadius: 26,
                 gap: 6,
                 paddingHorizontal: 12,
                 opacity: pressed ? 0.9 : 1,
@@ -292,8 +304,8 @@ export default function AdminDashboard() {
                 backgroundColor: "#FFFFFF",
                 borderWidth: 1.5,
                 borderColor: "#4A080C",
-                height: 56,
-                borderRadius: 28,
+                height: 52,
+                borderRadius: 26,
                 gap: 6,
                 paddingHorizontal: 12,
                 opacity: pressed ? 0.85 : 1,
@@ -369,23 +381,27 @@ export default function AdminDashboard() {
             </Text>
           </View>
         ) : (
-          displayRequests.map((item: any) => {
-            const customerName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
-            const initial = item.initial || customerName.charAt(0).toUpperCase();
-            const detail = item.detail || item.reason || item.summary || "Bespoke fitting request";
+          <View style={isLandscape ? { flexDirection: "row", flexWrap: "wrap", gap: 12 } : undefined}>
+            {displayRequests.map((item: any) => {
+              const customerName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
+              const initial = item.initial || customerName.charAt(0).toUpperCase();
+              const detail = item.detail || item.reason || item.summary || "Bespoke fitting request";
 
-            return (
-              <View
-                key={item.id}
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 20,
-                  height: 150,
-                  padding: 16,
-                  justifyContent: "space-between",
-                  marginBottom: 14,
-                }}
-              >
+              return (
+                <View
+                  key={item.id}
+                  style={[
+                    {
+                      backgroundColor: "#FFFFFF",
+                      borderRadius: 20,
+                      height: 150,
+                      padding: 16,
+                      justifyContent: "space-between",
+                      marginBottom: 14,
+                    },
+                    isLandscape && { width: "49%", marginBottom: 0 },
+                  ]}
+                >
                 {/* Top Customer Info Row */}
                 <View
                   style={{
@@ -526,7 +542,8 @@ export default function AdminDashboard() {
                 </View>
               </View>
             );
-          })
+          })}
+        </View>
         )}
       </ScrollView>
     </SafeAreaView>

@@ -12,7 +12,12 @@ export function validate(schemas: ValidationSchemas) {
       next();
     } catch (err) {
       if (err instanceof ZodError) {
-        return res.status(400).json({ error: "Validation failed", issues: err.errors.map((e) => ({ path: e.path.join("."), message: e.message })) });
+        const issues = err.errors.map((e) => ({ path: e.path.join("."), message: e.message }));
+        const detailedMsg = issues.map((i) => i.message).join(". ");
+        return res.status(400).json({
+          error: detailedMsg ? `Validation failed: ${detailedMsg}` : "Validation failed",
+          issues,
+        });
       }
       next(err);
     }

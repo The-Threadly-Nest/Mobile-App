@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -32,6 +33,9 @@ const BUDGET_OPTIONS = [
 const TIMING_OPTIONS = ["2-4 weeks", "This week", "Just browsing"];
 
 export default function PersonalizeScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBudget, setSelectedBudget] = useState<string>("");
   const [selectedTiming, setSelectedTiming] = useState<string>("");
@@ -88,29 +92,38 @@ export default function PersonalizeScreen() {
   return (
     <SafeAreaView edges={["top", "bottom"]} style={styles.safeArea}>
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          isLandscape && {
+            paddingTop: 8,
+            paddingBottom: 20,
+            maxWidth: 680,
+            alignSelf: "center",
+            width: "100%",
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Dynamic Progress Line - Directly above PERSONALIZE text */}
-        <View style={styles.progressBarTrack}>
+        <View style={[styles.progressBarTrack, isLandscape && { marginBottom: 12, marginTop: 4 }]}>
           <View
             style={[styles.progressBarFill, { width: `${progressPercent}%` }]}
           />
         </View>
 
         {/* Category Label */}
-        <Text style={styles.categoryLabel}>PERSONALIZE</Text>
+        <Text style={[styles.categoryLabel, isLandscape && { marginBottom: 4 }]}>PERSONALIZE</Text>
 
         {/* Headline */}
-        <Text style={styles.headline}>What’s your style?</Text>
-        <Text style={styles.subtext}>
+        <Text style={[styles.headline, isLandscape && { fontSize: 22, lineHeight: 28, marginBottom: 4 }]}>What’s your style?</Text>
+        <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 16 }]}>
           Pick a few things and we'll tailor your Discover feed to match.
         </Text>
 
         {/* Section 1: Shopping for */}
-        <View style={styles.section}>
+        <View style={[styles.section, isLandscape && { marginBottom: 16 }]}>
           <Text style={styles.sectionTitle}>What are you shopping for?</Text>
-          <Text style={styles.sectionSubtitle}>Choose as many as you like.</Text>
+          <Text style={[styles.sectionSubtitle, isLandscape && { marginBottom: 8 }]}>Choose as many as you like.</Text>
 
           <View style={styles.pillsWrapContainer}>
             {SHOPPING_CATEGORIES.map((item) => {
@@ -122,16 +135,18 @@ export default function PersonalizeScreen() {
                   style={({ pressed }) => [
                     styles.pillButton,
                     styles.pillButtonEqual,
+                    isLandscape && { width: "31%", paddingVertical: 8, borderRadius: 20 },
                     isSelected ? styles.pillSelected : styles.pillUnselected,
                     { opacity: pressed ? 0.8 : 1 },
                   ]}
                 >
                   {isSelected && (
-                    <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Check size={isLandscape ? 14 : 16} color="#FFFFFF" style={{ marginRight: 4 }} />
                   )}
                   <Text
                     style={[
                       styles.pillText,
+                      isLandscape && { fontSize: 13 },
                       isSelected ? styles.pillTextSelected : styles.pillTextUnselected,
                     ]}
                   >
@@ -144,10 +159,10 @@ export default function PersonalizeScreen() {
         </View>
 
         {/* Section 2: Budget Range */}
-        <View style={styles.section}>
+        <View style={[styles.section, isLandscape && { marginBottom: 16 }]}>
           <Text style={styles.sectionTitle}>Your budget range</Text>
 
-          <View style={styles.budgetSegmentContainer}>
+          <View style={[styles.budgetSegmentContainer, isLandscape && { height: 46, marginTop: 8 }]}>
             {BUDGET_OPTIONS.map((option) => {
               const isSelected = selectedBudget === option.id;
               return (
@@ -183,7 +198,7 @@ export default function PersonalizeScreen() {
         </View>
 
         {/* Section 3: Timing */}
-        <View style={styles.section}>
+        <View style={[styles.section, isLandscape && { marginBottom: 16 }]}>
           <Text style={styles.sectionTitle}>How soon do you need it?</Text>
 
           <View style={styles.pillsWrapContainer}>
@@ -195,16 +210,18 @@ export default function PersonalizeScreen() {
                   onPress={() => setSelectedTiming(item)}
                   style={({ pressed }) => [
                     styles.pillButton,
+                    isLandscape && { paddingVertical: 8, borderRadius: 20 },
                     isSelected ? styles.pillSelected : styles.pillUnselected,
                     { opacity: pressed ? 0.8 : 1 },
                   ]}
                 >
                   {isSelected && (
-                    <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Check size={isLandscape ? 14 : 16} color="#FFFFFF" style={{ marginRight: 4 }} />
                   )}
                   <Text
                     style={[
                       styles.pillText,
+                      isLandscape && { fontSize: 13 },
                       isSelected ? styles.pillTextSelected : styles.pillTextUnselected,
                     ]}
                   >
@@ -217,13 +234,14 @@ export default function PersonalizeScreen() {
         </View>
 
         {/* Bottom Actions */}
-        <View style={styles.actionsContainer}>
+        <View style={[styles.actionsContainer, isLandscape && { flexDirection: "row", gap: 12, marginTop: 12 }]}>
           {/* Continue Button */}
           <Pressable
             onPress={handleContinue}
             disabled={loading}
             style={({ pressed }) => [
               styles.continueBtn,
+              isLandscape && { flex: 1, height: 48, borderRadius: 24 },
               { opacity: pressed || loading ? 0.85 : 1 },
             ]}
           >
@@ -239,6 +257,7 @@ export default function PersonalizeScreen() {
             onPress={handleSkip}
             style={({ pressed }) => [
               styles.skipBtn,
+              isLandscape && { flex: 1, height: 48, borderRadius: 24 },
               { opacity: pressed ? 0.75 : 1 },
             ]}
           >

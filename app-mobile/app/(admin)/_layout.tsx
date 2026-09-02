@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Tabs } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
 
 function DashboardIcon({ color, focused }: { color: string; focused: boolean }) {
@@ -126,6 +127,9 @@ function MoreIcon({ color, focused }: { color: string; focused: boolean }) {
 }
 
 export default function AdminLayout() {
+  const insets = useSafeAreaInsets();
+  const extraBottom = insets.bottom;
+
   useEffect(() => {
     // Match Android navigation bar to white background
     NavigationBar.setBackgroundColorAsync("#FFFFFF");
@@ -134,6 +138,7 @@ export default function AdminLayout() {
 
   return (
     <Tabs
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#4A080C",
@@ -142,9 +147,9 @@ export default function AdminLayout() {
           backgroundColor: "#FFFFFF",
           borderTopColor: "rgba(0, 0, 0, 0.05)",
           borderTopWidth: 1,
-          height: 72,
+          height: 58 + Math.max(14, extraBottom),
           paddingTop: 6,
-          paddingBottom: 14,
+          paddingBottom: Math.max(14, extraBottom),
         },
         tabBarLabelStyle: {
           fontFamily: "WorkSans_500Medium",
@@ -191,13 +196,17 @@ export default function AdminLayout() {
 
       {/* Hidden Non-Tab Routes */}
       <Tabs.Screen name="onboarding" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="profile-edit" options={{ href: null }} />
-      <Tabs.Screen name="catalog/index" options={{ href: null }} />
-      <Tabs.Screen name="catalog/new" options={{ href: null }} />
-      <Tabs.Screen name="staff/index" options={{ href: null }} />
-      <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null }} />
-      <Tabs.Screen name="measurements/new" options={{ href: null }} />
-      <Tabs.Screen name="invoices/[orderId]" options={{ href: null }} />
+      <Tabs.Screen name="profile-edit" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="catalog/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="catalog/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="staff/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="measurements/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="invoices/[orderId]" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="escalations/assign" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="customers/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="staff/invite" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="invoices/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
     </Tabs>
   );
 }

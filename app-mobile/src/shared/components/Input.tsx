@@ -20,6 +20,7 @@ export function Input({ label, error, secureTextEntry, ...rest }: InputProps) {
       ) : null}
       <View className="relative justify-center">
         <TextInput
+          disableFullscreenUI={true}
           className={`border rounded-lg px-4 py-3 font-body text-base text-ink bg-white ${
             secureTextEntry ? "pr-12" : ""
           } ${

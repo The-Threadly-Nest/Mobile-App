@@ -7,7 +7,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  Alert,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
@@ -18,8 +17,10 @@ import * as ImagePicker from "expo-image-picker";
 import { ArrowLeft, Camera, UploadCloud, Tag } from "lucide-react-native";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 export default function AdminNewGarmentScreen() {
+  const { showAlert, showConfirm } = useAppAlert();
   const [name, setName] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -31,7 +32,7 @@ export default function AdminNewGarmentScreen() {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert("Permission Required", "Permission to access photo library is required.");
+        showAlert("Permission Required", "Permission to access photo library is required.");
         return;
       }
 
@@ -54,7 +55,7 @@ export default function AdminNewGarmentScreen() {
         setImageUrl(uploaded.fileUrl);
       }
     } catch (err: any) {
-      Alert.alert("Upload Error", err.message || "Failed to upload image.");
+      showAlert("Upload Error", err.message || "Failed to upload image.");
     } finally {
       setUploadingImage(false);
     }
@@ -88,9 +89,8 @@ export default function AdminNewGarmentScreen() {
         }),
       });
 
-      Alert.alert("Success", "Garment added to your catalog successfully!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showAlert("Success", "Garment added to your catalog successfully!");
+      setTimeout(() => router.push("/(admin)/catalog" as any), 1400);
     } catch (err: any) {
       setError(err.message || "Could not save garment. Please try again.");
     } finally {
@@ -107,7 +107,7 @@ export default function AdminNewGarmentScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => router.push("/(admin)/catalog" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
             <ArrowLeft size={20} color="#3B0508" />

@@ -7,6 +7,8 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
@@ -16,6 +18,9 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 
 export default function VerifyEmailScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const params = useLocalSearchParams<{ email?: string }>();
   const storeEmail = useAuthStore((s) => s.email);
   const email = params.email || storeEmail || "janeteb@zmail.com";
@@ -190,10 +195,16 @@ export default function VerifyEmailScreen() {
   if (isVerified) {
     return (
       <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-        <View style={styles.verifiedContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.verifiedContent,
+            isLandscape && { maxWidth: 620, alignSelf: "center", width: "100%", paddingVertical: 24 },
+          ]}
+        >
           {/* Centered Checkbox Icon */}
-          <View style={styles.verifiedIconContainer}>
-            <Svg width={100} height={100} viewBox="0 0 100 100" fill="none">
+          <View style={[styles.verifiedIconContainer, isLandscape && { marginBottom: 16 }]}>
+            <Svg width={isLandscape ? 64 : 100} height={isLandscape ? 64 : 100} viewBox="0 0 100 100" fill="none">
               <Path
                 d="M50 8.33337C27.0417 8.33337 8.33337 27.0417 8.33337 50C8.33337 72.9584 27.0417 91.6667 50 91.6667C72.9584 91.6667 91.6667 72.9584 91.6667 50C91.6667 27.0417 72.9584 8.33337 50 8.33337ZM69.9167 40.4167L46.2917 64.0417C45.7084 64.625 44.9167 64.9584 44.0834 64.9584C43.25 64.9584 42.4584 64.625 41.875 64.0417L30.0834 52.25C28.875 51.0417 28.875 49.0417 30.0834 47.8334C31.2917 46.625 33.2917 46.625 34.5 47.8334L44.0834 57.4167L65.5 36C66.7084 34.7917 68.7084 34.7917 69.9167 36C71.125 37.2084 71.125 39.1667 69.9167 40.4167Z"
                 fill="#4A080C"
@@ -202,40 +213,54 @@ export default function VerifyEmailScreen() {
           </View>
 
           {/* Title and Subtitle */}
-          <Text style={styles.verifiedTitle}>You’re verified!</Text>
-          <Text style={styles.verifiedSubtitle}>
+          <Text style={[styles.verifiedTitle, isLandscape && { fontSize: 22, marginBottom: 6 }]}>You’re verified!</Text>
+          <Text style={[styles.verifiedSubtitle, isLandscape && { fontSize: 13, marginBottom: 20 }]}>
             Your email is confirmed. Your account is ready to go.
           </Text>
 
           {/* Bottom Button */}
-          <View style={styles.bottomContainer}>
+          <View style={[isLandscape ? { width: "100%", maxWidth: 360 } : styles.bottomContainer]}>
             <Pressable
-              style={styles.continueBtn}
+              style={({ pressed }) => [styles.continueBtn, isLandscape && { paddingVertical: 14 }, { opacity: pressed ? 0.85 : 1 }]}
               onPress={handleContinueExperience}
             >
               <Text style={styles.continueBtnText}>Continue your experience</Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
-        <View style={styles.content}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.content,
+            isLandscape && {
+              maxWidth: 620,
+              alignSelf: "center",
+              width: "100%",
+              paddingTop: 12,
+              paddingBottom: 24,
+            },
+          ]}
+        >
           {/* Back Button */}
-          <Pressable style={styles.backBtn} onPress={handleBackNav}>
+          <Pressable style={[styles.backBtn, isLandscape && { marginBottom: 12 }]} onPress={handleBackNav}>
             <BackArrowIcon size={20} color="#3A2E1A" />
           </Pressable>
 
           {/* Top Phone Icon */}
-          <View style={styles.iconContainer}>
-            <Svg width={56} height={56} viewBox="0 0 56 56" fill="none">
+          <View style={[styles.iconContainer, isLandscape && { marginBottom: 12 }]}>
+            <Svg width={isLandscape ? 44 : 56} height={isLandscape ? 44 : 56} viewBox="0 0 56 56" fill="none">
               <Rect width={56} height={56} rx={28} fill="#DFDFDF" />
               <Path
                 d="M42.955 37.495C42.955 38.035 42.835 38.59 42.58 39.13C42.325 39.67 41.995 40.18 41.56 40.66C40.825 41.47 40.015 42.055 39.1 42.43C38.2 42.805 37.225 43 36.175 43C34.645 43 33.01 42.64 31.285 41.905C29.56 41.17 27.835 40.18 26.125 38.935C24.4 37.675 22.765 36.28 21.205 34.735C19.66 33.175 18.265 31.54 17.02 29.83C15.79 28.12 14.8 26.41 14.08 24.715C13.36 23.005 13 21.37 13 19.81C13 18.79 13.18 17.815 13.54 16.915C13.9 16 14.47 15.16 15.265 14.41C16.225 13.465 17.275 13 18.385 13C18.805 13 19.225 13.09 19.6 13.27C19.99 13.45 20.335 13.72 20.605 14.11L24.085 19.015C24.355 19.39 24.55 19.735 24.685 20.065C24.82 20.38 24.895 20.695 24.895 20.98C24.895 21.34 24.79 21.7 24.58 22.045C24.385 22.39 24.1 22.75 23.74 23.11L22.6 24.295C22.435 24.46 22.36 24.655 22.36 24.895C22.36 25.015 22.375 25.12 22.405 25.24C22.45 25.36 22.495 25.45 22.525 25.54C22.795 26.035 23.26 26.68 23.92 27.46C24.595 28.24 25.315 29.035 26.095 29.83C26.905 30.625 27.685 31.36 28.48 32.035C29.26 32.695 29.905 33.145 30.415 33.415C30.49 33.445 30.58 33.49 30.685 33.535C30.805 33.58 30.925 33.595 31.06 33.595C31.315 33.595 31.51 33.505 31.675 33.34L32.815 32.215C33.19 31.84 33.55 31.555 33.895 31.375C34.24 31.165 34.585 31.06 34.96 31.06C35.245 31.06 35.545 31.12 35.875 31.255C36.205 31.39 36.55 31.585 36.925 31.84L41.89 35.365C42.28 35.635 42.55 35.95 42.715 36.325C42.865 36.7 42.955 37.075 42.955 37.495Z"
@@ -247,22 +272,24 @@ export default function VerifyEmailScreen() {
           </View>
 
           {/* Title and Subtitle */}
-          <Text style={styles.title}>Verify your email</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Verify your email</Text>
+          <Text style={[styles.subtitle, isLandscape && { fontSize: 13, marginBottom: 16 }]}>
             We sent a 4-digit PIN to{" "}
             <Text style={styles.emailHighlight}>{email}</Text>
           </Text>
 
           {/* 4 OTP Input Boxes */}
-          <View style={styles.otpRow}>
+          <View style={[styles.otpRow, isLandscape && { marginBottom: 16 }]}>
             {code.map((digit, idx) => {
               const isFilled = digit !== "";
               return (
                 <TextInput
+                  disableFullscreenUI={true}
                   key={idx}
                   ref={inputRefs[idx]}
                   style={[
                     styles.otpBox,
+                    isLandscape && { width: 52, height: 52, fontSize: 22, borderRadius: 12 },
                     isFilled ? styles.otpBoxFilled : styles.otpBoxEmpty,
                   ]}
                   value={digit}
@@ -281,7 +308,7 @@ export default function VerifyEmailScreen() {
           {successMsg ? <Text style={styles.successText}>{successMsg}</Text> : null}
 
           {/* Resend Code Row */}
-          <View style={styles.resendRow}>
+          <View style={[styles.resendRow, isLandscape && { marginBottom: 12 }]}>
             <Text style={styles.resendLabel}>Didn't get it? </Text>
             <Pressable onPress={handleResend} disabled={!canResend}>
               <Text
@@ -300,7 +327,7 @@ export default function VerifyEmailScreen() {
           <Pressable style={styles.changeEmailBtn} onPress={handleBackNav}>
             <Text style={styles.changeEmailText}>Change email address</Text>
           </Pressable>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

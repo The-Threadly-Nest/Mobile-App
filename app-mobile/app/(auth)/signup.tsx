@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,6 +20,9 @@ import { API_BASE_URL } from "@/api/config";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 
 export default function SignupScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const params = useLocalSearchParams<{ role?: "admin" | "customer" }>();
   const [role, setRole] = useState<"admin" | "customer">(
     params.role === "admin" ? "admin" : "customer"
@@ -68,8 +72,8 @@ export default function SignupScreen() {
       setError("Password is required.");
       return;
     }
-    if (password.length < 8 || !/[0-9]/.test(password)) {
-      setError("Password must be at least 8 characters long and contain at least 1 number.");
+    if (password.length < 8 || !/[0-9]/.test(password) || !/[A-Z]/.test(password)) {
+      setError("Password must be at least 8 characters long, contain at least 1 uppercase letter and 1 number.");
       return;
     }
 
@@ -89,7 +93,12 @@ export default function SignupScreen() {
         }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Could not create account.");
+      if (!res.ok) {
+        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
+          ? body.issues.map((i: any) => i.message).join(". ")
+          : null;
+        throw new Error(issueMsg || body.error || "Could not create account.");
+      }
 
       setToken(body.token);
       setEmailStore(body.user.email);
@@ -126,16 +135,26 @@ export default function SignupScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={[
+            styles.scrollContent,
+            isLandscape && {
+              paddingTop: 12,
+              paddingBottom: 16,
+              maxWidth: 620,
+              alignSelf: "center",
+              width: "100%",
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
         >
           {/* Top Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, isLandscape && { marginBottom: 16, marginTop: 0 }]}>
             <Pressable
               onPress={() => {
                 if (router.canGoBack()) router.back();
@@ -148,17 +167,18 @@ export default function SignupScreen() {
             >
               <ArrowLeft size={20} color="#3B0508" />
             </Pressable>
-            <Text style={styles.headerTitle}>Create Account</Text>
+            <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>Create Account</Text>
           </View>
 
           {/* Form Fields */}
           <View style={styles.formContainer}>
             {/* Full Name Input */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, isLandscape && { height: 48, marginBottom: 14 }]}>
               <View style={styles.labelWrapper}>
                 <Text style={styles.labelText}>Full Name</Text>
               </View>
               <TextInput
+                disableFullscreenUI={true}
                 style={styles.textInput}
                 value={name}
                 onChangeText={(text) => {
@@ -171,11 +191,12 @@ export default function SignupScreen() {
 
             {/* Business Name Input (Admin / Fashion House Flow) */}
             {role === "admin" && (
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer, isLandscape && { height: 48, marginBottom: 14 }]}>
                 <View style={styles.labelWrapper}>
                   <Text style={styles.labelText}>Business Name</Text>
                 </View>
                 <TextInput
+                  disableFullscreenUI={true}
                   style={styles.textInput}
                   value={businessName}
                   onChangeText={(text) => {
@@ -188,11 +209,12 @@ export default function SignupScreen() {
             )}
 
             {/* Email Input */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, isLandscape && { height: 48, marginBottom: 14 }]}>
               <View style={styles.labelWrapper}>
                 <Text style={styles.labelText}>Email</Text>
               </View>
               <TextInput
+                disableFullscreenUI={true}
                 style={styles.textInput}
                 value={email}
                 onChangeText={(text) => {
@@ -205,11 +227,12 @@ export default function SignupScreen() {
             </View>
 
             {/* Password Input */}
-            <View style={[styles.inputContainer, { marginBottom: 6 }]}>
+            <View style={[styles.inputContainer, { marginBottom: 6 }, isLandscape && { height: 48, marginBottom: 4 }]}>
               <View style={styles.labelWrapper}>
                 <Text style={styles.labelText}>Password</Text>
               </View>
               <TextInput
+                disableFullscreenUI={true}
                 style={styles.textInput}
                 value={password}
                 onChangeText={setPassword}
@@ -218,18 +241,18 @@ export default function SignupScreen() {
               />
               <Pressable
                 onPress={() => setShowPassword((v) => !v)}
-                style={styles.eyeIconBtn}
+                style={[styles.eyeIconBtn, isLandscape && { top: 13 }]}
               >
                 {showPassword ? (
-                  <EyeOff size={20} color="#3C3C43" />
+                  <EyeOff size={18} color="#3C3C43" />
                 ) : (
-                  <Eye size={20} color="#3C3C43" />
+                  <Eye size={18} color="#3C3C43" />
                 )}
               </Pressable>
             </View>
 
             {/* Password Helper Text */}
-            <Text style={styles.helperText}>
+            <Text style={[styles.helperText, isLandscape && { marginBottom: 12 }]}>
               At least 8 characters, one number.
             </Text>
 
@@ -242,6 +265,7 @@ export default function SignupScreen() {
               disabled={loading}
               style={({ pressed }) => [
                 styles.createAccountBtn,
+                isLandscape && { height: 48, borderRadius: 24, marginBottom: 12 },
                 {
                   opacity: pressed || loading ? 0.8 : 1,
                 },

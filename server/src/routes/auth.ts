@@ -25,7 +25,74 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
   try {
     const { email, password, role, name, businessName } = req.body;
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return res.status(400).json({ error: "An account with this email already exists. Please log in instead." });
+
+    if (existing) {
+      // 1. Staff email can be used to create a Fashion House (Admin)
+      if (existing.role === "staff" && role === "admin") {
+        const passwordHash = await hashPassword(password);
+        const code = generateResetToken();
+        const resetTokenHash = hashResetToken(code);
+        const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+        const updatedUser = await prisma.$transaction(async (tx) => {
+          const user = await tx.user.update({
+            where: { id: existing.id },
+            data: {
+              role: "admin",
+              fashionHouseId: null,
+              passwordHash,
+              name: name || existing.name,
+              resetTokenHash,
+              resetTokenExpiresAt,
+            },
+          });
+          await tx.fashionHouse.create({
+            data: { adminId: user.id, shopName: businessName || name },
+          });
+          return user;
+        });
+
+        await sendWelcomeEmail(email, name || updatedUser.name || "Admin", code).catch(() => {});
+        const token = issueToken(updatedUser.id, updatedUser.email, updatedUser.role);
+
+        return res.status(200).json({
+          token,
+          user: {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            name: updatedUser.name ?? "",
+            shopName: businessName || name,
+            isVerified: false,
+            onboardingCompleted: false,
+            createdAt: updatedUser.createdAt,
+          },
+        });
+      }
+
+      // 2. Admin email cannot be used to create customer or staff
+      if (existing.role === "admin") {
+        return res.status(400).json({
+          error: "This email is registered to a Fashion House Admin and cannot be used to create a Customer or Staff account.",
+        });
+      }
+
+      // 3. Customer email cannot be used to create admin or staff account
+      if (existing.role === "customer") {
+        if (role === "admin") {
+          return res.status(400).json({
+            error: "This email is registered to a Customer account and cannot be used to create a Fashion House Admin account.",
+          });
+        }
+        return res.status(400).json({
+          error: "An account with this email already exists. Please log in instead.",
+        });
+      }
+
+      return res.status(400).json({
+        error: "An account with this email already exists. Please log in instead.",
+      });
+    }
 
     const passwordHash = await hashPassword(password);
     const isAdmin = role === "admin";

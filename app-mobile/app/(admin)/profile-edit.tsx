@@ -7,7 +7,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
@@ -19,6 +18,7 @@ import { adminApi, AdminOnboardingPayload } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 const SPECIALIZATIONS = [
   "Bridal Wear",
@@ -30,6 +30,7 @@ const SPECIALIZATIONS = [
 ];
 
 export default function AdminProfileEditScreen() {
+  const { showAlert } = useAppAlert();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -73,7 +74,7 @@ export default function AdminProfileEditScreen() {
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert("Permission Required", "Permission to access photo library is required.");
+        showAlert("Permission Required", "Permission to access photo library is required.");
         return;
       }
 
@@ -95,7 +96,7 @@ export default function AdminProfileEditScreen() {
         setBrandLogoUrl(uploaded.fileUrl);
       }
     } catch (err: any) {
-      Alert.alert("Upload Failed", err?.message || "Could not upload brand logo. Please try again.");
+      showAlert("Upload Failed", err?.message || "Could not upload brand logo. Please try again.");
     } finally {
       setUploadingLogo(false);
     }
@@ -109,7 +110,7 @@ export default function AdminProfileEditScreen() {
 
   const handleSave = async () => {
     if (!shopName.trim()) {
-      Alert.alert("Required Field", "Please enter your business or shop name.");
+      showAlert("Required Field", "Please enter your business or shop name.");
       return;
     }
 
@@ -127,11 +128,10 @@ export default function AdminProfileEditScreen() {
       await adminApi.completeOnboarding(payload);
       setStoredShopName(shopName.trim());
 
-      Alert.alert("Success", "Your profile & business info have been updated.", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      showAlert("Success", "Your profile & business info have been updated.");
+      setTimeout(() => router.push("/(admin)/settings" as any), 1400);
     } catch (err: any) {
-      Alert.alert("Update Failed", err.message || "Could not update profile.");
+      showAlert("Update Failed", err.message || "Could not update profile.");
     } finally {
       setSaving(false);
     }
@@ -155,7 +155,7 @@ export default function AdminProfileEditScreen() {
           }}
         >
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => router.push("/(admin)/settings" as any)}
             style={{
               width: 36,
               height: 36,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, Pressable, Text, Modal, Image, ActivityIndicator, Alert } from "react-native";
+import { View, FlatList, Pressable, Text, Modal, Image, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Plus, PenTool, X, Trash2, CheckCircle, Paintbrush } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -10,6 +10,7 @@ import DrawingCanvasModal from "@/shared/components/DrawingCanvasModal";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
 import { API_BASE_URL } from "@/api/config";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface Sketch {
   id: string;
@@ -20,6 +21,7 @@ interface Sketch {
 }
 
 export default function MoodBoardScreen() {
+  const { showAlert, showConfirm } = useAppAlert();
   const [sketches, setSketches] = useState<Sketch[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -59,7 +61,7 @@ export default function MoodBoardScreen() {
     setError("");
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      alert("Permission to access camera roll is required!");
+      showAlert("Permission Required", "Permission to access camera roll is required.");
       return;
     }
 
@@ -106,7 +108,7 @@ export default function MoodBoardScreen() {
 
       setSketches((prev) => [data, ...prev]);
     } catch (e: any) {
-      alert(e.message ?? "Could not save drawing.");
+      showAlert("Save Failed", e.message ?? "Could not save drawing.");
     }
   };
 
@@ -158,32 +160,29 @@ export default function MoodBoardScreen() {
   };
 
   const handleDeleteSketch = (id: string, itemTitle: string) => {
-    Alert.alert(
+    showConfirm(
       "Delete Sketch",
       `Are you sure you want to delete "${itemTitle}"?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              const res = await fetch(`${API_BASE_URL}/api/moodboard/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              if (res.ok) {
-                setSketches((prev) => prev.filter((s) => s.id !== id));
-              } else {
-                const data = await res.json();
-                alert(data.error ?? "Could not delete sketch.");
-              }
-            } catch (e) {
-              console.error("Failed to delete sketch", e);
+      {
+        confirmLabel: "Delete",
+        cancelLabel: "Cancel",
+        onConfirm: async () => {
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/moodboard/${id}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+              setSketches((prev) => prev.filter((s) => s.id !== id));
+            } else {
+              const data = await res.json();
+              showAlert("Delete Failed", data.error ?? "Could not delete sketch.");
             }
-          },
+          } catch (e) {
+            console.error("Failed to delete sketch", e);
+          }
         },
-      ]
+      }
     );
   };
 

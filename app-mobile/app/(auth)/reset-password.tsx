@@ -33,7 +33,12 @@ export default function ResetPasswordScreen() {
       const rawText = await res.text();
       let body: any = {};
       try { body = JSON.parse(rawText); } catch { }
-      if (!res.ok) throw new Error(body.error ?? "Could not reset password. Please check your PIN.");
+      if (!res.ok) {
+        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
+          ? body.issues.map((i: any) => i.message).join(". ")
+          : null;
+        throw new Error(issueMsg || body.error || "Could not reset password. Please check your PIN.");
+      }
       setSuccess(true);
     } catch (e: any) {
       if (e.message?.includes("Network request failed") || e.name === "TypeError") {

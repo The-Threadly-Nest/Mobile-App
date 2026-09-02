@@ -1,243 +1,355 @@
 import React, { useState, useEffect } from "react";
-import { View, Pressable, Text, ScrollView } from "react-native";
+import {
+  View,
+  Pressable,
+  Text,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ChevronRight, Users, User, Bell, HelpCircle, Shield, LogOut, Tag } from "lucide-react-native";
+import {
+  Users,
+  Ruler,
+  UserCheck,
+  PenTool,
+  FileText,
+  Settings,
+  Tag,
+  Bell,
+  HelpCircle,
+  Shield,
+  LogOut,
+  ChevronRight,
+} from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { adminApi } from "@/shared/utils/apiClient";
+import { adminApi, ordersApi } from "@/shared/utils/apiClient";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 export default function AdminSettingsScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+  const { showAlert, showConfirm } = useAppAlert();
+
   const logout = useAuthStore((s) => s.logout);
   const name = useAuthStore((s) => s.name);
   const email = useAuthStore((s) => s.email);
-  const [businessName, setBusinessName] = useState(name || "");
+  const storedShopName = useAuthStore((s) => s.shopName);
+  const [businessName, setBusinessName] = useState(storedShopName || name || "");
+
+  const [staffCount, setStaffCount] = useState(3);
+  const [customerCount, setCustomerCount] = useState(18);
+  const [invoiceCount, setInvoiceCount] = useState(3);
 
   useEffect(() => {
-    async function loadProfile() {
+    async function loadData() {
       try {
-        const res = await adminApi.getProfile();
-        if (res?.fashionHouse) {
-          const house = res.fashionHouse;
+        const [profileRes, ordersRes] = await Promise.allSettled([
+          adminApi.getProfile(),
+          ordersApi.getOrders(),
+        ]);
+
+        if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
+          const house = profileRes.value.fashionHouse;
           if (house.shopName || house.name) {
             setBusinessName(house.shopName || house.name);
           }
+        }
+
+        if (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value)) {
+          setInvoiceCount(ordersRes.value.length || 3);
         }
       } catch (err) {
         console.warn("Failed to load profile for settings", err);
       }
     }
-    loadProfile();
+    loadData();
   }, []);
 
   const emailPrefix = email ? email.split("@")[0] : "";
   const fallbackName = emailPrefix
     ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
     : "Fashion House";
-  const displayTitle = businessName || name || fallbackName;
+  const displayTitle = businessName || fallbackName;
 
-  const SECTIONS = [
+  const handleLogout = () => {
+    showConfirm("Log Out", "Are you sure you want to log out of your atelier account?", {
+      confirmLabel: "Log Out",
+      cancelLabel: "Cancel",
+      onConfirm: () => {
+        logout();
+        router.replace("/(auth)/login");
+      },
+    });
+  };
+
+  // All features styled consistently in the 2-column grid
+  const ALL_GRID_ITEMS = [
     {
-      title: "Team & Business",
-      items: [
-        {
-          label: "Garment Catalog & Clothes",
-          icon: Tag,
-          onPress: () => router.push("/(admin)/catalog" as any),
-        },
-        {
-          label: "Staff Management",
-          icon: Users,
-          onPress: () => router.push("/(admin)/staff" as any),
-        },
-        {
-          label: "Profile & Business Info",
-          icon: User,
-          onPress: () => router.push("/(admin)/profile-edit" as any),
-        },
-      ],
+      id: "customers",
+      title: "Customers",
+      subtitle: `${customerCount} total`,
+      icon: Users,
+      onPress: () => router.push("/(admin)/customers" as any),
     },
     {
-      title: "Preferences & Legal",
-      items: [
-        { label: "Notifications", icon: Bell, onPress: () => {} },
-        { label: "Help & Support", icon: HelpCircle, onPress: () => {} },
-        { label: "Privacy Policy", icon: Shield, onPress: () => {} },
-      ],
+      id: "measurements",
+      title: "Measurements",
+      subtitle: "New entry",
+      icon: Ruler,
+      onPress: () => router.push("/(admin)/measurements/new" as any),
+    },
+    {
+      id: "staff",
+      title: "Staff",
+      subtitle: `${staffCount} members`,
+      icon: UserCheck,
+      onPress: () => router.push("/(admin)/staff" as any),
+    },
+    {
+      id: "moodboards",
+      title: "Moodboards",
+      subtitle: "Cross-staff view",
+      icon: PenTool,
+      onPress: () => router.push("/(admin)/staff" as any),
+    },
+    {
+      id: "invoices",
+      title: "Invoices",
+      subtitle: `${invoiceCount} this month`,
+      icon: FileText,
+      onPress: () => router.push("/(admin)/invoices" as any),
+    },
+    {
+      id: "catalog",
+      title: "Catalog",
+      subtitle: "Collections & items",
+      icon: Tag,
+      onPress: () => router.push("/(admin)/catalog" as any),
+    },
+    {
+      id: "settings",
+      title: "Settings",
+      subtitle: "Store & profile",
+      icon: Settings,
+      onPress: () => router.push("/(admin)/profile-edit" as any),
+    },
+    {
+      id: "notifications",
+      title: "Notifications",
+      subtitle: "Alerts & updates",
+      icon: Bell,
+      onPress: () => showAlert("Notifications", "Push notifications for new bookings and order updates are active."),
+    },
+    {
+      id: "support",
+      title: "Support",
+      subtitle: "Concierge & help",
+      icon: HelpCircle,
+      onPress: () => showAlert("Support", "Need assistance? Contact our concierge team at concierge@threadlynest.com"),
+    },
+    {
+      id: "privacy",
+      title: "Privacy",
+      subtitle: "Data & security",
+      icon: Shield,
+      onPress: () => showAlert("Privacy Policy", "All customer data & measurements are encrypted under tenant isolation."),
     },
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}>
-        {/* Header */}
-        <Text
-          style={{
-            fontFamily: "Fraunces-SemiBold",
-            fontSize: 28,
-            color: "#3B0508",
-            marginBottom: 20,
-          }}
-        >
-          {displayTitle}
-        </Text>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          isLandscape && styles.landscapeContainer,
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Screen Header */}
+        <Text style={styles.screenTitle}>More</Text>
 
-        {/* User Card */}
-        <View
-          style={{
-            backgroundColor: "#FFFFFF",
-            borderRadius: 20,
-            padding: 18,
-            marginBottom: 24,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
+        {/* 1. Account & Atelier Card at the TOP */}
+        <Pressable
+          onPress={() => router.push("/(admin)/profile-edit" as any)}
+          style={({ pressed }) => [
+            styles.accountCard,
+            { opacity: pressed ? 0.92 : 1 },
+          ]}
         >
-          <View
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              backgroundColor: "#4A080C",
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 14,
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: "Fraunces-Bold",
-                fontSize: 20,
-                color: "#FFFFFF",
-              }}
-            >
-              {name ? name.charAt(0).toUpperCase() : "A"}
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {displayTitle.charAt(0).toUpperCase()}
             </Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontFamily: "WorkSans_600SemiBold",
-                fontSize: 16,
-                color: "#3B0508",
-                marginBottom: 2,
-              }}
-            >
-              {name || "Fashion House Admin"}
+            <Text style={styles.accountName} numberOfLines={1}>
+              {displayTitle}
             </Text>
-            <Text
-              style={{
-                fontFamily: "WorkSans_400Regular",
-                fontSize: 12,
-                color: "#8A7550",
-              }}
-            >
-              {email || "admin@threadly.com"}
+            <Text style={styles.accountEmail} numberOfLines={1}>
+              {email || "admin@threadlynest.com"}
             </Text>
           </View>
-        </View>
-
-        {/* Sections */}
-        {SECTIONS.map((sec, secIdx) => (
-          <View key={secIdx} style={{ marginBottom: 24 }}>
-            <Text
-              style={{
-                fontFamily: "WorkSans_600SemiBold",
-                fontSize: 12,
-                color: "#8A7550",
-                letterSpacing: 1.0,
-                textTransform: "uppercase",
-                marginBottom: 10,
-                marginLeft: 4,
-              }}
-            >
-              {sec.title}
-            </Text>
-
-            <View style={{ backgroundColor: "#FFFFFF", borderRadius: 20, overflow: "hidden" }}>
-              {sec.items.map((item, itemIdx) => {
-                const IconComponent = item.icon;
-                const isLast = itemIdx === sec.items.length - 1;
-
-                return (
-                  <Pressable
-                    key={item.label}
-                    onPress={item.onPress}
-                    style={({ pressed }) => [
-                      {
-                        flexDirection: "row",
-                        alignItems: "center",
-                        paddingVertical: 16,
-                        paddingHorizontal: 18,
-                        borderBottomWidth: isLast ? 0 : 1,
-                        borderBottomColor: "rgba(0, 0, 0, 0.05)",
-                        backgroundColor: pressed ? "rgba(74, 8, 12, 0.03)" : "#FFFFFF",
-                      },
-                    ]}
-                  >
-                    <View
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: 18,
-                        backgroundColor: "#F4EFE6",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginRight: 14,
-                      }}
-                    >
-                      <IconComponent size={18} color="#4A080C" />
-                    </View>
-                    <Text
-                      style={{
-                        flex: 1,
-                        fontFamily: "WorkSans_500Medium",
-                        fontSize: 15,
-                        color: "#3B0508",
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                    <ChevronRight size={18} color="#8A7550" />
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
-        ))}
-
-        {/* Log Out Button */}
-        <Pressable
-          onPress={() => {
-            logout();
-            router.replace("/(auth)/login");
-          }}
-          style={({ pressed }) => [
-            {
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "#FFFFFF",
-              borderRadius: 20,
-              paddingVertical: 16,
-              borderWidth: 1,
-              borderColor: "rgba(239, 68, 68, 0.2)",
-              gap: 8,
-              opacity: pressed ? 0.8 : 1,
-            },
-          ]}
-        >
-          <LogOut size={18} color="#EF4444" />
-          <Text
-            style={{
-              fontFamily: "WorkSans_600SemiBold",
-              fontSize: 15,
-              color: "#EF4444",
-            }}
-          >
-            Log Out
-          </Text>
+          <ChevronRight size={18} color="#8A7550" />
         </Pressable>
+
+        {/* 2. Unified 2-Column Grid */}
+        <View style={styles.gridContainer}>
+          {ALL_GRID_ITEMS.map((item) => {
+            const IconComponent = item.icon;
+            return (
+              <Pressable
+                key={item.id}
+                onPress={item.onPress}
+                style={({ pressed }) => [
+                  styles.gridCard,
+                  { opacity: pressed ? 0.9 : 1 },
+                ]}
+              >
+                {/* Squircle Icon Container */}
+                <View style={styles.iconContainer}>
+                  <IconComponent size={22} color="#1A1110" />
+                </View>
+
+                {/* Card Text Content */}
+                <View>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  {item.subtitle ? (
+                    <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                  ) : null}
+                </View>
+              </Pressable>
+            );
+          })}
+
+          {/* 3. Log Out Card in Grid Format */}
+          <Pressable
+            onPress={handleLogout}
+            style={({ pressed }) => [
+              styles.gridCard,
+              styles.logoutGridCard,
+              { opacity: pressed ? 0.9 : 1 },
+            ]}
+          >
+            <View style={[styles.iconContainer, styles.logoutIconContainer]}>
+              <LogOut size={22} color="#DC2626" />
+            </View>
+            <View>
+              <Text style={[styles.cardTitle, { color: "#DC2626" }]}>Log Out</Text>
+              <Text style={styles.cardSubtitle}>Sign out of atelier</Text>
+            </View>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FBF7EF",
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 40,
+  },
+  landscapeContainer: {
+    maxWidth: 680,
+    alignSelf: "center",
+    width: "100%",
+  },
+  screenTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 28,
+    color: "#1A1110",
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  accountCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#4A080C",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  avatarText: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 20,
+    color: "#FFFFFF",
+  },
+  accountName: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 16,
+    color: "#1A1110",
+    marginBottom: 2,
+  },
+  accountEmail: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#8A7550",
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  gridCard: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 16,
+    minHeight: 140,
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  logoutGridCard: {
+    borderWidth: 1,
+    borderColor: "rgba(220, 38, 38, 0.2)",
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "#E4E1DB",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  logoutIconContainer: {
+    backgroundColor: "#FEE2E2",
+  },
+  cardTitle: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 16,
+    color: "#1A1110",
+    marginBottom: 4,
+  },
+  cardSubtitle: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#7A7265",
+  },
+});

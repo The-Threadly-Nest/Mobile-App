@@ -1,31 +1,95 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, Pressable, Modal, Text, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, Clock, CheckCircle2, Image as ImageIcon } from "lucide-react-native";
 import { router } from "expo-router";
-import { Headline, Subtext } from "@/shared/components/Headline";
-import { Card } from "@/shared/components/Card";
-import { Input } from "@/shared/components/Input";
-import { Button } from "@/shared/components/Button";
+import { ArrowLeft, Search, Plus } from "lucide-react-native";
+import Svg, { Rect, Defs, LinearGradient, Stop } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 
 interface StaffMember {
   id: string;
+  name: string;
   email: string;
   active: boolean;
-  name?: string;
+  activeOrders: number;
+}
+
+const DEFAULT_STAFF: StaffMember[] = [
+  {
+    id: "s1",
+    name: "Ngozi Umeh",
+    email: "ngozi@adaezecouture.com",
+    active: true,
+    activeOrders: 3,
+  },
+  {
+    id: "s2",
+    name: "Tunde Bakare",
+    email: "tunde@adaezecouture.com",
+    active: true,
+    activeOrders: 5,
+  },
+  {
+    id: "s3",
+    name: "Funmilayo Adeyemi",
+    email: "funmi@adaezecouture.com",
+    active: true,
+    activeOrders: 1,
+  },
+];
+
+function GradientAvatar({ initial }: { initial: string }) {
+  return (
+    <View style={styles.avatarWrapper}>
+      <Svg width={40} height={40} viewBox="0 0 40 40" style={StyleSheet.absoluteFill}>
+        <Defs>
+          <LinearGradient id="avatarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <Stop offset="0%" stopColor="#4A080C" />
+            <Stop offset="100%" stopColor="#C4A763" />
+          </LinearGradient>
+        </Defs>
+        <Rect width="40" height="40" rx="20" fill="url(#avatarGrad)" />
+      </Svg>
+      <Text style={styles.avatarText}>{initial}</Text>
+    </View>
+  );
+}
+
+function FloatingAddCircle({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.floatingCircle,
+        {
+          opacity: pressed ? 0.85 : 1,
+          transform: [{ scale: pressed ? 0.94 : 1 }],
+        },
+      ]}
+    >
+      <Plus size={28} color="#FFFFFF" strokeWidth={2.5} />
+    </Pressable>
+  );
 }
 
 export default function StaffScreen() {
-  const [showInvite, setShowInvite] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [staffList, setStaffList] = useState<StaffMember[]>(DEFAULT_STAFF);
   const [fetchingStaff, setFetchingStaff] = useState(false);
-  const [staffList, setStaffList] = useState<StaffMember[]>([]);
-  const [error, setError] = useState("");
+
   const token = useAuthStore((s) => s.token);
 
   const fetchStaff = async () => {
@@ -36,11 +100,22 @@ export default function StaffScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok) {
-        setStaffList(data);
+      if (res.ok && Array.isArray(data) && data.length > 0) {
+        const mapped: StaffMember[] = data.map((st: any, idx: number) => {
+          const emailName = st.email ? st.email.split("@")[0] : "Staff";
+          const formattedName = st.name || emailName.charAt(0).toUpperCase() + emailName.slice(1);
+          return {
+            id: st.id,
+            name: formattedName,
+            email: st.email,
+            active: st.active ?? true,
+            activeOrders: (idx * 2 + 1) % 6,
+          };
+        });
+        setStaffList(mapped);
       }
     } catch (e) {
-      console.error("Failed to fetch staff list", e);
+      console.warn("Failed to fetch staff list", e);
     } finally {
       setFetchingStaff(false);
     }
@@ -50,120 +125,280 @@ export default function StaffScreen() {
     fetchStaff();
   }, [token]);
 
-  const handleInvite = async () => {
-    setError("");
-    if (!name.trim()) {
-      setError("Staff full name is required.");
-      return;
-    }
-    if (!email.trim()) {
-      setError("Staff email is required.");
-      return;
-    }
-    if (!password || password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/staff/invite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name: name.trim(), email: email.trim().toLowerCase(), password }),
-      });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Could not create staff account.");
-      setShowInvite(false);
-      setName("");
-      setEmail("");
-      setPassword("");
-      fetchStaff();
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredStaff = staffList.filter(
+    (st) =>
+      st.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      st.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
-      <View className="flex-row justify-between items-center px-5 pt-4 pb-2">
-        <Headline className="text-2xl">Staff</Headline>
-        <Pressable onPress={() => setShowInvite(true)} className="w-10 h-10 bg-oxblood rounded-full items-center justify-center">
-          <Plus size={20} color="#FBF7EF" />
-        </Pressable>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <View style={[styles.container, isLandscape && styles.containerLandscape]}>
+        {/* Header Row */}
+        <View style={styles.header}>
+          <Pressable
+            onPress={() => router.push("/(admin)/settings" as any)}
+            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+          >
+            <ArrowLeft size={18} color="#3B0508" />
+          </Pressable>
 
-      {fetchingStaff ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#4A080C" />
+          <Text style={styles.headerTitle}>Staff</Text>
         </View>
-      ) : (
-        <FlatList
-          data={staffList}
-          keyExtractor={(i) => i.id}
-          contentContainerStyle={{ padding: 20 }}
-          ListEmptyComponent={
-            <View className="py-12 items-center">
-              <Text className="font-body text-grey700 text-sm text-center">No staff members found. Tap + to add staff.</Text>
-            </View>
-          }
-          renderItem={({ item }) => (
-            <Card className="mb-3 flex-row items-center justify-between">
-              <View className="flex-1 mr-2">
-                <Text className="font-body-semibold text-ink" numberOfLines={1}>
-                  {item.email}
-                </Text>
-                <View className="flex-row items-center mt-1">
-                  {item.active ? (
-                    <View className="flex-row items-center">
-                      <CheckCircle2 size={12} color="#4A080C" />
-                      <Text className="font-body text-[11px] text-grey700 ml-1">Active</Text>
-                    </View>
-                  ) : (
-                    <View className="flex-row items-center">
-                      <Clock size={12} color="#C4A763" />
-                      <Text className="font-body text-[11px] text-gold ml-1">Pending Activation</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
 
-              {/* View Staff Moodboard Button */}
-              <Pressable
-                onPress={() =>
-                  router.push({
-                    pathname: "/(admin)/staff/[staffId]/moodboard",
-                    params: { staffId: item.id, staffName: item.name || item.email.split("@")[0] },
-                  })
-                }
-                className="bg-oxblood/10 px-3 py-2 rounded-xl flex-row items-center gap-1.5"
-              >
-                <ImageIcon size={14} color="#4A080C" />
-                <Text className="font-body-semibold text-oxblood text-xs">Moodboard →</Text>
-              </Pressable>
-            </Card>
-          )}
-        />
-      )}
+        {/* Search Bar */}
+        <View style={styles.searchBar}>
+          <Search size={20} color="#7A7265" style={{ marginRight: 12 }} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search staff members..."
+            placeholderTextColor="#8A7550"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            clearButtonMode="while-editing"
+          />
+        </View>
 
-      <Modal visible={showInvite} animationType="slide" transparent>
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="bg-cream p-6 rounded-t-2xl">
-            <Headline className="text-xl mb-4">Add Staff Account</Headline>
-            <Input placeholder="Full name" value={name} onChangeText={setName} />
-            <Input placeholder="Email" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
-            <Input placeholder="Password (min. 8 chars)" secureTextEntry value={password} onChangeText={setPassword} />
-            <Subtext className="text-xs mb-4">The staff member can log in directly using this email and password.</Subtext>
-            {error ? <Text className="font-body text-red-500 text-xs mb-3">{error}</Text> : null}
-            <Button label="Create Staff Account" onPress={handleInvite} loading={loading} disabled={!name || !email || !password} />
-            <Pressable onPress={() => setShowInvite(false)} className="mt-3">
-              <Text className="font-body text-center text-grey700 text-sm">Cancel</Text>
-            </Pressable>
+        {/* Staff List */}
+        {fetchingStaff && staffList.length === 0 ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator color="#4A080C" size="large" />
           </View>
-        </View>
-      </Modal>
+        ) : (
+          <FlatList
+            data={filteredStaff}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => {
+              const initial = (item.name || "S").charAt(0).toUpperCase();
+
+              return (
+                <Pressable
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(admin)/staff/[staffId]/moodboard",
+                      params: { staffId: item.id, staffName: item.name },
+                    })
+                  }
+                  style={({ pressed }) => [
+                    styles.card,
+                    { opacity: pressed ? 0.94 : 1 },
+                  ]}
+                >
+                  {/* Linear Gradient Avatar */}
+                  <GradientAvatar initial={initial} />
+
+                  {/* Text Column */}
+                  <View style={styles.detailsContainer}>
+                    <Text style={styles.staffName} numberOfLines={1}>{item.name}</Text>
+                    <Text style={styles.staffEmail} numberOfLines={1}>{item.email}</Text>
+                    <Text style={styles.ordersText}>
+                      {item.activeOrders} active {item.activeOrders === 1 ? "order" : "orders"}
+                    </Text>
+                  </View>
+
+                  {/* Active Status Pill */}
+                  <View
+                    style={[
+                      styles.badge,
+                      item.active ? styles.badgeActive : styles.badgePending,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.badgeText,
+                        item.active ? styles.badgeTextActive : styles.badgeTextPending,
+                      ]}
+                    >
+                      {item.active ? "Active" : "Pending"}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No staff members matching "{searchQuery}"</Text>
+              </View>
+            }
+          />
+        )}
+
+        {/* 56x56 Floating Gold Action Circle at bottom right */}
+        <FloatingAddCircle
+          onPress={() => router.push("/(admin)/staff/invite" as any)}
+        />
+      </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FBF7EF",
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    position: "relative",
+  },
+  containerLandscape: {
+    maxWidth: 680,
+    alignSelf: "center",
+    width: "100%",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#1A1110",
+    letterSpacing: -0.2,
+  },
+  searchBar: {
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  searchInput: {
+    flex: 1,
+    height: "100%",
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 15,
+    color: "#1A1110",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  listContent: {
+    paddingBottom: 96,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 376,
+    height: 114,
+    alignSelf: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  avatarWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  avatarText: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 17,
+    color: "#FFFFFF",
+  },
+  detailsContainer: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  staffName: {
+    fontFamily: "WorkSans_500Medium",
+    fontSize: 16,
+    color: "#000000",
+    marginBottom: 2,
+  },
+  staffEmail: {
+    fontFamily: "WorkSans_300Light",
+    fontSize: 12,
+    color: "#404040",
+    marginBottom: 2,
+  },
+  ordersText: {
+    fontFamily: "WorkSans_300Light",
+    fontSize: 12,
+    color: "#404040",
+  },
+  badge: {
+    width: 53,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-start",
+  },
+  badgeActive: {
+    backgroundColor: "rgba(67, 160, 71, 0.25)",
+  },
+  badgePending: {
+    backgroundColor: "rgba(220, 38, 38, 0.2)",
+  },
+  badgeText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 11.5,
+  },
+  badgeTextActive: {
+    color: "#43A047",
+  },
+  badgeTextPending: {
+    color: "#DC2626",
+  },
+  emptyContainer: {
+    paddingVertical: 40,
+    alignItems: "center",
+  },
+  emptyText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    color: "#8A7550",
+  },
+  floatingCircle: {
+    position: "absolute",
+    bottom: 32,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#4A080C",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#4A080C",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+});

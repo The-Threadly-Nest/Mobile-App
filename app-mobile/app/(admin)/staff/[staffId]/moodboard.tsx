@@ -7,7 +7,6 @@ import {
   Image,
   ActivityIndicator,
   Modal,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
@@ -17,6 +16,7 @@ import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface Sketch {
   id: string;
@@ -27,6 +27,7 @@ interface Sketch {
 }
 
 export default function AdminStaffMoodBoardScreen() {
+  const { showAlert } = useAppAlert();
   const params = useLocalSearchParams<{ staffId: string; staffName?: string }>();
   const { staffId, staffName } = params;
   
@@ -109,7 +110,7 @@ export default function AdminStaffMoodBoardScreen() {
         prev.map((s) => (s.id === selectedSketch.id ? { ...s, promotedToCatalog: true } : s))
       );
 
-      Alert.alert("Success", `"${selectedSketch.title}" was promoted to your public Catalog!`);
+      showAlert("Success", `"${selectedSketch.title}" was promoted to your public Catalog!`);
       setSelectedSketch(null);
     } catch (e: any) {
       setError(e.message);
@@ -123,7 +124,7 @@ export default function AdminStaffMoodBoardScreen() {
       {/* Header */}
       <View className="flex-row items-center px-5 pt-4 pb-2 gap-3">
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => router.push("/(admin)/staff" as any)}
           className="w-10 h-10 border border-oxblood/20 rounded-full items-center justify-center"
         >
           <ArrowLeft size={20} color="#3B0508" />

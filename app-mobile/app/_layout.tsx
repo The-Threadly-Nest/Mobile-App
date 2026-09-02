@@ -4,7 +4,9 @@ import { View } from "react-native";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
+import AppAlert from "@/shared/components/AppAlert";
 import {
+  WorkSans_300Light,
   WorkSans_400Regular,
   WorkSans_500Medium,
   WorkSans_600SemiBold,
@@ -21,6 +23,7 @@ SplashScreen.preventAutoHideAsync();
  */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
+    WorkSans_300Light,
     WorkSans_400Regular,
     WorkSans_500Medium,
     WorkSans_600SemiBold,
@@ -44,6 +47,8 @@ export default function RootLayout() {
       <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <Stack screenOptions={{ headerShown: false }} />
       </View>
+      {/* Global branded alert — driven by alertEmitter, available everywhere */}
+      <AppAlert />
     </SafeAreaProvider>
   );
 }

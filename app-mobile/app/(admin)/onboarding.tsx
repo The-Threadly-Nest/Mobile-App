@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -31,6 +32,9 @@ const SPECIALIZATION_CATEGORIES = [
 ];
 
 export default function AdminOnboardingScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const [step, setStep] = useState<number>(1);
   const [shopName, setShopName] = useState<string>("");
   const [location, setLocation] = useState<string>("");
@@ -154,52 +158,67 @@ export default function AdminOnboardingScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={[
+            styles.scrollContent,
+            isLandscape && {
+              paddingTop: 4,
+              paddingBottom: 16,
+              maxWidth: 680,
+              alignSelf: "center",
+              width: "100%",
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
         >
           {/* Top Progress Bar */}
-          <View style={styles.progressTrack}>
+          <View style={[styles.progressTrack, isLandscape && { marginBottom: 8 }]}>
             <View style={[styles.progressFill, { width: `${(step / 3) * 100}%` }]} />
           </View>
 
           {/* Back Arrow (shown only on step 2) */}
           {step === 2 && (
-            <View style={styles.topBackHeader}>
+            <View style={[styles.topBackHeader, isLandscape && { height: 32, marginBottom: 6 }]}>
               <Pressable
                 onPress={() => setStep((s) => s - 1)}
-                style={({ pressed }) => [styles.topBackBtn, { opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [
+                  styles.topBackBtn,
+                  isLandscape && { width: 32, height: 32, borderRadius: 16 },
+                  { opacity: pressed ? 0.7 : 1 },
+                ]}
               >
-                <ArrowLeft size={18} color="#3B0508" />
+                <ArrowLeft size={isLandscape ? 16 : 18} color="#3B0508" />
               </Pressable>
             </View>
           )}
 
           {/* Step Badge */}
-          <Text style={styles.stepBadge}>FASHION OWNER SETUP · STEP {step} OF 3</Text>
+          <Text style={[styles.stepBadge, isLandscape && { marginBottom: 10 }]}>FASHION OWNER SETUP · STEP {step} OF 3</Text>
 
           {step === 1 && (
-            <View style={styles.stepContainer}>
-              <View style={styles.iconCircle}>
-                <Store size={28} color="#4A080C" />
+            <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
+              <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
+                <Store size={isLandscape ? 22 : 28} color="#4A080C" />
               </View>
-              <Text style={styles.headline}>Brand & Identity</Text>
-              <Text style={styles.subtext}>
+              <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Brand & Identity</Text>
+              <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
                 Set up your brand name, logo, and store tagline for clients.
               </Text>
 
               {/* Logo Upload Box (Cloudflare R2 Direct Upload) */}
-              <View style={styles.logoSection}>
+              <View style={[styles.logoSection, isLandscape && { marginBottom: 14 }]}>
                 <Text style={styles.label}>Brand Logo / Avatar </Text>
                 <Pressable
                   onPress={handlePickLogo}
                   disabled={uploadingLogo}
                   style={({ pressed }) => [
                     styles.logoPickerBox,
+                    isLandscape && { minHeight: 90, padding: 10 },
                     { opacity: pressed || uploadingLogo ? 0.8 : 1 },
                   ]}
                 >
@@ -210,26 +229,27 @@ export default function AdminOnboardingScreen() {
                     </View>
                   ) : brandLogoUrl ? (
                     <View style={styles.logoPreviewWrap}>
-                      <Image source={{ uri: brandLogoUrl }} style={styles.logoPreviewImage} />
+                      <Image source={{ uri: brandLogoUrl }} style={[styles.logoPreviewImage, isLandscape && { width: 60, height: 60, borderRadius: 30 }]} />
                       <View style={styles.logoChangeBadge}>
-                        <Camera size={14} color="#FFFFFF" />
+                        <Camera size={12} color="#FFFFFF" />
                         <Text style={styles.logoChangeText}>Change</Text>
                       </View>
                     </View>
                   ) : (
                     <View style={styles.logoPlaceholderWrap}>
-                      <UploadCloud size={32} color="#4A080C" />
-                      <Text style={styles.logoPlaceholderText}>Tap to upload brand logo</Text>
+                      <UploadCloud size={isLandscape ? 24 : 32} color="#4A080C" />
+                      <Text style={[styles.logoPlaceholderText, isLandscape && { fontSize: 13 }]}>Tap to upload brand logo</Text>
                       <Text style={styles.logoSubtext}>JPG, PNG up to 5MB</Text>
                     </View>
                   )}
                 </Pressable>
               </View>
 
-              <View style={styles.inputWrapper}>
+              <View style={[styles.inputWrapper, isLandscape && { marginBottom: 14 }]}>
                 <Text style={styles.label}>Business / Brand Name</Text>
                 <TextInput
-                  style={styles.input}
+                  disableFullscreenUI={true}
+                  style={[styles.input, isLandscape && { height: 48 }]}
                   placeholder="e.g. Royal Stitch Atelier"
                   placeholderTextColor="#8A7550"
                   value={shopName}
@@ -240,10 +260,11 @@ export default function AdminOnboardingScreen() {
                 />
               </View>
 
-              <View style={styles.inputWrapper}>
+              <View style={[styles.inputWrapper, isLandscape && { marginBottom: 14 }]}>
                 <Text style={styles.label}>Brand Bio / Motto (Optional)</Text>
                 <TextInput
-                  style={[styles.input, { height: 60, paddingTop: 12 }]}
+                  disableFullscreenUI={true}
+                  style={[styles.input, { height: 60, paddingTop: 12 }, isLandscape && { height: 50, paddingTop: 8 }]}
                   placeholder="Crafting luxury bespoke wear in Lagos since 2018..."
                   placeholderTextColor="#8A7550"
                   multiline
@@ -258,19 +279,20 @@ export default function AdminOnboardingScreen() {
           )}
 
           {step === 2 && (
-            <View style={styles.stepContainer}>
-              <View style={styles.iconCircle}>
-                <MapPin size={28} color="#4A080C" />
+            <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
+              <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
+                <MapPin size={isLandscape ? 22 : 28} color="#4A080C" />
               </View>
-              <Text style={styles.headline}>Location & Contact</Text>
-              <Text style={styles.subtext}>
+              <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Location & Contact</Text>
+              <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
                 Help customers locate your showroom or studio for fittings.
               </Text>
 
-              <View style={styles.inputWrapper}>
+              <View style={[styles.inputWrapper, isLandscape && { marginBottom: 14 }]}>
                 <Text style={styles.label}>Store Address / City</Text>
                 <TextInput
-                  style={styles.input}
+                  disableFullscreenUI={true}
+                  style={[styles.input, isLandscape && { height: 48 }]}
                   placeholder="e.g. 14 Admiralty Way, Lekki Phase 1, Lagos"
                   placeholderTextColor="#8A7550"
                   value={location}
@@ -281,7 +303,7 @@ export default function AdminOnboardingScreen() {
                 />
               </View>
 
-              <View style={styles.inputWrapper}>
+              <View style={[styles.inputWrapper, isLandscape && { marginBottom: 14 }]}>
                 <PhoneInputWithCountry
                   label="Official Business Phone (Optional)"
                   placeholder="801 234 5678"
@@ -293,12 +315,12 @@ export default function AdminOnboardingScreen() {
           )}
 
           {step === 3 && (
-            <View style={styles.stepContainer}>
-              <View style={styles.iconCircle}>
-                <Sparkles size={28} color="#4A080C" />
+            <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
+              <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
+                <Sparkles size={isLandscape ? 22 : 28} color="#4A080C" />
               </View>
-              <Text style={styles.headline}>What do you specialize in?</Text>
-              <Text style={styles.subtext}>
+              <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>What do you specialize in?</Text>
+              <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
                 Select the fashion categories your brand creates best.
               </Text>
 
@@ -311,6 +333,7 @@ export default function AdminOnboardingScreen() {
                       onPress={() => toggleCategory(cat)}
                       style={[
                         styles.pill,
+                        isLandscape && { height: 44 },
                         selected ? styles.pillSelected : styles.pillUnselected,
                       ]}
                     >
@@ -329,11 +352,11 @@ export default function AdminOnboardingScreen() {
         </ScrollView>
 
         {/* Bottom Actions Pinned to Bottom */}
-        <View style={styles.actionRow}>
+        <View style={[styles.actionRow, isLandscape && { paddingTop: 6, paddingBottom: 12 }]}>
           {step < 3 ? (
             <Pressable
               onPress={handleNext}
-              style={[styles.nextBtn, { flex: 1 }]}
+              style={[styles.nextBtn, isLandscape && { height: 44, borderRadius: 22 }]}
             >
               <Text style={styles.nextBtnText}>Continue</Text>
             </Pressable>
@@ -341,7 +364,11 @@ export default function AdminOnboardingScreen() {
             <Pressable
               onPress={handleSubmitOnboarding}
               disabled={loading || uploadingLogo}
-              style={[styles.nextBtn, { flex: 1, opacity: loading || uploadingLogo ? 0.8 : 1 }]}
+              style={[
+                styles.nextBtn,
+                isLandscape && { height: 44, borderRadius: 22 },
+                { opacity: loading || uploadingLogo ? 0.8 : 1 },
+              ]}
             >
               {loading ? (
                 <ActivityIndicator color="#FFFFFF" />
@@ -561,12 +588,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 20,
     backgroundColor: "#FBF7EF",
   },
   nextBtn: {
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
     height: 58,
     borderRadius: 29,
     backgroundColor: "#4A080C",

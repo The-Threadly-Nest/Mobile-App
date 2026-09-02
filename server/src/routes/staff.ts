@@ -21,7 +21,21 @@ router.post("/invite", validate({ body: inviteStaffSchema }), async (req, res, n
     const { name, email, password } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return res.status(400).json({ error: "An account with this email already exists." });
+    if (existing) {
+      if (existing.role === "admin") {
+        return res.status(400).json({
+          error: "This email is registered to a Fashion House Admin and cannot be added as a staff member.",
+        });
+      }
+      if (existing.role === "customer") {
+        return res.status(400).json({
+          error: "This email is registered to a Customer account and cannot be added as a staff member.",
+        });
+      }
+      return res.status(400).json({
+        error: "An account with this email already exists.",
+      });
+    }
 
     const passwordHash = await hashPassword(password);
 

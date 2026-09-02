@@ -7,13 +7,13 @@ import {
   Image,
   ActivityIndicator,
   RefreshControl,
-  Alert,
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { ArrowLeft, Plus, Trash2, Tag } from "lucide-react-native";
 import { apiFetch } from "@/shared/utils/apiClient";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 export interface CatalogItem {
   id: string;
@@ -24,6 +24,7 @@ export interface CatalogItem {
 }
 
 export default function AdminCatalogListScreen() {
+  const { showAlert, showConfirm } = useAppAlert();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,27 +54,24 @@ export default function AdminCatalogListScreen() {
   };
 
   const handleDelete = (id: string, name: string) => {
-    Alert.alert(
+    showConfirm(
       "Delete Garment",
       `Are you sure you want to remove "${name}" from your catalog?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            setDeletingId(id);
-            try {
-              await apiFetch(`/api/catalog/${id}`, { method: "DELETE" });
-              setItems((prev) => prev.filter((item) => item.id !== id));
-            } catch (err: any) {
-              Alert.alert("Delete Failed", err.message || "Could not delete garment.");
-            } finally {
-              setDeletingId(null);
-            }
-          },
+      {
+        confirmLabel: "Delete",
+        cancelLabel: "Cancel",
+        onConfirm: async () => {
+          setDeletingId(id);
+          try {
+            await apiFetch(`/api/catalog/${id}`, { method: "DELETE" });
+            setItems((prev) => prev.filter((item) => item.id !== id));
+          } catch (err: any) {
+            showAlert("Delete Failed", err.message || "Could not delete garment.");
+          } finally {
+            setDeletingId(null);
+          }
         },
-      ]
+      }
     );
   };
 
@@ -87,7 +85,7 @@ export default function AdminCatalogListScreen() {
       <View style={styles.header}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
             <ArrowLeft size={20} color="#3B0508" />

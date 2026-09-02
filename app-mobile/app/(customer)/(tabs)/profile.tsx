@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator } from "react-native";
+import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Svg, { Path, Circle } from "react-native-svg";
@@ -71,6 +71,9 @@ function LogOutIcon() {
 }
 
 export default function CustomerProfileScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const logout = useAuthStore((s) => s.logout);
   const storedName = useAuthStore((s) => s.name);
   const storedEmail = useAuthStore((s) => s.email);
@@ -196,7 +199,10 @@ export default function CustomerProfileScreen() {
     <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top"]}>
       <ScrollView
         className="flex-1 px-4 pt-6"
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={[
+          { paddingBottom: 64 },
+          isLandscape && { maxWidth: 840, alignSelf: "center", width: "100%", paddingHorizontal: 16 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Avatar & Name Header */}

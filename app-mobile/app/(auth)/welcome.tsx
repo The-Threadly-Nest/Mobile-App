@@ -1,60 +1,84 @@
 import React from "react";
-import { View, Text, Image, Pressable, StyleSheet } from "react-native";
+import { View, Text, Image, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WelcomeScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   return (
-    <View style={styles.container}>
-      {/* Top Image — Full width with no padding */}
-      <View style={styles.imageContainer}>
+    <View style={[styles.container, isLandscape && { flexDirection: "row" }]}>
+      {/* Top / Left Hero Image */}
+      <View
+        style={[
+          styles.imageContainer,
+          isLandscape && {
+            width: "42%",
+            height: "100%",
+            padding: 12,
+          },
+        ]}
+      >
         <Image
           source={require("../../assets/welcome-hero.jpg")}
-          style={styles.image}
+          style={[styles.image, isLandscape && { borderRadius: 20 }]}
           resizeMode="cover"
         />
       </View>
 
-      {/* Bottom Content Area */}
-      <SafeAreaView edges={["bottom"]} style={styles.content}>
-        {/* Text Section */}
-        <View style={styles.textSection}>
-          <Text style={styles.title}>Welcome to The Threadly Nest</Text>
-          <Text style={styles.subtitle}>
-            Create an account to book, track, and save your measurements across
-            every fashion house you work with.
-          </Text>
-        </View>
+      {/* Bottom / Right Content Area */}
+      <SafeAreaView
+        edges={["bottom", "right"]}
+        style={[styles.content, isLandscape && { flex: 1, paddingHorizontal: 24, paddingTop: 16, justifyContent: "center" }]}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[isLandscape && { flexGrow: 1, justifyContent: "center" }]}
+        >
+          {/* Text Section */}
+          <View style={[styles.textSection, isLandscape && { marginVertical: 4 }]}>
+            <Text style={[styles.title, isLandscape && { fontSize: 22, lineHeight: 28, marginBottom: 6 }]}>
+              Welcome to The Threadly Nest
+            </Text>
+            <Text style={[styles.subtitle, isLandscape && { fontSize: 13, lineHeight: 18 }]}>
+              Create an account to book, track, and save your measurements across
+              every fashion house you work with.
+            </Text>
+          </View>
 
-        {/* Action Buttons */}
-        <View style={styles.buttonsContainer}>
-          {/* Create Account - Solid Oxblood */}
-          <Pressable
-            onPress={() => router.push("/(auth)/role-select")}
-            style={({ pressed }) => [
-              styles.createAccountBtn,
-              { opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Text style={styles.createAccountText}>Create Account</Text>
-          </Pressable>
+          {/* Action Buttons */}
+          <View style={[styles.buttonsContainer, isLandscape && { gap: 8, marginTop: 12 }]}>
+            {/* Create Account - Solid Oxblood */}
+            <Pressable
+              onPress={() => router.push("/(auth)/role-select")}
+              style={({ pressed }) => [
+                styles.createAccountBtn,
+                isLandscape && { height: 48, borderRadius: 24 },
+                { opacity: pressed ? 0.85 : 1 },
+              ]}
+            >
+              <Text style={styles.createAccountText}>Create Account</Text>
+            </Pressable>
 
-          {/* Log In - Outlined Oxblood */}
-          <Pressable
-            onPress={() => router.push("/(auth)/login")}
-            style={({ pressed }) => [
-              styles.logInBtn,
-              { opacity: pressed ? 0.75 : 1 },
-            ]}
-          >
-            <Text style={styles.logInText}>Log In</Text>
-          </Pressable>
+            {/* Log In - Outlined Oxblood */}
+            <Pressable
+              onPress={() => router.push("/(auth)/login")}
+              style={({ pressed }) => [
+                styles.logInBtn,
+                isLandscape && { height: 48, borderRadius: 24 },
+                { opacity: pressed ? 0.75 : 1 },
+              ]}
+            >
+              <Text style={styles.logInText}>Log In</Text>
+            </Pressable>
 
-          {/* Disclaimer */}
-          <Text style={styles.disclaimerText}>
-            By continuing you agree to our Terms of Service and Privacy Policy.
-          </Text>
-        </View>
+            {/* Disclaimer */}
+            <Text style={styles.disclaimerText}>
+              By continuing you agree to our Terms of Service and Privacy Policy.
+            </Text>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );

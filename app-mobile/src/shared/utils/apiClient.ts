@@ -1,6 +1,6 @@
-import { Alert } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { alertEmitter } from "@/shared/utils/alertEmitter";
 
 export interface ApiErrorDetail {
   status: number;
@@ -58,10 +58,29 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     let errorDetail: ApiErrorDetail;
     try {
       const body = await response.json();
-      errorDetail = body.error || {
+      let message = "An unexpected error occurred.";
+
+      if (typeof body.error === "string") {
+        message = body.error;
+      } else if (body.error && typeof body.error.message === "string") {
+        message = body.error.message;
+      } else if (typeof body.message === "string") {
+        message = body.message;
+      }
+
+      if (Array.isArray(body.issues) && body.issues.length > 0) {
+        const issuesText = body.issues.map((i: any) => i.message).join(". ");
+        if (!message || message === "Validation failed") {
+          message = issuesText;
+        }
+      }
+
+      const code = (typeof body.error === "object" && body.error?.code) || body.code || "HTTP_ERROR";
+      errorDetail = {
         status: response.status,
-        code: "UNEXPECTED_ERROR",
-        message: body.message || "An unexpected error occurred.",
+        code,
+        message,
+        details: body.issues || (typeof body.error === "object" ? body.error?.details : undefined),
       };
     } catch {
       errorDetail = {
@@ -85,14 +104,14 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       console.warn("[API Client] Session expired. Force logging out...");
       logout();
       if (!options.silent) {
-        Alert.alert("Session Expired", "Your session has expired. Please log in again.");
+        alertEmitter.emit({ title: "Session Expired", message: "Your session has expired. Please log in again." });
       }
       throw new ApiError(errorDetail);
     }
 
     // 3. Surface other non-retryable errors immediately
     if (!options.silent) {
-      Alert.alert("Request Failed", errorDetail.message);
+      alertEmitter.emit({ title: "Request Failed", message: errorDetail.message });
     }
 
     throw new ApiError(errorDetail);
@@ -108,7 +127,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         message: "No internet connection detected. Please verify your connection and try again.",
       };
       if (!options.silent) {
-        Alert.alert("Connection Offline", networkErrorDetail.message);
+        alertEmitter.emit({ title: "Connection Offline", message: networkErrorDetail.message });
       }
       throw new ApiError(networkErrorDetail);
     }

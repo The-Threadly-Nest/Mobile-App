@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Tabs } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle } from "react-native-svg";
 
 function DiscoverTabIcon({ color }: { color: string }) {
@@ -75,6 +76,9 @@ function ProfileTabIcon({ color }: { color: string }) {
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const extraBottom = insets.bottom;
+
   useEffect(() => {
     // Match nav bar to tab bar background — blends seamlessly
     NavigationBar.setBackgroundColorAsync("#FBF7EF");
@@ -91,9 +95,9 @@ export default function TabsLayout() {
           backgroundColor: "#FBF7EF",
           borderTopColor: "rgba(74, 8, 12, 0.12)",
           borderTopWidth: 0.5,
-          height: 72,
+          height: 58 + Math.max(14, extraBottom),
           paddingTop: 6,
-          paddingBottom: 14,
+          paddingBottom: Math.max(14, extraBottom),
         },
         tabBarLabelStyle: {
           fontFamily: "WorkSans_600SemiBold",

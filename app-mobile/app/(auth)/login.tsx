@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,6 +21,9 @@ import { API_BASE_URL } from "@/api/config";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 
 export default function LoginScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -66,7 +70,12 @@ export default function LoginScreen() {
         body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
       const body = await res.json();
-      if (!res.ok) throw new Error(body.error ?? "Invalid email or password.");
+      if (!res.ok) {
+        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
+          ? body.issues.map((i: any) => i.message).join(". ")
+          : null;
+        throw new Error(issueMsg || body.error || "Invalid email or password.");
+      }
 
       const userVerified = body.user.isVerified ?? true;
       const userOnboardingCompleted = body.user.onboardingCompleted ?? false;
@@ -110,16 +119,26 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={[
+            styles.scrollContent,
+            isLandscape && {
+              paddingTop: 12,
+              paddingBottom: 16,
+              maxWidth: 620,
+              alignSelf: "center",
+              width: "100%",
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
         >
           {/* Top Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, isLandscape && { marginBottom: 16, marginTop: 0 }]}>
             <Pressable
               onPress={() => {
                 if (router.canGoBack()) router.back();
@@ -132,17 +151,18 @@ export default function LoginScreen() {
             >
               <BackArrowIcon size={20} color="#3B0508" />
             </Pressable>
-            <Text style={styles.headerTitle}>Log In</Text>
+            <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>Log In</Text>
           </View>
 
           {/* Form Fields */}
           <View style={styles.formContainer}>
             {/* Email Input */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, isLandscape && { height: 48, marginBottom: 14 }]}>
               <View style={styles.labelWrapper}>
                 <Text style={styles.labelText}>Email</Text>
               </View>
               <TextInput
+                disableFullscreenUI={true}
                 style={styles.textInput}
                 value={email}
                 onChangeText={(text) => {
@@ -155,11 +175,12 @@ export default function LoginScreen() {
             </View>
 
             {/* Password Input */}
-            <View style={[styles.inputContainer, { marginBottom: 8 }]}>
+            <View style={[styles.inputContainer, { marginBottom: 8 }, isLandscape && { height: 48, marginBottom: 4 }]}>
               <View style={styles.labelWrapper}>
                 <Text style={styles.labelText}>Password</Text>
               </View>
               <TextInput
+                disableFullscreenUI={true}
                 style={styles.textInput}
                 value={password}
                 onChangeText={setPassword}
@@ -168,12 +189,12 @@ export default function LoginScreen() {
               />
               <Pressable
                 onPress={() => setShowPassword((v) => !v)}
-                style={styles.eyeIconBtn}
+                style={[styles.eyeIconBtn, isLandscape && { top: 13 }]}
               >
                 {showPassword ? (
-                  <EyeOff size={20} color="#3C3C43" />
+                  <EyeOff size={18} color="#3C3C43" />
                 ) : (
-                  <Eye size={20} color="#3C3C43" />
+                  <Eye size={18} color="#3C3C43" />
                 )}
               </Pressable>
             </View>
@@ -181,7 +202,7 @@ export default function LoginScreen() {
             {/* Forgot Password Link */}
             <Pressable
               onPress={() => router.push("/(auth)/forgot-password")}
-              style={styles.forgotPasswordWrapper}
+              style={[styles.forgotPasswordWrapper, isLandscape && { marginBottom: 14 }]}
             >
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </Pressable>
@@ -195,6 +216,7 @@ export default function LoginScreen() {
               disabled={loading}
               style={({ pressed }) => [
                 styles.logInBtn,
+                isLandscape && { height: 48, borderRadius: 24, marginBottom: 12 },
                 {
                   opacity: pressed || loading ? 0.8 : 1,
                 },
@@ -208,7 +230,7 @@ export default function LoginScreen() {
             </Pressable>
 
             {/* New here? Create an account */}
-            <View style={styles.signupLinkRow}>
+            <View style={[styles.signupLinkRow, isLandscape && { marginBottom: 12 }]}>
               <Text style={styles.signupLinkText}>New here? </Text>
               <Pressable onPress={() => router.push("/(auth)/signup")}>
                 <Text style={styles.signupLinkBold}>Create an account</Text>
@@ -216,7 +238,7 @@ export default function LoginScreen() {
             </View>
 
             {/* Or Divider */}
-            <View style={styles.dividerContainer}>
+            <View style={[styles.dividerContainer, isLandscape && { marginBottom: 12 }]}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>Or</Text>
               <View style={styles.dividerLine} />
@@ -227,6 +249,7 @@ export default function LoginScreen() {
               onPress={handleGoogleAuth}
               style={({ pressed }) => [
                 styles.googleBtn,
+                isLandscape && { height: 48, borderRadius: 24, marginBottom: 14 },
                 { opacity: pressed ? 0.8 : 1 },
               ]}
             >
