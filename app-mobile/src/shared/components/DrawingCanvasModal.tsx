@@ -7,9 +7,10 @@ import {
   PanResponder,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
-import Svg, { Path, Rect } from "react-native-svg";
-import { X, Undo2, RotateCcw, Check, Paintbrush, Eraser } from "lucide-react-native";
+import Svg, { Path, Rect, Circle, G } from "react-native-svg";
+import { X, Undo2, RotateCcw, Check, Paintbrush, Eraser, User, Grid } from "lucide-react-native";
 import { Input } from "./Input";
 import { Button } from "./Button";
 
@@ -42,6 +43,15 @@ const STROKE_WIDTHS = [
   { label: "Thick", value: 10 },
 ];
 
+const SKETCH_CHIPS = [
+  "Corset Detail",
+  "A-Line Silhouette",
+  "Sleeve Detail",
+  "Bespoke Jacket",
+  "Agbada Embroidery",
+  "Draft Pattern",
+];
+
 export default function DrawingCanvasModal({
   visible,
   onClose,
@@ -51,6 +61,7 @@ export default function DrawingCanvasModal({
   const [currentPath, setCurrentPath] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("#4A080C");
   const [selectedWidth, setSelectedWidth] = useState<number>(5);
+  const [bgGuide, setBgGuide] = useState<"blank" | "croquis" | "grid">("croquis");
   const [title, setTitle] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -157,8 +168,41 @@ ${pathElements}
           <View style={styles.headerRow}>
             <View style={styles.headerTitleRow}>
               <Paintbrush size={20} color="#4A080C" />
-              <Text style={styles.headerTitle}>Sketchpad</Text>
+              <Text style={styles.headerTitle}>Fashion Sketchpad</Text>
             </View>
+
+            {/* Guide Mode Selector */}
+            <View style={styles.guideToggleRow}>
+              <Pressable
+                onPress={() => setBgGuide("croquis")}
+                style={[
+                  styles.guideBtn,
+                  bgGuide === "croquis" && styles.guideBtnActive,
+                ]}
+              >
+                <User size={13} color={bgGuide === "croquis" ? "#FFFFFF" : "#4A080C"} />
+              </Pressable>
+              <Pressable
+                onPress={() => setBgGuide("grid")}
+                style={[styles.guideBtn, bgGuide === "grid" && styles.guideBtnActive]}
+              >
+                <Grid size={13} color={bgGuide === "grid" ? "#FFFFFF" : "#4A080C"} />
+              </Pressable>
+              <Pressable
+                onPress={() => setBgGuide("blank")}
+                style={[styles.guideBtn, bgGuide === "blank" && styles.guideBtnActive]}
+              >
+                <Text
+                  style={[
+                    styles.guideBtnText,
+                    bgGuide === "blank" && { color: "#FFFFFF" },
+                  ]}
+                >
+                  Clear
+                </Text>
+              </Pressable>
+            </View>
+
             <Pressable onPress={onClose} style={styles.closeBtn}>
               <X size={20} color="#4A080C" />
             </Pressable>
@@ -168,6 +212,41 @@ ${pathElements}
           <View style={styles.canvasContainer} {...panResponder.panHandlers}>
             <Svg width={340} height={340} viewBox="0 0 340 340">
               <Rect width="100%" height="100%" fill="#FBF7EF" />
+
+              {/* Background Guide: Fashion Croquis (Mannequin Silhouette) */}
+              {bgGuide === "croquis" && (
+                <G opacity={0.35}>
+                  {/* Head & Neck */}
+                  <Circle cx={170} cy={55} r={18} stroke="#8A7550" strokeWidth="1.2" fill="none" />
+                  <Path d="M 166 73 L 166 88 M 174 73 L 174 88" stroke="#8A7550" strokeWidth="1.2" />
+
+                  {/* Shoulders & Bust */}
+                  <Path d="M 125 102 C 145 92, 195 92, 215 102" stroke="#8A7550" strokeWidth="1.4" fill="none" />
+                  <Path d="M 125 102 C 122 135, 140 160, 152 175" stroke="#8A7550" strokeWidth="1.2" fill="none" />
+                  <Path d="M 215 102 C 218 135, 200 160, 188 175" stroke="#8A7550" strokeWidth="1.2" fill="none" />
+
+                  {/* Waist & Hips */}
+                  <Path d="M 152 175 C 160 178, 180 178, 188 175" stroke="#8A7550" strokeWidth="1.4" fill="none" />
+                  <Path d="M 152 175 C 142 205, 138 240, 148 290" stroke="#8A7550" strokeWidth="1.2" fill="none" />
+                  <Path d="M 188 175 C 198 205, 202 240, 192 290" stroke="#8A7550" strokeWidth="1.2" fill="none" />
+
+                  {/* Center Balance Line */}
+                  <Path d="M 170 40 L 170 310" stroke="#C4A763" strokeWidth="0.8" strokeDasharray="4 4" />
+                </G>
+              )}
+
+              {/* Background Guide: Dot Grid Matrix */}
+              {bgGuide === "grid" && (
+                <G opacity={0.25}>
+                  {[40, 90, 140, 190, 240, 290].map((x) =>
+                    [40, 90, 140, 190, 240, 290].map((y) => (
+                      <Circle key={`${x}-${y}`} cx={x} cy={y} r={1.5} fill="#8A7550" />
+                    ))
+                  )}
+                </G>
+              )}
+
+              {/* User Drawn Paths */}
               {paths.map((p, idx) => (
                 <Path
                   key={idx}
@@ -191,6 +270,36 @@ ${pathElements}
               ) : null}
             </Svg>
           </View>
+
+          {/* Quick Sketch Title Suggestion Chips */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 6, paddingBottom: 8 }}
+          >
+            {SKETCH_CHIPS.map((chip) => (
+              <Pressable
+                key={chip}
+                onPress={() => setTitle(chip)}
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 12,
+                  backgroundColor: title === chip ? "#4A080C" : "#E4D5B7",
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "WorkSans_600SemiBold",
+                    fontSize: 11,
+                    color: title === chip ? "#FFFFFF" : "#3A2E1A",
+                  }}
+                >
+                  + {chip}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
 
           {/* Tools Toolbar */}
           <View style={styles.toolbarRow}>
@@ -315,7 +424,29 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: "Fraunces-Bold",
-    fontSize: 20,
+    fontSize: 18,
+    color: "#4A080C",
+  },
+  guideToggleRow: {
+    flexDirection: "row",
+    gap: 4,
+    backgroundColor: "#E4D5B7",
+    padding: 3,
+    borderRadius: 14,
+  },
+  guideBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  guideBtnActive: {
+    backgroundColor: "#4A080C",
+  },
+  guideBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 10,
     color: "#4A080C",
   },
   closeBtn: {

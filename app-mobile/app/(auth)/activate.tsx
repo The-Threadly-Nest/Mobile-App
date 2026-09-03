@@ -134,7 +134,7 @@ export default function ActivateAccountScreen() {
   };
 
   const handleContinueExperience = () => {
-    router.replace("/(staff)/dashboard");
+    router.replace("/staff-onboarding");
   };
 
   // If verified, show "You're verified!" screen

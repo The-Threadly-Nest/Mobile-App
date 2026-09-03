@@ -112,7 +112,7 @@ export default function AdminSettingsScreen() {
       title: "Moodboards",
       subtitle: "Cross-staff view",
       icon: PenTool,
-      onPress: () => router.push("/(admin)/staff" as any),
+      onPress: () => router.push("/(admin)/moodboard" as any),
     },
     {
       id: "invoices",

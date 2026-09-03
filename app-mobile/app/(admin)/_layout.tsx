@@ -200,6 +200,9 @@ export default function AdminLayout() {
       <Tabs.Screen name="catalog/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="sketch-detail" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="draw" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="measurements/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="invoices/[orderId]" options={{ href: null, tabBarStyle: { display: "none" } }} />
