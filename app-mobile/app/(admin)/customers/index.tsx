@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,12 +8,15 @@ import {
   Modal,
   StyleSheet,
   useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Search, X, Ruler, UserCheck } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { API_BASE_URL } from "@/api/config";
 
 interface CustomerRecord {
   id: string;
@@ -71,11 +74,42 @@ export default function CustomersScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
+  const token = useAuthStore((s) => s.token);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [customers, setCustomers] = useState<CustomerRecord[]>(DEFAULT_CUSTOMERS);
+  const [customers, setCustomers] = useState<CustomerRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    async function fetchCustomers() {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/customers`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setCustomers(data);
+          } else {
+            setCustomers(DEFAULT_CUSTOMERS);
+          }
+        } else {
+          setCustomers(DEFAULT_CUSTOMERS);
+        }
+      } catch {
+        setCustomers(DEFAULT_CUSTOMERS);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCustomers();
+  }, [token]);
 
   const filteredCustomers = customers.filter(
     (c) =>
@@ -126,11 +160,14 @@ export default function CustomersScreen() {
         </View>
 
         {/* Customers List */}
-        <FlatList
-          data={filteredCustomers}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
+        {loading ? (
+          <ActivityIndicator color="#4A080C" size="large" style={{ marginVertical: 40 }} />
+        ) : (
+          <FlatList
+            data={filteredCustomers}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
           renderItem={({ item }) => {
             const initial = (item.name || "C").charAt(0).toUpperCase();
 
@@ -167,7 +204,8 @@ export default function CustomersScreen() {
               <Text style={styles.emptyText}>No customers matching "{searchQuery}"</Text>
             </View>
           }
-        />
+          />
+        )}
       </View>
 
       {/* Customer Profile & Measurements Modal */}

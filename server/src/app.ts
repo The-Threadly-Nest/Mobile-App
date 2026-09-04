@@ -19,6 +19,7 @@ import slotsRouter from "./routes/slots";
 import preferencesRouter from "./routes/preferences";
 import moodboardRouter from "./routes/moodboard";
 import fashionHousesRouter from "./routes/fashionHouses";
+import customersRouter from "./routes/customers";
 import { errorHandler } from "./middleware/errorHandler";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./utils/swagger";
@@ -132,5 +133,6 @@ app.use("/api/slots", slotsRouter);
 app.use("/api/preferences", preferencesRouter);
 app.use("/api/moodboard", moodboardRouter);
 app.use("/api/fashion-houses", fashionHousesRouter);
+app.use("/api/customers", customersRouter);
 
 app.use(errorHandler);

@@ -44,17 +44,18 @@ export default function AdminSettingsScreen() {
 
   const [staffCount, setStaffCount] = useState(0);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
-  const [customerCount, setCustomerCount] = useState(18);
-  const [invoiceCount, setInvoiceCount] = useState(3);
+  const [customerCount, setCustomerCount] = useState(0);
+  const [invoiceCount, setInvoiceCount] = useState(0);
 
   useEffect(() => {
     async function loadData() {
       if (!token) return;
       try {
-        const [profileRes, ordersRes, staffRes] = await Promise.allSettled([
+        const [profileRes, ordersRes, staffRes, customersRes] = await Promise.allSettled([
           adminApi.getProfile(),
           ordersApi.getOrders(),
           fetch(`${API_BASE_URL}/api/staff`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+          fetch(`${API_BASE_URL}/api/customers`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
         ]);
 
         if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
@@ -72,6 +73,10 @@ export default function AdminSettingsScreen() {
           setStaffCount(staffRes.value.length);
           const totalUnread = staffRes.value.reduce((acc: number, st: any) => acc + (st.unreadCount || 0), 0);
           setUnreadChatCount(totalUnread);
+        }
+
+        if (customersRes.status === "fulfilled" && Array.isArray(customersRes.value)) {
+          setCustomerCount(customersRes.value.length);
         }
       } catch (err) {
         console.warn("Failed to load profile for settings", err);

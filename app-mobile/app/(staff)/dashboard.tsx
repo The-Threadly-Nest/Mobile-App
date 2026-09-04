@@ -14,6 +14,7 @@ import { ArrowRight } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { generateOrderNumber } from "@/shared/utils/orderUtils";
 
 interface StaffOrder {
   id: string;
@@ -157,11 +158,11 @@ export default function StaffDashboard() {
             if (!seen.has(key)) {
               seen.add(key);
               const orderStatus = o.status || "in_production";
-              const isDone = orderStatus === "completed" || orderStatus === "delivered" || orderStatus === "ready_for_pickup";
+              const isDone = orderStatus === "completed" || orderStatus === "delivered";
               formatted.push({
                 id: o.id,
                 customerName: custName,
-                orderNumber: `#TFH-${2290 + idx}`,
+                orderNumber: generateOrderNumber(o.bookingId || o.id),
                 garmentDetails: o.itemName || "Custom Garment",
                 dueDate: "Due Soon",
                 status: isDone ? "completed" : orderStatus,
@@ -192,8 +193,8 @@ export default function StaffDashboard() {
   const realOrders = orders.filter((o) => !o.id.startsWith("mock-") && !o.id.startsWith("demo-"));
   const effectiveOrders = realOrders.length > 0 ? realOrders : orders;
 
-  const inProgressOrders = effectiveOrders.filter((o) => o.status !== "completed");
-  const completedOrders = effectiveOrders.filter((o) => o.status === "completed");
+  const inProgressOrders = effectiveOrders.filter((o) => o.status !== "completed" && o.status !== "delivered");
+  const completedOrders = effectiveOrders.filter((o) => o.status === "completed" || o.status === "delivered");
   const displayedOrders = activeTab === "in_progress" ? inProgressOrders : completedOrders;
 
   const handleActionPress = (order: StaffOrder) => {

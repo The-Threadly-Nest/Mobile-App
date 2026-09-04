@@ -174,6 +174,12 @@ export const escalationsApi = {
       silent: true,
     });
   },
+  declineBooking: async (escalationId: string) => {
+    return apiFetch<any>(`/api/escalations/${escalationId}/decline`, {
+      method: "PATCH",
+      silent: true,
+    });
+  },
 };
 
 

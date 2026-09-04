@@ -27,21 +27,46 @@ router.get("/", async (req, res, next) => {
       prisma.booking.findMany({
         where: { fashionHouseId: fh.id },
         orderBy: { createdAt: "desc" },
-        include: { customer: { select: { id: true, name: true, email: true } } },
+        include: {
+          customer: { select: { id: true, name: true, email: true } },
+          order: { select: { id: true, staffId: true, status: true } },
+        },
       }),
     ]);
 
-    const formattedBookings = bookings.map((b) => ({
-      id: b.id,
-      fashionHouseId: b.fashionHouseId,
-      customerId: b.customerId,
-      customerName: b.customer?.name || b.customer?.email?.split("@")[0] || "Customer",
-      reason: b.styleNotes || "Bespoke Fitting Appointment",
-      summary: `Appointment requested for ${b.preferredTime} on ${new Date(b.preferredDate).toLocaleDateString()}.`,
-      resolved: b.status === "assigned" || b.status === "completed",
-      createdAt: b.createdAt.toISOString(),
-      customer: b.customer,
-    }));
+    const formattedBookings = bookings.map((b) => {
+      // Source of truth: a booking is "assigned" if an Order has been created for it,
+      // OR if the booking.status was explicitly set to assigned/completed.
+      // This is resilient to the booking.status update failing silently.
+      const hasOrder = !!b.order;
+      const orderStatus = b.order?.status;
+
+      let bookingStatus: string;
+      if (hasOrder && (orderStatus === "completed" || orderStatus === "delivered")) {
+        bookingStatus = "completed";
+      } else if (hasOrder || b.status === "assigned") {
+        bookingStatus = "assigned";
+      } else if (b.status === "declined") {
+        bookingStatus = "declined";
+      } else {
+        bookingStatus = "pending";
+      }
+
+      return {
+        id: b.id,
+        fashionHouseId: b.fashionHouseId,
+        customerId: b.customerId,
+        customerName: b.customer?.name || b.customer?.email?.split("@")[0] || "Customer",
+        reason: b.styleNotes || "Bespoke Fitting Appointment",
+        summary: `Appointment requested for ${b.preferredTime} on ${new Date(b.preferredDate).toLocaleDateString()}.`,
+        preferredDate: b.preferredDate.toISOString(),
+        preferredTime: b.preferredTime,
+        resolved: hasOrder || b.status === "assigned" || b.status === "completed" || b.status === "declined",
+        bookingStatus,
+        createdAt: b.createdAt.toISOString(),
+        customer: b.customer,
+      };
+    });
 
     const formattedEscalations = escalations.map((e) => ({
       id: e.id,
@@ -101,6 +126,39 @@ router.patch("/:escalationId/resolve", validate({ params: escalationIdParamSchem
 
     const updated = await prisma.chatEscalation.update({ where: { id: escalation.id }, data: { resolved: true } });
     res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /api/escalations/:escalationId/decline
+// Works for both Booking records (sets status="declined") and ChatEscalation records (sets resolved=true as a fallback).
+router.patch("/:escalationId/decline", async (req, res, next) => {
+  try {
+    const fh = await getAdminFashionHouseOrThrow(req.authUserId!);
+    const { escalationId } = req.params;
+
+    // 1. Try to decline a Booking (has a proper "declined" status value)
+    const bookingResult = await prisma.booking.updateMany({
+      where: { id: escalationId, fashionHouseId: fh.id },
+      data: { status: "declined" },
+    });
+
+    if (bookingResult.count > 0) {
+      return res.json({ success: true, type: "booking" });
+    }
+
+    // 2. Fall back to resolving a ChatEscalation (no dedicated declined state in schema)
+    const escalationResult = await prisma.chatEscalation.updateMany({
+      where: { id: escalationId, fashionHouseId: fh.id },
+      data: { resolved: true },
+    });
+
+    if (escalationResult.count > 0) {
+      return res.json({ success: true, type: "escalation" });
+    }
+
+    return res.status(404).json({ error: "Booking or escalation not found." });
   } catch (err) {
     next(err);
   }

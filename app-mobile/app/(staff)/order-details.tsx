@@ -15,6 +15,7 @@ import { Phone, Calendar, Ruler, Scissors, ArrowRight } from "lucide-react-nativ
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { generateOrderNumber } from "@/shared/utils/orderUtils";
 
 const STAGE_LABELS: Record<string, { label: string; percent: number }> = {
   booked: { label: "Booked", percent: 16 },
@@ -74,7 +75,7 @@ export default function StaffOrderDetailScreen() {
 
   const customerName = order?.customer?.name || params.customerName || "Customer";
   const customerPhone = order?.customer?.phone || "";
-  const orderNumber = params.orderNumber || `#TFH-${order?.id?.slice(0, 4) || "2290"}`;
+  const orderNumber = params.orderNumber || generateOrderNumber(order?.bookingId || order?.id || params.orderId);
   const garmentDetails = order?.itemName || params.garmentDetails || "Custom Garment";
   const currentStatus = order?.status || params.initialStage || "in_production";
   const stageInfo = STAGE_LABELS[currentStatus] || { label: "In Production", percent: 75 };

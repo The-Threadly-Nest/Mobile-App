@@ -4,13 +4,16 @@ import * as SecureStore from "expo-secure-store";
 
 export interface OrderItem {
   id: string;
+  orderId?: string;
+  bookingId?: string;
   atelierName: string;
   garmentType: string;
   orderNumber: string;
   estimatedReady: string;
   progressPercent: number;
   imageUrl: string;
-  status: "active" | "completed";
+  status: "active" | "completed" | "declined" | "cancelled";
+  rawStatus?: string;
 }
 
 interface OrdersState {

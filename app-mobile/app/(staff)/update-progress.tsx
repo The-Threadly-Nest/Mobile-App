@@ -29,6 +29,7 @@ const STAGES: StageItem[] = [
   { key: "in_production", label: "In Production" },
   { key: "quality_check", label: "Quality Check" },
   { key: "ready_for_pickup", label: "Ready for Pickup" },
+  { key: "completed", label: "Completed" },
 ];
 
 export default function UpdateProgressScreen() {
@@ -65,7 +66,7 @@ export default function UpdateProgressScreen() {
     setSubmitting(true);
     try {
       if (token && orderId) {
-        await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+        const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -76,6 +77,13 @@ export default function UpdateProgressScreen() {
             note: updateNote.trim(),
           }),
         });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          const message = body?.error || "Could not update order status. Please try again.";
+          showAlert("Update Failed", message);
+          return;
+        }
       }
 
       const activeStageLabel = STAGES.find((s) => s.key === activeStageKey)?.label;
@@ -91,10 +99,9 @@ export default function UpdateProgressScreen() {
       }
     } catch {
       showAlert(
-        "Progress Updated",
-        `Order ${orderNumber} has been updated.`
+        "Connection Error",
+        "Could not reach the server. Please check your connection and try again."
       );
-      router.back();
     } finally {
       setSubmitting(false);
     }

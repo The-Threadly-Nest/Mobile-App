@@ -16,6 +16,7 @@ import { X, UserCheck } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { escalationsApi } from "@/shared/utils/apiClient";
 
 interface BookingItem {
   id: string;
@@ -161,15 +162,26 @@ export default function BookingsScreen() {
               id: item.id,
               customerName: formattedName,
               serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Bespoke Fitting",
-              appointmentTime: new Date(item.createdAt).toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-                hour: "numeric",
-                minute: "2-digit",
-              }),
+              appointmentTime: item.preferredDate
+                ? `${new Date(item.preferredDate).toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  })}${item.preferredTime ? `, ${item.preferredTime}` : ""}`
+                : new Date(item.createdAt).toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  }),
               summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
-              status: item.resolved ? "assigned" : "pending",
+              status:
+                item.bookingStatus === "declined"
+                  ? "declined"
+                  : item.resolved
+                  ? "assigned"
+                  : "pending",
               createdAt: item.createdAt,
             });
           }
@@ -260,11 +272,21 @@ export default function BookingsScreen() {
       {
         confirmLabel: "Decline",
         cancelLabel: "Cancel",
-        onConfirm: () => {
+        onConfirm: async () => {
+          // Optimistic local update first
           setBookings((prev) =>
             prev.map((b) => (b.id === booking.id ? { ...b, status: "declined" } : b))
           );
-          showAlert("Booking Declined", `Appointment for ${booking.customerName} moved to Declined.`);
+          try {
+            await escalationsApi.declineBooking(booking.id);
+            showAlert("Booking Declined", `Appointment for ${booking.customerName} moved to Declined.`);
+          } catch {
+            // Revert optimistic update on failure
+            setBookings((prev) =>
+              prev.map((b) => (b.id === booking.id ? { ...b, status: "pending" } : b))
+            );
+            showAlert("Error", "Could not decline the booking. Please try again.");
+          }
         },
       }
     );

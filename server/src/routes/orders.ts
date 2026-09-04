@@ -30,6 +30,19 @@ function getProgressPercent(status: string): number {
   }
 }
 
+function generateOrderNumberServer(idOrBookingId?: string): string {
+  if (!idOrBookingId) return "#TFH-2000";
+  if (idOrBookingId.startsWith("#TFH-")) return idOrBookingId;
+  const cleanId = idOrBookingId.replace(/^esc-/, "");
+  let hash = 0;
+  for (let i = 0; i < cleanId.length; i++) {
+    hash = (hash << 5) - hash + cleanId.charCodeAt(i);
+    hash |= 0;
+  }
+  const num = 2000 + (Math.abs(hash) % 900);
+  return `#TFH-${num}`;
+}
+
 // GET /api/orders/my-orders — Customer list own bookings & orders
 router.get("/my-orders", requireAuth, async (req, res, next) => {
   try {
@@ -37,19 +50,37 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
     const bookings = await prisma.booking.findMany({
       where: { customerId: userId },
       orderBy: { createdAt: "desc" },
-      include: { fashionHouse: { select: { shopName: true } } },
+      include: {
+        fashionHouse: { select: { shopName: true } },
+        order: { select: { id: true, status: true } },
+      },
     });
 
-    const formatted = bookings.map((b, idx) => ({
-      id: b.id,
-      atelierName: b.fashionHouse?.shopName || "Fashion House",
-      garmentType: b.styleNotes || "Bespoke Fitting",
-      orderNumber: `#TFH-${2300 + idx}`,
-      estimatedReady: `Fitting: ${b.preferredTime} on ${new Date(b.preferredDate).toISOString().split("T")[0]}`,
-      progressPercent: getProgressPercent(b.status),
-      imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
-      status: b.status === "completed" || b.status === "delivered" ? "completed" : "active",
-    }));
+    const formatted = bookings.map((b) => {
+      const canonicalId = b.order?.id || b.id;
+      const currentStatus = b.order?.status || b.status;
+
+      let mappedStatus: "active" | "completed" | "declined" = "active";
+      if (currentStatus === "completed" || currentStatus === "delivered") {
+        mappedStatus = "completed";
+      } else if (currentStatus === "declined" || currentStatus === "cancelled") {
+        mappedStatus = "declined";
+      }
+
+      return {
+        id: b.id,
+        orderId: b.order?.id,
+        bookingId: b.id,
+        atelierName: b.fashionHouse?.shopName || "Fashion House",
+        garmentType: b.styleNotes || "Bespoke Fitting",
+        orderNumber: generateOrderNumberServer(canonicalId),
+        estimatedReady: `Fitting: ${b.preferredTime} on ${new Date(b.preferredDate).toISOString().split("T")[0]}`,
+        progressPercent: getProgressPercent(currentStatus),
+        imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
+        status: mappedStatus,
+        rawStatus: currentStatus,
+      };
+    });
 
     res.json(formatted);
   } catch (err) {

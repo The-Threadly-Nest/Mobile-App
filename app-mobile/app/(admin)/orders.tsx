@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { generateOrderNumber } from "@/shared/utils/orderUtils";
 
 interface OrderItem {
   id: string;
@@ -24,7 +25,7 @@ interface OrderItem {
   assignedStaff: string;
 }
 
-const FILTER_TABS = ["All", "In Production", "Booked", "Ready", "Delivered"];
+const FILTER_TABS = ["All", "In Production", "Booked", "Ready", "Completed", "Delivered"];
 
 const STATUS_CONFIG: Record<
   string,
@@ -48,8 +49,26 @@ const STATUS_CONFIG: Record<
     text: "#7C2D32",
     filterKey: "Booked",
   },
+  measurements_confirmed: {
+    label: "Measurements Confirmed",
+    bg: "#EFE6D8",
+    text: "#B28847",
+    filterKey: "In Production",
+  },
+  fabric_sourced: {
+    label: "Fabric Sourced",
+    bg: "#EFE6D8",
+    text: "#B28847",
+    filterKey: "In Production",
+  },
   in_production: {
     label: "In Production",
+    bg: "#EFE6D8",
+    text: "#B28847",
+    filterKey: "In Production",
+  },
+  quality_check: {
+    label: "Quality Check",
     bg: "#EFE6D8",
     text: "#B28847",
     filterKey: "In Production",
@@ -60,11 +79,17 @@ const STATUS_CONFIG: Record<
     text: "#2E7D47",
     filterKey: "Ready",
   },
-  completed: {
+  ready_for_pickup: {
     label: "Ready",
     bg: "#D8EFE0",
     text: "#2E7D47",
     filterKey: "Ready",
+  },
+  completed: {
+    label: "Completed",
+    bg: "#CEEAD6",
+    text: "#1E8E3E",
+    filterKey: "Completed",
   },
   delivered: {
     label: "Delivered",
@@ -87,15 +112,6 @@ export default function AdminOrdersScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("All");
 
-  const generateOrderNumber = (id: string, index: number) => {
-    // Generate a clean #TFH-2XXX code from ID
-    const hash = Math.abs(
-      id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    );
-    const num = 2000 + ((hash + index * 17) % 900);
-    return `#TFH-${num}`;
-  };
-
   const fetchOrders = useCallback(async () => {
     if (!token) {
       setLoading(false);
@@ -117,10 +133,10 @@ export default function AdminOrdersScreen() {
       if (ordersRes.status === "fulfilled" && ordersRes.value.ok) {
         const data = await ordersRes.value.json();
         if (Array.isArray(data)) {
-          data.forEach((o: any, idx: number) => {
+          data.forEach((o: any) => {
             merged.push({
               id: o.id,
-              orderNumber: generateOrderNumber(o.id, idx),
+              orderNumber: generateOrderNumber(o.bookingId || o.id),
               customer: o.customer?.name || "Customer",
               item: o.itemName || "Bespoke Fitting",
               price: o.price || 0,
@@ -138,18 +154,18 @@ export default function AdminOrdersScreen() {
         const escData = await escRes.value.json();
         if (Array.isArray(escData)) {
           escData
-            .filter((e: any) => e.resolved)
-            .forEach((e: any, idx: number) => {
+            .filter((e: any) => e.resolved && e.bookingStatus !== "declined")
+            .forEach((e: any) => {
               const name = e.customerName || e.customer?.name || "Customer";
               if (!coveredNames.has(name.toLowerCase())) {
                 coveredNames.add(name.toLowerCase());
                 merged.push({
                   id: `esc-${e.id}`,
-                  orderNumber: generateOrderNumber(e.id, merged.length + idx),
+                  orderNumber: generateOrderNumber(e.id),
                   customer: name,
                   item: e.reason || e.summary || "Bespoke Fitting",
                   price: 0,
-                  status: "order_placed",
+                  status: e.bookingStatus === "completed" ? "completed" : "order_placed",
                   assignedStaff: e.assignedStaff?.name
                     ? `Assigned to ${e.assignedStaff.name}`
                     : "Unassigned",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
@@ -16,6 +16,8 @@ interface EscalationItem {
   customerId?: string;
   customerName?: string;
   customer?: { id: string; email: string };
+  bookingStatus?: string;
+  status?: string;
 }
 
 export default function AdminDashboard() {
@@ -70,13 +72,18 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   useFocusEffect(
     React.useCallback(() => {
+      // Immediate fetch on focus
       fetchData();
+
+      // Poll every 30 seconds while this screen is focused so staff
+      // updates are reflected without the admin needing to pull-to-refresh.
+      const interval = setInterval(fetchData, 30_000);
+
+      // Cleanup: stop polling when admin navigates away
+      return () => clearInterval(interval);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   );
 
@@ -94,6 +101,22 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeclineBooking = async (id: string) => {
+    try {
+      await escalationsApi.declineBooking(id);
+      // Mark locally as resolved so it drops off the pending list immediately
+      setEscalations((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? { ...item, resolved: true, bookingStatus: "declined" }
+            : item
+        )
+      );
+    } catch (err) {
+      console.error("Failed to decline booking:", err);
+    }
+  };
+
   // Smart Fallback filtering & deduplication
   const realOrders = orders.filter((o) => !o.id?.startsWith("mock-"));
   const realEscalations = escalations.filter((e) => !e.id?.startsWith("mock-"));
@@ -101,23 +124,42 @@ export default function AdminDashboard() {
   const effectiveOrders = realOrders.length > 0 ? realOrders : orders;
   const effectiveEscalations = realEscalations.length > 0 ? realEscalations : escalations;
 
-  // Active Orders count = resolved (assigned) escalations — same source as Bookings page "Assigned" tab
-  // This ensures dashboard and bookings page are always in sync regardless of order row state
-  const uniqueAssigned = new Map<string, any>();
-  effectiveEscalations.forEach((e) => {
-    if (e.resolved) {
-      const key = e.id || e.customerId || "esc";
-      if (!uniqueAssigned.has(key)) uniqueAssigned.set(key, e);
-    }
-  });
-  const activeOrdersCount = uniqueAssigned.size;
+  // Covered order/booking IDs to avoid double counting
+  const coveredOrderIds = new Set(effectiveOrders.map((o) => o.id || o.bookingId).filter(Boolean));
+
+  // Active Orders count = orders in progress (not completed, delivered, ready_for_pickup, or cancelled)
+  const activeOrdersCount = effectiveOrders.filter(
+    (o) =>
+      o.status !== "completed" &&
+      o.status !== "delivered" &&
+      o.status !== "ready_for_pickup" &&
+      o.status !== "ready" &&
+      o.status !== "cancelled"
+  ).length;
+
+  // Completed Orders count = orders marked completed/delivered/ready_for_pickup + completed bookings without order records
+  const completedOrdersFromOrders = effectiveOrders.filter(
+    (o) =>
+      o.status === "completed" ||
+      o.status === "delivered" ||
+      o.status === "ready_for_pickup" ||
+      o.status === "ready"
+  ).length;
+
+  const completedBookingsWithoutOrder = effectiveEscalations.filter(
+    (e) =>
+      !coveredOrderIds.has(e.id) &&
+      (e.bookingStatus === "completed" || e.status === "completed" || e.status === "delivered")
+  ).length;
+
+  const completedOrdersCount = completedOrdersFromOrders + completedBookingsWithoutOrder;
 
   const totalRevenue = realOrders.reduce((sum, o) => sum + (o.price || 0), 0);
 
   // Deduplicate pending escalations/bookings by ID or customer reference
   const uniquePendingEscalations = new Map<string, any>();
   effectiveEscalations.forEach((e) => {
-    if (!e.resolved) {
+    if (!e.resolved && e.bookingStatus !== "declined") {
       const key = e.id || e.customerId || e.customerName || "esc";
       if (!uniquePendingEscalations.has(key)) {
         uniquePendingEscalations.set(key, e);
@@ -126,6 +168,11 @@ export default function AdminDashboard() {
   });
   const pendingEscalations = Array.from(uniquePendingEscalations.values());
   const pendingBookingsCount = pendingEscalations.length;
+
+  // Declined bookings count — bookingStatus is set by the server
+  const declinedBookingsCount = effectiveEscalations.filter(
+    (e) => e.bookingStatus === "declined"
+  ).length;
 
   // Business / Brand Name entered during signup (e.g. "Royal Stitch Atelier")
   const shopNameDisplay = shopName || storedShopName || "Fashion House";
@@ -226,17 +273,19 @@ export default function AdminDashboard() {
             </Text>
           </View>
 
-          {/* Side-by-Side Stat Cards */}
+          {/* Side-by-Side Stat Cards — Row 1: Active + Pending */}
           <View style={[{ flexDirection: "row", gap: 12 }, isLandscape && { flex: 1 }]}>
-            <View
-              style={{
+            <Pressable
+              onPress={() => router.push("/(admin)/orders" as any)}
+              style={({ pressed }) => ({
                 flex: 1,
                 height: 86,
                 backgroundColor: "#FFFFFF",
                 borderRadius: 16,
                 justifyContent: "center",
                 alignItems: "center",
-              }}
+                opacity: pressed ? 0.85 : 1,
+              })}
             >
               <Text
                 style={{
@@ -258,17 +307,19 @@ export default function AdminDashboard() {
               >
                 ACTIVE ORDERS
               </Text>
-            </View>
+            </Pressable>
 
-            <View
-              style={{
+            <Pressable
+              onPress={() => router.push("/(admin)/escalations" as any)}
+              style={({ pressed }) => ({
                 flex: 1,
                 height: 86,
                 backgroundColor: "#FFFFFF",
                 borderRadius: 16,
                 justifyContent: "center",
                 alignItems: "center",
-              }}
+                opacity: pressed ? 0.85 : 1,
+              })}
             >
               <Text
                 style={{
@@ -290,7 +341,78 @@ export default function AdminDashboard() {
               >
                 PENDING BOOKINGS
               </Text>
-            </View>
+            </Pressable>
+          </View>
+
+          {/* Stat Cards — Row 2: Completed + Declined */}
+          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
+            <Pressable
+              onPress={() => router.push("/(admin)/orders" as any)}
+              style={({ pressed }) => ({
+                flex: 1,
+                height: 86,
+                backgroundColor: "#FFFFFF",
+                borderRadius: 16,
+                justifyContent: "center",
+                alignItems: "center",
+                opacity: pressed ? 0.85 : 1,
+              })}
+            >
+              <Text
+                style={{
+                  fontFamily: "Fraunces-Bold",
+                  fontSize: 24,
+                  color: "#3B0508",
+                  marginBottom: 2,
+                }}
+              >
+                {completedOrdersCount}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "WorkSans_600SemiBold",
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                  color: "#8A7550",
+                }}
+              >
+                COMPLETED ORDERS
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/(admin)/escalations" as any)}
+              style={({ pressed }) => ({
+                flex: 1,
+                height: 86,
+                backgroundColor: "#FFFFFF",
+                borderRadius: 16,
+                justifyContent: "center",
+                alignItems: "center",
+                opacity: pressed ? 0.85 : 1,
+              })}
+            >
+              <Text
+                style={{
+                  fontFamily: "Fraunces-Bold",
+                  fontSize: 24,
+                  color: "#3B0508",
+                  marginBottom: 2,
+                }}
+              >
+                {declinedBookingsCount}
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "WorkSans_600SemiBold",
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                  color: "#8A7550",
+                }}
+              >
+                DECLINED BOOKINGS
+              </Text>
+            </Pressable>
           </View>
         </View>
 
@@ -577,7 +699,7 @@ export default function AdminDashboard() {
                   <Pressable
                     onPress={() => {
                       if (!item.id.startsWith("demo-")) {
-                        handleResolveEscalation(item.id);
+                        handleDeclineBooking(item.id);
                       }
                     }}
                     style={({ pressed }) => [

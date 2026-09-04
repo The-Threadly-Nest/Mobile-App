@@ -23,10 +23,12 @@ import {
   Scissors,
   Ruler,
   Sparkles,
+  XCircle,
 } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import { generateOrderNumber } from "@/shared/utils/orderUtils";
 
 const STAGES = [
   { key: "booked", label: "Appointment Booked", desc: "Fitting session scheduled" },
@@ -107,10 +109,11 @@ export default function CustomerOrderDetailScreen() {
   const garmentTitle =
     orderData?.garmentType || params.garmentType || "Bespoke Garment";
   const orderNumber =
-    params.orderNumber || `#TFH-${params.orderId?.slice(0, 4) || "2301"}`;
+    params.orderNumber || generateOrderNumber(orderData?.orderId || params.orderId);
   const estimatedReady =
     orderData?.estimatedReady || params.estimatedReady || "Fitting In 2 weeks";
   const currentStatus = orderData?.status || "booked";
+  const isDeclined = currentStatus === "declined" || currentStatus === "cancelled";
   const activeStageIdx = STAGE_INDEX_MAP[currentStatus] ?? 0;
   const coverImage =
     orderData?.imageUrl ||
@@ -140,12 +143,12 @@ export default function CustomerOrderDetailScreen() {
         }
       >
         {/* Compact Hero Card */}
-        <View style={styles.compactHeroCard}>
+        <View style={[styles.compactHeroCard, isDeclined && { borderColor: "#FECDD3", backgroundColor: "#FFF5F5" }]}>
           <Image source={{ uri: coverImage }} style={styles.compactImage} resizeMode="cover" />
           <View style={styles.compactContent}>
             <View style={styles.badgeRow}>
-              <View style={styles.orderBadge}>
-                <Text style={styles.orderBadgeText}>{orderNumber}</Text>
+              <View style={[styles.orderBadge, isDeclined && { borderColor: "#DC2626", backgroundColor: "#FDEAEA" }]}>
+                <Text style={[styles.orderBadgeText, isDeclined && { color: "#DC2626" }]}>{orderNumber}</Text>
               </View>
               <Text style={styles.fhNameText} numberOfLines={1}>
                 {fashionHouseName}
@@ -155,65 +158,151 @@ export default function CustomerOrderDetailScreen() {
               {garmentTitle}
             </Text>
             <View style={styles.dateRow}>
-              <Calendar size={13} color="#8A7550" />
-              <Text style={styles.dateText} numberOfLines={1}>
-                {estimatedReady}
+              <Calendar size={13} color={isDeclined ? "#DC2626" : "#8A7550"} />
+              <Text style={[styles.dateText, isDeclined && { color: "#DC2626", fontFamily: "WorkSans_600SemiBold" }]} numberOfLines={1}>
+                {isDeclined ? "Fitting Request Declined" : estimatedReady}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Live Timeline Stepper */}
-        <View style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardHeadline}>Production Progress</Text>
-            {loading && <ActivityIndicator size="small" color="#4A080C" />}
-          </View>
-          <View style={styles.timelineContainer}>
-            {STAGES.map((stg, idx) => {
-              const isDone = idx <= activeStageIdx;
-              const isCurrent = idx === activeStageIdx;
-              const isLast = idx === STAGES.length - 1;
+        {isDeclined ? (
+          /* Declined Status Alert Banner Card */
+          <View
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderRadius: 20,
+              padding: 20,
+              marginBottom: 14,
+              borderWidth: 1.5,
+              borderColor: "#FECDD3",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <View
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 26,
+                backgroundColor: "#FDEAEA",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 12,
+              }}
+            >
+              <XCircle size={28} color="#DC2626" />
+            </View>
 
-              return (
-                <View key={stg.key} style={styles.stepRow}>
-                  {/* Icon & Connector Line */}
-                  <View style={styles.indicatorCol}>
-                    <View style={[styles.circle, isDone ? styles.circleDone : styles.circlePending]}>
-                      {isDone ? (
-                        <Check size={13} color="#FFFFFF" strokeWidth={3} />
-                      ) : (
-                        <Text style={styles.circleNumber}>{idx + 1}</Text>
+            <Text
+              style={{
+                fontFamily: "Fraunces-Bold",
+                fontSize: 18,
+                color: "#991B1B",
+                marginBottom: 6,
+                textAlign: "center",
+              }}
+            >
+              Appointment Declined
+            </Text>
+
+            <Text
+              style={{
+                fontFamily: "WorkSans_400Regular",
+                fontSize: 13.5,
+                color: "#7F1D1D",
+                textAlign: "center",
+                lineHeight: 19,
+                marginBottom: 16,
+              }}
+            >
+              The atelier was unable to accept this fitting request at the selected time. You can reach out directly to the concierge to select an alternative slot.
+            </Text>
+
+            <Pressable
+              onPress={() => {
+                if (fashionHouseId) {
+                  router.push(`/(customer)/chat/${fashionHouseId}` as any);
+                } else {
+                  router.push("/(customer)/(tabs)/browse" as any);
+                }
+              }}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: "#4A080C",
+                  height: 44,
+                  paddingHorizontal: 20,
+                  borderRadius: 22,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: pressed ? 0.85 : 1,
+                },
+              ]}
+            >
+              <Text
+                style={{
+                  fontFamily: "WorkSans_600SemiBold",
+                  fontSize: 14,
+                  color: "#FFFFFF",
+                }}
+              >
+                Contact Concierge
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          /* Live Timeline Stepper */
+          <View style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <Text style={styles.cardHeadline}>Production Progress</Text>
+              {loading && <ActivityIndicator size="small" color="#4A080C" />}
+            </View>
+            <View style={styles.timelineContainer}>
+              {STAGES.map((stg, idx) => {
+                const isDone = idx <= activeStageIdx;
+                const isCurrent = idx === activeStageIdx;
+                const isLast = idx === STAGES.length - 1;
+
+                return (
+                  <View key={stg.key} style={styles.stepRow}>
+                    {/* Icon & Connector Line */}
+                    <View style={styles.indicatorCol}>
+                      <View style={[styles.circle, isDone ? styles.circleDone : styles.circlePending]}>
+                        {isDone ? (
+                          <Check size={13} color="#FFFFFF" strokeWidth={3} />
+                        ) : (
+                          <Text style={styles.circleNumber}>{idx + 1}</Text>
+                        )}
+                      </View>
+                      {!isLast && (
+                        <View
+                          style={[
+                            styles.connector,
+                            isDone && idx < activeStageIdx ? styles.connectorDone : styles.connectorPending,
+                          ]}
+                        />
                       )}
                     </View>
-                    {!isLast && (
-                      <View
-                        style={[
-                          styles.connector,
-                          isDone && idx < activeStageIdx ? styles.connectorDone : styles.connectorPending,
-                        ]}
-                      />
-                    )}
-                  </View>
 
-                  {/* Step Info */}
-                  <View style={styles.stepInfoCol}>
-                    <Text
-                      style={[
-                        styles.stepLabel,
-                        isCurrent && styles.stepLabelCurrent,
-                        !isDone && styles.stepLabelPending,
-                      ]}
-                    >
-                      {stg.label}
-                    </Text>
-                    <Text style={styles.stepDesc}>{stg.desc}</Text>
+                    {/* Step Info */}
+                    <View style={styles.stepInfoCol}>
+                      <Text
+                        style={[
+                          styles.stepLabel,
+                          isCurrent && styles.stepLabelCurrent,
+                          !isDone && styles.stepLabelPending,
+                        ]}
+                      >
+                        {stg.label}
+                      </Text>
+                      <Text style={styles.stepDesc}>{stg.desc}</Text>
+                    </View>
                   </View>
-                </View>
-              );
-            })}
+                );
+              })}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Chat / Contact Action Button */}
         <Pressable
