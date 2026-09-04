@@ -4,8 +4,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Plus, Tag } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 import { API_BASE_URL } from "@/api/config";
 import { adminApi, ordersApi, escalationsApi } from "@/shared/utils/apiClient";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface EscalationItem {
   id: string;
@@ -23,21 +25,32 @@ interface EscalationItem {
 export default function AdminDashboard() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
+  const { showAlert, showConfirm } = useAppAlert();
 
   const storeName = useAuthStore((s) => s.name);
   const storeEmail = useAuthStore((s) => s.email);
   const storedShopName = useAuthStore((s) => s.shopName);
   const setStoredShopName = useAuthStore((s) => s.setShopName);
 
-  const [shopName, setShopName] = useState(storedShopName || "");
-  const [loading, setLoading] = useState(true);
+  const cachedOrders = useAppDataStore((s) => s.orders);
+  const cachedEscalations = useAppDataStore((s) => s.escalations);
+  const cachedProfile = useAppDataStore((s) => s.profile);
+  const setCachedOrders = useAppDataStore((s) => s.setOrders);
+  const setCachedEscalations = useAppDataStore((s) => s.setEscalations);
+
+  const [shopName, setShopName] = useState(cachedProfile?.shopName || storedShopName || "");
+
+  // Seed states directly from persistent device storage — instant 0-spinner load!
+  const [orders, setOrders] = useState<any[]>(cachedOrders || []);
+  const [escalations, setEscalations] = useState<EscalationItem[]>(cachedEscalations || []);
+  const [loading, setLoading] = useState(cachedOrders.length === 0 && cachedEscalations.length === 0);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Real Data states
-  const [orders, setOrders] = useState<any[]>([]);
-  const [escalations, setEscalations] = useState<EscalationItem[]>([]);
-
   const fetchData = async () => {
+    // Only show full-screen spinner if local device cache is completely empty
+    if (orders.length === 0 && escalations.length === 0) {
+      setLoading(true);
+    }
     try {
       const [profileRes, ordersRes, escalationsRes] = await Promise.allSettled([
         adminApi.getProfile(),
@@ -59,10 +72,12 @@ export default function AdminDashboard() {
 
       if (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value)) {
         setOrders(ordersRes.value);
+        setCachedOrders(ordersRes.value);
       }
 
       if (escalationsRes.status === "fulfilled" && Array.isArray(escalationsRes.value)) {
         setEscalations(escalationsRes.value);
+        setCachedEscalations(escalationsRes.value);
       }
     } catch (err) {
       console.warn("Failed to load dashboard data", err);
@@ -101,20 +116,32 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeclineBooking = async (id: string) => {
-    try {
-      await escalationsApi.declineBooking(id);
-      // Mark locally as resolved so it drops off the pending list immediately
-      setEscalations((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? { ...item, resolved: true, bookingStatus: "declined" }
-            : item
-        )
-      );
-    } catch (err) {
-      console.error("Failed to decline booking:", err);
-    }
+  const handleDeclineBooking = (id: string, customerName?: string) => {
+    showConfirm(
+      "Decline Booking",
+      `Are you sure you want to decline the booking request for ${customerName || "this customer"}?`,
+      {
+        confirmLabel: "Decline",
+        cancelLabel: "Cancel",
+        onConfirm: async () => {
+          try {
+            await escalationsApi.declineBooking(id);
+            // Mark locally as resolved so it drops off the pending list immediately
+            setEscalations((prev) =>
+              prev.map((item) =>
+                item.id === id
+                  ? { ...item, resolved: true, bookingStatus: "declined" }
+                  : item
+              )
+            );
+            showAlert("Booking Declined", `The booking request for ${customerName || "this customer"} has been declined.`);
+          } catch (err) {
+            console.error("Failed to decline booking:", err);
+            showAlert("Error", "Could not decline the booking. Please try again.");
+          }
+        },
+      }
+    );
   };
 
   // Smart Fallback filtering & deduplication
@@ -699,7 +726,7 @@ export default function AdminDashboard() {
                   <Pressable
                     onPress={() => {
                       if (!item.id.startsWith("demo-")) {
-                        handleDeclineBooking(item.id);
+                        handleDeclineBooking(item.id, customerName);
                       }
                     }}
                     style={({ pressed }) => [

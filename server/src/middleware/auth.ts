@@ -45,13 +45,19 @@ export function requireRole(...allowed: Array<"admin" | "staff" | "customer">) {
 export async function getOwnFashionHouseId(userId: string, role: string): Promise<string> {
   if (role === "admin") {
     const admin = await prisma.user.findUnique({ where: { id: userId }, include: { fashionHouseOwned: true } });
-    if (!admin || !admin.fashionHouseOwned) {
+    if (!admin) {
+      throw Object.assign(new Error("Your session has expired. Please log in again."), { status: 401 });
+    }
+    if (!admin.fashionHouseOwned) {
       throw Object.assign(new Error("Fashion house not found for this admin"), { status: 404 });
     }
     return admin.fashionHouseOwned.id;
   } else {
     const staff = await prisma.user.findUnique({ where: { id: userId } });
-    if (!staff || !staff.fashionHouseId) {
+    if (!staff) {
+      throw Object.assign(new Error("Your session has expired. Please log in again."), { status: 401 });
+    }
+    if (!staff.fashionHouseId) {
       throw Object.assign(new Error("Fashion house not found for this staff member"), { status: 404 });
     }
     return staff.fashionHouseId;

@@ -3,6 +3,8 @@ import { View, Text, Animated, Easing } from "react-native";
 import { router } from "expo-router";
 import Svg, { Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAppDataStore } from "@/stores/useAppDataStore";
+import { API_BASE_URL } from "@/api/config";
 import * as NavigationBar from "expo-navigation-bar";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 
@@ -29,6 +31,52 @@ export default function SplashScreen() {
         useNativeDriver: true,
       })
     ).start();
+
+    // Preload role-based application data into local device storage during splash screen
+    const preloadData = async () => {
+      if (!token || !role) return;
+      try {
+        const headers = { Authorization: `Bearer ${token}` };
+        const appStore = useAppDataStore.getState();
+
+        if (role === "admin") {
+          await Promise.allSettled([
+            fetch(`${API_BASE_URL}/api/orders?page=1&limit=30`, { headers })
+              .then((r) => r.json())
+              .then((data) => Array.isArray(data) && appStore.setOrders(data)),
+            fetch(`${API_BASE_URL}/api/staff`, { headers })
+              .then((r) => r.json())
+              .then((data) => Array.isArray(data) && appStore.setStaffList(data)),
+            fetch(`${API_BASE_URL}/api/escalations?limit=20`, { headers })
+              .then((r) => r.json())
+              .then((data) => Array.isArray(data) && appStore.setEscalations(data)),
+          ]);
+        } else if (role === "staff") {
+          await Promise.allSettled([
+            fetch(`${API_BASE_URL}/api/orders?page=1&limit=30`, { headers })
+              .then((r) => r.json())
+              .then((data) => Array.isArray(data) && appStore.setOrders(data)),
+            fetch(`${API_BASE_URL}/api/staff/me`, { headers })
+              .then((r) => r.json())
+              .then((data) => appStore.setProfile(data)),
+          ]);
+        } else {
+          await Promise.allSettled([
+            fetch(`${API_BASE_URL}/api/orders/my-orders`, { headers })
+              .then((r) => r.json())
+              .then((data) => Array.isArray(data) && appStore.setOrders(data)),
+            fetch(`${API_BASE_URL}/api/fashion-houses`, { headers })
+              .then((r) => r.json())
+              .then((data) => Array.isArray(data) && appStore.setCatalogItems(data)),
+          ]);
+        }
+        appStore.setLastSyncedAt(Date.now());
+      } catch (e) {
+        console.warn("[Splash] Preload warning:", e);
+      }
+    };
+
+    preloadData();
 
     // Animate progress bar from 0% to 100% over 4 seconds
     Animated.timing(progress, {

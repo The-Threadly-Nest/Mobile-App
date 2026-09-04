@@ -4,7 +4,7 @@ import { AppError } from "../utils/errors";
 export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
   let status = 500;
   let code = "INTERNAL_SERVER_ERROR";
-  let message = "Something went wrong on our end. We are looking into it.";
+  let message = "Oops! We ran into a quick hiccup on our end. Please try again in a moment.";
   let details: any = undefined;
 
   if (err.code === "P2002") {
@@ -14,15 +14,15 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
   } else if (err.code === "P2003") {
     status = 400;
     code = "FOREIGN_KEY_ERROR";
-    message = `A related record could not be found: ${err?.meta?.field_name ?? "unknown field"}. Please check the staff or customer reference.`;
+    message = "We couldn't find the associated account or staff reference. Please double-check your selection.";
   } else if (err.code === "P2025") {
     status = 404;
     code = "NOT_FOUND";
-    message = "The requested item or atelier record could not be found.";
+    message = "We couldn't find that item or fashion house record. It may have been updated or moved.";
   } else if (err.name === "ZodError" || err.issues) {
     status = 400;
     code = "INVALID_INPUT";
-    message = "Please make sure all required fields are filled out correctly.";
+    message = "Please check your entries and ensure all required fields are filled out correctly.";
   } else if (err instanceof AppError) {
     status = err.status;
     code = err.code;

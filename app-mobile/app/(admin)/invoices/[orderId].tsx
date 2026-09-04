@@ -18,6 +18,8 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 
 interface InvoiceDetail {
   id: string;
@@ -77,35 +79,72 @@ const INVOICE_DATABASE: Record<string, InvoiceDetail> = {
 };
 
 export default function InvoiceDetailScreen() {
-  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const {
+    orderId,
+    customerName: paramCustomerName,
+    orderNumber: paramOrderNumber,
+    garment: paramGarment,
+    price: paramPrice,
+    status: paramStatus,
+    date: paramDate,
+  } = useLocalSearchParams<{
+    orderId: string;
+    customerName?: string;
+    orderNumber?: string;
+    garment?: string;
+    price?: string;
+    status?: string;
+    date?: string;
+  }>();
+
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
   const viewShotRef = useRef<ViewShot>(null);
 
-  const initialInvoice =
-    (orderId && INVOICE_DATABASE[orderId]) ||
-    Object.values(INVOICE_DATABASE).find(
-      (inv) => inv.id === orderId || inv.invoiceNumber === orderId
-    ) ||
-    INVOICE_DATABASE["inv-1"];
+  const authShopName = useAuthStore((s) => s.shopName);
+  const storeOrders = useAppDataStore((s) => s.orders);
 
-  const [invoice, setInvoice] = useState<InvoiceDetail>(initialInvoice);
+  // Match from store if possible
+  const matchedOrder = storeOrders.find((o: any) => o.id === orderId || o.orderNumber === orderId);
+
+  const atelierName = authShopName || "Adaeze Couture";
+  const customerName = paramCustomerName || matchedOrder?.customer || (orderId && INVOICE_DATABASE[orderId]?.customerName) || "Customer";
+  const orderNumber = paramOrderNumber || matchedOrder?.orderNumber || (orderId && INVOICE_DATABASE[orderId]?.orderNumber) || (orderId ? (orderId.startsWith("#") ? orderId : `#TFH-${orderId.slice(0, 4).toUpperCase()}`) : "#TFH-2291");
+  const invoiceNumber = (orderId && INVOICE_DATABASE[orderId]?.invoiceNumber) || orderNumber.replace("#TFH-", "INV-").replace("#", "INV-");
+  const numericPrice = paramPrice ? parseFloat(paramPrice) : (matchedOrder?.price || (orderId && INVOICE_DATABASE[orderId]?.total) || 350000);
+  const garmentName = paramGarment || matchedOrder?.item || (orderId && INVOICE_DATABASE[orderId]?.items[0]?.name) || "Bespoke Fitting & Tailoring";
+  const isStatusPaid = paramStatus === "completed" || paramStatus === "delivered" || paramStatus === "Paid" || matchedOrder?.status === "completed" || matchedOrder?.status === "delivered" || (orderId && INVOICE_DATABASE[orderId]?.status === "Paid");
+
+  const buildInitialInvoice = (): InvoiceDetail => {
+    if (orderId && INVOICE_DATABASE[orderId]) {
+      return {
+        ...INVOICE_DATABASE[orderId],
+        atelierName,
+      };
+    }
+    return {
+      id: orderId || "inv-1",
+      invoiceNumber,
+      atelierName,
+      date: paramDate || new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      customerName,
+      orderNumber,
+      status: isStatusPaid ? "Paid" : "Pending",
+      items: [
+        { name: garmentName, amount: numericPrice },
+      ],
+      total: numericPrice,
+    };
+  };
+
+  const [invoice, setInvoice] = useState<InvoiceDetail>(buildInitialInvoice());
   const [isGenerating, setIsGenerating] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
 
   useEffect(() => {
-    if (orderId) {
-      const found =
-        INVOICE_DATABASE[orderId] ||
-        Object.values(INVOICE_DATABASE).find(
-          (inv) => inv.id === orderId || inv.invoiceNumber === orderId
-        );
-      if (found) {
-        setInvoice(found);
-      }
-    }
-  }, [orderId]);
+    setInvoice(buildInitialInvoice());
+  }, [orderId, paramCustomerName, paramOrderNumber, paramGarment, paramPrice, paramStatus, authShopName]);
 
   const isPaid = invoice.status === "Paid";
 
@@ -405,7 +444,13 @@ export default function InvoiceDetailScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Pressable
-            onPress={() => router.push("/(admin)/invoices" as any)}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.push("/(admin)/orders" as any);
+              }
+            }}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
             <BackArrowIcon size={18} color="#3B0508" />

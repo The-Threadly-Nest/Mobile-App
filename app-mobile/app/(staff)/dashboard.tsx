@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
@@ -107,10 +108,31 @@ export default function StaffDashboard() {
   const setShopName = useAuthStore((s) => s.setShopName);
   const token = useAuthStore((s) => s.token);
 
-  const [localShopName, setLocalShopName] = useState<string>(storeShopName || "Luxury Fashion House");
+  const cachedOrders = useAppDataStore((s) => s.orders);
+  const setCachedOrders = useAppDataStore((s) => s.setOrders);
+  const cachedProfile = useAppDataStore((s) => s.profile);
+  const setCachedProfile = useAppDataStore((s) => s.setProfile);
+
+  const [localShopName, setLocalShopName] = useState<string>(
+    cachedProfile?.shopName || storeShopName || "Luxury Fashion House"
+  );
   const [activeTab, setActiveTab] = useState<"in_progress" | "completed">("in_progress");
-  const [orders, setOrders] = useState<StaffOrder[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+
+  // Format raw cached orders to StaffOrder structure if available
+  const formattedCached: StaffOrder[] = (cachedOrders || []).map((ord: any) => ({
+    id: ord.id,
+    customerName: ord.customer?.name || "Customer",
+    orderNumber: generateOrderNumber(ord.bookingId || ord.id),
+    garmentDetails: ord.itemName || "Bespoke Garment",
+    dueDate: "Assigned Order",
+    status: ord.status || "order_placed",
+    progressPercent: getStagePercent(ord.status),
+  }));
+
+  const [orders, setOrders] = useState<StaffOrder[]>(
+    formattedCached.length > 0 ? formattedCached : []
+  );
+  const [loading, setLoading] = useState<boolean>(formattedCached.length === 0);
 
   const displayName = storeName || "Staff Member";
   const displayShopName = localShopName || storeShopName || "Luxury Fashion House";
@@ -133,6 +155,7 @@ export default function StaffDashboard() {
       if (res.ok && data.shopName) {
         setLocalShopName(data.shopName);
         setShopName(data.shopName);
+        setCachedProfile(data);
       }
     } catch {
       // Keep existing shopName state
@@ -141,42 +164,41 @@ export default function StaffDashboard() {
 
   const fetchOrders = async () => {
     if (!token) return;
-    setLoading(true);
+    // Silent revalidation if cached orders already rendered
+    if (orders.length === 0) setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+      const res = await fetch(`${API_BASE_URL}/api/orders?page=1&limit=30`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (res.ok && Array.isArray(data)) {
-        if (data.length > 0) {
-          const seen = new Set<string>();
-          const formatted: StaffOrder[] = [];
-
-          data.forEach((o: any, idx: number) => {
-            const custName = o.customer?.name || o.customerName || `Customer ${idx + 1}`;
-            const key = o.id || `${custName}-${o.itemName || "garment"}`;
-            if (!seen.has(key)) {
-              seen.add(key);
-              const orderStatus = o.status || "in_production";
-              const isDone = orderStatus === "completed" || orderStatus === "delivered";
-              formatted.push({
-                id: o.id,
-                customerName: custName,
-                orderNumber: generateOrderNumber(o.bookingId || o.id),
-                garmentDetails: o.itemName || "Custom Garment",
-                dueDate: "Due Soon",
-                status: isDone ? "completed" : orderStatus,
-                progressPercent: getStagePercent(orderStatus),
-              });
-            }
-          });
-          setOrders(formatted);
-        } else {
-          setOrders(FALLBACK_STAFF_ORDERS);
-        }
+        setCachedOrders(data);
+        const seen = new Set<string>();
+        const formatted: StaffOrder[] = [];
+        data.forEach((o: any, idx: number) => {
+          const custName = o.customer?.name || o.customerName || `Customer ${idx + 1}`;
+          const key = o.id || `${custName}-${o.itemName || "garment"}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            const orderStatus = o.status || "in_production";
+            const isDone = orderStatus === "completed" || orderStatus === "delivered";
+            formatted.push({
+              id: o.id,
+              customerName: custName,
+              orderNumber: generateOrderNumber(o.bookingId || o.id),
+              garmentDetails: o.itemName || "Custom Garment",
+              dueDate: "Due Soon",
+              status: isDone ? "completed" : orderStatus,
+              progressPercent: getStagePercent(orderStatus),
+            });
+          }
+        });
+        setOrders(formatted);
+      } else if (orders.length === 0) {
+        setOrders(FALLBACK_STAFF_ORDERS);
       }
     } catch {
-      setOrders(FALLBACK_STAFF_ORDERS);
+      if (orders.length === 0) setOrders(FALLBACK_STAFF_ORDERS);
     } finally {
       setLoading(false);
     }

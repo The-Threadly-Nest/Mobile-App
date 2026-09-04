@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
@@ -280,7 +280,23 @@ export default function AdminOrdersScreen() {
             const initial = item.customer ? item.customer[0].toUpperCase() : "C";
 
             return (
-              <View style={styles.card}>
+              <TouchableOpacity
+                activeOpacity={0.88}
+                onPress={() => {
+                  router.push({
+                    pathname: "/(admin)/invoices/[orderId]",
+                    params: {
+                      orderId: item.id,
+                      customerName: item.customer,
+                      orderNumber: item.orderNumber,
+                      garment: item.item,
+                      price: item.price?.toString() || "350000",
+                      status: item.status,
+                    },
+                  });
+                }}
+                style={styles.card}
+              >
                 {/* Monogram Avatar */}
                 <View style={styles.avatar}>
                   <Text style={styles.avatarText}>{initial}</Text>
@@ -313,7 +329,7 @@ export default function AdminOrdersScreen() {
                     </Text>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />

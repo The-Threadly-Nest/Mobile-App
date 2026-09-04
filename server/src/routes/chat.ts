@@ -182,7 +182,11 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
           data: { fashionHouseId, customerId, styleNotes: args.styleNotes, preferredDate: new Date(args.preferredDate), preferredTime: args.preferredTime, status: "pending_admin_review" },
         });
         await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] } });
-        return res.json({ type: "booking_created", booking });
+        return res.json({
+          type: "booking_created",
+          booking,
+          reply: `Your fitting request with ${fh.shopName} for ${args.preferredTime} has been received! Our team will confirm shortly.`,
+        });
       }
 
       if (functionCall?.name === "escalate_to_admin") {

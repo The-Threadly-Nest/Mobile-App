@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   Pressable,
   StyleSheet,
@@ -16,6 +15,7 @@ import { Star, Calendar, Store } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { MOCK_TAILORS } from "../(tabs)/browse";
 import { apiFetch } from "@/shared/utils/apiClient";
+import CachedImage from "@/shared/components/CachedImage";
 
 const PORTFOLIO_IMAGES: Record<string, ImageSourcePropType[]> = {
   "1": [
@@ -150,9 +150,9 @@ export default function FashionHouseScreen() {
         {/* Hero Image */}
         <View style={[styles.heroContainer, isLandscape && { height: 180 }]}>
           {coverImage ? (
-            <Image source={{ uri: coverImage }} style={styles.heroImage} />
+            <CachedImage source={{ uri: coverImage }} style={styles.heroImage} />
           ) : (
-            <Image source={require("../../../assets/tailor-1.png")} style={styles.heroImage} />
+            <CachedImage source={require("../../../assets/tailor-1.png")} style={styles.heroImage} />
           )}
           {/* Gradient overlay */}
           <View style={styles.heroOverlay} />
@@ -217,7 +217,7 @@ export default function FashionHouseScreen() {
                     });
                   }}
                 >
-                  <Image source={{ uri: item.imageUrl }} style={styles.catalogImage} />
+                  <CachedImage source={{ uri: item.imageUrl }} style={styles.catalogImage} />
                   <Text style={styles.catalogTitle} numberOfLines={1}>
                     {item.name}
                   </Text>
@@ -238,7 +238,7 @@ export default function FashionHouseScreen() {
           ) : mockPortfolio.length > 0 ? (
             <View style={styles.portfolioGrid}>
               {mockPortfolio.map((img, i) => (
-                <Image
+                <CachedImage
                   key={i}
                   source={img}
                   style={[styles.portfolioImage, isLandscape && { width: "31%", height: 110 }]}

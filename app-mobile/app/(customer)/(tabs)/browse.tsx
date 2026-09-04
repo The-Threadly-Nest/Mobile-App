@@ -18,7 +18,9 @@ import { router } from "expo-router";
 import { MapPin, Search, Star, ShoppingBag, Store } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 import { apiFetch } from "@/shared/utils/apiClient";
+import CachedImage from "@/shared/components/CachedImage";
 
 export interface TailorItem {
   id: string;
@@ -29,7 +31,7 @@ export interface TailorItem {
   reviewsCount: string;
   badge: string;
   turnaround: string;
-  categoryTag: string;
+  categoryTag?: string;
   image: ImageSourcePropType | { uri: string };
   category: string;
   bio?: string;
@@ -39,13 +41,13 @@ export interface TailorItem {
 export interface MarketplaceItem {
   id: string;
   name: string;
-  priceFrom: number | string;
+  priceFrom: string;
   imageUrl: string;
-  fashionHouseId?: string;
   vendorName: string;
   location: string;
-  categoryTag: string;
-  badge: string;
+  categoryTag?: string;
+  badge?: string;
+  fashionHouseId?: string;
 }
 
 export const MOCK_TAILORS: TailorItem[] = [
@@ -112,21 +114,21 @@ export const MOCK_MARKETPLACE: MarketplaceItem[] = [
     vendorName: "Adaeze Couture",
     location: "Lagos",
     categoryTag: "Bridal",
-    badge: "BESPOKE · READY TO ORDER",
+    badge: "BRIDAL · ASO-EBI",
   },
   {
     id: "m2",
-    name: "Embroidered Gele & Accessory Set",
-    priceFrom: "₦ 15,000",
-    imageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&q=80",
+    name: "Autogele & Accessories Set",
+    priceFrom: "₦ 10,000",
+    imageUrl: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80",
     vendorName: "The Gele Room",
     location: "Akure",
     categoryTag: "Accessories",
-    badge: "HANDMADE",
+    badge: "GELE · ACCESSORIES",
   },
   {
     id: "m3",
-    name: "Royal Wool Agbada 3-Piece",
+    name: "Royal Ceremonial Agbada Set",
     priceFrom: "₦ 500,000",
     imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80",
     vendorName: "Iyanuade Atelier",
@@ -152,12 +154,20 @@ export default function BrowseScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
+  const cachedCatalog = useAppDataStore((s) => s.catalogItems);
+  const setCachedCatalog = useAppDataStore((s) => s.setCatalogItems);
+
   const [mode, setMode] = useState<"vendors" | "marketplace">("vendors");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [tailorsList, setTailorsList] = useState<TailorItem[]>([]);
-  const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+
+  const initialTailors = Array.isArray(cachedCatalog) && cachedCatalog.length > 0
+    ? cachedCatalog
+    : MOCK_TAILORS;
+
+  const [tailorsList, setTailorsList] = useState<TailorItem[]>(initialTailors);
+  const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>(MOCK_MARKETPLACE);
+  const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const savedLocation = useAuthStore((s) => s.location);
@@ -170,6 +180,7 @@ export default function BrowseScreen() {
     try {
       const fetched = await apiFetch<TailorItem[]>("/api/fashion-houses", { silent: true }).catch(() => []);
       if (Array.isArray(fetched) && fetched.length > 0) {
+        setCachedCatalog(fetched);
         const map = new Map<string, TailorItem>();
         fetched.forEach((item) => map.set(item.id, item));
         MOCK_TAILORS.forEach((item) => {
@@ -399,7 +410,7 @@ export default function BrowseScreen() {
             >
               {/* Image Container with Badge */}
               <View style={[styles.imageContainer, isLandscape && { height: 125 }]}>
-                <Image
+                <CachedImage
                   source={typeof item.image === "string" ? { uri: item.image } : item.image}
                   style={styles.cardImage}
                 />
@@ -473,7 +484,7 @@ export default function BrowseScreen() {
             >
               {/* Image Container */}
               <View style={[styles.imageContainer, isLandscape && { height: 140 }]}>
-                <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
+                <CachedImage source={{ uri: item.imageUrl }} style={styles.cardImage} />
                 <View style={[styles.badge, { backgroundColor: "#4A080C" }]}>
                   <Text style={styles.badgeText}>{item.badge}</Text>
                 </View>

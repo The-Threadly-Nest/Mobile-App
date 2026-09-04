@@ -39,6 +39,16 @@ function sanitizeText(text: string): string {
     .replace(/atelier/gi, "Fashion House");
 }
 
+function cleanRawSlotText(text: string): string {
+  if (!text) return "";
+  let cleaned = sanitizeText(text);
+  // Remove trailing or embedded raw date lines like "Sat, 6 Sep · 10:00 AM" so interactive cards handle it
+  cleaned = cleaned
+    .replace(/(?:\r?\n|\r)?(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*\d+\s+[A-Za-z]+(?:\s*[·•-]\s*\d+:\d+\s*[AP]M)?/gi, "")
+    .trim();
+  return cleaned;
+}
+
 const DEFAULT_INITIAL_TURNS: Turn[] = [
   {
     role: "model",
@@ -191,8 +201,8 @@ export default function BookingChatScreen() {
 
         const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Sat, 6 Sep · 10:00 AM";
 
-        // Persist real booking to backend only if AI did not already create it
-        if (responseType !== "booking_created" && token && fashionHouseId) {
+        // Persist real booking to backend only if AI did not already create it and not already confirmed
+        if (responseType !== "booking_created" && !bookingConfirmed && token && fashionHouseId) {
           fetch(`${API_BASE_URL}/api/orders/my-orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -227,31 +237,50 @@ export default function BookingChatScreen() {
           ? houseCategories.slice(0, 4)
           : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
 
-      const isOccasionChoice =
-        lower.includes("wedding") ||
-        lower.includes("owambe") ||
-        lower.includes("gala") ||
-        lower.includes("casual") ||
-        lower.includes("just for me") ||
-        lower.includes("custom bespoke");
+      const cleanedReply = cleanRawSlotText(replyText);
+      const lowerReply = replyText.toLowerCase();
 
-      const isStyleChoice =
-        lower.includes("gown") ||
-        lower.includes("aso-ebi") ||
-        lower.includes("both") ||
-        lower.includes("agbada") ||
-        lower.includes("kaftan") ||
-        lower.includes("senator") ||
-        lower.includes("suit") ||
-        lower.includes("corset") ||
-        houseCategories.some((c) => lower.includes(c.toLowerCase()));
+      // Check if slot booking was suggested in the reply or requested by user
+      const mentionsSlots =
+        lowerReply.includes("slot") ||
+        lowerReply.includes("reserve your session") ||
+        lowerReply.includes("fitting slot") ||
+        lowerReply.includes("select an available") ||
+        lowerReply.includes("convenient time below") ||
+        lowerReply.includes("sep ·") ||
+        lowerReply.includes("10:00 am") ||
+        lowerReply.includes("2:00 pm");
 
       const isFabricChoice =
         lower.includes("fabric") ||
         lower.includes("bring my own") ||
         lower.includes("discuss at fitting");
 
+      const isOccasionChoice =
+        !mentionsSlots && (
+          lower.includes("wedding") ||
+          lower.includes("owambe") ||
+          lower.includes("gala") ||
+          lower.includes("casual") ||
+          lower.includes("just for me") ||
+          lower.includes("custom bespoke")
+        );
+
+      const isStyleChoice =
+        !mentionsSlots && (
+          lower.includes("gown") ||
+          lower.includes("aso-ebi") ||
+          lower.includes("both") ||
+          lower.includes("agbada") ||
+          lower.includes("kaftan") ||
+          lower.includes("senator") ||
+          lower.includes("suit") ||
+          lower.includes("corset") ||
+          houseCategories.some((c) => lower.includes(c.toLowerCase()))
+        );
+
       const isRequestingSlots =
+        mentionsSlots ||
         isFabricChoice ||
         lower.includes("date") ||
         lower.includes("slot") ||
@@ -260,21 +289,15 @@ export default function BookingChatScreen() {
         lower.includes("schedule") ||
         lower.includes("appointment") ||
         lower.includes("book") ||
-        lower.includes("fitting") ||
-        replyText.toLowerCase().includes("slot") ||
-        replyText.toLowerCase().includes("below");
+        lower.includes("fitting");
 
       let responseTurn: Turn = {
         role: "model",
-        text: replyText || `We would love to craft this for you! Would you like to explore our in-house fabric collection, or bring your own?`,
+        text: cleanedReply || `We would love to craft this for you! Would you like to explore our in-house fabric collection, or bring your own?`,
       };
 
-      if (isOccasionChoice) {
-        responseTurn.text = replyText || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
-        responseTurn.options = styleOptions;
-        responseTurn.slots = undefined;
-      } else if (isRequestingSlots) {
-        responseTurn.text = replyText || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
+      if (isRequestingSlots) {
+        responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
         responseTurn.options = undefined; // Strictly clear options so pills and slots never clash
         responseTurn.slots = [
           { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
@@ -282,8 +305,12 @@ export default function BookingChatScreen() {
           { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
           { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
         ];
+      } else if (isOccasionChoice) {
+        responseTurn.text = cleanedReply || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
+        responseTurn.options = styleOptions;
+        responseTurn.slots = undefined;
       } else if (isStyleChoice) {
-        responseTurn.text = replyText || `We would love to create this bespoke piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
+        responseTurn.text = cleanedReply || `We would love to create this bespoke piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
         responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
         responseTurn.slots = undefined;
       } else {
@@ -335,11 +362,7 @@ export default function BookingChatScreen() {
         text: `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
       };
 
-      if (isOccasionChoice) {
-        responseTurn.text = `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
-        responseTurn.options = styleOptions;
-        responseTurn.slots = undefined;
-      } else if (isRequestingSlots) {
+      if (isRequestingSlots) {
         responseTurn.text = `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
         responseTurn.options = undefined;
         responseTurn.slots = [
@@ -348,6 +371,10 @@ export default function BookingChatScreen() {
           { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
           { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
         ];
+      } else if (isOccasionChoice) {
+        responseTurn.text = `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
+        responseTurn.options = styleOptions;
+        responseTurn.slots = undefined;
       } else if (isStyleChoice) {
         responseTurn.text = `We would love to create this piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
         responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
@@ -370,7 +397,7 @@ export default function BookingChatScreen() {
       <View className="flex-row items-center px-6 py-4 bg-cream">
         <Pressable
           onPress={() => router.back()}
-          className="w-9 h-9 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-4"
+          className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-4"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
           <BackArrowIcon size={18} color="#000000" />
@@ -436,27 +463,40 @@ export default function BookingChatScreen() {
                     </Text>
                   </View>
 
-                  {/* Options Chips Component matching Figma design */}
+                  {/* Options Chips Component in 2-by-2 Grid Layout */}
                   {turn.options && turn.options.length > 0 && (
-                    <View className="-mx-6 mt-3">
-                      <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ paddingHorizontal: 24, gap: 10 }}
-                      >
-                        {turn.options.map((opt, oIdx) => (
-                          <Pressable
-                            key={oIdx}
-                            onPress={() => handleSend(opt)}
-                            className="bg-[#FBF7EF] border border-[#4A080C] px-5 py-2.5 rounded-full items-center justify-center"
-                            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+                    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+                      {turn.options.map((opt, oIdx) => (
+                        <Pressable
+                          key={oIdx}
+                          onPress={() => handleSend(opt)}
+                          style={({ pressed }) => [
+                            {
+                              width: turn.options!.length > 1 ? "48.5%" : "100%",
+                              backgroundColor: "#FBF7EF",
+                              borderWidth: 1,
+                              borderColor: "#4A080C",
+                              paddingHorizontal: 12,
+                              paddingVertical: 10,
+                              borderRadius: 20,
+                              alignItems: "center",
+                              justifyContent: "center",
+                              opacity: pressed ? 0.7 : 1,
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={{
+                              fontFamily: "WorkSans_500Medium",
+                              fontSize: 13,
+                              color: "#4A080C",
+                              textAlign: "center",
+                            }}
                           >
-                            <Text className="font-body text-[13px] text-oxblood font-medium">
-                              {opt}
-                            </Text>
-                          </Pressable>
-                        ))}
-                      </ScrollView>
+                            {opt}
+                          </Text>
+                        </Pressable>
+                      ))}
                     </View>
                   )}
 
@@ -467,7 +507,7 @@ export default function BookingChatScreen() {
                         const isSelected = selectedSlotLabel === slot.label;
                         return (
                           <View key={slot.id}>
-                            <View className="flex-row items-center justify-between py-2.5">
+                            <View className="flex-row items-center justify-between py-2">
                               <Text className="font-body text-[15px] text-oxblood font-medium flex-1 mr-3">
                                 {slot.label}
                               </Text>
@@ -479,7 +519,7 @@ export default function BookingChatScreen() {
                                     handleSend(`Book slot: ${slot.label}`);
                                   }
                                 }}
-                                className={`px-4 py-1.5 rounded-full items-center justify-center ${
+                                className={`px-4 py-2 rounded-full items-center justify-center ${
                                   isSelected ? "bg-oxblood" : "bg-[#D5C4C6]"
                                 }`}
                                 style={({ pressed }) => ({
@@ -497,7 +537,7 @@ export default function BookingChatScreen() {
                               </Pressable>
                             </View>
                             {idx < turn.slots!.length - 1 && (
-                              <View className="border-b border-dashed border-[#D1D1D1] my-2.5" />
+                              <View className="border-b border-dashed border-[#D1D1D1] my-2" />
                             )}
                           </View>
                         );
@@ -526,8 +566,8 @@ export default function BookingChatScreen() {
           <View
             style={{
               paddingHorizontal: 24,
-              paddingTop: 10,
-              paddingBottom: Math.max(insets.bottom, 12),
+              paddingTop: 8,
+              paddingBottom: Math.max(insets.bottom, 16),
               backgroundColor: "#FBF7EF",
             }}
           >

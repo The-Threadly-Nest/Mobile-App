@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingVertical: 12,
     gap: 12,
     borderBottomWidth: 1,
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 24,
   },
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   inputToolbarContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
@@ -567,8 +567,8 @@ const styles = StyleSheet.create({
   },
   textInputWrapper: {
     flex: 1,
-    height: 46,
-    borderRadius: 23,
+    height: 48,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: "#E4D5B7",
     backgroundColor: "#FFFFFF",
@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   emojiBtn: {
-    padding: 2,
+    padding: 4,
   },
   sendBtn: {
     width: 44,
@@ -601,14 +601,14 @@ const styles = StyleSheet.create({
   emojiPickerBar: {
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: "rgba(228, 213, 183, 0.4)",
   },
   emojiChip: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: "#FBF7EF",
     borderWidth: 1,
     borderColor: "#E4D5B7",

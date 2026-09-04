@@ -10,6 +10,11 @@ router.use(requireAuth, requireRole("admin"));
 // GET /api/admin/profile - Get Admin's fashion house & onboarding status
 router.get("/profile", async (req, res, next) => {
   try {
+    const user = await prisma.user.findUnique({ where: { id: req.authUserId! } });
+    if (!user) {
+      return res.status(401).json({ error: "Your session has expired. Please log in again." });
+    }
+
     const fashionHouse = await prisma.fashionHouse.findUnique({
       where: { adminId: req.authUserId! },
       include: {

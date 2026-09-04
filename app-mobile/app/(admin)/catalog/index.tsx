@@ -15,6 +15,7 @@ import { Plus, Trash2, Tag } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import CachedImage from "@/shared/components/CachedImage";
 
 export interface CatalogItem {
   id: string;
@@ -135,7 +136,7 @@ export default function AdminCatalogListScreen() {
           <View style={styles.gridContainer}>
             {items.map((item) => (
               <View key={item.id} style={styles.card}>
-                <Image source={{ uri: item.imageUrl }} style={styles.cardImage} resizeMode="cover" />
+                <CachedImage source={{ uri: item.imageUrl }} style={styles.cardImage} />
                 <View style={styles.cardBody}>
                   <Text style={styles.cardName} numberOfLines={1}>
                     {item.name}

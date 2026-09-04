@@ -1,11 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { View, Text } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+
+// ─── Schedule a local tray notification for a new incoming chat message ───────
+async function scheduleMessageNotification(senderName: string, text: string) {
+  try {
+    const Notifications = require("expo-notifications");
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `💬 New message from ${senderName}`,
+        body: text || "You have a new message.",
+        sound: "default",
+        data: { screen: "chat" },
+      },
+      trigger: null, // fire immediately
+    });
+  } catch (e) {
+    console.warn("[notification] Failed to schedule local notification:", e);
+  }
+}
 
 function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
   const activeColor = focused ? "#4A080C" : "#000000";
@@ -155,46 +173,92 @@ export default function StaffLayout() {
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
   const token = useAuthStore((s) => s.token);
+  const pathname = usePathname();
+
   const [unreadCount, setUnreadCount] = useState(0);
+  const prevCountRef = useRef(0);          // tracks previous count to detect NEW messages
+  const staffIdRef = useRef<string | null>(null); // caches staff id to avoid repeated /me calls
 
   useEffect(() => {
     NavigationBar.setBackgroundColorAsync("#FFFFFF");
     NavigationBar.setButtonStyleAsync("dark");
   }, []);
 
+  // ── Clear badge immediately when the user navigates to the chat tab ────────
   useEffect(() => {
-    (async () => {
-      if (!token) return;
+    if (pathname.includes("/chat")) {
+      setUnreadCount(0);
+      prevCountRef.current = 0;
+    }
+  }, [pathname]);
+
+  // ── Poll for unread messages every 15 seconds ──────────────────────────────
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchUnread = async () => {
       try {
-        const meRes = await fetch(`${API_BASE_URL}/api/staff/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (meRes.ok) {
+        // 1. Resolve staff ID once and cache it
+        if (!staffIdRef.current) {
+          const meRes = await fetch(`${API_BASE_URL}/api/staff/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!meRes.ok) return;
           const me = await meRes.json();
-          if (me.id) {
-            const sessionRes = await fetch(`${API_BASE_URL}/api/chat/session/${me.id}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            if (sessionRes.ok) {
-              const session = await sessionRes.json();
-              const history = session.history || [];
-              let unread = 0;
-              if (
-                history.length > 0 &&
-                (history[history.length - 1].role === "admin" || history[history.length - 1].role === "model")
-              ) {
-                for (let i = history.length - 1; i >= 0; i--) {
-                  if (history[i].role === "admin" || history[i].role === "model") unread++;
-                  else break;
-                }
-              }
-              setUnreadCount(unread);
-            }
+          if (!me.id) return;
+          staffIdRef.current = me.id;
+        }
+
+        // 2. Fetch chat session
+        const sessionRes = await fetch(
+          `${API_BASE_URL}/api/chat/session/${staffIdRef.current}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!sessionRes.ok) return;
+
+        const session = await sessionRes.json();
+        const history: any[] = session.history || [];
+
+        // 3. Count trailing admin/model messages (= unread for staff)
+        let unread = 0;
+        if (
+          history.length > 0 &&
+          (history[history.length - 1].role === "admin" ||
+            history[history.length - 1].role === "model")
+        ) {
+          for (let i = history.length - 1; i >= 0; i--) {
+            if (history[i].role === "admin" || history[i].role === "model") unread++;
+            else break;
           }
         }
-      } catch (e) {}
-    })();
-  }, [token]);
+
+        // 4. If user is on the chat screen keep badge at 0; otherwise update & notify
+        const isOnChat = pathname.includes("/chat");
+        if (isOnChat) {
+          setUnreadCount(0);
+          prevCountRef.current = 0;
+        } else {
+          if (unread > prevCountRef.current) {
+            // New message(s) arrived — fire a local system notification
+            const lastMsg = history[history.length - 1];
+            await scheduleMessageNotification(
+              "Fashion House Admin",
+              lastMsg?.text || "You have a new message."
+            );
+          }
+          prevCountRef.current = unread;
+          setUnreadCount(unread);
+        }
+      } catch (e) {
+        // Silent fail — badge simply won't update on network errors
+      }
+    };
+
+    // Fire immediately, then every 15 seconds
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 15_000);
+    return () => clearInterval(interval);
+  }, [token, pathname]);
 
   return (
     <Tabs

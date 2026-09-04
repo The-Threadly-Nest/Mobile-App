@@ -19,6 +19,7 @@ import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import CachedImage from "@/shared/components/CachedImage";
 
 interface SketchItem {
   id: string;
@@ -307,7 +308,7 @@ export default function AdminMoodBoardRedesignScreen() {
                       {typeof sketch.image === "object" && sketch.image?.uri && sketch.image.uri.includes(".svg") ? (
                         <SvgUri uri={sketch.image.uri} width="100%" height="100%" />
                       ) : (
-                        <Image source={sketch.image} style={styles.sketchImage} />
+                        <CachedImage source={sketch.image} style={styles.sketchImage} />
                       )}
                       {sketch.promotedToCatalog && (
                         <View style={styles.promotedBadge}>

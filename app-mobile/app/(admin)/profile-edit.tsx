@@ -157,7 +157,8 @@ export default function AdminProfileEditScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 20}
       >
         {/* Header */}
         <View
@@ -200,6 +201,8 @@ export default function AdminProfileEditScreen() {
           </View>
         ) : (
           <ScrollView
+            automaticallyAdjustKeyboardInsets={true}
+            keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >

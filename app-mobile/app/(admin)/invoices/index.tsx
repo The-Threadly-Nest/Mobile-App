@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 
 interface InvoiceItem {
   id: string;
@@ -18,6 +19,8 @@ interface InvoiceItem {
   date: string;
   amount: number;
   status: "Pending" | "Paid";
+  garment?: string;
+  orderNumber?: string;
 }
 
 const MOCK_INVOICES: InvoiceItem[] = [
@@ -50,8 +53,27 @@ const MOCK_INVOICES: InvoiceItem[] = [
 export default function InvoicesListScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
+  const storeOrders = useAppDataStore((s) => s.orders);
 
-  const [invoices] = useState<InvoiceItem[]>(MOCK_INVOICES);
+  const invoices: InvoiceItem[] = React.useMemo(() => {
+    if (storeOrders && storeOrders.length > 0) {
+      return storeOrders.map((o: any, idx: number) => {
+        const isPaid = o.status === "completed" || o.status === "delivered";
+        const orderNum = o.orderNumber || `#TFH-${(o.id || String(idx)).slice(0, 4).toUpperCase()}`;
+        return {
+          id: o.id || `inv-${idx + 1}`,
+          invoiceNumber: orderNum.replace("#TFH-", "INV-").replace("#", "INV-"),
+          orderNumber: orderNum,
+          customerName: o.customer || "Customer",
+          garment: o.item || "Bespoke Fitting & Tailoring",
+          date: o.fittingDate || o.createdAt ? new Date(o.createdAt || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Sep 6, 2026",
+          amount: o.price || 350000,
+          status: isPaid ? "Paid" : "Pending",
+        };
+      });
+    }
+    return MOCK_INVOICES;
+  }, [storeOrders]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -82,7 +104,15 @@ export default function InvoicesListScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/(admin)/invoices/[orderId]",
-                    params: { orderId: item.id },
+                    params: {
+                      orderId: item.id,
+                      customerName: item.customerName,
+                      orderNumber: item.orderNumber || item.invoiceNumber,
+                      garment: item.garment,
+                      price: item.amount.toString(),
+                      status: item.status,
+                      date: item.date,
+                    },
                   })
                 }
                 style={({ pressed }) => [

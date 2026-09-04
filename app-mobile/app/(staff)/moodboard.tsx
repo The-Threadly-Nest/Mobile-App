@@ -21,6 +21,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import CachedImage from "@/shared/components/CachedImage";
 
 interface Sketch {
   id: string;
@@ -254,7 +255,7 @@ export default function StaffMoodBoardScreen() {
             }
             renderItem={({ item }) => (
               <View style={styles.card}>
-                <Image source={{ uri: item.imageUrl }} style={styles.sketchImage} />
+                <CachedImage source={{ uri: item.imageUrl }} style={styles.sketchImage} />
 
                 {/* Promoted Badge */}
                 {item.promotedToCatalog && (

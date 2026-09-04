@@ -58,7 +58,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     let errorDetail: ApiErrorDetail;
     try {
       const body = await response.json();
-      let message = "An unexpected error occurred.";
+      let message = "We couldn't complete your request right now. Please try again.";
 
       if (typeof body.error === "string") {
         message = body.error;
@@ -86,7 +86,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       errorDetail = {
         status: response.status,
         code: "HTTP_ERROR",
-        message: `HTTP request failed with status ${response.status}`,
+        message: "We couldn't complete your request right now. Please try again in a moment.",
       };
     }
 
@@ -104,14 +104,14 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       console.warn("[API Client] Session expired. Force logging out...");
       logout();
       if (!options.silent) {
-        alertEmitter.emit({ title: "Session Expired", message: "Your session has expired. Please log in again." });
+        alertEmitter.emit({ title: "Session Expired", message: "Your session has expired. Please log in again to continue." });
       }
       throw new ApiError(errorDetail);
     }
 
     // 3. Surface other non-retryable errors immediately
     if (!options.silent) {
-      alertEmitter.emit({ title: "Request Failed", message: errorDetail.message });
+      alertEmitter.emit({ title: "Notice", message: errorDetail.message });
     }
 
     throw new ApiError(errorDetail);
@@ -124,7 +124,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       const networkErrorDetail: ApiErrorDetail = {
         status: 0,
         code: "NETWORK_DISCONNECTED",
-        message: "No internet connection detected. Please verify your connection and try again.",
+        message: "You seem to be offline. Please check your connection and try again.",
       };
       if (!options.silent) {
         alertEmitter.emit({ title: "Connection Offline", message: networkErrorDetail.message });

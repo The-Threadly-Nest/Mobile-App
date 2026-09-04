@@ -158,12 +158,14 @@ export default function AdminOnboardingScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
+        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 20}
         style={{ flex: 1 }}
       >
         <ScrollView
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
+          automaticallyAdjustKeyboardInsets={true}
           contentContainerStyle={[
             styles.scrollContent,
             isLandscape && {

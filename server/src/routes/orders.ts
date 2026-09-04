@@ -111,6 +111,28 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
       return res.status(404).json({ error: "Fashion house not found." });
     }
 
+    // Deduplication check: if a booking was created in the last 2 minutes for this customer & fashion house, update it instead of creating a duplicate
+    const recentCutoff = new Date(Date.now() - 2 * 60 * 1000);
+    const existingPending = await prisma.booking.findFirst({
+      where: {
+        customerId,
+        fashionHouseId: fh.id,
+        status: "pending_admin_review",
+        createdAt: { gte: recentCutoff },
+      },
+    });
+
+    if (existingPending) {
+      const updated = await prisma.booking.update({
+        where: { id: existingPending.id },
+        data: {
+          styleNotes: garment || existingPending.styleNotes,
+          preferredTime: fittingDate || existingPending.preferredTime,
+        },
+      });
+      return res.status(200).json(updated);
+    }
+
     const booking = await prisma.booking.create({
       data: {
         fashionHouseId: fh.id,

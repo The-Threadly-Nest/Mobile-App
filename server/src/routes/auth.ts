@@ -459,6 +459,10 @@ router.post("/push-token", requireAuth, async (req, res, next) => {
     if (!pushToken || typeof pushToken !== "string") {
       return res.status(400).json({ error: "Invalid push token." });
     }
+    const user = await prisma.user.findUnique({ where: { id: req.authUserId! } });
+    if (!user) {
+      return res.status(401).json({ error: "Your session has expired. Please log in again." });
+    }
     await prisma.user.update({
       where: { id: req.authUserId! },
       data: { pushToken },
