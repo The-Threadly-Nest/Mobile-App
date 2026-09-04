@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,9 +12,10 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
-import { ArrowLeft, Plus, Trash2, Check } from "lucide-react-native";
+import { Plus, Trash2, Check } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
@@ -73,7 +74,20 @@ export default function NewMeasurementScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
-  const [customerName, setCustomerName] = useState("");
+  const params = useLocalSearchParams<{
+    customerName?: string;
+    bookingId?: string;
+    serviceTitle?: string;
+    appointmentTime?: string;
+    returnToAssign?: string;
+  }>();
+  const [customerName, setCustomerName] = useState(params.customerName || "");
+
+  useEffect(() => {
+    if (params.customerName) {
+      setCustomerName(params.customerName);
+    }
+  }, [params.customerName]);
   const [entryMethod, setEntryMethod] = useState<"manual" | "voice">("manual");
   const [values, setValues] = useState<Record<string, string>>({
     bust: "",
@@ -219,8 +233,23 @@ export default function NewMeasurementScreen() {
         silent: true,
       }).catch(() => {});
 
-      showAlert("Saved!", "Measurement sheet saved to customer profile.");
-      setTimeout(() => router.push("/(admin)/settings" as any), 1400);
+      if (params.returnToAssign === "true") {
+        showAlert("Measurements Saved!", "Redirecting to staff assignment...");
+        setTimeout(() => {
+          router.replace({
+            pathname: "/(admin)/escalations/assign",
+            params: {
+              bookingId: params.bookingId,
+              customerName: customerName.trim(),
+              serviceTitle: params.serviceTitle,
+              appointmentTime: params.appointmentTime,
+            },
+          } as any);
+        }, 1200);
+      } else {
+        showAlert("Saved!", "Measurement sheet saved to customer profile.");
+        setTimeout(() => router.push("/(admin)/settings" as any), 1400);
+      }
     } catch (err) {
       showAlert("Save Failed", "Could not save the measurement sheet. Please try again.");
     } finally {
@@ -249,7 +278,7 @@ export default function NewMeasurementScreen() {
               onPress={() => router.push("/(admin)/settings" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <ArrowLeft size={18} color="#3B0508" />
+              <BackArrowIcon size={18} color="#3B0508" />
             </Pressable>
 
             <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>

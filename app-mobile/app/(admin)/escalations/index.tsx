@@ -11,7 +11,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { X, UserCheck } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
@@ -114,9 +114,9 @@ export default function BookingsScreen() {
   const { showAlert, showConfirm } = useAppAlert();
 
   const [activeTab, setActiveTab] = useState<"pending" | "assigned" | "declined">("pending");
-  const [bookings, setBookings] = useState<BookingItem[]>(INITIAL_BOOKINGS);
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Assign Staff Modal
   const [assigningBooking, setAssigningBooking] = useState<BookingItem | null>(null);
@@ -146,13 +146,20 @@ export default function BookingsScreen() {
 
       if (escRes.status === "fulfilled" && escRes.value.ok) {
         const data = await escRes.value.json();
-        if (Array.isArray(data) && data.length > 0) {
-          const mapped: BookingItem[] = data.map((item: any) => {
+        if (Array.isArray(data)) {
+          const seen = new Set<string>();
+          const mapped: BookingItem[] = [];
+
+          for (const item of data) {
             const emailName = item.customer?.email ? item.customer.email.split("@")[0] : "Client";
-            const formattedName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-            return {
+            const formattedName = item.customerName || emailName.charAt(0).toUpperCase() + emailName.slice(1);
+            const key = item.id || `${formattedName}-${item.reason}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+
+            mapped.push({
               id: item.id,
-              customerName: item.customerName || formattedName,
+              customerName: formattedName,
               serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Bespoke Fitting",
               appointmentTime: new Date(item.createdAt).toLocaleDateString("en-US", {
                 weekday: "short",
@@ -164,12 +171,9 @@ export default function BookingsScreen() {
               summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
               status: item.resolved ? "assigned" : "pending",
               createdAt: item.createdAt,
-            };
-          });
-          setBookings((prev) => {
-            const nonEsc = prev.filter((p) => !p.id.startsWith("esc_"));
-            return [...mapped, ...nonEsc];
-          });
+            });
+          }
+          setBookings(mapped);
         }
       }
     } catch (e) {
@@ -183,13 +187,45 @@ export default function BookingsScreen() {
     fetchBackendData();
   }, [token]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchBackendData();
+    }, [token])
+  );
+
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
   const assignedCount = bookings.filter((b) => b.status === "assigned").length;
   const declinedCount = bookings.filter((b) => b.status === "declined").length;
 
   const currentList = bookings.filter((b) => b.status === activeTab);
 
-  const handleOpenAssign = (booking: BookingItem) => {
+  const handleOpenAssign = async (booking: BookingItem) => {
+    try {
+      if (token) {
+        const res = await fetch(`${API_BASE_URL}/api/measurements/check/${encodeURIComponent(booking.customerName)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.hasMeasurements === false) {
+            router.push({
+              pathname: "/(admin)/measurements/new",
+              params: {
+                bookingId: booking.id,
+                customerName: booking.customerName,
+                serviceTitle: booking.serviceTitle,
+                appointmentTime: booking.appointmentTime,
+                returnToAssign: "true",
+              },
+            } as any);
+            return;
+          }
+        }
+      }
+    } catch {
+      // Fallback directly to assign screen if check fails
+    }
+
     router.push({
       pathname: "/(admin)/escalations/assign",
       params: {

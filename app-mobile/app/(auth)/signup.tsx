@@ -13,8 +13,9 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
@@ -165,7 +166,7 @@ export default function SignupScreen() {
                 { opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              <ArrowLeft size={20} color="#3B0508" />
+              <BackArrowIcon size={20} color="#3B0508" />
             </Pressable>
             <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>Create Account</Text>
           </View>

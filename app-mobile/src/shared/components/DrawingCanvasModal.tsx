@@ -10,9 +10,11 @@ import {
   ScrollView,
 } from "react-native";
 import Svg, { Path, Rect, Circle, G } from "react-native-svg";
-import { X, Undo2, RotateCcw, Check, Paintbrush, Eraser, User, Grid } from "lucide-react-native";
+import { X, Undo2, RotateCcw, Check, Paintbrush, Eraser, User, Grid, HelpCircle } from "lucide-react-native";
 import { Input } from "./Input";
 import { Button } from "./Button";
+import FlowMessageCard from "./FlowMessageCard";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface PathData {
   color: string;
@@ -52,6 +54,24 @@ const SKETCH_CHIPS = [
   "Draft Pattern",
 ];
 
+const GUIDE_STEPS = [
+  {
+    step: "Step 1 of 3",
+    title: "Choose Canvas Guide",
+    message: "Tap the guide toggles above to switch between Fashion Croquis (mannequin outline), Grid dots, or blank canvas.",
+  },
+  {
+    step: "Step 2 of 3",
+    title: "Sketch & Draw",
+    message: "Select stroke thickness and colors below to draw. Use Undo or Eraser anytime to clean up your lines.",
+  },
+  {
+    step: "Step 3 of 3",
+    title: "Save to Moodboard",
+    message: "Tap a quick title suggestion chip (e.g. + Corset Detail) or type a title, then tap 'Save & Add to Moodboard'!",
+  },
+];
+
 export default function DrawingCanvasModal({
   visible,
   onClose,
@@ -65,6 +85,11 @@ export default function DrawingCanvasModal({
   const [title, setTitle] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const hasSeenGuide = useAuthStore((s) => s.hasSeenSketchpadGuide);
+  const setHasSeenGuide = useAuthStore((s) => s.setHasSeenSketchpadGuide);
+  const [showGuide, setShowGuide] = useState<boolean>(!hasSeenGuide);
+  const [currentGuideStep, setCurrentGuideStep] = useState<number>(1);
 
   const selectedColorRef = useRef(selectedColor);
   selectedColorRef.current = selectedColor;
@@ -203,10 +228,53 @@ ${pathElements}
               </Pressable>
             </View>
 
-            <Pressable onPress={onClose} style={styles.closeBtn}>
-              <X size={20} color="#4A080C" />
-            </Pressable>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+              <Pressable
+                onPress={() => {
+                  setCurrentGuideStep(1);
+                  setShowGuide(true);
+                }}
+                style={styles.closeBtn}
+                hitSlop={8}
+              >
+                <HelpCircle size={18} color="#4A080C" />
+              </Pressable>
+
+              <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={8}>
+                <X size={20} color="#4A080C" />
+              </Pressable>
+            </View>
           </View>
+
+          {/* Interactive Step-by-Step Guide Banner */}
+          {showGuide && (
+            <FlowMessageCard
+              stepBadge={GUIDE_STEPS[currentGuideStep - 1].step}
+              title={GUIDE_STEPS[currentGuideStep - 1].title}
+              message={GUIDE_STEPS[currentGuideStep - 1].message}
+              secondaryButtonLabel={currentGuideStep > 1 ? "Back" : "Dismiss"}
+              onSecondaryPress={() => {
+                if (currentGuideStep > 1) setCurrentGuideStep(currentGuideStep - 1);
+                else {
+                  setShowGuide(false);
+                  setHasSeenGuide(true);
+                }
+              }}
+              primaryButtonLabel={currentGuideStep < 3 ? "Next Step" : "Got It!"}
+              onPrimaryPress={() => {
+                if (currentGuideStep < 3) {
+                  setCurrentGuideStep(currentGuideStep + 1);
+                } else {
+                  setShowGuide(false);
+                  setHasSeenGuide(true);
+                }
+              }}
+              onDismiss={() => {
+                setShowGuide(false);
+                setHasSeenGuide(true);
+              }}
+            />
+          )}
 
           {/* Canvas Area */}
           <View style={styles.canvasContainer} {...panResponder.panHandlers}>

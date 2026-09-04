@@ -22,10 +22,13 @@ import {
   Shield,
   LogOut,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi, ordersApi } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+
+import { API_BASE_URL } from "@/api/config";
 
 export default function AdminSettingsScreen() {
   const { width, height } = useWindowDimensions();
@@ -35,19 +38,23 @@ export default function AdminSettingsScreen() {
   const logout = useAuthStore((s) => s.logout);
   const name = useAuthStore((s) => s.name);
   const email = useAuthStore((s) => s.email);
+  const token = useAuthStore((s) => s.token);
   const storedShopName = useAuthStore((s) => s.shopName);
   const [businessName, setBusinessName] = useState(storedShopName || name || "");
 
-  const [staffCount, setStaffCount] = useState(3);
+  const [staffCount, setStaffCount] = useState(0);
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(18);
   const [invoiceCount, setInvoiceCount] = useState(3);
 
   useEffect(() => {
     async function loadData() {
+      if (!token) return;
       try {
-        const [profileRes, ordersRes] = await Promise.allSettled([
+        const [profileRes, ordersRes, staffRes] = await Promise.allSettled([
           adminApi.getProfile(),
           ordersApi.getOrders(),
+          fetch(`${API_BASE_URL}/api/staff`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
         ]);
 
         if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
@@ -58,14 +65,20 @@ export default function AdminSettingsScreen() {
         }
 
         if (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value)) {
-          setInvoiceCount(ordersRes.value.length || 3);
+          setInvoiceCount(ordersRes.value.length);
+        }
+
+        if (staffRes.status === "fulfilled" && Array.isArray(staffRes.value)) {
+          setStaffCount(staffRes.value.length);
+          const totalUnread = staffRes.value.reduce((acc: number, st: any) => acc + (st.unreadCount || 0), 0);
+          setUnreadChatCount(totalUnread);
         }
       } catch (err) {
         console.warn("Failed to load profile for settings", err);
       }
     }
     loadData();
-  }, []);
+  }, [token]);
 
   const emailPrefix = email ? email.split("@")[0] : "";
   const fallbackName = emailPrefix
@@ -74,7 +87,7 @@ export default function AdminSettingsScreen() {
   const displayTitle = businessName || fallbackName;
 
   const handleLogout = () => {
-    showConfirm("Log Out", "Are you sure you want to log out of your atelier account?", {
+    showConfirm("Log Out", "Are you sure you want to log out of your Threadly Nest account?", {
       confirmLabel: "Log Out",
       cancelLabel: "Cancel",
       onConfirm: () => {
@@ -86,6 +99,14 @@ export default function AdminSettingsScreen() {
 
   // All features styled consistently in the 2-column grid
   const ALL_GRID_ITEMS = [
+    {
+      id: "staff",
+      title: "Staff",
+      subtitle: staffCount > 0 ? `${staffCount} member${staffCount === 1 ? "" : "s"}` : "Manage & chat",
+      badge: unreadChatCount > 0 ? unreadChatCount : undefined,
+      icon: UserCheck,
+      onPress: () => router.push("/(admin)/staff" as any),
+    },
     {
       id: "customers",
       title: "Customers",
@@ -99,13 +120,6 @@ export default function AdminSettingsScreen() {
       subtitle: "New entry",
       icon: Ruler,
       onPress: () => router.push("/(admin)/measurements/new" as any),
-    },
-    {
-      id: "staff",
-      title: "Staff",
-      subtitle: `${staffCount} members`,
-      icon: UserCheck,
-      onPress: () => router.push("/(admin)/staff" as any),
     },
     {
       id: "moodboards",
@@ -196,7 +210,7 @@ export default function AdminSettingsScreen() {
 
         {/* 2. Unified 2-Column Grid */}
         <View style={styles.gridContainer}>
-          {ALL_GRID_ITEMS.map((item) => {
+          {ALL_GRID_ITEMS.map((item: any) => {
             const IconComponent = item.icon;
             return (
               <Pressable
@@ -210,6 +224,29 @@ export default function AdminSettingsScreen() {
                 {/* Squircle Icon Container */}
                 <View style={styles.iconContainer}>
                   <IconComponent size={22} color="#1A1110" />
+                  {item.badge ? (
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: -4,
+                        right: -4,
+                        backgroundColor: "#D32F2F",
+                        minWidth: 18,
+                        height: 18,
+                        borderRadius: 9,
+                        paddingHorizontal: 5,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderWidth: 1.5,
+                        borderColor: "#FFFFFF",
+                        zIndex: 10,
+                      }}
+                    >
+                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#FFFFFF" }}>
+                        {item.badge}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
 
                 {/* Card Text Content */}
@@ -237,7 +274,9 @@ export default function AdminSettingsScreen() {
             </View>
             <View>
               <Text style={[styles.cardTitle, { color: "#DC2626" }]}>Log Out</Text>
-              <Text style={styles.cardSubtitle}>Sign out of atelier</Text>
+              <Text style={styles.cardSubtitle}>Sign out
+
+              </Text>
             </View>
           </Pressable>
         </View>
@@ -337,6 +376,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 14,
+    position: "relative",
   },
   logoutIconContainer: {
     backgroundColor: "#FEE2E2",

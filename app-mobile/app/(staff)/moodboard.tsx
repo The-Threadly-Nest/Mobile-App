@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { View, FlatList, Pressable, Text, Modal, Image, ActivityIndicator } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Pressable,
+  Image,
+  ActivityIndicator,
+  Modal,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus, PenTool, X, Trash2, CheckCircle, Paintbrush } from "lucide-react-native";
+import { router, useFocusEffect } from "expo-router";
+import { Plus, PenTool, Trash2, CheckCircle2, Paintbrush, X } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Headline, Subtext } from "@/shared/components/Headline";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import DrawingCanvasModal from "@/shared/components/DrawingCanvasModal";
@@ -20,12 +30,15 @@ interface Sketch {
   createdAt: string;
 }
 
-export default function MoodBoardScreen() {
+export default function StaffMoodBoardScreen() {
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
   const { showAlert, showConfirm } = useAppAlert();
+
   const [sketches, setSketches] = useState<Sketch[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  
+
   // Modal states
   const [modalVisible, setModalVisible] = useState(false);
   const [canvasModalVisible, setCanvasModalVisible] = useState(false);
@@ -35,7 +48,7 @@ export default function MoodBoardScreen() {
 
   const token = useAuthStore((s) => s.token);
 
-  const fetchSketches = async () => {
+  const fetchSketches = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -43,19 +56,21 @@ export default function MoodBoardScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok) {
+      if (res.ok && Array.isArray(data)) {
         setSketches(data);
       }
     } catch (e) {
-      console.error("Failed to fetch sketches", e);
+      console.error("Failed to fetch staff sketches", e);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchSketches();
   }, [token]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchSketches();
+    }, [fetchSketches])
+  );
 
   const handlePickImage = async () => {
     setError("");
@@ -85,10 +100,8 @@ export default function MoodBoardScreen() {
       const filename = `drawing-${Date.now()}.svg`;
       const contentType = "image/svg+xml";
 
-      // 1. Upload SVG data URI to R2 storage
       const uploadResult = await uploadFile(svgDataUri, filename, contentType);
 
-      // 2. Save sketch metadata to backend DB
       const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
         method: "POST",
         headers: {
@@ -127,10 +140,8 @@ export default function MoodBoardScreen() {
       if (ext === "jpeg") ext = "jpg";
       const contentType = `image/${ext === "png" ? "png" : ext === "gif" ? "gif" : "jpeg"}`;
 
-      // 1. Upload to storage (Cloudflare R2 / S3)
       const uploadResult = await uploadFile(selectedUri, filename, contentType);
 
-      // 2. Save sketch to backend DB
       const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
         method: "POST",
         headers: {
@@ -187,109 +198,120 @@ export default function MoodBoardScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
-      <View className="flex-row justify-between items-center px-5 pt-4 pb-2">
-        <Headline className="text-2xl">My Mood Board</Headline>
-        
-        {/* Action Buttons: Draw Canvas & Pick Photo */}
-        <View className="flex-row items-center gap-2">
-          <Pressable
-            onPress={() => setCanvasModalVisible(true)}
-            className="flex-row items-center bg-oxblood/10 border border-oxblood/30 px-3 py-2 rounded-full gap-1.5"
-          >
-            <Paintbrush size={14} color="#4A080C" />
-            <Text className="font-body-semibold text-oxblood text-xs">Draw</Text>
-          </Pressable>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <View style={[styles.container, isLandscape && styles.landscapeContainer]}>
+        {/* Header Bar */}
+        <View style={styles.headerBar}>
+          <Text style={styles.headerTitle}>My Mood Board</Text>
 
-          <Pressable
-            onPress={handlePickImage}
-            className="w-9 h-9 bg-oxblood rounded-full items-center justify-center"
-          >
-            <Plus size={18} color="#FBF7EF" />
-          </Pressable>
-        </View>
-      </View>
-      <Subtext className="text-xs px-5 mb-4">Private sketches — Admin can move any into the public catalog</Subtext>
+          {/* Action Buttons */}
+          <View style={styles.headerActions}>
+            <Pressable
+              onPress={() => router.push("/(staff)/draw")}
+              style={({ pressed }) => [styles.drawBtn, { opacity: pressed ? 0.85 : 1 }]}
+            >
+              <Paintbrush size={14} color="#FFFFFF" />
+              <Text style={styles.drawBtnText}>Draw</Text>
+            </Pressable>
 
-      {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#4A080C" />
+            <Pressable
+              onPress={handlePickImage}
+              style={({ pressed }) => [styles.addBtn, { opacity: pressed ? 0.85 : 1 }]}
+            >
+              <Plus size={20} color="#FFFFFF" strokeWidth={2.5} />
+            </Pressable>
+          </View>
         </View>
-      ) : (
-        <FlatList
-          data={sketches}
-          keyExtractor={(i) => i.id}
-          numColumns={2}
-          contentContainerStyle={{ padding: 16 }}
-          columnWrapperStyle={{ gap: 12 }}
-          ListEmptyComponent={
-            <View className="flex-1 items-center justify-center py-20">
-              <PenTool size={36} color="#A6926B" />
-              <Text className="font-body text-grey700 text-sm mt-3 text-center">
-                No sketches uploaded yet. Tap the + icon to upload.
-              </Text>
-            </View>
-          }
-          renderItem={({ item }) => (
-            <View className="flex-1 mb-4 border border-grey100 bg-white rounded-xl overflow-hidden aspect-square relative">
-              <Image source={{ uri: item.imageUrl }} className="w-full h-3/4" style={{ resizeMode: "cover" }} />
-              
-              {/* Promoted Badge */}
-              {item.promotedToCatalog && (
-                <View className="absolute top-2 left-2 bg-oxblood/90 px-2 py-1 rounded-full flex-row items-center gap-1">
-                  <CheckCircle size={10} color="#C4A763" />
-                  <Text className="font-body text-[10px] text-cream">Promoted</Text>
+
+        {/* Intro Subtext */}
+        <Text style={styles.introSubtext}>
+          Your private sketches. Admin can review & feature your creations on the Discover profile.
+        </Text>
+
+        {/* Grid List of Sketches */}
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#4A080C" />
+          </View>
+        ) : (
+          <FlatList
+            data={sketches}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            columnWrapperStyle={styles.columnWrapper}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <View style={styles.emptyIconCircle}>
+                  <PenTool size={28} color="#4A080C" />
                 </View>
-              )}
-
-              {/* Delete Button */}
-              <Pressable
-                onPress={() => handleDeleteSketch(item.id, item.title)}
-                className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full items-center justify-center"
-              >
-                <Trash2 size={14} color="#FFFFFF" />
-              </Pressable>
-
-              <View className="h-1/4 bg-white px-2 justify-center">
-                <Text className="font-body text-ink text-xs text-center" numberOfLines={1}>
-                  {item.title}
+                <Text style={styles.emptyTitle}>No sketches yet</Text>
+                <Text style={styles.emptySubtext}>
+                  Tap "Draw" to paint a new design or "+" to upload a sketch photo from your device.
                 </Text>
               </View>
-            </View>
-          )}
-        />
-      )}
+            }
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <Image source={{ uri: item.imageUrl }} style={styles.sketchImage} />
 
-      {/* Upload Preview Modal */}
+                {/* Promoted Badge */}
+                {item.promotedToCatalog && (
+                  <View style={styles.promotedBadge}>
+                    <CheckCircle2 size={12} color="#FFFFFF" />
+                    <Text style={styles.promotedText}>Promoted</Text>
+                  </View>
+                )}
+
+                {/* Delete Action Button */}
+                <Pressable
+                  onPress={() => handleDeleteSketch(item.id, item.title)}
+                  style={({ pressed }) => [styles.deleteBtn, { opacity: pressed ? 0.7 : 1 }]}
+                >
+                  <Trash2 size={13} color="#FFFFFF" />
+                </Pressable>
+
+                {/* Card Title Footer */}
+                <View style={styles.cardFooter}>
+                  <Text style={styles.cardTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                </View>
+              </View>
+            )}
+          />
+        )}
+      </View>
+
+      {/* Photo Upload Preview Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-cream rounded-t-3xl p-6 min-h-[50%]">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="font-display text-oxblood text-lg">New Moodboard Sketch</Text>
-              <Pressable onPress={() => setModalVisible(false)} className="p-1">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>New Mood Board Sketch</Text>
+              <Pressable onPress={() => setModalVisible(false)}>
                 <X size={20} color="#4A080C" />
               </Pressable>
             </View>
 
             {selectedUri && (
-              <View className="items-center mb-4">
-                <Image source={{ uri: selectedUri }} className="w-40 h-40 rounded-xl" />
+              <View style={styles.previewImageWrapper}>
+                <Image source={{ uri: selectedUri }} style={styles.previewImage} />
               </View>
             )}
 
             <Input
-              placeholder="Sketch Title (e.g. Draped Evening Dress)"
+              placeholder="Sketch Title (e.g. Draped Corset Gown)"
               value={title}
               onChangeText={setTitle}
             />
 
-            {error ? (
-              <Text className="font-body text-red-500 text-xs mb-3">{error}</Text>
-            ) : null}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-            <View className="mt-4">
+            <View style={{ marginTop: 16 }}>
               <Button
-                label={uploading ? "Uploading..." : "Add to Moodboard"}
+                label={uploading ? "Uploading..." : "Save to Mood Board"}
                 onPress={handleUploadSketch}
                 loading={uploading}
                 disabled={!title.trim() || uploading}
@@ -299,7 +321,7 @@ export default function MoodBoardScreen() {
         </View>
       </Modal>
 
-      {/* Interactive Sketchpad Drawing Canvas Modal */}
+      {/* Interactive Sketchpad Canvas Modal */}
       <DrawingCanvasModal
         visible={canvasModalVisible}
         onClose={() => setCanvasModalVisible(false)}
@@ -308,3 +330,205 @@ export default function MoodBoardScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FBF7EF",
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  landscapeContainer: {
+    maxWidth: 720,
+    alignSelf: "center",
+    width: "100%",
+  },
+  headerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  headerTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 26,
+    color: "#4A080C",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  drawBtn: {
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#4A080C",
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  drawBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14,
+    color: "#FFFFFF",
+  },
+  addBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#4A080C",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  introSubtext: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#8A7550",
+    marginBottom: 20,
+  },
+  loaderContainer: {
+    paddingVertical: 60,
+    alignItems: "center",
+  },
+  listContent: {
+    paddingBottom: 40,
+  },
+  columnWrapper: {
+    gap: 12,
+    marginBottom: 14,
+  },
+  card: {
+    flex: 1,
+    aspectRatio: 0.95,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "rgba(228, 213, 183, 0.5)",
+    position: "relative",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  sketchImage: {
+    width: "100%",
+    height: "78%",
+    resizeMode: "cover",
+  },
+  promotedBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#43A047",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  promotedText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 10,
+    color: "#FFFFFF",
+  },
+  deleteBtn: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardFooter: {
+    height: "22%",
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+  },
+  cardTitle: {
+    fontFamily: "WorkSans_500Medium",
+    fontSize: 13,
+    color: "#3A2E1A",
+    textAlign: "center",
+  },
+  emptyContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: "rgba(228, 213, 183, 0.5)",
+  },
+  emptyIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#FBF7EF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  emptyTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 18,
+    color: "#4A080C",
+    marginBottom: 4,
+  },
+  emptySubtext: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#8A7550",
+    textAlign: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "#FBF7EF",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 20,
+    color: "#4A080C",
+  },
+  previewImageWrapper: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  previewImage: {
+    width: 140,
+    height: 140,
+    borderRadius: 16,
+  },
+  errorText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 12,
+    color: "#D32F2F",
+    marginTop: 6,
+  },
+});

@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as NavigationBar from "expo-navigation-bar";
 import { router } from "expo-router";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const slides = [
   {
@@ -34,6 +35,7 @@ export default function StaffOnboardingScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
+  const email = useAuthStore((s) => s.email);
   const [currentIndex, setCurrentIndex] = useState(0);
   const slide = slides[currentIndex];
   const isLast = currentIndex === slides.length - 1;
@@ -48,14 +50,20 @@ export default function StaffOnboardingScreen() {
 
   const handleNext = () => {
     if (isLast) {
-      router.replace("/(staff)/dashboard");
+      router.replace({
+        pathname: "/(auth)/reset-password",
+        params: { email, firstTimeStaff: "true" },
+      });
     } else {
       setCurrentIndex((i) => i + 1);
     }
   };
 
   const handleSkip = () => {
-    router.replace("/(staff)/dashboard");
+    router.replace({
+      pathname: "/(auth)/reset-password",
+      params: { email, firstTimeStaff: "true" },
+    });
   };
 
   return (
@@ -72,6 +80,8 @@ export default function StaffOnboardingScreen() {
         <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
           {/* Main Content Box */}
           <View style={[styles.contentBox, isLandscape && styles.contentBoxLandscape]}>
+
+
             {/* Headline */}
             <Text style={styles.headline}>{slide.headline}</Text>
 

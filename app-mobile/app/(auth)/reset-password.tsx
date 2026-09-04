@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 
 export default function ResetPasswordScreen() {
-  const { token, email } = useLocalSearchParams<{ token: string; email: string }>();
+  const { token, email, firstTimeStaff } = useLocalSearchParams<{ token: string; email: string; firstTimeStaff?: string }>();
+  const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
   const [inputEmail, setInputEmail] = useState(email || "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [inputToken, setInputToken] = useState(token || "");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,25 +22,49 @@ export default function ResetPasswordScreen() {
 
   const passwordValid = newPassword.length >= 8 && /[A-Z]/.test(newPassword) && /[0-9]/.test(newPassword);
   const matches = newPassword === confirmPassword && confirmPassword.length > 0;
-  const formComplete = inputEmail.trim().length > 0 && inputToken.trim().length === 4 && passwordValid && matches;
+  const isFirstTimeStaff = firstTimeStaff === "true";
+  const formComplete = inputEmail.trim().length > 0 && (isFirstTimeStaff ? currentPassword.length > 0 : inputToken.trim().length === 4) && passwordValid && matches;
 
   const handleReset = async () => {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: inputEmail.trim(), token: inputToken.trim(), newPassword }),
-      });
-      const rawText = await res.text();
-      let body: any = {};
-      try { body = JSON.parse(rawText); } catch { }
-      if (!res.ok) {
-        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-          ? body.issues.map((i: any) => i.message).join(". ")
-          : null;
-        throw new Error(issueMsg || body.error || "Could not reset password. Please check your PIN.");
+      if (isFirstTimeStaff) {
+        const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: inputEmail.trim(),
+            currentPassword,
+            newPassword,
+          }),
+        });
+        const rawText = await res.text();
+        let body: any = {};
+        try { body = JSON.parse(rawText); } catch { }
+        if (!res.ok) {
+          throw new Error(body.error || "Could not update password. Please check your current password.");
+        }
+        setOnboardingCompleted(true);
+        router.replace("/(staff)/dashboard");
+        return;
+      }
+
+      if (!isFirstTimeStaff) {
+        const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: inputEmail.trim(), token: inputToken.trim(), newPassword }),
+        });
+        const rawText = await res.text();
+        let body: any = {};
+        try { body = JSON.parse(rawText); } catch { }
+        if (!res.ok) {
+          const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
+            ? body.issues.map((i: any) => i.message).join(". ")
+            : null;
+          throw new Error(issueMsg || body.error || "Could not reset password. Please check your PIN.");
+        }
       }
       setSuccess(true);
     } catch (e: any) {
@@ -72,11 +99,17 @@ export default function ResetPasswordScreen() {
   return (
     <View className="flex-1 bg-cream px-6 justify-center">
       <Pressable onPress={handleBack} className="absolute top-14 left-6">
-        <ChevronLeft size={24} color="#4A080C" />
+        <BackArrowIcon size={20} color="#4A080C" />
       </Pressable>
 
-      <Headline className="text-2xl mb-1">Set a new password</Headline>
-      <Subtext className="text-sm mb-6">Enter your email, the 4-digit PIN sent to you, and your new password.</Subtext>
+      <Headline className="text-2xl mb-1">
+        {isFirstTimeStaff ? "Set your password" : "Set a new password"}
+      </Headline>
+      <Subtext className="text-sm mb-6">
+        {isFirstTimeStaff
+          ? "Enter your current temporary password and choose a new password."
+          : "Enter your email, the 4-digit PIN sent to you, and your new password."}
+      </Subtext>
 
       <Input
         placeholder="Email address"
@@ -86,20 +119,36 @@ export default function ResetPasswordScreen() {
         onChangeText={setInputEmail}
         editable={!email}
       />
-      <Input
-        placeholder="4-DIGIT PIN"
-        autoCapitalize="characters"
-        maxLength={4}
-        value={inputToken}
-        onChangeText={(val) => setInputToken(val.trim().toUpperCase())}
-      />
+
+      {isFirstTimeStaff ? (
+        <Input
+          placeholder="Current / Temporary Password"
+          secureTextEntry
+          value={currentPassword}
+          onChangeText={setCurrentPassword}
+        />
+      ) : (
+        <Input
+          placeholder="4-DIGIT PIN"
+          autoCapitalize="characters"
+          maxLength={4}
+          value={inputToken}
+          onChangeText={(val) => setInputToken(val.trim().toUpperCase())}
+        />
+      )}
+
       <Input placeholder="New password" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
       <Input placeholder="Confirm new password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
       <Text className="font-body text-grey700 text-xs mb-4">At least 8 characters, one uppercase letter, one number</Text>
 
       {error ? <Text className="font-body text-red-500 text-xs mb-4">{error}</Text> : null}
 
-      <Button label="Reset Password" onPress={handleReset} loading={loading} disabled={!formComplete} />
+      <Button
+        label={isFirstTimeStaff ? "Save Password & Continue" : "Reset Password"}
+        onPress={handleReset}
+        loading={loading}
+        disabled={!formComplete}
+      />
     </View>
   );
 }

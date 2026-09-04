@@ -39,6 +39,7 @@ export type OrderMinAggregateOutputType = {
   fashionHouseId: string | null
   customerId: string | null
   staffId: string | null
+  bookingId: string | null
   itemName: string | null
   price: number | null
   status: string | null
@@ -51,6 +52,7 @@ export type OrderMaxAggregateOutputType = {
   fashionHouseId: string | null
   customerId: string | null
   staffId: string | null
+  bookingId: string | null
   itemName: string | null
   price: number | null
   status: string | null
@@ -63,6 +65,7 @@ export type OrderCountAggregateOutputType = {
   fashionHouseId: number
   customerId: number
   staffId: number
+  bookingId: number
   itemName: number
   price: number
   status: number
@@ -85,6 +88,7 @@ export type OrderMinAggregateInputType = {
   fashionHouseId?: true
   customerId?: true
   staffId?: true
+  bookingId?: true
   itemName?: true
   price?: true
   status?: true
@@ -97,6 +101,7 @@ export type OrderMaxAggregateInputType = {
   fashionHouseId?: true
   customerId?: true
   staffId?: true
+  bookingId?: true
   itemName?: true
   price?: true
   status?: true
@@ -109,6 +114,7 @@ export type OrderCountAggregateInputType = {
   fashionHouseId?: true
   customerId?: true
   staffId?: true
+  bookingId?: true
   itemName?: true
   price?: true
   status?: true
@@ -208,6 +214,7 @@ export type OrderGroupByOutputType = {
   fashionHouseId: string
   customerId: string
   staffId: string | null
+  bookingId: string | null
   itemName: string
   price: number
   status: string
@@ -243,6 +250,7 @@ export type OrderWhereInput = {
   fashionHouseId?: Prisma.StringFilter<"Order"> | string
   customerId?: Prisma.StringFilter<"Order"> | string
   staffId?: Prisma.StringNullableFilter<"Order"> | string | null
+  bookingId?: Prisma.StringNullableFilter<"Order"> | string | null
   itemName?: Prisma.StringFilter<"Order"> | string
   price?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.StringFilter<"Order"> | string
@@ -251,6 +259,7 @@ export type OrderWhereInput = {
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   staff?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  booking?: Prisma.XOR<Prisma.BookingNullableScalarRelationFilter, Prisma.BookingWhereInput> | null
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }
 
@@ -259,6 +268,7 @@ export type OrderOrderByWithRelationInput = {
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   staffId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bookingId?: Prisma.SortOrderInput | Prisma.SortOrder
   itemName?: Prisma.SortOrder
   price?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -267,11 +277,13 @@ export type OrderOrderByWithRelationInput = {
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
   customer?: Prisma.CustomerOrderByWithRelationInput
   staff?: Prisma.UserOrderByWithRelationInput
+  booking?: Prisma.BookingOrderByWithRelationInput
   invoice?: Prisma.InvoiceOrderByWithRelationInput
 }
 
 export type OrderWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  bookingId?: string
   AND?: Prisma.OrderWhereInput | Prisma.OrderWhereInput[]
   OR?: Prisma.OrderWhereInput[]
   NOT?: Prisma.OrderWhereInput | Prisma.OrderWhereInput[]
@@ -286,14 +298,16 @@ export type OrderWhereUniqueInput = Prisma.AtLeast<{
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   staff?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  booking?: Prisma.XOR<Prisma.BookingNullableScalarRelationFilter, Prisma.BookingWhereInput> | null
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
-}, "id">
+}, "id" | "bookingId">
 
 export type OrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   staffId?: Prisma.SortOrderInput | Prisma.SortOrder
+  bookingId?: Prisma.SortOrderInput | Prisma.SortOrder
   itemName?: Prisma.SortOrder
   price?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -314,6 +328,7 @@ export type OrderScalarWhereWithAggregatesInput = {
   fashionHouseId?: Prisma.StringWithAggregatesFilter<"Order"> | string
   customerId?: Prisma.StringWithAggregatesFilter<"Order"> | string
   staffId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
+  bookingId?: Prisma.StringNullableWithAggregatesFilter<"Order"> | string | null
   itemName?: Prisma.StringWithAggregatesFilter<"Order"> | string
   price?: Prisma.IntWithAggregatesFilter<"Order"> | number
   status?: Prisma.StringWithAggregatesFilter<"Order"> | string
@@ -331,6 +346,7 @@ export type OrderCreateInput = {
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutOrdersInput
   customer: Prisma.CustomerCreateNestedOneWithoutOrdersInput
   staff?: Prisma.UserCreateNestedOneWithoutDelegatedOrdersInput
+  booking?: Prisma.BookingCreateNestedOneWithoutOrderInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutOrderInput
 }
 
@@ -339,6 +355,7 @@ export type OrderUncheckedCreateInput = {
   fashionHouseId: string
   customerId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -357,6 +374,7 @@ export type OrderUpdateInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutOrdersNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutOrdersNestedInput
   staff?: Prisma.UserUpdateOneWithoutDelegatedOrdersNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutOrderNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutOrderNestedInput
 }
 
@@ -365,6 +383,7 @@ export type OrderUncheckedUpdateInput = {
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -378,6 +397,7 @@ export type OrderCreateManyInput = {
   fashionHouseId: string
   customerId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -399,6 +419,7 @@ export type OrderUncheckedUpdateManyInput = {
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -421,6 +442,7 @@ export type OrderCountOrderByAggregateInput = {
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   staffId?: Prisma.SortOrder
+  bookingId?: Prisma.SortOrder
   itemName?: Prisma.SortOrder
   price?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -437,6 +459,7 @@ export type OrderMaxOrderByAggregateInput = {
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   staffId?: Prisma.SortOrder
+  bookingId?: Prisma.SortOrder
   itemName?: Prisma.SortOrder
   price?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -449,6 +472,7 @@ export type OrderMinOrderByAggregateInput = {
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   staffId?: Prisma.SortOrder
+  bookingId?: Prisma.SortOrder
   itemName?: Prisma.SortOrder
   price?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -463,6 +487,11 @@ export type OrderSumOrderByAggregateInput = {
 export type OrderScalarRelationFilter = {
   is?: Prisma.OrderWhereInput
   isNot?: Prisma.OrderWhereInput
+}
+
+export type OrderNullableScalarRelationFilter = {
+  is?: Prisma.OrderWhereInput | null
+  isNot?: Prisma.OrderWhereInput | null
 }
 
 export type OrderCreateNestedManyWithoutStaffInput = {
@@ -613,6 +642,38 @@ export type OrderUpdateOneRequiredWithoutInvoiceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutInvoiceInput, Prisma.OrderUpdateWithoutInvoiceInput>, Prisma.OrderUncheckedUpdateWithoutInvoiceInput>
 }
 
+export type OrderCreateNestedOneWithoutBookingInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutBookingInput, Prisma.OrderUncheckedCreateWithoutBookingInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutBookingInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUncheckedCreateNestedOneWithoutBookingInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutBookingInput, Prisma.OrderUncheckedCreateWithoutBookingInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutBookingInput
+  connect?: Prisma.OrderWhereUniqueInput
+}
+
+export type OrderUpdateOneWithoutBookingNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutBookingInput, Prisma.OrderUncheckedCreateWithoutBookingInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutBookingInput
+  upsert?: Prisma.OrderUpsertWithoutBookingInput
+  disconnect?: Prisma.OrderWhereInput | boolean
+  delete?: Prisma.OrderWhereInput | boolean
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutBookingInput, Prisma.OrderUpdateWithoutBookingInput>, Prisma.OrderUncheckedUpdateWithoutBookingInput>
+}
+
+export type OrderUncheckedUpdateOneWithoutBookingNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderCreateWithoutBookingInput, Prisma.OrderUncheckedCreateWithoutBookingInput>
+  connectOrCreate?: Prisma.OrderCreateOrConnectWithoutBookingInput
+  upsert?: Prisma.OrderUpsertWithoutBookingInput
+  disconnect?: Prisma.OrderWhereInput | boolean
+  delete?: Prisma.OrderWhereInput | boolean
+  connect?: Prisma.OrderWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderUpdateToOneWithWhereWithoutBookingInput, Prisma.OrderUpdateWithoutBookingInput>, Prisma.OrderUncheckedUpdateWithoutBookingInput>
+}
+
 export type OrderCreateWithoutStaffInput = {
   id?: string
   itemName: string
@@ -622,6 +683,7 @@ export type OrderCreateWithoutStaffInput = {
   updatedAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutOrdersInput
   customer: Prisma.CustomerCreateNestedOneWithoutOrdersInput
+  booking?: Prisma.BookingCreateNestedOneWithoutOrderInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutOrderInput
 }
 
@@ -629,6 +691,7 @@ export type OrderUncheckedCreateWithoutStaffInput = {
   id?: string
   fashionHouseId: string
   customerId: string
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -671,6 +734,7 @@ export type OrderScalarWhereInput = {
   fashionHouseId?: Prisma.StringFilter<"Order"> | string
   customerId?: Prisma.StringFilter<"Order"> | string
   staffId?: Prisma.StringNullableFilter<"Order"> | string | null
+  bookingId?: Prisma.StringNullableFilter<"Order"> | string | null
   itemName?: Prisma.StringFilter<"Order"> | string
   price?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.StringFilter<"Order"> | string
@@ -687,6 +751,7 @@ export type OrderCreateWithoutFashionHouseInput = {
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutOrdersInput
   staff?: Prisma.UserCreateNestedOneWithoutDelegatedOrdersInput
+  booking?: Prisma.BookingCreateNestedOneWithoutOrderInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutOrderInput
 }
 
@@ -694,6 +759,7 @@ export type OrderUncheckedCreateWithoutFashionHouseInput = {
   id?: string
   customerId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -737,6 +803,7 @@ export type OrderCreateWithoutCustomerInput = {
   updatedAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutOrdersInput
   staff?: Prisma.UserCreateNestedOneWithoutDelegatedOrdersInput
+  booking?: Prisma.BookingCreateNestedOneWithoutOrderInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutOrderInput
 }
 
@@ -744,6 +811,7 @@ export type OrderUncheckedCreateWithoutCustomerInput = {
   id?: string
   fashionHouseId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -788,6 +856,7 @@ export type OrderCreateWithoutInvoiceInput = {
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutOrdersInput
   customer: Prisma.CustomerCreateNestedOneWithoutOrdersInput
   staff?: Prisma.UserCreateNestedOneWithoutDelegatedOrdersInput
+  booking?: Prisma.BookingCreateNestedOneWithoutOrderInput
 }
 
 export type OrderUncheckedCreateWithoutInvoiceInput = {
@@ -795,6 +864,7 @@ export type OrderUncheckedCreateWithoutInvoiceInput = {
   fashionHouseId: string
   customerId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -828,9 +898,78 @@ export type OrderUpdateWithoutInvoiceInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutOrdersNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutOrdersNestedInput
   staff?: Prisma.UserUpdateOneWithoutDelegatedOrdersNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderUncheckedUpdateWithoutInvoiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  itemName?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OrderCreateWithoutBookingInput = {
+  id?: string
+  itemName: string
+  price: number
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutOrdersInput
+  customer: Prisma.CustomerCreateNestedOneWithoutOrdersInput
+  staff?: Prisma.UserCreateNestedOneWithoutDelegatedOrdersInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutOrderInput
+}
+
+export type OrderUncheckedCreateWithoutBookingInput = {
+  id?: string
+  fashionHouseId: string
+  customerId: string
+  staffId?: string | null
+  itemName: string
+  price: number
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutOrderInput
+}
+
+export type OrderCreateOrConnectWithoutBookingInput = {
+  where: Prisma.OrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderCreateWithoutBookingInput, Prisma.OrderUncheckedCreateWithoutBookingInput>
+}
+
+export type OrderUpsertWithoutBookingInput = {
+  update: Prisma.XOR<Prisma.OrderUpdateWithoutBookingInput, Prisma.OrderUncheckedUpdateWithoutBookingInput>
+  create: Prisma.XOR<Prisma.OrderCreateWithoutBookingInput, Prisma.OrderUncheckedCreateWithoutBookingInput>
+  where?: Prisma.OrderWhereInput
+}
+
+export type OrderUpdateToOneWithWhereWithoutBookingInput = {
+  where?: Prisma.OrderWhereInput
+  data: Prisma.XOR<Prisma.OrderUpdateWithoutBookingInput, Prisma.OrderUncheckedUpdateWithoutBookingInput>
+}
+
+export type OrderUpdateWithoutBookingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  itemName?: Prisma.StringFieldUpdateOperationsInput | string
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutOrdersNestedInput
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutOrdersNestedInput
+  staff?: Prisma.UserUpdateOneWithoutDelegatedOrdersNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutOrderNestedInput
+}
+
+export type OrderUncheckedUpdateWithoutBookingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -840,12 +979,14 @@ export type OrderUncheckedUpdateWithoutInvoiceInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutOrderNestedInput
 }
 
 export type OrderCreateManyStaffInput = {
   id?: string
   fashionHouseId: string
   customerId: string
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -862,6 +1003,7 @@ export type OrderUpdateWithoutStaffInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutOrdersNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutOrdersNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutOrderNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutOrderNestedInput
 }
 
@@ -869,6 +1011,7 @@ export type OrderUncheckedUpdateWithoutStaffInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -881,6 +1024,7 @@ export type OrderUncheckedUpdateManyWithoutStaffInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -892,6 +1036,7 @@ export type OrderCreateManyFashionHouseInput = {
   id?: string
   customerId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -908,6 +1053,7 @@ export type OrderUpdateWithoutFashionHouseInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutOrdersNestedInput
   staff?: Prisma.UserUpdateOneWithoutDelegatedOrdersNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutOrderNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutOrderNestedInput
 }
 
@@ -915,6 +1061,7 @@ export type OrderUncheckedUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -927,6 +1074,7 @@ export type OrderUncheckedUpdateManyWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -938,6 +1086,7 @@ export type OrderCreateManyCustomerInput = {
   id?: string
   fashionHouseId: string
   staffId?: string | null
+  bookingId?: string | null
   itemName: string
   price: number
   status?: string
@@ -954,6 +1103,7 @@ export type OrderUpdateWithoutCustomerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutOrdersNestedInput
   staff?: Prisma.UserUpdateOneWithoutDelegatedOrdersNestedInput
+  booking?: Prisma.BookingUpdateOneWithoutOrderNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutOrderNestedInput
 }
 
@@ -961,6 +1111,7 @@ export type OrderUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -973,6 +1124,7 @@ export type OrderUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bookingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   itemName?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.IntFieldUpdateOperationsInput | number
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -987,6 +1139,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   fashionHouseId?: boolean
   customerId?: boolean
   staffId?: boolean
+  bookingId?: boolean
   itemName?: boolean
   price?: boolean
   status?: boolean
@@ -995,6 +1148,7 @@ export type OrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.Order$staffArgs<ExtArgs>
+  booking?: boolean | Prisma.Order$bookingArgs<ExtArgs>
   invoice?: boolean | Prisma.Order$invoiceArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
@@ -1003,6 +1157,7 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   fashionHouseId?: boolean
   customerId?: boolean
   staffId?: boolean
+  bookingId?: boolean
   itemName?: boolean
   price?: boolean
   status?: boolean
@@ -1011,6 +1166,7 @@ export type OrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.Order$staffArgs<ExtArgs>
+  booking?: boolean | Prisma.Order$bookingArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
 export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1018,6 +1174,7 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   fashionHouseId?: boolean
   customerId?: boolean
   staffId?: boolean
+  bookingId?: boolean
   itemName?: boolean
   price?: boolean
   status?: boolean
@@ -1026,6 +1183,7 @@ export type OrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.Order$staffArgs<ExtArgs>
+  booking?: boolean | Prisma.Order$bookingArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
 export type OrderSelectScalar = {
@@ -1033,6 +1191,7 @@ export type OrderSelectScalar = {
   fashionHouseId?: boolean
   customerId?: boolean
   staffId?: boolean
+  bookingId?: boolean
   itemName?: boolean
   price?: boolean
   status?: boolean
@@ -1040,22 +1199,25 @@ export type OrderSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "staffId" | "itemName" | "price" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+export type OrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "staffId" | "bookingId" | "itemName" | "price" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
 export type OrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.Order$staffArgs<ExtArgs>
+  booking?: boolean | Prisma.Order$bookingArgs<ExtArgs>
   invoice?: boolean | Prisma.Order$invoiceArgs<ExtArgs>
 }
 export type OrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.Order$staffArgs<ExtArgs>
+  booking?: boolean | Prisma.Order$bookingArgs<ExtArgs>
 }
 export type OrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.Order$staffArgs<ExtArgs>
+  booking?: boolean | Prisma.Order$bookingArgs<ExtArgs>
 }
 
 export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1064,6 +1226,7 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     fashionHouse: Prisma.$FashionHousePayload<ExtArgs>
     customer: Prisma.$CustomerPayload<ExtArgs>
     staff: Prisma.$UserPayload<ExtArgs> | null
+    booking: Prisma.$BookingPayload<ExtArgs> | null
     invoice: Prisma.$InvoicePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1071,6 +1234,7 @@ export type $OrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     fashionHouseId: string
     customerId: string
     staffId: string | null
+    bookingId: string | null
     itemName: string
     price: number
     status: string
@@ -1473,6 +1637,7 @@ export interface Prisma__OrderClient<T, Null = never, ExtArgs extends runtime.Ty
   fashionHouse<T extends Prisma.FashionHouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouseDefaultArgs<ExtArgs>>): Prisma.Prisma__FashionHouseClient<runtime.Types.Result.GetResult<Prisma.$FashionHousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   customer<T extends Prisma.CustomerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   staff<T extends Prisma.Order$staffArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$staffArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  booking<T extends Prisma.Order$bookingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$bookingArgs<ExtArgs>>): Prisma.Prisma__BookingClient<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   invoice<T extends Prisma.Order$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Order$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1507,6 +1672,7 @@ export interface OrderFieldRefs {
   readonly fashionHouseId: Prisma.FieldRef<"Order", 'String'>
   readonly customerId: Prisma.FieldRef<"Order", 'String'>
   readonly staffId: Prisma.FieldRef<"Order", 'String'>
+  readonly bookingId: Prisma.FieldRef<"Order", 'String'>
   readonly itemName: Prisma.FieldRef<"Order", 'String'>
   readonly price: Prisma.FieldRef<"Order", 'Int'>
   readonly status: Prisma.FieldRef<"Order", 'String'>
@@ -1929,6 +2095,25 @@ export type Order$staffArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Order.booking
+ */
+export type Order$bookingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
 }
 
 /**

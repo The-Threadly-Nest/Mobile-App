@@ -6,6 +6,7 @@ import Svg, { Path, Circle } from "react-native-svg";
 import { MapPin, Phone, Edit2, Check, Navigation } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useOrdersStore } from "@/stores/useOrdersStore";
 import { ProfileAvatarIcon } from "@/shared/components/ProfileAvatarIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
@@ -94,6 +95,8 @@ export default function CustomerProfileScreen() {
   const [tempLocation, setTempLocation] = useState<string>(storedLocation || "Lagos, Nigeria");
   const [isDetecting, setIsDetecting] = useState<boolean>(false);
 
+  const storeOrders = useOrdersStore((s) => s.orders);
+
   useEffect(() => {
     setTempPhone(storedPhone || "");
     setTempLocation(storedLocation || "Lagos, Nigeria");
@@ -103,11 +106,15 @@ export default function CustomerProfileScreen() {
     let mounted = true;
     async function fetchStats() {
       try {
-        const orders = await apiFetch<any[]>("/api/orders", { silent: true }).catch(() => []);
-        if (mounted && Array.isArray(orders)) {
+        const orders = await apiFetch<any[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
+        if (mounted && Array.isArray(orders) && orders.length > 0) {
           setOrdersCount(orders.length);
+        } else if (mounted) {
+          setOrdersCount(storeOrders.length);
         }
-      } catch {}
+      } catch {
+        if (mounted) setOrdersCount(storeOrders.length);
+      }
 
       try {
         const prefs = await apiFetch<any>("/api/preferences", { silent: true }).catch(() => null);

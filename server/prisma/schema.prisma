@@ -21,6 +21,7 @@ model User {
   role                String    // admin | staff | customer
   fashionHouseId      String?   // set for staff; null for admin (owns via FashionHouse.adminId) and customer
   active              Boolean   @default(true) // false for Staff pending activation
+  pushToken           String?
   resetTokenHash      String?
   resetTokenExpiresAt DateTime?
   createdAt           DateTime  @default(now())
@@ -70,6 +71,7 @@ model FashionHouse {
 model Customer {
   id             String   @id @default(uuid())
   fashionHouseId String
+  userId         String?  // links to User.id if this customer has a registered account
   name           String
   phone          String?
   sheetUrl       String?
@@ -81,6 +83,7 @@ model Customer {
   orders       Order[]
 
   @@index([fashionHouseId])
+  @@index([userId])
   @@map("customers")
 }
 
@@ -103,6 +106,7 @@ model Order {
   fashionHouseId String
   customerId     String
   staffId        String?
+  bookingId      String?  @unique // links to the Booking that created this order (1:1)
   itemName       String
   price          Int
   status         String   @default("order_placed") // order_placed | in_production | ready | delivered
@@ -112,6 +116,7 @@ model Order {
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   staff        User?        @relation("StaffOrders", fields: [staffId], references: [id])
+  booking      Booking?     @relation(fields: [bookingId], references: [id])
   invoice      Invoice?
 
   @@index([fashionHouseId])
@@ -162,7 +167,7 @@ model Booking {
   id             String   @id @default(uuid())
   fashionHouseId String
   customerId     String
-  styleNotes     String
+  styleNotes     String?  // nullable — not always provided at booking time
   preferredDate  DateTime
   preferredTime  String
   status         String   @default("pending_admin_review")
@@ -170,6 +175,7 @@ model Booking {
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order        Order?       // back-relation: the Order created from this booking
 
   @@index([fashionHouseId, status])
   @@map("bookings")

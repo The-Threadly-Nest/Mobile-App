@@ -21,10 +21,10 @@ export default function BookingConfirmationScreen() {
     estimate?: string;
   }>();
 
-  const fashionHouseName = params.fashionHouseName || "Adaeze Couture";
-  const garment = params.garment || "Aso-Ebi";
+  const fashionHouseName = params.fashionHouseName || "Fashion House";
+  const garment = params.garment || "Bespoke Fitting Session";
   const fittingDate = params.fittingDate || "Sat, 6 Sep · 10:00 AM";
-  const estimate = params.estimate || "₦850,000 – ₦1,000,000";
+  const estimate = params.estimate || "Finalized at fitting";
 
   const [isFavourite, setIsFavourite] = useState(false);
   const addOrder = useOrdersStore((s) => s.addOrder);
@@ -38,7 +38,7 @@ export default function BookingConfirmationScreen() {
         garmentType: garment,
         orderNumber: `#TFH-${randomId}`,
         estimatedReady: fittingDate ? `Fitting: ${fittingDate}` : "In 2 weeks",
-        progressPercent: 15,
+        progressPercent: 16,
         imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
         status: "active",
       });

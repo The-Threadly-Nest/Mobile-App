@@ -43,7 +43,7 @@ router.get("/", async (req, res, next) => {
         location: fh.location || "Nigeria",
         price: priceDisplay,
         rating: 5.0,
-        reviewsCount: fh.catalogItems?.length ? `${fh.catalogItems.length} items` : "New Atelier",
+        reviewsCount: fh.catalogItems?.length,
         badge: categoriesList.length > 0 ? categoriesList.slice(0, 2).join(" · ").toUpperCase() : "BESPOKE TAILORING",
         turnaround: "2-3 week turnaround",
         categoryTag: primaryCategory,

@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { ArrowLeft, Share2, FileText, Image as ImageIcon, X } from "lucide-react-native";
+import { Share2, FileText, Image as ImageIcon, X } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import ViewShot from "react-native-view-shot";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
@@ -407,7 +408,7 @@ export default function InvoiceDetailScreen() {
             onPress={() => router.push("/(admin)/invoices" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={18} color="#3B0508" />
+            <BackArrowIcon size={18} color="#3B0508" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Invoice</Text>

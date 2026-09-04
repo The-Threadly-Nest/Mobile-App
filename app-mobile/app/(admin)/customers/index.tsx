@@ -5,12 +5,14 @@ import {
   TextInput,
   Pressable,
   FlatList,
+  Modal,
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ArrowLeft, Search } from "lucide-react-native";
+import { Search, X, Ruler, UserCheck } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface CustomerRecord {
@@ -72,6 +74,8 @@ export default function CustomersScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState<CustomerRecord[]>(DEFAULT_CUSTOMERS);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const filteredCustomers = customers.filter(
     (c) =>
@@ -80,10 +84,18 @@ export default function CustomersScreen() {
   );
 
   const handleCustomerPress = (customer: CustomerRecord) => {
-    showAlert(
-      customer.name,
-      `Phone: ${customer.phone}\nCompleted Orders: ${customer.ordersCount}`
-    );
+    setSelectedCustomer(customer);
+    setModalVisible(true);
+  };
+
+  const handleNavigateToMeasurements = () => {
+    if (!selectedCustomer) return;
+    const name = selectedCustomer.name;
+    setModalVisible(false);
+    router.push({
+      pathname: "/(admin)/measurements/new",
+      params: { customerName: name },
+    } as any);
   };
 
   return (
@@ -95,7 +107,7 @@ export default function CustomersScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={18} color="#3B0508" />
+            <BackArrowIcon size={18} color="#3B0508" />
           </Pressable>
           <Text style={styles.headerTitle}>Customers</Text>
         </View>
@@ -157,6 +169,57 @@ export default function CustomersScreen() {
           }
         />
       </View>
+
+      {/* Customer Profile & Measurements Modal */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Customer Profile</Text>
+              <Pressable onPress={() => setModalVisible(false)}>
+                <X size={20} color="#4A080C" />
+              </Pressable>
+            </View>
+
+            {selectedCustomer && (
+              <View style={{ marginBottom: 20 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>{selectedCustomer.name.charAt(0).toUpperCase()}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 18, color: "#1A1110" }}>
+                      {selectedCustomer.name}
+                    </Text>
+                    <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#7A7265" }}>
+                      {selectedCustomer.phone}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.statBox}>
+                  <UserCheck size={16} color="#4A080C" />
+                  <Text style={styles.statBoxText}>
+                    Total Orders: <Text style={{ fontFamily: "WorkSans_600SemiBold" }}>{selectedCustomer.ordersCount}</Text>
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* Action Buttons */}
+            <Pressable
+              onPress={handleNavigateToMeasurements}
+              style={({ pressed }) => [
+                styles.measActionBtn,
+                { opacity: pressed ? 0.85 : 1 },
+              ]}
+            >
+              <Ruler size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.measActionBtnText}>Take / Edit Measurements</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -279,5 +342,56 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_400Regular",
     fontSize: 14,
     color: "#8A7550",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  modalCard: {
+    backgroundColor: "#FBF7EF",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 18,
+  },
+  modalTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 20,
+    color: "#4A080C",
+  },
+  statBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#FFFFFF",
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.1)",
+  },
+  statBoxText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    color: "#3A2E1A",
+  },
+  measActionBtn: {
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "#4A080C",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+  measActionBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: "#FFFFFF",
   },
 });

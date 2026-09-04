@@ -14,6 +14,7 @@ interface AuthState {
   token: string | null;
   isVerified: boolean;
   onboardingCompleted: boolean;
+  hasSeenSketchpadGuide: boolean;
   resendAvailableAt: number | null;
   createdAt: string | null;
   setRole: (role: Role) => void;
@@ -25,6 +26,7 @@ interface AuthState {
   setToken: (token: string) => void;
   setIsVerified: (isVerified: boolean) => void;
   setOnboardingCompleted: (completed: boolean) => void;
+  setHasSeenSketchpadGuide: (seen: boolean) => void;
   setResendAvailableAt: (timestamp: number | null) => void;
   setCreatedAt: (dateStr: string | null) => void;
   logout: () => void;
@@ -48,6 +50,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isVerified: false,
       onboardingCompleted: false,
+      hasSeenSketchpadGuide: false,
       resendAvailableAt: null,
       createdAt: null,
       setRole: (role) => set({ role }),
@@ -59,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
       setToken: (token) => set({ token }),
       setIsVerified: (isVerified) => set({ isVerified }),
       setOnboardingCompleted: (onboardingCompleted) => set({ onboardingCompleted }),
+      setHasSeenSketchpadGuide: (hasSeenSketchpadGuide) => set({ hasSeenSketchpadGuide }),
       setResendAvailableAt: (resendAvailableAt) => set({ resendAvailableAt }),
       setCreatedAt: (createdAt) => set({ createdAt }),
       logout: () =>
@@ -72,6 +76,7 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           isVerified: false,
           onboardingCompleted: false,
+          hasSeenSketchpadGuide: false,
           resendAvailableAt: null,
           createdAt: null,
         }),

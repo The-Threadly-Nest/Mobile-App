@@ -169,7 +169,7 @@ export type BookingGroupByOutputType = {
   id: string
   fashionHouseId: string
   customerId: string
-  styleNotes: string
+  styleNotes: string | null
   preferredDate: Date
   preferredTime: string
   status: string
@@ -201,26 +201,28 @@ export type BookingWhereInput = {
   id?: Prisma.StringFilter<"Booking"> | string
   fashionHouseId?: Prisma.StringFilter<"Booking"> | string
   customerId?: Prisma.StringFilter<"Booking"> | string
-  styleNotes?: Prisma.StringFilter<"Booking"> | string
+  styleNotes?: Prisma.StringNullableFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringFilter<"Booking"> | string
   status?: Prisma.StringFilter<"Booking"> | string
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
 }
 
 export type BookingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  styleNotes?: Prisma.SortOrder
+  styleNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
   customer?: Prisma.UserOrderByWithRelationInput
+  order?: Prisma.OrderOrderByWithRelationInput
 }
 
 export type BookingWhereUniqueInput = Prisma.AtLeast<{
@@ -230,20 +232,21 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
   fashionHouseId?: Prisma.StringFilter<"Booking"> | string
   customerId?: Prisma.StringFilter<"Booking"> | string
-  styleNotes?: Prisma.StringFilter<"Booking"> | string
+  styleNotes?: Prisma.StringNullableFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringFilter<"Booking"> | string
   status?: Prisma.StringFilter<"Booking"> | string
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
 }, "id">
 
 export type BookingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
-  styleNotes?: Prisma.SortOrder
+  styleNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -260,7 +263,7 @@ export type BookingScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   fashionHouseId?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   customerId?: Prisma.StringWithAggregatesFilter<"Booking"> | string
-  styleNotes?: Prisma.StringWithAggregatesFilter<"Booking"> | string
+  styleNotes?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   status?: Prisma.StringWithAggregatesFilter<"Booking"> | string
@@ -269,53 +272,57 @@ export type BookingScalarWhereWithAggregatesInput = {
 
 export type BookingCreateInput = {
   id?: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
   customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+  order?: Prisma.OrderCreateNestedOneWithoutBookingInput
 }
 
 export type BookingUncheckedCreateInput = {
   id?: string
   fashionHouseId: string
   customerId: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
   createdAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
 }
 
 export type BookingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingCreateManyInput = {
   id?: string
   fashionHouseId: string
   customerId: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
@@ -324,7 +331,7 @@ export type BookingCreateManyInput = {
 
 export type BookingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -335,7 +342,7 @@ export type BookingUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -350,6 +357,11 @@ export type BookingListRelationFilter = {
 
 export type BookingOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type BookingNullableScalarRelationFilter = {
+  is?: Prisma.BookingWhereInput | null
+  isNot?: Prisma.BookingWhereInput | null
 }
 
 export type BookingCountOrderByAggregateInput = {
@@ -469,24 +481,42 @@ export type BookingUncheckedUpdateManyWithoutFashionHouseNestedInput = {
   deleteMany?: Prisma.BookingScalarWhereInput | Prisma.BookingScalarWhereInput[]
 }
 
+export type BookingCreateNestedOneWithoutOrderInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutOrderInput, Prisma.BookingUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutOrderInput
+  connect?: Prisma.BookingWhereUniqueInput
+}
+
+export type BookingUpdateOneWithoutOrderNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutOrderInput, Prisma.BookingUncheckedCreateWithoutOrderInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutOrderInput
+  upsert?: Prisma.BookingUpsertWithoutOrderInput
+  disconnect?: Prisma.BookingWhereInput | boolean
+  delete?: Prisma.BookingWhereInput | boolean
+  connect?: Prisma.BookingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutOrderInput, Prisma.BookingUpdateWithoutOrderInput>, Prisma.BookingUncheckedUpdateWithoutOrderInput>
+}
+
 export type BookingCreateWithoutCustomerInput = {
   id?: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
+  order?: Prisma.OrderCreateNestedOneWithoutBookingInput
 }
 
 export type BookingUncheckedCreateWithoutCustomerInput = {
   id?: string
   fashionHouseId: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
   createdAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
 }
 
 export type BookingCreateOrConnectWithoutCustomerInput = {
@@ -522,7 +552,7 @@ export type BookingScalarWhereInput = {
   id?: Prisma.StringFilter<"Booking"> | string
   fashionHouseId?: Prisma.StringFilter<"Booking"> | string
   customerId?: Prisma.StringFilter<"Booking"> | string
-  styleNotes?: Prisma.StringFilter<"Booking"> | string
+  styleNotes?: Prisma.StringNullableFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringFilter<"Booking"> | string
   status?: Prisma.StringFilter<"Booking"> | string
@@ -531,22 +561,24 @@ export type BookingScalarWhereInput = {
 
 export type BookingCreateWithoutFashionHouseInput = {
   id?: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
   createdAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+  order?: Prisma.OrderCreateNestedOneWithoutBookingInput
 }
 
 export type BookingUncheckedCreateWithoutFashionHouseInput = {
   id?: string
   customerId: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
   createdAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
 }
 
 export type BookingCreateOrConnectWithoutFashionHouseInput = {
@@ -575,10 +607,70 @@ export type BookingUpdateManyWithWhereWithoutFashionHouseInput = {
   data: Prisma.XOR<Prisma.BookingUpdateManyMutationInput, Prisma.BookingUncheckedUpdateManyWithoutFashionHouseInput>
 }
 
+export type BookingCreateWithoutOrderInput = {
+  id?: string
+  styleNotes?: string | null
+  preferredDate: Date | string
+  preferredTime: string
+  status?: string
+  createdAt?: Date | string
+  fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
+  customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+}
+
+export type BookingUncheckedCreateWithoutOrderInput = {
+  id?: string
+  fashionHouseId: string
+  customerId: string
+  styleNotes?: string | null
+  preferredDate: Date | string
+  preferredTime: string
+  status?: string
+  createdAt?: Date | string
+}
+
+export type BookingCreateOrConnectWithoutOrderInput = {
+  where: Prisma.BookingWhereUniqueInput
+  create: Prisma.XOR<Prisma.BookingCreateWithoutOrderInput, Prisma.BookingUncheckedCreateWithoutOrderInput>
+}
+
+export type BookingUpsertWithoutOrderInput = {
+  update: Prisma.XOR<Prisma.BookingUpdateWithoutOrderInput, Prisma.BookingUncheckedUpdateWithoutOrderInput>
+  create: Prisma.XOR<Prisma.BookingCreateWithoutOrderInput, Prisma.BookingUncheckedCreateWithoutOrderInput>
+  where?: Prisma.BookingWhereInput
+}
+
+export type BookingUpdateToOneWithWhereWithoutOrderInput = {
+  where?: Prisma.BookingWhereInput
+  data: Prisma.XOR<Prisma.BookingUpdateWithoutOrderInput, Prisma.BookingUncheckedUpdateWithoutOrderInput>
+}
+
+export type BookingUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
+  customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+}
+
+export type BookingUncheckedUpdateWithoutOrderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type BookingCreateManyCustomerInput = {
   id?: string
   fashionHouseId: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
@@ -587,28 +679,30 @@ export type BookingCreateManyCustomerInput = {
 
 export type BookingUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -618,7 +712,7 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
 export type BookingCreateManyFashionHouseInput = {
   id?: string
   customerId: string
-  styleNotes: string
+  styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
   status?: string
@@ -627,28 +721,30 @@ export type BookingCreateManyFashionHouseInput = {
 
 export type BookingUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingUncheckedUpdateManyWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  styleNotes?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -668,6 +764,7 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.Booking$orderArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
 export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -711,6 +808,7 @@ export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  order?: boolean | Prisma.Booking$orderArgs<ExtArgs>
 }
 export type BookingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -726,12 +824,13 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     fashionHouse: Prisma.$FashionHousePayload<ExtArgs>
     customer: Prisma.$UserPayload<ExtArgs>
+    order: Prisma.$OrderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     fashionHouseId: string
     customerId: string
-    styleNotes: string
+    styleNotes: string | null
     preferredDate: Date
     preferredTime: string
     status: string
@@ -1132,6 +1231,7 @@ export interface Prisma__BookingClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   fashionHouse<T extends Prisma.FashionHouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouseDefaultArgs<ExtArgs>>): Prisma.Prisma__FashionHouseClient<runtime.Types.Result.GetResult<Prisma.$FashionHousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   customer<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  order<T extends Prisma.Booking$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1567,6 +1667,25 @@ export type BookingDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Bookings to delete.
    */
   limit?: number
+}
+
+/**
+ * Booking.order
+ */
+export type Booking$orderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
 }
 
 /**

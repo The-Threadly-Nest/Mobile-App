@@ -11,6 +11,10 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
     status = 400;
     code = "DUPLICATE_ENTRY";
     message = "An account with this email address already exists. Please log in or try a different email.";
+  } else if (err.code === "P2003") {
+    status = 400;
+    code = "FOREIGN_KEY_ERROR";
+    message = `A related record could not be found: ${err?.meta?.field_name ?? "unknown field"}. Please check the staff or customer reference.`;
   } else if (err.code === "P2025") {
     status = 404;
     code = "NOT_FOUND";

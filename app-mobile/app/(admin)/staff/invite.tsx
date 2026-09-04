@@ -13,7 +13,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
@@ -101,7 +102,7 @@ export default function InviteStaffScreen() {
               onPress={() => router.push("/(admin)/staff" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <ArrowLeft size={18} color="#3B0508" />
+              <BackArrowIcon size={18} color="#3B0508" />
             </Pressable>
             <Text style={styles.headerTitle}>Invite Staff</Text>
           </View>

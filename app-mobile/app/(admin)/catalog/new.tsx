@@ -14,7 +14,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { ArrowLeft, Camera, UploadCloud, Tag } from "lucide-react-native";
+import { Camera, UploadCloud, Tag } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
@@ -110,7 +111,7 @@ export default function AdminNewGarmentScreen() {
             onPress={() => router.push("/(admin)/catalog" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={20} color="#3B0508" />
+            <BackArrowIcon size={20} color="#3B0508" />
           </Pressable>
           <Text style={styles.headerTitle}>Add Clothes / Garment</Text>
         </View>

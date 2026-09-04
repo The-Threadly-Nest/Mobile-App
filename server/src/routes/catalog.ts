@@ -89,6 +89,23 @@ router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
   }
 });
 
+// Public/Customer GET all marketplace catalog items across fashion houses
+router.get("/marketplace", async (req, res, next) => {
+  try {
+    const items = await prisma.catalogItem.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        fashionHouse: {
+          select: { id: true, shopName: true, location: true, brandLogoUrl: true },
+        },
+      },
+    });
+    res.json(items);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Public GET catalog items for a fashion house
 router.get("/fashion-house/:fashionHouseId", async (req, res, next) => {
   try {

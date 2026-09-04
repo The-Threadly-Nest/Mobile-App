@@ -32,6 +32,7 @@ export default function ActivateAccountScreen() {
   const setToken = useAuthStore((s) => s.setToken);
   const setEmailStore = useAuthStore((s) => s.setEmail);
   const setRoleStore = useAuthStore((s) => s.setRole);
+  const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
 
   const inputRefs = [
     useRef<TextInput>(null),
@@ -134,7 +135,8 @@ export default function ActivateAccountScreen() {
   };
 
   const handleContinueExperience = () => {
-    router.replace("/staff-onboarding");
+    setOnboardingCompleted(true);
+    router.replace("/(staff)/dashboard");
   };
 
   // If verified, show "You're verified!" screen

@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { MapPin, Search, Star } from "lucide-react-native";
+import { MapPin, Search, Star, ShoppingBag, Store } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
@@ -32,6 +32,20 @@ export interface TailorItem {
   categoryTag: string;
   image: ImageSourcePropType | { uri: string };
   category: string;
+  bio?: string;
+  phone?: string;
+}
+
+export interface MarketplaceItem {
+  id: string;
+  name: string;
+  priceFrom: number | string;
+  imageUrl: string;
+  fashionHouseId?: string;
+  vendorName: string;
+  location: string;
+  categoryTag: string;
+  badge: string;
 }
 
 export const MOCK_TAILORS: TailorItem[] = [
@@ -89,15 +103,60 @@ export const MOCK_TAILORS: TailorItem[] = [
   },
 ];
 
+export const MOCK_MARKETPLACE: MarketplaceItem[] = [
+  {
+    id: "m1",
+    name: "Aso-Ebi Velvet Corset Gown",
+    priceFrom: "₦ 1,200,000",
+    imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&q=80",
+    vendorName: "Adaeze Couture",
+    location: "Lagos",
+    categoryTag: "Bridal",
+    badge: "BESPOKE · READY TO ORDER",
+  },
+  {
+    id: "m2",
+    name: "Embroidered Gele & Accessory Set",
+    priceFrom: "₦ 15,000",
+    imageUrl: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=500&q=80",
+    vendorName: "The Gele Room",
+    location: "Akure",
+    categoryTag: "Accessories",
+    badge: "HANDMADE",
+  },
+  {
+    id: "m3",
+    name: "Royal Wool Agbada 3-Piece",
+    priceFrom: "₦ 500,000",
+    imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80",
+    vendorName: "Iyanuade Atelier",
+    location: "Abuja",
+    categoryTag: "Agbada",
+    badge: "LUXURY MENSWEAR",
+  },
+  {
+    id: "m4",
+    name: "Handwoven Silk Kaftan",
+    priceFrom: "₦ 300,000",
+    imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80",
+    vendorName: "Kaftan & Co",
+    location: "Abuja",
+    categoryTag: "Kaftan",
+    badge: "NATIVE WEAR",
+  },
+];
+
 const CATEGORIES = ["Aso-ebi", "Agbada", "Kaftan", "Gele & Accessories"];
 
 export default function BrowseScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
+  const [mode, setMode] = useState<"vendors" | "marketplace">("vendors");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [tailorsList, setTailorsList] = useState<TailorItem[]>([]);
+  const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
@@ -111,7 +170,6 @@ export default function BrowseScreen() {
     try {
       const fetched = await apiFetch<TailorItem[]>("/api/fashion-houses", { silent: true }).catch(() => []);
       if (Array.isArray(fetched) && fetched.length > 0) {
-        // Merge real database records with fallback mock tailors preventing duplicate IDs
         const map = new Map<string, TailorItem>();
         fetched.forEach((item) => map.set(item.id, item));
         MOCK_TAILORS.forEach((item) => {
@@ -124,6 +182,31 @@ export default function BrowseScreen() {
     } catch (err) {
       console.log("Could not fetch real fashion houses:", err);
       setTailorsList(MOCK_TAILORS);
+    }
+  };
+
+  const fetchMarketplace = async () => {
+    try {
+      const fetched = await apiFetch<any[]>("/api/catalog/marketplace", { silent: true }).catch(() => []);
+      if (Array.isArray(fetched) && fetched.length > 0) {
+        const formatted: MarketplaceItem[] = fetched.map((c: any, idx: number) => ({
+          id: c.id,
+          name: c.name,
+          priceFrom: typeof c.priceFrom === "number" ? `₦ ${(c.priceFrom / 100).toLocaleString()}` : c.priceFrom || "₦ 50,000",
+          imageUrl: c.imageUrl || MOCK_MARKETPLACE[idx % MOCK_MARKETPLACE.length].imageUrl,
+          fashionHouseId: c.fashionHouseId,
+          vendorName: c.fashionHouse?.shopName || "Luxury Fashion House",
+          location: c.fashionHouse?.city || "Lagos",
+          categoryTag: "Catalog",
+          badge: "CATALOG ITEM",
+        }));
+        setMarketplaceList(formatted);
+      } else {
+        setMarketplaceList(MOCK_MARKETPLACE);
+      }
+    } catch (err) {
+      console.log("Could not fetch marketplace items:", err);
+      setMarketplaceList(MOCK_MARKETPLACE);
     } finally {
       setLoading(false);
     }
@@ -131,7 +214,7 @@ export default function BrowseScreen() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchFashionHouses(), fetchCurrentLocation()]);
+    await Promise.all([fetchFashionHouses(), fetchMarketplace(), fetchCurrentLocation()]);
     setRefreshing(false);
   };
 
@@ -168,8 +251,10 @@ export default function BrowseScreen() {
   useEffect(() => {
     fetchCurrentLocation();
     fetchFashionHouses();
+    fetchMarketplace();
   }, []);
 
+  // Filtering for Vendors
   const filteredTailors = tailorsList.filter((item) => {
     const matchesCategory =
       !selectedCategory ||
@@ -188,7 +273,25 @@ export default function BrowseScreen() {
     return matchesCategory && matchesSearch;
   });
 
+  // Filtering for Marketplace
+  const filteredMarketplace = marketplaceList.filter((item) => {
+    const matchesCategory =
+      !selectedCategory ||
+      (item.categoryTag && item.categoryTag.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+      (item.name && item.name.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      item.name.toLowerCase().includes(q) ||
+      item.vendorName.toLowerCase().includes(q) ||
+      item.location.toLowerCase().includes(q);
+
+    return matchesCategory && matchesSearch;
+  });
+
   const displayTailors = filteredTailors.length > 0 ? filteredTailors : tailorsList;
+  const displayMarketplace = filteredMarketplace.length > 0 ? filteredMarketplace : marketplaceList;
 
   const renderStarRating = (rating: number, starSize = 13) => {
     const stars = [];
@@ -223,8 +326,28 @@ export default function BrowseScreen() {
           )}
         </Pressable>
 
-        {/* Title — Hidden in landscape to maximize card space */}
-        {!isLandscape && <Text style={styles.title}>Find your Fashion House</Text>}
+        {/* Vendors vs Marketplace Segmented Control Switch */}
+        <View style={styles.segmentedContainer}>
+          <Pressable
+            onPress={() => setMode("vendors")}
+            style={[styles.segmentedPill, mode === "vendors" && styles.segmentedPillActive]}
+          >
+            <Store size={15} color={mode === "vendors" ? "#FFFFFF" : "#3A2E1A"} style={{ marginRight: 6 }} />
+            <Text style={[styles.segmentedText, mode === "vendors" && styles.segmentedTextActive]}>
+              Vendors
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setMode("marketplace")}
+            style={[styles.segmentedPill, mode === "marketplace" && styles.segmentedPillActive]}
+          >
+            <ShoppingBag size={15} color={mode === "marketplace" ? "#FFFFFF" : "#3A2E1A"} style={{ marginRight: 6 }} />
+            <Text style={[styles.segmentedText, mode === "marketplace" && styles.segmentedTextActive]}>
+              Marketplace
+            </Text>
+          </Pressable>
+        </View>
 
         {/* Search Bar */}
         <View style={[styles.searchContainer, isLandscape && { height: 38, marginBottom: 6, paddingHorizontal: 12, borderRadius: 19 }]}>
@@ -232,123 +355,166 @@ export default function BrowseScreen() {
           <TextInput
             disableFullscreenUI={true}
             style={[styles.searchInput, isLandscape && { fontSize: 13 }]}
-            placeholder="Search fashion house by name or location..."
+            placeholder={mode === "vendors" ? "Search vendors by name or location..." : "Search marketplace garments..."}
             placeholderTextColor="#404040"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
-
-        {/* Horizontal Category Pills */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[styles.categoriesScroll, isLandscape && { gap: 6 }]}
-        >
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat;
-            return (
-              <Pressable
-                key={cat}
-                onPress={() =>
-                  setSelectedCategory(isSelected ? "" : cat)
-                }
-                style={[
-                  styles.categoryPill,
-                  isLandscape && { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-                  isSelected
-                    ? styles.categoryPillSelected
-                    : styles.categoryPillUnselected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.categoryText,
-                    isLandscape && { fontSize: 12 },
-                    isSelected
-                      ? styles.categoryTextSelected
-                      : styles.categoryTextUnselected,
-                  ]}
-                >
-                  {cat}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
       </View>
 
-      {/* Tailor Cards List */}
-      <FlatList
-        key={`browse-${isLandscape ? "landscape" : "portrait"}`}
-        data={displayTailors}
-        keyExtractor={(item) => item.id}
-        numColumns={isLandscape ? 2 : 1}
-        columnWrapperStyle={isLandscape ? { gap: 12, marginBottom: 12 } : undefined}
-        contentContainerStyle={[
-          styles.listContainer,
-          isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%", paddingHorizontal: 16, paddingTop: 2, paddingBottom: 64 },
-        ]}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />
-        }
-        renderItem={({ item }) => (
-          <Pressable
-            style={({ pressed }) => [
-              styles.card,
-              isLandscape && { flex: 1, marginBottom: 0, borderRadius: 16 },
-              { transform: [{ scale: pressed ? 0.985 : 1 }] },
-            ]}
-            onPress={() => router.push(`/(customer)/fashion-house/${item.id}`)}
-          >
-            {/* Image Container with Badge */}
-            <View style={[styles.imageContainer, isLandscape && { height: 125 }]}>
-              <Image
-                source={
-                  typeof item.image === "string"
-                    ? { uri: item.image }
-                    : item.image
+      {/* Main List Body */}
+      {mode === "vendors" ? (
+        /* Vendors / Fashion Houses View */
+        <FlatList
+          key={`vendors-${isLandscape ? "landscape" : "portrait"}`}
+          data={displayTailors}
+          keyExtractor={(item) => item.id}
+          numColumns={isLandscape ? 2 : 1}
+          columnWrapperStyle={isLandscape ? { gap: 12, marginBottom: 12 } : undefined}
+          contentContainerStyle={[
+            styles.listContainer,
+            isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%", paddingHorizontal: 16, paddingTop: 2, paddingBottom: 64 },
+          ]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [
+                styles.card,
+                isLandscape && { flex: 1, marginBottom: 0, borderRadius: 16 },
+                { transform: [{ scale: pressed ? 0.985 : 1 }] },
+              ]}
+              onPress={() =>
+                router.push({
+                  pathname: `/(customer)/fashion-house/${item.id}`,
+                  params: {
+                    initialName: item.name,
+                    initialLocation: item.location,
+                    initialImage: typeof item.image === "string" ? item.image : undefined,
+                    initialBio: item.bio || "",
+                  },
+                })
+              }
+            >
+              {/* Image Container with Badge */}
+              <View style={[styles.imageContainer, isLandscape && { height: 125 }]}>
+                <Image
+                  source={typeof item.image === "string" ? { uri: item.image } : item.image}
+                  style={styles.cardImage}
+                />
+                <View style={[styles.badge, isLandscape && { bottom: 8, left: 8, paddingHorizontal: 10, paddingVertical: 3 }]}>
+                  <Text style={[styles.badgeText, isLandscape && { fontSize: 10 }]}>{item.badge}</Text>
+                </View>
+              </View>
+
+              {/* Content Container */}
+              <View style={[styles.cardContent, isLandscape && { padding: 8 }]}>
+                <View style={[styles.rowBetween, isLandscape && { marginBottom: 2 }]}>
+                  <Text style={[styles.cardTitle, isLandscape && { fontSize: 14 }]}>{item.name}</Text>
+                  <Text style={[styles.cardPrice, isLandscape && { fontSize: 14 }]}>{item.price}</Text>
+                </View>
+
+                <View style={[styles.ratingRow, isLandscape && { marginBottom: 6 }]}>
+                  <Text style={[styles.locationSub, isLandscape && { fontSize: 11 }]}>{item.location} · </Text>
+                  <View style={styles.starsContainer}>{renderStarRating(item.rating, isLandscape ? 11 : 13)}</View>
+                  <Text style={[styles.ratingText, isLandscape && { fontSize: 11 }]}>
+                    {item.rating} ({item.reviewsCount})
+                  </Text>
+                </View>
+
+                <View style={[styles.tagsRow, isLandscape && { gap: 6 }]}>
+                  <View style={[styles.tagPill, isLandscape && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }]}>
+                    <Text style={[styles.tagText, isLandscape && { fontSize: 10 }]}>{item.turnaround}</Text>
+                  </View>
+                  <View style={[styles.tagPill, isLandscape && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }]}>
+                    <Text style={[styles.tagText, isLandscape && { fontSize: 10 }]}>{item.categoryTag}</Text>
+                  </View>
+                </View>
+              </View>
+            </Pressable>
+          )}
+        />
+      ) : (
+        /* Marketplace Garments View */
+        <FlatList
+          key={`marketplace-${isLandscape ? "landscape" : "portrait"}`}
+          data={displayMarketplace}
+          keyExtractor={(item) => item.id}
+          numColumns={isLandscape ? 2 : 1}
+          columnWrapperStyle={isLandscape ? { gap: 12, marginBottom: 12 } : undefined}
+          contentContainerStyle={[
+            styles.listContainer,
+            isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%", paddingHorizontal: 16, paddingTop: 2, paddingBottom: 64 },
+          ]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [
+                styles.card,
+                isLandscape && { flex: 1, marginBottom: 0, borderRadius: 16 },
+                { transform: [{ scale: pressed ? 0.985 : 1 }] },
+              ]}
+              onPress={() => {
+                if (item.fashionHouseId) {
+                  router.push({
+                    pathname: `/(customer)/fashion-house/${item.fashionHouseId}`,
+                    params: {
+                      initialName: item.vendorName,
+                      initialLocation: item.location,
+                      initialImage: item.imageUrl,
+                    },
+                  });
+                } else {
+                  router.push(`/(customer)/fashion-house/1`);
                 }
-                style={styles.cardImage}
-              />
-              <View style={[styles.badge, isLandscape && { bottom: 8, left: 8, paddingHorizontal: 10, paddingVertical: 3 }]}>
-                <Text style={[styles.badgeText, isLandscape && { fontSize: 10 }]}>{item.badge}</Text>
-              </View>
-            </View>
-
-            {/* Content Container */}
-            <View style={[styles.cardContent, isLandscape && { padding: 8 }]}>
-              {/* Row 1: Name and Price */}
-              <View style={[styles.rowBetween, isLandscape && { marginBottom: 2 }]}>
-                <Text style={[styles.cardTitle, isLandscape && { fontSize: 14 }]}>{item.name}</Text>
-                <Text style={[styles.cardPrice, isLandscape && { fontSize: 14 }]}>{item.price}</Text>
-              </View>
-
-              {/* Row 2: Location and Rating */}
-              <View style={[styles.ratingRow, isLandscape && { marginBottom: 6 }]}>
-                <Text style={[styles.locationSub, isLandscape && { fontSize: 11 }]}>{item.location} · </Text>
-                <View style={styles.starsContainer}>
-                  {renderStarRating(item.rating, isLandscape ? 11 : 13)}
+              }}
+            >
+              {/* Image Container */}
+              <View style={[styles.imageContainer, isLandscape && { height: 140 }]}>
+                <Image source={{ uri: item.imageUrl }} style={styles.cardImage} />
+                <View style={[styles.badge, { backgroundColor: "#4A080C" }]}>
+                  <Text style={styles.badgeText}>{item.badge}</Text>
                 </View>
-                <Text style={[styles.ratingText, isLandscape && { fontSize: 11 }]}>
-                  {item.rating} ({item.reviewsCount})
+              </View>
+
+              {/* Content Container */}
+              <View style={[styles.cardContent, isLandscape && { padding: 8 }]}>
+                <View style={styles.rowBetween}>
+                  <Text style={styles.cardTitle} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  <Text style={styles.cardPrice}>{item.priceFrom}</Text>
+                </View>
+
+                <Text style={styles.vendorSubtext}>
+                  By {item.vendorName} · {item.location}
                 </Text>
-              </View>
 
-              {/* Row 3: Tags */}
-              <View style={[styles.tagsRow, isLandscape && { gap: 6 }]}>
-                <View style={[styles.tagPill, isLandscape && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }]}>
-                  <Text style={[styles.tagText, isLandscape && { fontSize: 10 }]}>{item.turnaround}</Text>
-                </View>
-                <View style={[styles.tagPill, isLandscape && { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 }]}>
-                  <Text style={[styles.tagText, isLandscape && { fontSize: 10 }]}>{item.categoryTag}</Text>
+                <View style={styles.actionRow}>
+                  <View style={styles.tagPill}>
+                    <Text style={styles.tagText}>{item.categoryTag}</Text>
+                  </View>
+
+                  <Pressable
+                    style={styles.orderBtn}
+                    onPress={() => {
+                      const targetFhId = item.fashionHouseId || "1";
+                      router.push({
+                        pathname: `/(customer)/chat/${targetFhId}`,
+                        params: { garmentName: item.name, garmentPrice: item.priceFrom },
+                      });
+                    }}
+                  >
+                    <Text style={styles.orderBtnText}>Book Fitting</Text>
+                  </Pressable>
                 </View>
               </View>
-            </View>
-          </Pressable>
-        )}
-      />
+            </Pressable>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -366,18 +532,38 @@ const styles = StyleSheet.create({
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 10,
   },
   locationText: {
     fontFamily: "WorkSans_500Medium",
     fontSize: 14,
     color: "#3A2E1A",
   },
-  title: {
-    fontFamily: "Fraunces-Bold",
-    fontSize: 28,
-    color: "#4A080C",
-    marginBottom: 16,
+  segmentedContainer: {
+    flexDirection: "row",
+    backgroundColor: "#EBE0D3",
+    borderRadius: 24,
+    padding: 4,
+    marginBottom: 14,
+  },
+  segmentedPill: {
+    flex: 1,
+    height: 42,
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  segmentedPillActive: {
+    backgroundColor: "#4A080C",
+  },
+  segmentedText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14,
+    color: "#3A2E1A",
+  },
+  segmentedTextActive: {
+    color: "#FFFFFF",
   },
   searchContainer: {
     flexDirection: "row",
@@ -387,8 +573,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#404040",
     paddingHorizontal: 16,
-    height: 50,
-    marginBottom: 16,
+    height: 48,
+    marginBottom: 12,
   },
   searchInput: {
     flex: 1,
@@ -402,7 +588,7 @@ const styles = StyleSheet.create({
   },
   categoryPill: {
     paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 9999,
     borderWidth: 1,
   },
@@ -416,7 +602,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontFamily: "WorkSans_500Medium",
-    fontSize: 14,
+    fontSize: 13,
   },
   categoryTextSelected: {
     color: "#FFFFFF",
@@ -427,7 +613,7 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 20,
     paddingBottom: 24,
-    gap: 20,
+    gap: 18,
   },
   card: {
     backgroundColor: "#FFFFFF",
@@ -444,7 +630,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: "relative",
     width: "100%",
-    height: 200,
+    height: 190,
   },
   cardImage: {
     width: "100%",
@@ -477,13 +663,21 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontFamily: "Fraunces-Bold",
-    fontSize: 18,
+    fontSize: 17,
     color: "#000000",
+    flex: 1,
+    marginRight: 8,
   },
   cardPrice: {
     fontFamily: "WorkSans_600SemiBold",
-    fontSize: 18,
-    color: "#000000",
+    fontSize: 17,
+    color: "#4A080C",
+  },
+  vendorSubtext: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#8A7550",
+    marginBottom: 12,
   },
   ratingRow: {
     flexDirection: "row",
@@ -520,5 +714,22 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_500Medium",
     fontSize: 12,
     color: "#000000",
+  },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
+  orderBtn: {
+    backgroundColor: "#4A080C",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  orderBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 13,
+    color: "#FFFFFF",
   },
 });

@@ -7,31 +7,98 @@ import { validate } from "../middleware/validate";
 import { createMeasurementSchema } from "../schemas/measurements.schema";
 
 const router = Router();
+
+// GET /api/measurements/my-measurements — Customer fetch own measurements
+router.get("/my-measurements", requireAuth, async (req, res, next) => {
+  try {
+    const customerId = req.authUserId!;
+    const measurements = await prisma.measurement.findMany({
+      where: { customerId },
+      orderBy: { recordedAt: "desc" },
+    });
+    res.json(measurements);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.use(requireAuth, requireRole("admin", "staff"));
+
+// GET /api/measurements/check/:customerName — Admin check if customer has measurements recorded
+router.get("/check/:customerName", async (req, res, next) => {
+  try {
+    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const customer = await prisma.customer.findFirst({
+      where: { name: { equals: req.params.customerName, mode: "insensitive" }, fashionHouseId: fhId },
+      include: { measurements: true },
+    });
+    const hasMeasurements = customer ? customer.measurements.length > 0 : false;
+    res.json({ hasMeasurements, count: customer?.measurements.length || 0, customerId: customer?.id || null });
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Multer — store audio in memory (no disk writes needed)
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
-// Add Measurement
-router.post("/", validate({ body: createMeasurementSchema }), async (req, res, next) => {
+// Add Measurement (Single or Sheet)
+router.post("/", async (req, res, next) => {
   try {
     const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
-    const { customerId, field, value, unit } = req.body;
+    const { customerId, customerName, field, value, unit, standard, custom } = req.body;
 
-    // Tenant Isolation: Verify customer belongs to the tenant
-    const customer = await prisma.customer.findFirst({
-      where: { id: customerId, fashionHouseId: fhId },
-    });
-    if (!customer) {
-      return res.status(404).json({ error: "Customer not found in your fashion house." });
+    let targetCustomerId = customerId;
+    if (!targetCustomerId && customerName) {
+      let customer = await prisma.customer.findFirst({
+        where: { name: { equals: customerName, mode: "insensitive" }, fashionHouseId: fhId },
+      });
+      if (!customer) {
+        customer = await prisma.customer.create({
+          data: { name: customerName, fashionHouseId: fhId },
+        });
+      }
+      targetCustomerId = customer.id;
+    }
+
+    if (!targetCustomerId) {
+      return res.status(400).json({ error: "Customer ID or Name is required." });
+    }
+
+    // Bulk sheet save (e.g. from Admin Measurement Capture form)
+    if (standard && typeof standard === "object") {
+      const created = [];
+      for (const [fKey, fVal] of Object.entries(standard)) {
+        if (fVal && !isNaN(Number(fVal))) {
+          const m = await prisma.measurement.create({
+            data: { customerId: targetCustomerId, field: fKey, value: Number(fVal), unit: unit || "in" },
+          });
+          created.push(m);
+        }
+      }
+      if (Array.isArray(custom)) {
+        for (const item of custom as any[]) {
+          if (item.label && item.value && !isNaN(Number(item.value))) {
+            const m = await prisma.measurement.create({
+              data: { customerId: targetCustomerId, field: item.label, value: Number(item.value), unit: unit || "in" },
+            });
+            created.push(m);
+          }
+        }
+      }
+      return res.status(201).json({ success: true, count: created.length, measurements: created });
+    }
+
+    if (!field || value === undefined) {
+      return res.status(400).json({ error: "Measurement field and value are required." });
     }
 
     const measurement = await prisma.measurement.create({
       data: {
-        customerId,
+        customerId: targetCustomerId,
         field,
-        value,
-        unit,
+        value: Number(value),
+        unit: unit || "in",
       },
     });
 

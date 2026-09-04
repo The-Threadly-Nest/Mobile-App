@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 
 interface InvoiceItem {
   id: string;
@@ -62,7 +62,7 @@ export default function InvoicesListScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={18} color="#3B0508" />
+            <BackArrowIcon size={18} color="#3B0508" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Invoice</Text>

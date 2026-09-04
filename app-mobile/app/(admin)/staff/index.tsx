@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,9 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { ArrowLeft, Search, Plus } from "lucide-react-native";
+import { router, useFocusEffect } from "expo-router";
+import { Search, Plus, Users } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import Svg, { Rect, Defs, LinearGradient, Stop } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
@@ -22,31 +23,8 @@ interface StaffMember {
   email: string;
   active: boolean;
   activeOrders: number;
+  unreadCount?: number;
 }
-
-const DEFAULT_STAFF: StaffMember[] = [
-  {
-    id: "s1",
-    name: "Ngozi Umeh",
-    email: "ngozi@adaezecouture.com",
-    active: true,
-    activeOrders: 3,
-  },
-  {
-    id: "s2",
-    name: "Tunde Bakare",
-    email: "tunde@adaezecouture.com",
-    active: true,
-    activeOrders: 5,
-  },
-  {
-    id: "s3",
-    name: "Funmilayo Adeyemi",
-    email: "funmi@adaezecouture.com",
-    active: true,
-    activeOrders: 1,
-  },
-];
 
 function GradientAvatar({ initial }: { initial: string }) {
   return (
@@ -87,12 +65,12 @@ export default function StaffScreen() {
   const isLandscape = width > height;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [staffList, setStaffList] = useState<StaffMember[]>(DEFAULT_STAFF);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [fetchingStaff, setFetchingStaff] = useState(false);
 
   const token = useAuthStore((s) => s.token);
 
-  const fetchStaff = async () => {
+  const fetchStaff = useCallback(async () => {
     if (!token) return;
     setFetchingStaff(true);
     try {
@@ -100,30 +78,35 @@ export default function StaffScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (res.ok && Array.isArray(data) && data.length > 0) {
-        const mapped: StaffMember[] = data.map((st: any, idx: number) => {
-          const emailName = st.email ? st.email.split("@")[0] : "Staff";
-          const formattedName = st.name || emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      if (res.ok && Array.isArray(data)) {
+        const mapped: StaffMember[] = data.map((st: any) => {
+          const rawName = st.name ? st.name.trim() : "";
+          const emailParts = st.email ? st.email.split("@")[0].split(/[._-]/) : ["Staff"];
+          const fallbackName = emailParts.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
           return {
             id: st.id,
-            name: formattedName,
+            name: rawName || fallbackName,
             email: st.email,
             active: st.active ?? true,
-            activeOrders: (idx * 2 + 1) % 6,
+            activeOrders: typeof st.activeOrders === "number" ? st.activeOrders : 0,
+            unreadCount: typeof st.unreadCount === "number" ? st.unreadCount : 0,
           };
         });
         setStaffList(mapped);
       }
     } catch (e) {
       console.warn("Failed to fetch staff list", e);
+      setStaffList([]);
     } finally {
       setFetchingStaff(false);
     }
-  };
-
-  useEffect(() => {
-    fetchStaff();
   }, [token]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStaff();
+    }, [fetchStaff])
+  );
 
   const filteredStaff = staffList.filter(
     (st) =>
@@ -140,7 +123,7 @@ export default function StaffScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={18} color="#3B0508" />
+            <BackArrowIcon size={18} color="#3B0508" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Staff</Text>
@@ -177,8 +160,8 @@ export default function StaffScreen() {
                 <Pressable
                   onPress={() =>
                     router.push({
-                      pathname: "/(admin)/staff/[staffId]/moodboard",
-                      params: { staffId: item.id, staffName: item.name },
+                      pathname: "/(admin)/chat",
+                      params: { staffId: item.id },
                     })
                   }
                   style={({ pressed }) => [
@@ -198,28 +181,69 @@ export default function StaffScreen() {
                     </Text>
                   </View>
 
-                  {/* Active Status Pill */}
-                  <View
-                    style={[
-                      styles.badge,
-                      item.active ? styles.badgeActive : styles.badgePending,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.badgeText,
-                        item.active ? styles.badgeTextActive : styles.badgeTextPending,
-                      ]}
-                    >
-                      {item.active ? "Active" : "Pending"}
-                    </Text>
+                  {/* Unread Badge or Active Status */}
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    {item.unreadCount && item.unreadCount > 0 ? (
+                      <View
+                        style={{
+                          backgroundColor: "#D32F2F",
+                          minWidth: 22,
+                          height: 22,
+                          borderRadius: 11,
+                          paddingHorizontal: 6,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#FFFFFF" }}>
+                          {item.unreadCount}
+                        </Text>
+                      </View>
+                    ) : null}
+
+                    <View style={[styles.badge, item.active ? styles.badgeActive : styles.badgePending]}>
+                      <Text style={[styles.badgeText, item.active ? styles.badgeTextActive : styles.badgeTextPending]}>
+                        {item.active ? "Active" : "Pending"}
+                      </Text>
+                    </View>
                   </View>
                 </Pressable>
               );
             }}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>No staff members matching "{searchQuery}"</Text>
+                <View style={styles.emptyIconCircle}>
+                  <Users size={28} color="#4A080C" />
+                </View>
+                <Text style={styles.emptyTitle}>
+                  {searchQuery ? "No matching staff member" : "No staff members yet"}
+                </Text>
+                <Text style={styles.emptySubtext}>
+                  {searchQuery
+                    ? `No staff member matches "${searchQuery}". Check the spelling or clear your search query.`
+                    : "Invite your tailors, cutters, and floor staff to collaborate on assigned orders."}
+                </Text>
+                {searchQuery ? (
+                  <Pressable
+                    onPress={() => setSearchQuery("")}
+                    style={({ pressed }) => [
+                      styles.emptyActionBtn,
+                      { opacity: pressed ? 0.85 : 1 },
+                    ]}
+                  >
+                    <Text style={styles.emptyActionBtnText}>Clear Search</Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => router.push("/(admin)/staff/invite" as any)}
+                    style={({ pressed }) => [
+                      styles.emptyActionBtn,
+                      { opacity: pressed ? 0.85 : 1 },
+                    ]}
+                  >
+                    <Text style={styles.emptyActionBtnText}>+ Invite Staff Member</Text>
+                  </Pressable>
+                )}
               </View>
             }
           />
@@ -377,13 +401,58 @@ const styles = StyleSheet.create({
     color: "#DC2626",
   },
   emptyContainer: {
-    paddingVertical: 40,
+    paddingVertical: 48,
+    paddingHorizontal: 24,
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.1)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  emptyText: {
+  emptyIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#FBF7EF",
+    borderWidth: 1,
+    borderColor: "#E4D5B7",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  emptyTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 18,
+    color: "#4A080C",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  emptySubtext: {
     fontFamily: "WorkSans_400Regular",
-    fontSize: 14,
+    fontSize: 13,
+    lineHeight: 19,
     color: "#8A7550",
+    textAlign: "center",
+    marginBottom: 20,
+    maxWidth: 280,
+  },
+  emptyActionBtn: {
+    backgroundColor: "#4A080C",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  emptyActionBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14,
+    color: "#FFFFFF",
   },
   floatingCircle: {
     position: "absolute",

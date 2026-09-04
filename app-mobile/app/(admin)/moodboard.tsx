@@ -75,7 +75,7 @@ export default function AdminMoodBoardRedesignScreen() {
   const token = useAuthStore((s) => s.token);
 
   const [tailorSections, setTailorSections] = useState<TailorSection[]>(DEFAULT_TAILORS);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Promote Modal state
   const [selectedSketch, setSelectedSketch] = useState<SketchItem | null>(null);

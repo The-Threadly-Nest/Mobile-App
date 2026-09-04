@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import Svg, { Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import * as NavigationBar from "expo-navigation-bar";
+import { registerPushToken } from "@/shared/utils/pushNotifications";
 
 export default function SplashScreen() {
   const token = useAuthStore((state) => state.token);
@@ -37,6 +38,7 @@ export default function SplashScreen() {
     }).start(() => {
       // Navigate once the progress bar is completely filled
       if (token && role) {
+        registerPushToken(token);
         if (role === "admin") {
           if (!isVerified) {
             router.replace({ pathname: "/(auth)/verify", params: { email } });

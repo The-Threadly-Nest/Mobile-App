@@ -92,6 +92,7 @@ export const UserScalarFieldEnum = {
   role: 'role',
   fashionHouseId: 'fashionHouseId',
   active: 'active',
+  pushToken: 'pushToken',
   resetTokenHash: 'resetTokenHash',
   resetTokenExpiresAt: 'resetTokenExpiresAt',
   createdAt: 'createdAt',
@@ -122,6 +123,7 @@ export type FashionHouseScalarFieldEnum = (typeof FashionHouseScalarFieldEnum)[k
 export const CustomerScalarFieldEnum = {
   id: 'id',
   fashionHouseId: 'fashionHouseId',
+  userId: 'userId',
   name: 'name',
   phone: 'phone',
   sheetUrl: 'sheetUrl',
@@ -149,6 +151,7 @@ export const OrderScalarFieldEnum = {
   fashionHouseId: 'fashionHouseId',
   customerId: 'customerId',
   staffId: 'staffId',
+  bookingId: 'bookingId',
   itemName: 'itemName',
   price: 'price',
   status: 'status',

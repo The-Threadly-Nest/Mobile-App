@@ -13,7 +13,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { ArrowLeft, Upload, Check } from "lucide-react-native";
+import { Upload, Check } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { adminApi, AdminOnboardingPayload } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -21,11 +22,13 @@ import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 const SPECIALIZATIONS = [
-  "Bridal Wear",
-  "Bespoke Menswear",
-  "Aso-Ebi & Traditional",
-  "Ready-to-Wear",
-  "Couture & Gowns",
+  "Bespoke Tailoring",
+  "Bridal & Evening Wear",
+  "Agbada & Traditional",
+  "Kaftans & Senator Wear",
+  "Aso-Ebi Production",
+  "Suits & Corporate",
+  "Couture & Custom Gowns",
   "Alterations & Fitting",
 ];
 
@@ -39,6 +42,7 @@ export default function AdminProfileEditScreen() {
   const [location, setLocation] = useState("");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
+  const [turnaround, setTurnaround] = useState("2-3 week turnaround");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -55,7 +59,15 @@ export default function AdminProfileEditScreen() {
           setShopName(house.shopName || house.name || "");
           setLocation(house.location || "");
           setPhone(house.phone || "");
-          setBio(house.bio || "");
+          if (house.bio) {
+            if (house.bio.includes(" • ")) {
+              const [savedBio, savedTurnaround] = house.bio.split(" • ");
+              setBio(savedBio || "");
+              setTurnaround(savedTurnaround || "");
+            } else {
+              setBio(house.bio);
+            }
+          }
           setBrandLogoUrl(house.brandLogoUrl || null);
           if (Array.isArray(house.categories) && house.categories.length > 0) {
             setSelectedCategories(house.categories);
@@ -116,11 +128,15 @@ export default function AdminProfileEditScreen() {
 
     setSaving(true);
     try {
+      const combinedBio = turnaround.trim()
+        ? (bio.trim() ? `${bio.trim()} • ${turnaround.trim()}` : turnaround.trim())
+        : bio.trim();
+
       const payload: AdminOnboardingPayload = {
         shopName: shopName.trim(),
         location: location.trim(),
         phone: phone.trim(),
-        bio: bio.trim(),
+        bio: combinedBio,
         categories: selectedCategories,
         brandLogoUrl: brandLogoUrl || undefined,
       };
@@ -165,7 +181,7 @@ export default function AdminProfileEditScreen() {
               marginRight: 12,
             }}
           >
-            <ArrowLeft size={22} color="#3B0508" />
+            <BackArrowIcon size={20} color="#3B0508" />
           </Pressable>
           <Text
             style={{
@@ -303,6 +319,36 @@ export default function AdminProfileEditScreen() {
               placeholder="801 234 5678"
               value={phone}
               onChangePhone={setPhone}
+            />
+
+            {/* Standard Turnaround Time */}
+            <Text
+              style={{
+                fontFamily: "WorkSans_600SemiBold",
+                fontSize: 13,
+                color: "#4A080C",
+                marginBottom: 8,
+              }}
+            >
+              Standard Turnaround Time
+            </Text>
+            <TextInput
+              value={turnaround}
+              onChangeText={setTurnaround}
+              placeholder="e.g. 2-3 week turnaround"
+              placeholderTextColor="#B0966C"
+              style={{
+                backgroundColor: "#FFFFFF",
+                borderRadius: 16,
+                paddingHorizontal: 16,
+                height: 52,
+                fontFamily: "WorkSans_500Medium",
+                fontSize: 15,
+                color: "#3B0508",
+                borderWidth: 1,
+                borderColor: "rgba(0,0,0,0.08)",
+                marginBottom: 20,
+              }}
             />
 
             {/* Brand Bio / Motto */}

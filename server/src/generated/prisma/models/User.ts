@@ -33,6 +33,7 @@ export type UserMinAggregateOutputType = {
   role: string | null
   fashionHouseId: string | null
   active: boolean | null
+  pushToken: string | null
   resetTokenHash: string | null
   resetTokenExpiresAt: Date | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type UserMaxAggregateOutputType = {
   role: string | null
   fashionHouseId: string | null
   active: boolean | null
+  pushToken: string | null
   resetTokenHash: string | null
   resetTokenExpiresAt: Date | null
   createdAt: Date | null
@@ -63,6 +65,7 @@ export type UserCountAggregateOutputType = {
   role: number
   fashionHouseId: number
   active: number
+  pushToken: number
   resetTokenHash: number
   resetTokenExpiresAt: number
   createdAt: number
@@ -80,6 +83,7 @@ export type UserMinAggregateInputType = {
   role?: true
   fashionHouseId?: true
   active?: true
+  pushToken?: true
   resetTokenHash?: true
   resetTokenExpiresAt?: true
   createdAt?: true
@@ -95,6 +99,7 @@ export type UserMaxAggregateInputType = {
   role?: true
   fashionHouseId?: true
   active?: true
+  pushToken?: true
   resetTokenHash?: true
   resetTokenExpiresAt?: true
   createdAt?: true
@@ -110,6 +115,7 @@ export type UserCountAggregateInputType = {
   role?: true
   fashionHouseId?: true
   active?: true
+  pushToken?: true
   resetTokenHash?: true
   resetTokenExpiresAt?: true
   createdAt?: true
@@ -198,6 +204,7 @@ export type UserGroupByOutputType = {
   role: string
   fashionHouseId: string | null
   active: boolean
+  pushToken: string | null
   resetTokenHash: string | null
   resetTokenExpiresAt: Date | null
   createdAt: Date
@@ -234,6 +241,7 @@ export type UserWhereInput = {
   role?: Prisma.StringFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
+  pushToken?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -257,6 +265,7 @@ export type UserOrderByWithRelationInput = {
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
+  pushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -283,6 +292,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.StringFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
+  pushToken?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -306,6 +316,7 @@ export type UserOrderByWithAggregationInput = {
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
+  pushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -327,6 +338,7 @@ export type UserScalarWhereWithAggregatesInput = {
   role?: Prisma.StringWithAggregatesFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  pushToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -341,6 +353,7 @@ export type UserCreateInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -364,6 +377,7 @@ export type UserUncheckedCreateInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -385,6 +399,7 @@ export type UserUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -408,6 +423,7 @@ export type UserUncheckedUpdateInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +446,7 @@ export type UserCreateManyInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -444,6 +461,7 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -459,6 +477,7 @@ export type UserUncheckedUpdateManyInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -474,6 +493,7 @@ export type UserCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  pushToken?: Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -489,6 +509,7 @@ export type UserMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  pushToken?: Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -504,6 +525,7 @@ export type UserMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   active?: Prisma.SortOrder
+  pushToken?: Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -700,6 +722,7 @@ export type UserCreateWithoutFashionHouseOwnedInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -722,6 +745,7 @@ export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -747,6 +771,7 @@ export type UserCreateWithoutFashionHouseInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -768,6 +793,7 @@ export type UserUncheckedCreateWithoutFashionHouseInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -810,6 +836,7 @@ export type UserUpdateWithoutFashionHouseOwnedInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -832,6 +859,7 @@ export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -872,6 +900,7 @@ export type UserScalarWhereInput = {
   role?: Prisma.StringFilter<"User"> | string
   fashionHouseId?: Prisma.StringNullableFilter<"User"> | string | null
   active?: Prisma.BoolFilter<"User"> | boolean
+  pushToken?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -886,6 +915,7 @@ export type UserCreateWithoutDelegatedOrdersInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -908,6 +938,7 @@ export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -944,6 +975,7 @@ export type UserUpdateWithoutDelegatedOrdersInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -966,6 +998,7 @@ export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -986,6 +1019,7 @@ export type UserCreateWithoutBookingsInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1008,6 +1042,7 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1044,6 +1079,7 @@ export type UserUpdateWithoutBookingsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1066,6 +1102,7 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1086,6 +1123,7 @@ export type UserCreateWithoutChatEscalationsInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1108,6 +1146,7 @@ export type UserUncheckedCreateWithoutChatEscalationsInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1144,6 +1183,7 @@ export type UserUpdateWithoutChatEscalationsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1166,6 +1206,7 @@ export type UserUncheckedUpdateWithoutChatEscalationsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1186,6 +1227,7 @@ export type UserCreateWithoutPreferenceInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1208,6 +1250,7 @@ export type UserUncheckedCreateWithoutPreferenceInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1244,6 +1287,7 @@ export type UserUpdateWithoutPreferenceInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1266,6 +1310,7 @@ export type UserUncheckedUpdateWithoutPreferenceInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1286,6 +1331,7 @@ export type UserCreateWithoutMoodBoardSketchesInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1308,6 +1354,7 @@ export type UserUncheckedCreateWithoutMoodBoardSketchesInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1344,6 +1391,7 @@ export type UserUpdateWithoutMoodBoardSketchesInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1366,6 +1414,7 @@ export type UserUncheckedUpdateWithoutMoodBoardSketchesInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1386,6 +1435,7 @@ export type UserCreateWithoutChatSessionsInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1408,6 +1458,7 @@ export type UserUncheckedCreateWithoutChatSessionsInput = {
   role: string
   fashionHouseId?: string | null
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1444,6 +1495,7 @@ export type UserUpdateWithoutChatSessionsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1466,6 +1518,7 @@ export type UserUncheckedUpdateWithoutChatSessionsInput = {
   role?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1486,6 +1539,7 @@ export type UserCreateManyFashionHouseInput = {
   name?: string | null
   role: string
   active?: boolean
+  pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
   createdAt?: Date | string
@@ -1500,6 +1554,7 @@ export type UserUpdateWithoutFashionHouseInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1521,6 +1576,7 @@ export type UserUncheckedUpdateWithoutFashionHouseInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1542,6 +1598,7 @@ export type UserUncheckedUpdateManyWithoutFashionHouseInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   role?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1624,6 +1681,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
+  pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
   createdAt?: boolean
@@ -1648,6 +1706,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
+  pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
   createdAt?: boolean
@@ -1664,6 +1723,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
+  pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
   createdAt?: boolean
@@ -1680,13 +1740,14 @@ export type UserSelectScalar = {
   role?: boolean
   fashionHouseId?: boolean
   active?: boolean
+  pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "passwordHash" | "name" | "role" | "fashionHouseId" | "active" | "resetTokenHash" | "resetTokenExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "passwordHash" | "name" | "role" | "fashionHouseId" | "active" | "pushToken" | "resetTokenHash" | "resetTokenExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouseOwned?: boolean | Prisma.User$fashionHouseOwnedArgs<ExtArgs>
   fashionHouse?: boolean | Prisma.User$fashionHouseArgs<ExtArgs>
@@ -1726,6 +1787,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: string
     fashionHouseId: string | null
     active: boolean
+    pushToken: string | null
     resetTokenHash: string | null
     resetTokenExpiresAt: Date | null
     createdAt: Date
@@ -2169,6 +2231,7 @@ export interface UserFieldRefs {
   readonly role: Prisma.FieldRef<"User", 'String'>
   readonly fashionHouseId: Prisma.FieldRef<"User", 'String'>
   readonly active: Prisma.FieldRef<"User", 'Boolean'>
+  readonly pushToken: Prisma.FieldRef<"User", 'String'>
   readonly resetTokenHash: Prisma.FieldRef<"User", 'String'>
   readonly resetTokenExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

@@ -1,8 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { View, Text } from "react-native";
 import { Tabs } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { API_BASE_URL } from "@/api/config";
 
 function DashboardIcon({ color, focused }: { color: string; focused: boolean }) {
   const activeColor = focused ? "#4A080C" : color;
@@ -115,26 +118,71 @@ function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
   );
 }
 
-function MoreIcon({ color, focused }: { color: string; focused: boolean }) {
+function MoreIcon({ color, focused, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
   const activeColor = focused ? "#4A080C" : color;
+
   return (
-    <Svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-      <Circle cx="6" cy="12" r="2" fill={activeColor} />
-      <Circle cx="12" cy="12" r="2" fill={activeColor} />
-      <Circle cx="18" cy="12" r="2" fill={activeColor} />
-    </Svg>
+    <View style={{ width: 26, height: 26, justifyContent: "center", alignItems: "center" }}>
+      <Svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+        <Circle cx="6" cy="12" r="2" fill={activeColor} />
+        <Circle cx="12" cy="12" r="2" fill={activeColor} />
+        <Circle cx="18" cy="12" r="2" fill={activeColor} />
+      </Svg>
+      {unreadCount > 0 ? (
+        <View
+          style={{
+            position: "absolute",
+            top: -2,
+            right: -4,
+            backgroundColor: "#D32F2F",
+            minWidth: 14,
+            height: 14,
+            borderRadius: 7,
+            paddingHorizontal: 3,
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: 1.5,
+            borderColor: "#FFFFFF",
+          }}
+        >
+          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
+            {unreadCount}
+          </Text>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
 export default function AdminLayout() {
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
+  const token = useAuthStore((s) => s.token);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     // Match Android navigation bar to white background
     NavigationBar.setBackgroundColorAsync("#FFFFFF");
     NavigationBar.setButtonStyleAsync("dark");
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/staff`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            const total = data.reduce((acc: number, st: any) => acc + (st.unreadCount || 0), 0);
+            setUnreadCount(total);
+          }
+        }
+      } catch (e) {}
+    })();
+  }, [token]);
 
   return (
     <Tabs
@@ -152,7 +200,7 @@ export default function AdminLayout() {
           paddingBottom: Math.max(14, extraBottom),
         },
         tabBarLabelStyle: {
-          fontFamily: "WorkSans_500Medium",
+          fontFamily: "WorkSans_600SemiBold",
           fontSize: 12,
           marginTop: 1,
         },
@@ -190,7 +238,7 @@ export default function AdminLayout() {
         name="settings"
         options={{
           title: "More",
-          tabBarIcon: ({ color, focused }) => <MoreIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <MoreIcon color={color} focused={focused} unreadCount={unreadCount} />,
         }}
       />
 
@@ -210,6 +258,7 @@ export default function AdminLayout() {
       <Tabs.Screen name="customers/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/invite" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="invoices/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="chat" options={{ href: null, tabBarStyle: { display: "none" } }} />
     </Tabs>
   );
 }

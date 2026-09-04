@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, Text, Pressable, Image, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 
@@ -17,16 +18,8 @@ export default function CustomerOrdersScreen() {
     async function fetchCustomerOrders() {
       try {
         const fetched = await apiFetch<OrderItem[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
-        if (mounted && Array.isArray(fetched)) {
-          if (fetched.length > 0) {
-            // Deduplicate server orders and store orders by orderNumber or id
-            const map = new Map<string, OrderItem>();
-            fetched.forEach((f) => {
-              const key = f.orderNumber || f.id;
-              map.set(key, f);
-            });
-            setStoreOrders(Array.from(map.values()));
-          }
+        if (mounted && Array.isArray(fetched) && fetched.length > 0) {
+          setStoreOrders(fetched);
         }
       } catch (err) {
         console.log("Could not fetch server orders:", err);
@@ -39,8 +32,12 @@ export default function CustomerOrdersScreen() {
     };
   }, []);
 
-  const activeOrders = storeOrders.filter((o) => o.status === "active");
-  const completedOrders = storeOrders.filter((o) => o.status === "completed");
+  // Smart Fallback: If customer has real orders, show ONLY real orders (purging mock ones).
+  const realOrders = storeOrders.filter((o) => !o.id.startsWith("mock-"));
+  const effectiveOrders = realOrders.length > 0 ? realOrders : storeOrders;
+
+  const activeOrders = effectiveOrders.filter((o) => o.status === "active");
+  const completedOrders = effectiveOrders.filter((o) => o.status === "completed");
   const displayedOrders = activeTab === "active" ? activeOrders : completedOrders;
 
   return (
@@ -105,9 +102,22 @@ export default function CustomerOrdersScreen() {
         ) : (
           <View style={isLandscape ? { flexDirection: "row", flexWrap: "wrap", gap: 12 } : { gap: 12 }}>
             {displayedOrders.map((order) => (
-              <View
+              <Pressable
                 key={order.id}
-                style={[
+                onPress={() =>
+                  router.push({
+                    pathname: `/(customer)/orders/${order.id}`,
+                    params: {
+                      atelierName: order.atelierName,
+                      garmentType: order.garmentType,
+                      orderNumber: order.orderNumber,
+                      estimatedReady: order.estimatedReady,
+                      progressPercent: String(order.progressPercent),
+                      imageUrl: order.imageUrl,
+                    },
+                  })
+                }
+                style={({ pressed }) => [
                   {
                     width: "100%",
                     maxWidth: 376,
@@ -121,6 +131,7 @@ export default function CustomerOrdersScreen() {
                     padding: 12,
                     borderWidth: 1,
                     borderColor: "#F0EBE1",
+                    transform: [{ scale: pressed ? 0.985 : 1 }],
                   },
                   isLandscape && { width: "49%", maxWidth: undefined },
                 ]}
@@ -158,7 +169,7 @@ export default function CustomerOrdersScreen() {
                     </Text>
                   </View>
                 </View>
-              </View>
+              </Pressable>
             ))}
           </View>
         )}

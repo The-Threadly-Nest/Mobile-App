@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { ArrowLeft, Sparkles, CheckCircle2, PenTool } from "lucide-react-native";
+import { Sparkles, CheckCircle2, PenTool } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
@@ -32,7 +33,7 @@ export default function AdminStaffMoodBoardScreen() {
   const { staffId, staffName } = params;
   
   const [sketches, setSketches] = useState<Sketch[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [promotingId, setPromotingId] = useState<string | null>(null);
 
   // Modal state for price input during promotion
@@ -127,7 +128,7 @@ export default function AdminStaffMoodBoardScreen() {
           onPress={() => router.push("/(admin)/staff" as any)}
           className="w-10 h-10 border border-oxblood/20 rounded-full items-center justify-center"
         >
-          <ArrowLeft size={20} color="#3B0508" />
+          <BackArrowIcon size={20} color="#3B0508" />
         </Pressable>
         <View className="flex-1">
           <Headline className="text-xl">{staffName ? `${staffName}'s Moodboard` : "Staff Moodboard"}</Headline>

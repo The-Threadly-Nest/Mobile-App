@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Plus, Tag } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { API_BASE_URL } from "@/api/config";
 import { adminApi, ordersApi, escalationsApi } from "@/shared/utils/apiClient";
 
 interface EscalationItem {
@@ -12,6 +13,8 @@ interface EscalationItem {
   reason?: string;
   resolved: boolean;
   createdAt: string;
+  customerId?: string;
+  customerName?: string;
   customer?: { id: string; email: string };
 }
 
@@ -71,6 +74,12 @@ export default function AdminDashboard() {
     fetchData();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
+
   const onRefresh = () => {
     setRefreshing(true);
     fetchData();
@@ -85,14 +94,37 @@ export default function AdminDashboard() {
     }
   };
 
-  // Calculations
-  const activeOrdersCount = orders.filter(
-    (o) => o.status !== "completed" && o.status !== "cancelled"
-  ).length;
+  // Smart Fallback filtering & deduplication
+  const realOrders = orders.filter((o) => !o.id?.startsWith("mock-"));
+  const realEscalations = escalations.filter((e) => !e.id?.startsWith("mock-"));
 
-  const totalRevenue = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+  const effectiveOrders = realOrders.length > 0 ? realOrders : orders;
+  const effectiveEscalations = realEscalations.length > 0 ? realEscalations : escalations;
 
-  const pendingEscalations = escalations.filter((e) => !e.resolved);
+  // Active Orders count = resolved (assigned) escalations — same source as Bookings page "Assigned" tab
+  // This ensures dashboard and bookings page are always in sync regardless of order row state
+  const uniqueAssigned = new Map<string, any>();
+  effectiveEscalations.forEach((e) => {
+    if (e.resolved) {
+      const key = e.id || e.customerId || "esc";
+      if (!uniqueAssigned.has(key)) uniqueAssigned.set(key, e);
+    }
+  });
+  const activeOrdersCount = uniqueAssigned.size;
+
+  const totalRevenue = realOrders.reduce((sum, o) => sum + (o.price || 0), 0);
+
+  // Deduplicate pending escalations/bookings by ID or customer reference
+  const uniquePendingEscalations = new Map<string, any>();
+  effectiveEscalations.forEach((e) => {
+    if (!e.resolved) {
+      const key = e.id || e.customerId || e.customerName || "esc";
+      if (!uniquePendingEscalations.has(key)) {
+        uniquePendingEscalations.set(key, e);
+      }
+    }
+  });
+  const pendingEscalations = Array.from(uniquePendingEscalations.values());
   const pendingBookingsCount = pendingEscalations.length;
 
   // Business / Brand Name entered during signup (e.g. "Royal Stitch Atelier")
@@ -115,7 +147,7 @@ export default function AdminDashboard() {
   const displayRequests = pendingEscalations.slice(0, 3);
 
   const formatMoney = (val: number) => {
-    if (val === 0) return "₦3,360,000";
+    if (realOrders.length === 0) return "₦3,360,000";
     return `₦${val.toLocaleString()}`;
   };
 
@@ -214,7 +246,7 @@ export default function AdminDashboard() {
                   marginBottom: 2,
                 }}
               >
-                {orders.length > 0 ? activeOrdersCount : 12}
+                {activeOrdersCount}
               </Text>
               <Text
                 style={{
@@ -246,7 +278,7 @@ export default function AdminDashboard() {
                   marginBottom: 2,
                 }}
               >
-                {escalations.length > 0 ? pendingBookingsCount : 4}
+                {pendingBookingsCount}
               </Text>
               <Text
                 style={{
@@ -481,9 +513,42 @@ export default function AdminDashboard() {
                 {/* Action Buttons Row */}
                 <View style={{ flexDirection: "row", gap: 12 }}>
                   <Pressable
-                    onPress={() => {
+                    onPress={async () => {
                       if (!item.id.startsWith("demo-")) {
-                        router.push(`/(admin)/escalations` as any);
+                        const custName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
+                        try {
+                          const token = useAuthStore.getState().token;
+                          if (token) {
+                            const res = await fetch(`${API_BASE_URL}/api/measurements/check/${encodeURIComponent(custName)}`, {
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            if (res.ok) {
+                              const data = await res.json();
+                              if (data.hasMeasurements === false) {
+                                router.push({
+                                  pathname: "/(admin)/measurements/new",
+                                  params: {
+                                    bookingId: item.id,
+                                    customerName: custName,
+                                    serviceTitle: item.reason || item.summary || "Bespoke Fitting",
+                                    appointmentTime: "Sat, Sept 6",
+                                    returnToAssign: "true",
+                                  },
+                                } as any);
+                                return;
+                              }
+                            }
+                          }
+                        } catch {}
+                        router.push({
+                          pathname: "/(admin)/escalations/assign",
+                          params: {
+                            bookingId: item.id,
+                            customerName: custName,
+                            serviceTitle: item.reason || item.summary || "Bespoke Fitting",
+                            appointmentTime: "Sat, Sept 6",
+                          },
+                        } as any);
                       }
                     }}
                     style={({ pressed }) => [

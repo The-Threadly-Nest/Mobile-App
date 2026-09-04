@@ -7,5 +7,5 @@ export const createOrderSchema = z.object({
 });
 
 export const updateOrderStatusSchema = z.object({
-  status: z.enum(["order_placed", "in_production", "ready", "delivered"]),
+  status: z.string().min(1),
 });

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { OAuth2Client } from "google-auth-library";
 import { prisma } from "../lib/prisma";
+import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, activateAccountSchema } from "../schemas/auth.schema";
 import { hashPassword, verifyPassword, generateResetToken, hashResetToken } from "../lib/password";
@@ -171,6 +172,11 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
         if (fh.shopName) shopName = fh.shopName;
         onboardingCompleted = fh.onboardingCompleted ?? false;
       }
+    } else if (user.fashionHouseId) {
+      const fh = await prisma.fashionHouse.findUnique({ where: { id: user.fashionHouseId } });
+      if (fh && fh.shopName) {
+        shopName = fh.shopName;
+      }
     }
 
     res.json({
@@ -236,6 +242,36 @@ router.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema
     const newPasswordHash = await hashPassword(newPassword);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash: newPasswordHash, resetTokenHash: null, resetTokenExpiresAt: null } });
     res.json({ message: "Password updated. You can now log in with your new password." });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/change-password", authLimiter, async (req, res, next) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+    if (!email || !currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Email, current password, and new password are required." });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (!user || !user.passwordHash) {
+      return res.status(401).json({ error: "Incorrect email or current password." });
+    }
+
+    const valid = await verifyPassword(currentPassword, user.passwordHash);
+    if (!valid) {
+      return res.status(401).json({ error: "Incorrect current password." });
+    }
+
+    const newPasswordHash = await hashPassword(newPassword);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: newPasswordHash, active: true },
+    });
+
+    res.json({ message: "Password updated successfully." });
   } catch (err) {
     next(err);
   }
@@ -412,6 +448,22 @@ router.post("/google", authLimiter, async (req, res, next) => {
         isVerified: true,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/push-token", requireAuth, async (req, res, next) => {
+  try {
+    const { pushToken } = req.body;
+    if (!pushToken || typeof pushToken !== "string") {
+      return res.status(400).json({ error: "Invalid push token." });
+    }
+    await prisma.user.update({
+      where: { id: req.authUserId! },
+      data: { pushToken },
+    });
+    res.json({ success: true, message: "Push token registered successfully." });
   } catch (err) {
     next(err);
   }

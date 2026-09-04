@@ -12,7 +12,8 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Svg, { Path, Rect, Circle, G } from "react-native-svg";
-import { ArrowLeft, Undo2, RotateCcw, Check, User, Grid, Eraser, Pen, HelpCircle } from "lucide-react-native";
+import { Undo2, RotateCcw, Check, User, Grid, Eraser, Pen, HelpCircle } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import FlowMessageCard from "@/shared/components/FlowMessageCard";
@@ -56,9 +57,7 @@ const SKETCH_CHIPS = [
 
 const VIRTUAL_CANVAS_HEIGHT = 1000;
 const VIRTUAL_CENTER_X = 1000;
-const FLOAT_TOOLBAR_BOTTOM = 14; // distance from screen bottom for the floating toolbar
 
-// Helper to compute bounding box of all strokes in virtual coordinates
 function getDrawingBounds(paths: PathData[]) {
   let minX = 500;
   let maxX = 1500;
@@ -85,7 +84,7 @@ function getDrawingBounds(paths: PathData[]) {
   return { minX, maxX, minY, maxY };
 }
 
-export default function AdminDrawScreen() {
+export default function StaffDrawScreen() {
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isLandscape = width > height;
@@ -107,8 +106,6 @@ export default function AdminDrawScreen() {
   const [error, setError] = useState("");
   const [activePanel, setActivePanel] = useState<null | "color" | "width" | "guide">(null);
 
-  // Portrait: tall 4:5 fashion ratio (360x450) so full-length gowns fit
-  // Landscape: large panoramic pad filling the full available screen beside the toolbar
   const canvasWidth = isLandscape
     ? width - (Math.max(insets.left, 12) + 64) - Math.max(insets.right, 16)
     : Math.min(width - 32, 400);
@@ -117,7 +114,6 @@ export default function AdminDrawScreen() {
     ? height - Math.max(insets.top, 8) - Math.max(insets.bottom, 8) - 16
     : Math.min(Math.round(canvasWidth * 1.25), Math.round(height * 0.52));
 
-  // Compute stroke bounds
   const { minX, maxX, minY, maxY } = useMemo(() => getDrawingBounds(paths), [paths]);
 
   let virtualViewBoxX: number;
@@ -128,7 +124,6 @@ export default function AdminDrawScreen() {
   const aspect = canvasWidth / (canvasHeight || 1);
 
   if (isLandscape) {
-    // Landscape: expansive wide view, height locked around 1000 (or expands if user drew longer)
     const baseH = Math.max(maxY, VIRTUAL_CANVAS_HEIGHT);
     const startY = Math.min(minY, 0);
     virtualHeight = baseH - startY;
@@ -136,7 +131,6 @@ export default function AdminDrawScreen() {
     virtualWidth = Math.max(aspect * virtualHeight, (maxX - minX) + 100);
     virtualViewBoxX = VIRTUAL_CENTER_X - virtualWidth / 2;
   } else {
-    // Portrait: locks vertical height around 1000 so dress length is 100% preserved
     const baseH = Math.max(maxY, VIRTUAL_CANVAS_HEIGHT);
     const startY = Math.min(minY, 0);
     const contentH = baseH - startY;
@@ -184,7 +178,6 @@ export default function AdminDrawScreen() {
   const startYRef = useRef(0);
 
   const commitPath = () => {
-    // Capture ref values BEFORE clearing — setPaths updater runs async
     const pathData = currentPathRef.current;
     const color = selectedColorRef.current;
     const strokeWidth = selectedWidthRef.current;
@@ -211,12 +204,11 @@ export default function AdminDrawScreen() {
       onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: (evt) => {
         setScrollEnabled(false);
-        setActivePanel(null); // close any open panel when drawing starts
+        setActivePanel(null);
         const { locationX, locationY } = evt.nativeEvent;
         startXRef.current = locationX;
         startYRef.current = locationY;
 
-        // Map touch location to center-anchored virtual space
         const { x: vx0, y: vy0, w: vw, h: vh } = virtualViewBoxRef.current;
         const vx = (vx0 + (locationX / (canvasWidthRef.current || 1)) * vw).toFixed(1);
         const vy = (vy0 + (locationY / (canvasHeightRef.current || 1)) * vh).toFixed(1);
@@ -285,12 +277,10 @@ ${pathElements}
       const filename = `sketch-${Date.now()}.svg`;
       const tempFileUri = `${FileSystem.cacheDirectory}${filename}`;
 
-      // Write SVG string to genuine local file on the device
       await FileSystem.writeAsStringAsync(tempFileUri, svgString, {
         encoding: FileSystem.EncodingType.UTF8,
       });
 
-      // Upload genuine file:/// URI directly to Cloudflare R2
       let uploadResult;
       try {
         uploadResult = await uploadFile(tempFileUri, filename, "image/svg+xml");
@@ -326,7 +316,6 @@ ${pathElements}
     }
   };
 
-  // ─── Shared canvas JSX ─────────────────────────────────────────────────────
   const canvasJSX = (
     <View
       style={[
@@ -334,7 +323,6 @@ ${pathElements}
         { width: canvasWidth, height: canvasHeight },
       ]}
     >
-      {/* Render Layer */}
       <Svg
         width={canvasWidth}
         height={canvasHeight}
@@ -349,7 +337,6 @@ ${pathElements}
           fill="#FBF7EF"
         />
 
-        {/* Croquis Silhouette Guide centered at x = 1000 */}
         {bgGuide === "croquis" && (
           <G opacity={0.35}>
             <Circle cx={1000} cy={140} r={44} stroke="#8A7550" strokeWidth="3" fill="none" />
@@ -364,7 +351,6 @@ ${pathElements}
           </G>
         )}
 
-        {/* Dot Grid Guide in virtual space */}
         {bgGuide === "grid" && (
           <G opacity={0.25}>
             {Array.from(
@@ -378,7 +364,6 @@ ${pathElements}
           </G>
         )}
 
-        {/* Saved Paths */}
         {paths.map((p, idx) => (
           <Path
             key={idx}
@@ -391,7 +376,6 @@ ${pathElements}
           />
         ))}
 
-        {/* In-Progress Stroke */}
         {currentPath ? (
           <Path
             d={currentPath}
@@ -404,7 +388,6 @@ ${pathElements}
         ) : null}
       </Svg>
 
-      {/* Touch Layer — immune to SVG re-renders */}
       <View
         collapsable={false}
         {...panResponder.panHandlers}
@@ -420,22 +403,19 @@ ${pathElements}
     </View>
   );
 
-  // ─── LANDSCAPE — full-screen canvas + left vertical pill toolbar ────────
   if (isLandscape) {
     const pillLeft = Math.max(insets.left, 12);
-    const panelLeft = pillLeft + 54; // panels open to the right of the pill
+    const panelLeft = pillLeft + 54;
 
     const togglePanel = (p: "color" | "width" | "guide") =>
       setActivePanel((prev) => (prev === p ? null : p));
 
     return (
       <View style={styles.landscapeRoot}>
-        {/* Centered pad in landscape */}
         <View style={styles.landscapeCanvasWrapper}>
           {canvasJSX}
         </View>
 
-        {/* Error banner in landscape */}
         {error ? (
           <View style={[styles.landscapeErrorBanner, { top: Math.max(insets.top, 12) }]}>
             <Text style={styles.landscapeErrorText} numberOfLines={2}>
@@ -444,15 +424,12 @@ ${pathElements}
           </View>
         ) : null}
 
-        {/* Dismiss panels on canvas tap */}
         {activePanel !== null && (
           <Pressable
             style={StyleSheet.absoluteFillObject}
             onPress={() => setActivePanel(null)}
           />
         )}
-
-        {/* ── Pop-up Panels (open to the right of the pill) ── */}
 
         {activePanel === "color" && (
           <View style={[styles.floatPanel, { left: panelLeft }]}>
@@ -522,8 +499,6 @@ ${pathElements}
           </View>
         )}
 
-        {/* ── Left vertical pill — centered on the left edge ── */}
-        {/* Centering wrapper: absolute full-height column on the left */}
         <View
           style={[
             styles.pillCenterWrapper,
@@ -531,17 +506,15 @@ ${pathElements}
           ]}
         >
           <View style={styles.floatingToolbarPill}>
-            {/* Back */}
             <Pressable
               onPress={() => router.back()}
               style={({ pressed }) => [styles.floatBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <ArrowLeft size={16} color="#4A080C" />
+              <BackArrowIcon size={16} color="#4A080C" />
             </Pressable>
 
             <View style={styles.floatDivider} />
 
-            {/* Color — filled with current color */}
             <Pressable
               onPress={() => togglePanel("color")}
               style={[
@@ -557,7 +530,6 @@ ${pathElements}
               )}
             </Pressable>
 
-            {/* Pen size */}
             <Pressable
               onPress={() => togglePanel("width")}
               style={[styles.floatBtn, activePanel === "width" && styles.floatBtnActive]}
@@ -568,7 +540,6 @@ ${pathElements}
               />
             </Pressable>
 
-            {/* Guide */}
             <Pressable
               onPress={() => togglePanel("guide")}
               style={[styles.floatBtn, activePanel === "guide" && styles.floatBtnActive]}
@@ -584,7 +555,6 @@ ${pathElements}
 
             <View style={styles.floatDivider} />
 
-            {/* Undo */}
             <Pressable
               onPress={handleUndo}
               disabled={paths.length === 0}
@@ -593,7 +563,6 @@ ${pathElements}
               <Undo2 size={14} color={paths.length > 0 ? "#4A080C" : "#C4A763"} />
             </Pressable>
 
-            {/* Clear */}
             <Pressable
               onPress={handleClear}
               disabled={paths.length === 0}
@@ -604,7 +573,6 @@ ${pathElements}
 
             <View style={styles.floatDivider} />
 
-            {/* Save */}
             <Pressable
               onPress={handleSave}
               disabled={paths.length === 0 || saving}
@@ -618,17 +586,15 @@ ${pathElements}
     );
   }
 
-  // ─── PORTRAIT ─────────────────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-      {/* Header */}
       <View style={styles.headerBar}>
         <View style={styles.headerLeft}>
           <Pressable
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={20} color="#000000" />
+            <BackArrowIcon size={20} color="#000000" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketchpad</Text>
         </View>
@@ -725,19 +691,16 @@ ${pathElements}
         </Modal>
       )}
 
-      {/* Canvas */}
       <View style={styles.portraitCanvasWrapper}>
         {canvasJSX}
       </View>
 
-      {/* Tools */}
       <ScrollView
         scrollEnabled={scrollEnabled}
         showsVerticalScrollIndicator={false}
         style={styles.portraitToolsScroll}
         contentContainerStyle={styles.toolsContent}
       >
-        {/* Actions & Stroke Width Row */}
         <View style={styles.toolbarRow}>
           <View style={styles.actionsRow}>
             <Pressable
@@ -773,7 +736,6 @@ ${pathElements}
           </View>
         </View>
 
-        {/* Color Palette */}
         <View style={styles.colorPaletteRow}>
           {COLORS.map((c) => {
             const isEraser = c === "#FBF7EF";
@@ -801,7 +763,6 @@ ${pathElements}
           })}
         </View>
 
-        {/* Title Chips */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -844,7 +805,6 @@ ${pathElements}
 }
 
 const styles = StyleSheet.create({
-  // ── Portrait ────────────────────────────────────────────────────────────────────
   safeArea: { flex: 1, backgroundColor: "#FBF7EF" },
   headerBar: {
     flexDirection: "row",
@@ -881,6 +841,16 @@ const styles = StyleSheet.create({
   },
   guideBtnActive: { backgroundColor: "#4A080C" },
   guideBtnText: { fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#4A080C" },
+  portraitCanvasWrapper: { alignItems: "center", paddingTop: 8 },
+  portraitToolsScroll: { flex: 1, paddingHorizontal: 16 },
+  toolsContent: { paddingBottom: 20 },
+  toolbarRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+    marginTop: 10,
+  },
   centeredModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.45)",
@@ -891,16 +861,6 @@ const styles = StyleSheet.create({
   centeredGuideCardWrapper: {
     width: "100%",
     maxWidth: 360,
-  },
-  portraitCanvasWrapper: { alignItems: "center", paddingTop: 8 },
-  portraitToolsScroll: { flex: 1, paddingHorizontal: 16 },
-  toolsContent: { paddingBottom: 20 },
-  toolbarRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-    marginTop: 10,
   },
   actionsRow: { flexDirection: "row", gap: 8 },
   toolIconBtn: {
@@ -957,8 +917,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 4,
   },
-
-  // ── Shared canvas ────────────────────────────────────────────────────────────────
   canvasContainer: {
     borderRadius: 16,
     overflow: "hidden",
@@ -977,8 +935,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
-  // ── Landscape ─────────────────────────────────────────────────────────────────
   landscapeRoot: {
     flex: 1,
     flexDirection: "column",
@@ -1007,24 +963,6 @@ const styles = StyleSheet.create({
     color: "#B91C1C",
     textAlign: "center",
   },
-  landscapeBackBtn: {
-    position: "absolute",
-    zIndex: 30,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.10)",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  // Floating toolbar pill — vertical left side
   pillCenterWrapper: {
     position: "absolute",
     top: 0,
@@ -1078,7 +1016,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#E4D5B7",
     marginVertical: 1,
   },
-  // Pop-up panels — appear to the RIGHT of the pill
   floatPanel: {
     position: "absolute",
     top: "25%",
@@ -1094,11 +1031,6 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.07)",
-  },
-  floatPanelRow: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
   },
   floatPanelCol: {
     flexDirection: "column",

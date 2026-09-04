@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -97,8 +97,9 @@ export default function LoginScreen() {
         } else {
           router.replace("/(admin)/dashboard");
         }
-      } else if (body.user.role === "staff") router.replace("/(staff)/dashboard");
-      else router.replace("/(customer)/browse");
+      } else if (body.user.role === "staff") {
+        router.replace("/(staff)/dashboard");
+      } else router.replace("/(customer)/browse");
     } catch (e: any) {
       if (e.message === "Network request failed" || e.name === "TypeError") {
         setError(`Network request failed. (Connecting to ${API_BASE_URL})`);

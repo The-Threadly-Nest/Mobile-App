@@ -11,7 +11,7 @@ import {
   Modal,
   Switch,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { ArrowUp, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
@@ -35,35 +35,68 @@ function sanitizeText(text: string): string {
   return text
     .replace(/—/g, ", ")
     .replace(/--/g, ", ")
-    .replace(/_/g, "");
+    .replace(/_/g, "")
+    .replace(/atelier/gi, "Fashion House");
 }
 
 const DEFAULT_INITIAL_TURNS: Turn[] = [
   {
     role: "model",
-    text: "Welcome to Adaeze Couture! We are delighted to assist you with your fitting. What occasion are we styling for today?",
-    options: ["Wedding", "Owambe", "Just for me"],
+    text: "Welcome! We are delighted to assist you with your fitting. What occasion are we styling for today?",
+    options: ["Wedding", "Owambe / Gala", "Casual & Daily", "Custom Bespoke"],
   },
 ];
 
 export default function BookingChatScreen() {
-  const { fashionHouseId } = useLocalSearchParams<{ fashionHouseId: string }>();
+  const insets = useSafeAreaInsets();
+  const { fashionHouseId, fashionHouseName: paramFhName, garmentName, garmentPrice } = useLocalSearchParams<{
+    fashionHouseId: string;
+    fashionHouseName?: string;
+    garmentName?: string;
+    garmentPrice?: string;
+  }>();
   const [history, setHistory] = useState<Turn[]>(DEFAULT_INITIAL_TURNS);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [loadingSession, setLoadingSession] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [selectedSlotLabel, setSelectedSlotLabel] = useState<string | null>(null);
-  const [fashionHouseName] = useState("Adaeze Couture");
+  const [fashionHouseName, setFashionHouseName] = useState(paramFhName || "Fashion House");
+  const [selectedGarment, setSelectedGarment] = useState(garmentName || "Bespoke Fitting Session");
+  const [selectedEstimate, setSelectedEstimate] = useState(garmentPrice || "Finalized at fitting");
+  const [houseCategories, setHouseCategories] = useState<string[]>([]);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [isFavourite, setIsFavourite] = useState(false);
   const token = useAuthStore((s) => s.token);
   const scrollRef = useRef<ScrollView>(null);
 
-  // Load session history on mount
+  // Load session history and real fashion house name on mount
   useEffect(() => {
     (async () => {
       try {
+        if (fashionHouseId) {
+          const fhRes = await fetch(`${API_BASE_URL}/api/fashion-houses/${fashionHouseId}`);
+          if (fhRes.ok) {
+            const fhBody = await fhRes.json();
+            if (fhBody.shopName) {
+              setFashionHouseName(fhBody.shopName);
+            }
+            if (Array.isArray(fhBody.categories) && fhBody.categories.length > 0) {
+              setHouseCategories(fhBody.categories);
+            }
+          } else if (!paramFhName) {
+            const listRes = await fetch(`${API_BASE_URL}/api/fashion-houses`);
+            if (listRes.ok) {
+              const listBody = await listRes.json();
+              if (Array.isArray(listBody) && listBody.length > 0) {
+                setFashionHouseName(listBody[0].shopName);
+                if (Array.isArray(listBody[0].categories)) {
+                  setHouseCategories(listBody[0].categories);
+                }
+              }
+            }
+          }
+        }
         if (token && fashionHouseId) {
           const res = await fetch(`${API_BASE_URL}/api/chat/session/${fashionHouseId}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -96,6 +129,37 @@ export default function BookingChatScreen() {
 
     const lower = textToSend.toLowerCase();
 
+    // Dynamically update selected garment if customer chose/typed a style
+    let activeGarment = selectedGarment;
+    if (
+      !lower.startsWith("book slot") &&
+      !lower.includes("fabric") &&
+      !lower.includes("bring my own") &&
+      !lower.includes("discuss at fitting") &&
+      !lower.includes("wedding") &&
+      !lower.includes("owambe") &&
+      !lower.includes("just for me")
+    ) {
+      if (
+        lower.includes("gown") ||
+        lower.includes("aso-ebi") ||
+        lower.includes("agbada") ||
+        lower.includes("kaftan") ||
+        lower.includes("senator") ||
+        lower.includes("suit") ||
+        lower.includes("dress") ||
+        lower.includes("corset") ||
+        lower.includes("boubou") ||
+        lower.includes("buba") ||
+        lower.includes("skirt") ||
+        lower.includes("blouse") ||
+        houseCategories.some((c) => lower.includes(c.toLowerCase()))
+      ) {
+        activeGarment = textToSend;
+        setSelectedGarment(textToSend);
+      }
+    }
+
     try {
       let replyText = "";
       let responseType = "";
@@ -110,6 +174,10 @@ export default function BookingChatScreen() {
           const body = await res.json();
           replyText = sanitizeText(body.reply);
           responseType = body.type;
+          if (body.booking?.styleNotes) {
+            activeGarment = body.booking.styleNotes;
+            setSelectedGarment(body.booking.styleNotes);
+          }
         }
       }
 
@@ -123,73 +191,170 @@ export default function BookingChatScreen() {
 
         const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Sat, 6 Sep · 10:00 AM";
 
+        // Persist real booking to backend only if AI did not already create it
+        if (responseType !== "booking_created" && token && fashionHouseId) {
+          fetch(`${API_BASE_URL}/api/orders/my-orders`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              fashionHouseId,
+              fashionHouseName,
+              garment: activeGarment,
+              fittingDate: targetSlot,
+            }),
+          }).catch(() => {});
+        }
+
         setTimeout(() => {
+          setHistory(DEFAULT_INITIAL_TURNS);
+          setBookingConfirmed(false);
           router.push({
             pathname: "/(customer)/confirmation",
             params: {
               fashionHouseName,
-              garment: "Aso-Ebi",
+              garment: activeGarment,
               fittingDate: targetSlot,
-              estimate: "₦850,000 – ₦1,000,000",
+              estimate: selectedEstimate,
             },
           });
         }, 1200);
         return;
       }
 
-      // Interactive turn generation based on conversation stage
+      // Dynamic style options from the fashion house's real specializations
+      const styleOptions =
+        houseCategories.length > 0
+          ? houseCategories.slice(0, 4)
+          : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
+
+      const isOccasionChoice =
+        lower.includes("wedding") ||
+        lower.includes("owambe") ||
+        lower.includes("gala") ||
+        lower.includes("casual") ||
+        lower.includes("just for me") ||
+        lower.includes("custom bespoke");
+
+      const isStyleChoice =
+        lower.includes("gown") ||
+        lower.includes("aso-ebi") ||
+        lower.includes("both") ||
+        lower.includes("agbada") ||
+        lower.includes("kaftan") ||
+        lower.includes("senator") ||
+        lower.includes("suit") ||
+        lower.includes("corset") ||
+        houseCategories.some((c) => lower.includes(c.toLowerCase()));
+
+      const isFabricChoice =
+        lower.includes("fabric") ||
+        lower.includes("bring my own") ||
+        lower.includes("discuss at fitting");
+
+      const isRequestingSlots =
+        isFabricChoice ||
+        lower.includes("date") ||
+        lower.includes("slot") ||
+        lower.includes("time") ||
+        lower.includes("when") ||
+        lower.includes("schedule") ||
+        lower.includes("appointment") ||
+        lower.includes("book") ||
+        lower.includes("fitting") ||
+        replyText.toLowerCase().includes("slot") ||
+        replyText.toLowerCase().includes("below");
+
       let responseTurn: Turn = {
         role: "model",
-        text: replyText || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
+        text: replyText || `We would love to craft this for you! Would you like to explore our in-house fabric collection, or bring your own?`,
       };
 
-      if (lower.includes("wedding") || lower.includes("owambe") || lower.includes("just for me")) {
+      if (isOccasionChoice) {
         responseTurn.text = replyText || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
-        responseTurn.options = ["Bridal Gown", "Aso-Ebi", "Both"];
-      } else if (lower.includes("gown") || lower.includes("aso-ebi") || lower.includes("both")) {
-        responseTurn.text = replyText || `Excellent choice. Here are the upcoming fitting slots available at ${fashionHouseName}:`;
+        responseTurn.options = styleOptions;
+        responseTurn.slots = undefined;
+      } else if (isRequestingSlots) {
+        responseTurn.text = replyText || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
+        responseTurn.options = undefined; // Strictly clear options so pills and slots never clash
         responseTurn.slots = [
           { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
           { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
           { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
         ];
+      } else if (isStyleChoice) {
+        responseTurn.text = replyText || `We would love to create this bespoke piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
+        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
+        responseTurn.slots = undefined;
+      } else {
+        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
+        responseTurn.slots = undefined;
       }
 
       setHistory((prev) => [...prev, responseTurn]);
     } catch {
       // Fallback interactive response
+      const styleOptions =
+        houseCategories.length > 0
+          ? houseCategories.slice(0, 4)
+          : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
+
+      const isOccasionChoice =
+        lower.includes("wedding") ||
+        lower.includes("owambe") ||
+        lower.includes("gala") ||
+        lower.includes("casual") ||
+        lower.includes("just for me") ||
+        lower.includes("custom bespoke");
+
+      const isStyleChoice =
+        lower.includes("gown") ||
+        lower.includes("aso-ebi") ||
+        lower.includes("both") ||
+        lower.includes("agbada") ||
+        lower.includes("kaftan");
+
+      const isFabricChoice =
+        lower.includes("fabric") ||
+        lower.includes("bring my own") ||
+        lower.includes("discuss at fitting");
+
+      const isRequestingSlots =
+        isFabricChoice ||
+        lower.includes("date") ||
+        lower.includes("slot") ||
+        lower.includes("time") ||
+        lower.includes("when") ||
+        lower.includes("schedule") ||
+        lower.includes("appointment") ||
+        lower.includes("book") ||
+        lower.includes("fitting");
+
       let responseTurn: Turn = {
         role: "model",
         text: `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
-        options: ["Bridal Gown", "Aso-Ebi", "Both"],
       };
 
-      if (lower.includes("gown") || lower.includes("aso-ebi") || lower.includes("both")) {
-        responseTurn.text = `Excellent choice. Here are the upcoming fitting slots available at ${fashionHouseName}:`;
+      if (isOccasionChoice) {
+        responseTurn.text = `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
+        responseTurn.options = styleOptions;
+        responseTurn.slots = undefined;
+      } else if (isRequestingSlots) {
+        responseTurn.text = `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
         responseTurn.options = undefined;
         responseTurn.slots = [
           { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
           { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
           { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
         ];
-      } else if (lower.includes("slot") || lower.includes("sep")) {
-        setBookingConfirmed(true);
-        responseTurn.text = `Your fitting request with ${fashionHouseName} has been received! Our team will confirm shortly.`;
-        responseTurn.options = undefined;
-
-        const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Sat, 6 Sep · 10:00 AM";
-
-        setTimeout(() => {
-          router.push({
-            pathname: "/(customer)/confirmation",
-            params: {
-              fashionHouseName,
-              garment: "Aso-Ebi",
-              fittingDate: targetSlot,
-              estimate: "₦850,000 – ₦1,000,000",
-            },
-          });
-        }, 1200);
+      } else if (isStyleChoice) {
+        responseTurn.text = `We would love to create this piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
+        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
+        responseTurn.slots = undefined;
+      } else {
+        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
+        responseTurn.slots = undefined;
       }
 
       setHistory((prev) => [...prev, responseTurn]);
@@ -212,7 +377,9 @@ export default function BookingChatScreen() {
         </Pressable>
 
         <View className="w-10 h-10 rounded-full bg-oxblood items-center justify-center mr-3">
-          <Text className="font-display font-bold text-white text-[16px]">A</Text>
+          <Text className="font-display font-bold text-white text-[16px]">
+            {fashionHouseName.charAt(0).toUpperCase()}
+          </Text>
         </View>
 
         <View className="flex-1">
@@ -227,12 +394,15 @@ export default function BookingChatScreen() {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
+        keyboardVerticalOffset={Platform.OS === "ios" ? 12 : 0}
+        style={{ flex: 1 }}
       >
         <ScrollView
           ref={scrollRef}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           className="flex-1 px-6 pt-2"
-          contentContainerStyle={{ paddingBottom: 24, gap: 16 }}
+          contentContainerStyle={{ paddingBottom: 20, gap: 16 }}
           showsVerticalScrollIndicator={false}
         >
           {loadingSession ? (
@@ -353,14 +523,24 @@ export default function BookingChatScreen() {
 
         {/* Input Area */}
         {!bookingConfirmed && !loadingSession && (
-          <View className="px-8 pt-3 pb-8 bg-cream">
-            <View className="flex-row items-center gap-4">
+          <View
+            style={{
+              paddingHorizontal: 24,
+              paddingTop: 10,
+              paddingBottom: Math.max(insets.bottom, 12),
+              backgroundColor: "#FBF7EF",
+            }}
+          >
+            <View className="flex-row items-center gap-3">
               <TextInput
                 value={draft}
                 onChangeText={setDraft}
+                onFocus={() => {
+                  setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+                }}
                 placeholder="Type a message..."
                 placeholderTextColor="rgba(74, 8, 12, 0.7)"
-                className="flex-1 bg-white border border-oxblood rounded-full px-6 py-3.5 font-body text-[14px] text-oxblood"
+                className="flex-1 bg-white border border-oxblood rounded-full px-5 py-3 font-body text-[14px] text-oxblood"
                 onSubmitEditing={() => handleSend()}
                 returnKeyType="send"
               />

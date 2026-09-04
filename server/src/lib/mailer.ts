@@ -67,3 +67,47 @@ export async function sendStaffActivationEmail(to: string, name: string, fashion
     </div>`,
   });
 }
+
+export async function sendStaffInviteEmail({
+  to,
+  name,
+  fashionHouseName,
+  tempPassword,
+}: {
+  to: string;
+  name: string;
+  fashionHouseName: string;
+  tempPassword?: string;
+}) {
+  const passwordSection = tempPassword
+    ? `<div style="background: #FBF7EF; border: 1px solid #E4D5B7; padding: 14px; border-radius: 8px; margin: 16px 0; text-align: left;">
+        <p style="margin: 0 0 6px 0; font-size: 13px; color: #4A080C; font-weight: bold;">Your Temporary Log In Credentials:</p>
+        <p style="margin: 0 0 4px 0; font-size: 13px; color: #3A2E1A;"><strong>Email:</strong> ${to}</p>
+        <p style="margin: 0; font-size: 13px; color: #3A2E1A;"><strong>Temporary Password:</strong> ${tempPassword}</p>
+      </div>`
+    : "";
+
+  await transporter.sendMail({
+    from: `"The Threadly Nest" <${process.env.GMAIL_USER}>`,
+    to,
+    subject: `You've been added to ${fashionHouseName} on The Threadly Nest`,
+    text: `Hi ${name},\n\nYou have been added as a staff member at ${fashionHouseName}.\n\nSteps to log in:\n1. Open The Threadly Nest app.\n2. Select Staff Login.\n3. Log in with your email (${to}) and temporary password (${tempPassword || "provided by admin"}).\n4. Complete onboarding and set your new private password.`,
+    html: `<div style="font-family: sans-serif; max-width: 460px; margin: 0 auto; padding: 24px; border: 1px solid #4A080C; border-radius: 12px; text-align: left;">
+      <h1 style="font-size: 18px; color: #4A080C; font-family: Georgia, serif; letter-spacing: 1px; margin-bottom: 20px; text-align: center;">THE THREADLY NEST</h1>
+      <p style="font-size: 15px; color: #3A2E1A; line-height: 1.5; margin-bottom: 12px;">Hi <strong>${name}</strong>,</p>
+      <p style="font-size: 14px; color: #3A2E1A; line-height: 1.5;">You have been added as a staff member at <strong>${fashionHouseName}</strong>.</p>
+      
+      ${passwordSection}
+
+      <p style="font-size: 14px; font-weight: bold; color: #4A080C; margin-top: 20px; margin-bottom: 8px;">Steps to Log In & Get Started:</p>
+      <ol style="font-size: 13px; color: #3A2E1A; line-height: 1.6; padding-left: 20px; margin-bottom: 20px;">
+        <li style="margin-bottom: 6px;">Open <strong>The Threadly Nest</strong> app on your device.</li>
+        <li style="margin-bottom: 6px;">Select <strong>Log In</strong> and enter your staff email.</li>
+        <li style="margin-bottom: 6px;">Enter your temporary password listed above.</li>
+        <li style="margin-bottom: 6px;">Explore staff onboarding and set your personal private password.</li>
+      </ol>
+
+      <p style="font-size: 12px; color: #8A7550; text-align: center; margin-top: 24px;">Welcome to the team!</p>
+    </div>`,
+  });
+}

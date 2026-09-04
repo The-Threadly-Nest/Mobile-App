@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Pressable, Text, ScrollView, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
@@ -58,7 +58,7 @@ export default function ForgotPasswordScreen() {
         ]}
       >
         <Pressable onPress={handleBack} style={{ marginBottom: 24, width: 40, height: 40, justifyContent: "center" }}>
-          <ChevronLeft size={24} color="#4A080C" />
+          <BackArrowIcon size={20} color="#4A080C" />
         </Pressable>
 
         <Headline className="text-2xl mb-2">Reset your password</Headline>
