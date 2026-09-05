@@ -11,7 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Camera, UploadCloud, Tag } from "lucide-react-native";
@@ -184,7 +184,7 @@ export default function AdminNewGarmentScreen() {
         </ScrollView>
 
         {/* Pinned Bottom Action Button */}
-        <View style={styles.bottomBar}>
+        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           <Pressable
             onPress={handleSubmit}
             disabled={saving || uploadingImage}

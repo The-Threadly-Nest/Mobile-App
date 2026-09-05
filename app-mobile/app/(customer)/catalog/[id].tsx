@@ -8,7 +8,7 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Store,
@@ -127,6 +127,7 @@ export default function CatalogItemDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
+          { paddingBottom: 80 + insets.bottom },
           isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}
@@ -207,7 +208,7 @@ export default function CatalogItemDetailScreen() {
       </ScrollView>
 
       {/* Bottom Sticky Action Bar */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
         <Pressable
           style={({ pressed }) => [styles.bookBtn, { opacity: pressed ? 0.9 : 1 }]}
           onPress={handleBookFitting}
