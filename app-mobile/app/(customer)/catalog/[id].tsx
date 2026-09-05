@@ -22,6 +22,7 @@ import CachedImage from "@/shared/components/CachedImage";
 import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function CatalogItemDetailScreen() {
+  const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
@@ -127,7 +128,7 @@ export default function CatalogItemDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: 80 + insets.bottom },
+          { paddingBottom: 100 + insets.bottom },
           isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}

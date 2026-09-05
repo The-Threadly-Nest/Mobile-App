@@ -9,7 +9,7 @@ import {
   ImageSourcePropType,
   useWindowDimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Star, Calendar, Store } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
@@ -73,6 +73,7 @@ function renderStars(rating: number) {
 }
 
 export default function FashionHouseScreen() {
+  const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
@@ -146,7 +147,10 @@ export default function FashionHouseScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+      >
         {/* Hero Image */}
         <View style={[styles.heroContainer, isLandscape && { height: 180 }]}>
           {coverImage ? (
@@ -159,7 +163,7 @@ export default function FashionHouseScreen() {
 
           {/* Back Button */}
           <Pressable style={styles.backBtn} onPress={() => router.back()}>
-            <BackArrowIcon size={20} color="#3A2E1A" />
+            <BackArrowIcon size={18} color="#3A2E1A" />
           </Pressable>
 
           {/* Hero Title */}
@@ -280,23 +284,23 @@ export default function FashionHouseScreen() {
             </Pressable>
           </View>
         </View>
-
-        {/* CTAs — Booking Button */}
-        <View style={styles.ctaContainer}>
-          <Pressable
-            style={styles.bookingBtn}
-            onPress={() =>
-              router.push({
-                pathname: `/(customer)/chat/${targetId}`,
-                params: { fashionHouseName: displayName },
-              })
-            }
-          >
-            <Calendar size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-            <Text style={styles.bookingBtnText}>Book Appointment</Text>
-          </Pressable>
-        </View>
       </ScrollView>
+
+      {/* Pinned Bottom Sticky Action Bar */}
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        <Pressable
+          style={({ pressed }) => [styles.bookingBtn, { opacity: pressed ? 0.9 : 1 }]}
+          onPress={() =>
+            router.push({
+              pathname: `/(customer)/chat/${targetId}`,
+              params: { fashionHouseName: displayName },
+            })
+          }
+        >
+          <Calendar size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+          <Text style={styles.bookingBtnText}>Book Appointment</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -527,22 +531,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3A2E1A",
   },
-  ctaContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 36,
+  bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(58, 46, 26, 0.1)",
   },
   bookingBtn: {
     backgroundColor: "#4A080C",
-    borderRadius: 50,
-    paddingVertical: 16,
+    height: 50,
+    borderRadius: 25,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
   bookingBtnText: {
     fontFamily: "WorkSans_600SemiBold",
-    fontSize: 16,
+    fontSize: 15,
     color: "#FFFFFF",
   },
 });

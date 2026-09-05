@@ -9,7 +9,7 @@ import {
   useWindowDimensions,
   StyleSheet,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Info, Check, ArrowRight } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
@@ -33,6 +33,7 @@ const STAGES: StageItem[] = [
 ];
 
 export default function UpdateProgressScreen() {
+  const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
@@ -131,6 +132,7 @@ export default function UpdateProgressScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
+          { paddingBottom: 100 + insets.bottom },
           isLandscape && styles.scrollContentLandscape,
         ]}
         showsVerticalScrollIndicator={false}

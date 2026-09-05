@@ -21,6 +21,7 @@ import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 export default function AdminNewGarmentScreen() {
+  const insets = useSafeAreaInsets();
   const { showAlert, showConfirm } = useAppAlert();
   const [name, setName] = useState("");
   const [priceFrom, setPriceFrom] = useState("");
@@ -117,7 +118,7 @@ export default function AdminNewGarmentScreen() {
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 + insets.bottom }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
