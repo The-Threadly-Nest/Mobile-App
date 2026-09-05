@@ -178,6 +178,11 @@ export default function StaffLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const prevCountRef = useRef(0);          // tracks previous count to detect NEW messages
   const staffIdRef = useRef<string | null>(null); // caches staff id to avoid repeated /me calls
+  const pathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     NavigationBar.setBackgroundColorAsync("#FFFFFF");
@@ -233,7 +238,7 @@ export default function StaffLayout() {
         }
 
         // 4. If user is on the chat screen keep badge at 0; otherwise update & notify
-        const isOnChat = pathname.includes("/chat");
+        const isOnChat = pathnameRef.current.includes("/chat");
         if (isOnChat) {
           setUnreadCount(0);
           prevCountRef.current = 0;
@@ -258,7 +263,7 @@ export default function StaffLayout() {
     fetchUnread();
     const interval = setInterval(fetchUnread, 15_000);
     return () => clearInterval(interval);
-  }, [token, pathname]);
+  }, [token]);
 
   return (
     <Tabs

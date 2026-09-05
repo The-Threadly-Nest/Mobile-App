@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { Share2, FileText, Image as ImageIcon, X } from "lucide-react-native";
+import { Share2, FileText, Image as ImageIcon, X, Printer } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import ViewShot from "react-native-view-shot";
 import * as Print from "expo-print";
@@ -153,8 +153,8 @@ export default function InvoiceDetailScreen() {
     showAlert("Payment Updated", `Invoice ${invoice.invoiceNumber} has been marked as Paid.`);
   };
 
-  const generatePDFUri = async () => {
-    const htmlContent = `
+  const getHTMLContent = () => {
+    return `
       <!DOCTYPE html>
       <html>
       <head>
@@ -357,6 +357,10 @@ export default function InvoiceDetailScreen() {
       </body>
       </html>
     `;
+  };
+
+  const generatePDFUri = async () => {
+    const htmlContent = getHTMLContent();
     const { uri } = await Print.printToFileAsync({ html: htmlContent });
 
     // Dynamic file name: e.g. Chiamaka O. - Invoice from Adaeze Couture.pdf
@@ -371,6 +375,19 @@ export default function InvoiceDetailScreen() {
     });
 
     return targetUri;
+  };
+
+  // Direct Print via AirPrint / Wireless printer
+  const handlePrint = async () => {
+    try {
+      setIsGenerating(true);
+      const htmlContent = getHTMLContent();
+      await Print.printAsync({ html: htmlContent });
+    } catch (e: any) {
+      showAlert("Print Error", e.message || "Failed to send invoice to printer");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Dedicated Download PDF
@@ -537,46 +554,66 @@ export default function InvoiceDetailScreen() {
             </View>
           </ViewShot>
 
-          {/* Dual Action Buttons */}
-          <View style={styles.actionButtonsRow}>
-            {/* Download PDF Button (Dedicated) */}
-            <Pressable
-              onPress={handleDownloadPDF}
-              disabled={isGenerating}
-              style={({ pressed }) => [
-                styles.primaryBtn,
-                { opacity: pressed || isGenerating ? 0.85 : 1 },
-              ]}
-            >
-              {isGenerating ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.primaryBtnText}>Download PDF</Text>
-              )}
-            </Pressable>
+          {/* Action Buttons Row */}
+          <View style={styles.actionButtonsContainer}>
+            <View style={styles.actionButtonsRow}>
+              {/* Print Button */}
+              <Pressable
+                onPress={handlePrint}
+                disabled={isGenerating}
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  { opacity: pressed || isGenerating ? 0.85 : 1 },
+                ]}
+              >
+                {isGenerating ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <Printer size={18} color="#FFFFFF" />
+                    <Text style={styles.primaryBtnText}>Print</Text>
+                  </View>
+                )}
+              </Pressable>
+
+              {/* Download PDF Button */}
+              <Pressable
+                onPress={handleDownloadPDF}
+                disabled={isGenerating}
+                style={({ pressed }) => [
+                  styles.outlineBtn,
+                  { opacity: pressed || isGenerating ? 0.85 : 1 },
+                ]}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <FileText size={18} color="#4A080C" />
+                  <Text style={styles.outlineBtnText}>Download</Text>
+                </View>
+              </Pressable>
+            </View>
 
             {/* Mark as Paid OR Share Button */}
             {!isPaid ? (
               <Pressable
                 onPress={handleMarkAsPaid}
                 style={({ pressed }) => [
-                  styles.outlineBtn,
+                  styles.secondaryBtn,
                   { opacity: pressed ? 0.85 : 1 },
                 ]}
               >
-                <Text style={styles.outlineBtnText}>Mark as Paid</Text>
+                <Text style={styles.secondaryBtnText}>Mark as Paid</Text>
               </Pressable>
             ) : (
               <Pressable
                 onPress={() => setShareModalVisible(true)}
                 style={({ pressed }) => [
-                  styles.outlineBtn,
+                  styles.secondaryBtn,
                   { opacity: pressed ? 0.85 : 1 },
                 ]}
               >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                  <Share2 size={16} color="#4A080C" />
-                  <Text style={styles.outlineBtnText}>Share</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Share2 size={18} color="#4A080C" />
+                  <Text style={styles.secondaryBtnText}>Share Invoice</Text>
                 </View>
               </Pressable>
             )}
@@ -597,17 +634,37 @@ export default function InvoiceDetailScreen() {
         >
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Share Invoice</Text>
+              <Text style={styles.modalTitle}>Share & Print Invoice</Text>
               <Pressable onPress={() => setShareModalVisible(false)} hitSlop={8}>
                 <X size={20} color="#7A7265" />
               </Pressable>
             </View>
 
             <Text style={styles.modalSubtitle}>
-              Choose how you would like to share this invoice with the client:
+              Choose how you would like to output or share this invoice:
             </Text>
 
-            {/* Option 1: PDF */}
+            {/* Option 1: Print Directly */}
+            <Pressable
+              onPress={() => {
+                setShareModalVisible(false);
+                handlePrint();
+              }}
+              style={({ pressed }) => [
+                styles.modalOption,
+                { backgroundColor: pressed ? "#F5EFE6" : "#FFFFFF" },
+              ]}
+            >
+              <View style={styles.optionIconContainer}>
+                <Printer size={22} color="#4A080C" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.optionTitle}>Print Invoice</Text>
+                <Text style={styles.optionDesc}>Send directly to wireless / AirPrint printer</Text>
+              </View>
+            </Pressable>
+
+            {/* Option 2: PDF */}
             <Pressable
               onPress={handleShareAsPDF}
               style={({ pressed }) => [
@@ -624,7 +681,7 @@ export default function InvoiceDetailScreen() {
               </View>
             </Pressable>
 
-            {/* Option 2: Image */}
+            {/* Option 3: Image */}
             <Pressable
               onPress={handleShareAsImage}
               style={({ pressed }) => [
@@ -808,15 +865,18 @@ const styles = StyleSheet.create({
   paidText: {
     color: "#2E7D32",
   },
+  actionButtonsContainer: {
+    marginTop: 28,
+    gap: 12,
+  },
   actionButtonsRow: {
     flexDirection: "row",
     gap: 12,
-    marginTop: 28,
   },
   primaryBtn: {
     flex: 1,
-    height: 54,
-    borderRadius: 27,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "#4A080C",
     alignItems: "center",
     justifyContent: "center",
@@ -828,8 +888,8 @@ const styles = StyleSheet.create({
   },
   outlineBtn: {
     flex: 1,
-    height: 54,
-    borderRadius: 27,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "transparent",
     borderWidth: 1.5,
     borderColor: "#4A080C",
@@ -837,6 +897,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   outlineBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 15,
+    color: "#4A080C",
+  },
+  secondaryBtn: {
+    width: "100%",
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#F3EDE2",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.12)",
+  },
+  secondaryBtnText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
     color: "#4A080C",

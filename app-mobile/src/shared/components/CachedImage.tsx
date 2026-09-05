@@ -1,9 +1,9 @@
 import React from "react";
-import { StyleSheet, StyleProp } from "react-native";
+import { StyleSheet, StyleProp, ImageSourcePropType } from "react-native";
 import { Image as ExpoImage, ImageStyle, ImageSource } from "expo-image";
 
 interface CachedImageProps {
-  source: string | ImageSource | number | { uri: string } | null | undefined;
+  source: string | ImageSource | ImageSourcePropType | number | { uri: string } | null | undefined;
   style?: StyleProp<ImageStyle>;
   contentFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   placeholder?: ImageSource | string;

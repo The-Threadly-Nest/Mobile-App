@@ -186,9 +186,9 @@ export default function AdminOrdersScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
+      if (items.length === 0) setLoading(true);
       fetchOrders();
-    }, [fetchOrders])
+    }, [fetchOrders, items.length])
   );
 
   const onRefresh = () => {
@@ -284,7 +284,7 @@ export default function AdminOrdersScreen() {
                 activeOpacity={0.88}
                 onPress={() => {
                   router.push({
-                    pathname: "/(admin)/invoices/[orderId]",
+                    pathname: "/(admin)/order-detail",
                     params: {
                       orderId: item.id,
                       customerName: item.customer,
@@ -292,6 +292,7 @@ export default function AdminOrdersScreen() {
                       garment: item.item,
                       price: item.price?.toString() || "350000",
                       status: item.status,
+                      assignedStaff: item.assignedStaff,
                     },
                   });
                 }}

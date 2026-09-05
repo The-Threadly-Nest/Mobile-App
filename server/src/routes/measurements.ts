@@ -11,11 +11,53 @@ const router = Router();
 // GET /api/measurements/my-measurements — Customer fetch own measurements
 router.get("/my-measurements", requireAuth, async (req, res, next) => {
   try {
-    const customerId = req.authUserId!;
+    const userId = req.authUserId!;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { preference: true },
+    });
+
+    const customerConditions: any[] = [
+      { userId },
+      { id: userId },
+    ];
+
+    if (user?.name) {
+      customerConditions.push({ name: { equals: user.name, mode: "insensitive" } });
+      customerConditions.push({ name: { contains: user.name, mode: "insensitive" } });
+    }
+    if (user?.email) {
+      const emailHandle = user.email.split("@")[0].replace(/[._]/g, " ");
+      customerConditions.push({ name: { equals: emailHandle, mode: "insensitive" } });
+      customerConditions.push({ name: { contains: emailHandle, mode: "insensitive" } });
+    }
+    if (user?.preference?.phone) {
+      customerConditions.push({ phone: user.preference.phone });
+    }
+
+    const customerRecords = await prisma.customer.findMany({
+      where: { OR: customerConditions },
+      select: { id: true },
+    });
+
+    const ordersWithCustomers = await prisma.order.findMany({
+      where: { OR: [{ customer: { userId } }, { customerId: userId }] },
+      select: { customerId: true },
+    });
+
+    const targetCustomerIds = Array.from(
+      new Set([
+        userId,
+        ...customerRecords.map((c) => c.id),
+        ...ordersWithCustomers.map((o) => o.customerId),
+      ])
+    );
+
     const measurements = await prisma.measurement.findMany({
-      where: { customerId },
+      where: { customerId: { in: targetCustomerIds } },
       orderBy: { recordedAt: "desc" },
     });
+
     res.json(measurements);
   } catch (err) {
     next(err);

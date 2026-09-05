@@ -221,7 +221,6 @@ export default function AdminDashboard() {
   const displayRequests = pendingEscalations.slice(0, 3);
 
   const formatMoney = (val: number) => {
-    if (realOrders.length === 0) return "₦3,360,000";
     return `₦${val.toLocaleString()}`;
   };
 

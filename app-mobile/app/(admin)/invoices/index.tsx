@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
   Pressable,
   FlatList,
+  RefreshControl,
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppDataStore } from "@/stores/useAppDataStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { API_BASE_URL } from "@/api/config";
 
 interface InvoiceItem {
   id: string;
@@ -53,19 +56,54 @@ const MOCK_INVOICES: InvoiceItem[] = [
 export default function InvoicesListScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
+  const token = useAuthStore((s) => s.token);
   const storeOrders = useAppDataStore((s) => s.orders);
+  const [liveOrders, setLiveOrders] = useState<any[]>(storeOrders || []);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchOrders = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/orders`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setLiveOrders(data);
+          useAppDataStore.getState().setOrders(data);
+        }
+      }
+    } catch {
+      // fallback to store
+    }
+  }, [token]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchOrders();
+    }, [fetchOrders])
+  );
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchOrders();
+    setRefreshing(false);
+  };
+
+  const currentOrders = liveOrders.length > 0 ? liveOrders : storeOrders;
 
   const invoices: InvoiceItem[] = React.useMemo(() => {
-    if (storeOrders && storeOrders.length > 0) {
-      return storeOrders.map((o: any, idx: number) => {
+    if (currentOrders && currentOrders.length > 0) {
+      return currentOrders.map((o: any, idx: number) => {
         const isPaid = o.status === "completed" || o.status === "delivered";
         const orderNum = o.orderNumber || `#TFH-${(o.id || String(idx)).slice(0, 4).toUpperCase()}`;
         return {
           id: o.id || `inv-${idx + 1}`,
           invoiceNumber: orderNum.replace("#TFH-", "INV-").replace("#", "INV-"),
           orderNumber: orderNum,
-          customerName: o.customer || "Customer",
-          garment: o.item || "Bespoke Fitting & Tailoring",
+          customerName: o.customer?.name || o.customer || "Customer",
+          garment: o.itemName || o.item || "Bespoke Fitting & Tailoring",
           date: o.fittingDate || o.createdAt ? new Date(o.createdAt || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Sep 6, 2026",
           amount: o.price || 350000,
           status: isPaid ? "Paid" : "Pending",
@@ -73,7 +111,7 @@ export default function InvoicesListScreen() {
       });
     }
     return MOCK_INVOICES;
-  }, [storeOrders]);
+  }, [currentOrders]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -96,6 +134,9 @@ export default function InvoicesListScreen() {
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />
+          }
           renderItem={({ item }) => {
             const isPaid = item.status === "Paid";
 

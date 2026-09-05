@@ -468,18 +468,19 @@ export default function BrowseScreen() {
                 { transform: [{ scale: pressed ? 0.985 : 1 }] },
               ]}
               onPress={() => {
-                if (item.fashionHouseId) {
-                  router.push({
-                    pathname: `/(customer)/fashion-house/${item.fashionHouseId}`,
-                    params: {
-                      initialName: item.vendorName,
-                      initialLocation: item.location,
-                      initialImage: item.imageUrl,
-                    },
-                  });
-                } else {
-                  router.push(`/(customer)/fashion-house/1`);
-                }
+                router.push({
+                  pathname: `/(customer)/catalog/${item.id}`,
+                  params: {
+                    initialName: item.name,
+                    initialPrice: item.priceFrom,
+                    initialImage: item.imageUrl,
+                    initialVendorName: item.vendorName,
+                    initialLocation: item.location,
+                    initialFashionHouseId: item.fashionHouseId || "1",
+                    badge: item.badge,
+                    categoryTag: item.categoryTag,
+                  },
+                });
               }}
             >
               {/* Image Container */}

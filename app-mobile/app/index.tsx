@@ -32,43 +32,53 @@ export default function SplashScreen() {
       })
     ).start();
 
+    let isUnauthorized = false;
+
+    // Helper to fetch with 401 handling
+    const fetchSafe = async (url: string) => {
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.status === 401) {
+          isUnauthorized = true;
+          useAuthStore.getState().logout();
+          return null;
+        }
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    };
+
     // Preload role-based application data into local device storage during splash screen
     const preloadData = async () => {
       if (!token || !role) return;
       try {
-        const headers = { Authorization: `Bearer ${token}` };
         const appStore = useAppDataStore.getState();
 
         if (role === "admin") {
-          await Promise.allSettled([
-            fetch(`${API_BASE_URL}/api/orders?page=1&limit=30`, { headers })
-              .then((r) => r.json())
-              .then((data) => Array.isArray(data) && appStore.setOrders(data)),
-            fetch(`${API_BASE_URL}/api/staff`, { headers })
-              .then((r) => r.json())
-              .then((data) => Array.isArray(data) && appStore.setStaffList(data)),
-            fetch(`${API_BASE_URL}/api/escalations?limit=20`, { headers })
-              .then((r) => r.json())
-              .then((data) => Array.isArray(data) && appStore.setEscalations(data)),
+          const [orders, staff, escalations] = await Promise.all([
+            fetchSafe(`${API_BASE_URL}/api/orders?page=1&limit=30`),
+            fetchSafe(`${API_BASE_URL}/api/staff`),
+            fetchSafe(`${API_BASE_URL}/api/escalations?limit=20`),
           ]);
+          if (Array.isArray(orders)) appStore.setOrders(orders);
+          if (Array.isArray(staff)) appStore.setStaffList(staff);
+          if (Array.isArray(escalations)) appStore.setEscalations(escalations);
         } else if (role === "staff") {
-          await Promise.allSettled([
-            fetch(`${API_BASE_URL}/api/orders?page=1&limit=30`, { headers })
-              .then((r) => r.json())
-              .then((data) => Array.isArray(data) && appStore.setOrders(data)),
-            fetch(`${API_BASE_URL}/api/staff/me`, { headers })
-              .then((r) => r.json())
-              .then((data) => appStore.setProfile(data)),
+          const [orders, profile] = await Promise.all([
+            fetchSafe(`${API_BASE_URL}/api/orders?page=1&limit=30`),
+            fetchSafe(`${API_BASE_URL}/api/staff/me`),
           ]);
+          if (Array.isArray(orders)) appStore.setOrders(orders);
+          if (profile) appStore.setProfile(profile);
         } else {
-          await Promise.allSettled([
-            fetch(`${API_BASE_URL}/api/orders/my-orders`, { headers })
-              .then((r) => r.json())
-              .then((data) => Array.isArray(data) && appStore.setOrders(data)),
-            fetch(`${API_BASE_URL}/api/fashion-houses`, { headers })
-              .then((r) => r.json())
-              .then((data) => Array.isArray(data) && appStore.setCatalogItems(data)),
+          const [myOrders, catalog] = await Promise.all([
+            fetchSafe(`${API_BASE_URL}/api/orders/my-orders`),
+            fetchSafe(`${API_BASE_URL}/api/fashion-houses`),
           ]);
+          if (Array.isArray(myOrders)) appStore.setOrders(myOrders);
+          if (Array.isArray(catalog)) appStore.setCatalogItems(catalog);
         }
         appStore.setLastSyncedAt(Date.now());
       } catch (e) {
@@ -84,18 +94,24 @@ export default function SplashScreen() {
       duration: 4000,
       useNativeDriver: false, // width animation requires layout reflow
     }).start(() => {
+      const currentToken = useAuthStore.getState().token;
+      const currentRole = useAuthStore.getState().role;
+      const currentIsVerified = useAuthStore.getState().isVerified;
+      const currentOnboarding = useAuthStore.getState().onboardingCompleted;
+      const currentEmail = useAuthStore.getState().email;
+
       // Navigate once the progress bar is completely filled
-      if (token && role) {
-        registerPushToken(token);
-        if (role === "admin") {
-          if (!isVerified) {
-            router.replace({ pathname: "/(auth)/verify", params: { email } });
-          } else if (!onboardingCompleted) {
+      if (currentToken && currentRole && !isUnauthorized) {
+        registerPushToken(currentToken);
+        if (currentRole === "admin") {
+          if (!currentIsVerified) {
+            router.replace({ pathname: "/(auth)/verify", params: { email: currentEmail } });
+          } else if (!currentOnboarding) {
             router.replace("/(admin)/onboarding");
           } else {
             router.replace("/(admin)/dashboard");
           }
-        } else if (role === "staff") {
+        } else if (currentRole === "staff") {
           router.replace("/(staff)/dashboard");
         } else {
           router.replace("/(customer)/browse");

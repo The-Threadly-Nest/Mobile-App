@@ -208,11 +208,14 @@ export default function FashionHouseScreen() {
                   style={styles.catalogCard}
                   onPress={() => {
                     router.push({
-                      pathname: `/(customer)/chat/${targetId}`,
+                      pathname: `/(customer)/catalog/${item.id}`,
                       params: {
-                        fashionHouseName: displayName,
-                        garmentName: item.name,
-                        garmentPrice: `From ₦ ${(item.priceFrom / 100).toLocaleString()}`,
+                        initialName: item.name,
+                        initialPrice: `From ₦ ${(item.priceFrom / 100).toLocaleString()}`,
+                        initialImage: item.imageUrl,
+                        initialVendorName: displayName,
+                        initialLocation: displayLocation,
+                        initialFashionHouseId: targetId,
                       },
                     });
                   }}

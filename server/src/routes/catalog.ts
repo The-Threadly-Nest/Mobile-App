@@ -119,4 +119,25 @@ router.get("/fashion-house/:fashionHouseId", async (req, res, next) => {
   }
 });
 
+// Public GET single catalog item by ID with fashion house details
+router.get("/item/:id", async (req, res, next) => {
+  try {
+    const item = await prisma.catalogItem.findUnique({
+      where: { id: req.params.id },
+      include: {
+        fashionHouse: {
+          select: { id: true, shopName: true, location: true, brandLogoUrl: true, bio: true, phone: true },
+        },
+      },
+    });
+    if (!item) {
+      return res.status(404).json({ error: "Catalog item not found." });
+    }
+    res.json(item);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
+

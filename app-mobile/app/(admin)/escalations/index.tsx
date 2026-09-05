@@ -195,10 +195,6 @@ export default function BookingsScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchBackendData();
-  }, [token]);
-
   useFocusEffect(
     React.useCallback(() => {
       fetchBackendData();

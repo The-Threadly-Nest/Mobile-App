@@ -167,8 +167,8 @@ export default function AdminLayout() {
   }, []);
 
   useEffect(() => {
-    (async () => {
-      if (!token) return;
+    if (!token) return;
+    const fetchBadge = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/staff`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -181,7 +181,11 @@ export default function AdminLayout() {
           }
         }
       } catch (e) {}
-    })();
+    };
+
+    fetchBadge();
+    const interval = setInterval(fetchBadge, 30_000);
+    return () => clearInterval(interval);
   }, [token]);
 
   return (
@@ -254,6 +258,7 @@ export default function AdminLayout() {
       <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="measurements/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="invoices/[orderId]" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="order-detail" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="escalations/assign" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="customers/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/invite" options={{ href: null, tabBarStyle: { display: "none" } }} />

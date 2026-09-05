@@ -1,16 +1,23 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { requireAuth } from "../middleware/auth";
+import { requireAuth, requireRole } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { escalationIdParamSchema, resolveEscalationSchema } from "../schemas/escalation.schema";
 
 const router = Router();
 router.use(requireAuth);
+router.use(requireRole("admin"));
 
 async function getAdminFashionHouseOrThrow(userId: string) {
   const admin = await prisma.user.findUnique({ where: { id: userId }, include: { fashionHouseOwned: true } });
-  if (!admin || admin.role !== "admin" || !admin.fashionHouseOwned) {
+  if (!admin) {
+    throw Object.assign(new Error("Your session has expired. Please log in again."), { status: 401 });
+  }
+  if (admin.role !== "admin") {
     throw Object.assign(new Error("Admin access required"), { status: 403 });
+  }
+  if (!admin.fashionHouseOwned) {
+    throw Object.assign(new Error("Fashion house not found for this admin"), { status: 404 });
   }
   return admin.fashionHouseOwned;
 }
@@ -101,13 +108,30 @@ router.get("/:escalationId", validate({ params: escalationIdParamSchema }), asyn
     const fh = await getAdminFashionHouseOrThrow(req.authUserId!);
     const escalation = await prisma.chatEscalation.findFirst({
       where: { id: req.params.escalationId, fashionHouseId: fh.id },
-      include: { customer: { select: { id: true, email: true } } },
+      include: { customer: { select: { id: true, name: true, email: true } } },
     });
     if (!escalation) return res.status(404).json({ error: "Escalation not found" });
 
+    const measurements = await prisma.measurement.findMany({
+      where: {
+        OR: [
+          { customerId: escalation.customerId },
+          { customer: { userId: escalation.customerId } },
+        ],
+      },
+      orderBy: { recordedAt: "desc" },
+    });
+
     let transcript: unknown[] = [];
     try { transcript = JSON.parse(escalation.transcript); } catch {}
-    res.json({ ...escalation, transcript });
+    res.json({
+      ...escalation,
+      customer: {
+        ...escalation.customer,
+        measurements,
+      },
+      transcript,
+    });
   } catch (err) {
     next(err);
   }

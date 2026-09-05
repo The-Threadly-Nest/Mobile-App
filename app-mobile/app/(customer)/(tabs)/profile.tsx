@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import Svg, { Path, Circle } from "react-native-svg";
-import { MapPin, Phone, Edit2, Check, Navigation } from "lucide-react-native";
+import { MapPin, Phone, Edit2, Check, Navigation, X, Ruler } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useOrdersStore } from "@/stores/useOrdersStore";
@@ -88,6 +89,9 @@ export default function CustomerProfileScreen() {
   const [favoritesCount, setFavoritesCount] = useState<number>(0);
   const [avgGiven, setAvgGiven] = useState<string>("0.0");
   const [savedSetsCount, setSavedSetsCount] = useState<number>(0);
+  const [measurements, setMeasurements] = useState<any[]>([]);
+  const [isMeasurementsModalVisible, setIsMeasurementsModalVisible] = useState<boolean>(false);
+  const [loadingMeasurements, setLoadingMeasurements] = useState<boolean>(false);
 
   // Edit Personal Info state
   const [isEditingInfo, setIsEditingInfo] = useState<boolean>(false);
@@ -102,36 +106,47 @@ export default function CustomerProfileScreen() {
     setTempLocation(storedLocation || "Lagos, Nigeria");
   }, [storedPhone, storedLocation]);
 
-  useEffect(() => {
-    let mounted = true;
-    async function fetchStats() {
-      try {
-        const orders = await apiFetch<any[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
-        if (mounted && Array.isArray(orders) && orders.length > 0) {
-          setOrdersCount(orders.length);
-        } else if (mounted) {
-          setOrdersCount(storeOrders.length);
-        }
-      } catch {
-        if (mounted) setOrdersCount(storeOrders.length);
+  const fetchStats = useCallback(async () => {
+    try {
+      const orders = await apiFetch<any[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
+      if (Array.isArray(orders) && orders.length > 0) {
+        setOrdersCount(orders.length);
+      } else {
+        setOrdersCount(storeOrders.length);
       }
-
-      try {
-        const prefs = await apiFetch<any>("/api/preferences", { silent: true }).catch(() => null);
-        if (mounted && prefs) {
-          if (Array.isArray(prefs.favorites)) setFavoritesCount(prefs.favorites.length);
-          if (prefs.avgGiven !== undefined) setAvgGiven(Number(prefs.avgGiven).toFixed(1));
-          if (prefs.phone) setPhone(prefs.phone);
-          if (prefs.location) setLocation(prefs.location);
-        }
-      } catch {}
+    } catch {
+      setOrdersCount(storeOrders.length);
     }
 
-    fetchStats();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    try {
+      const prefs = await apiFetch<any>("/api/preferences", { silent: true }).catch(() => null);
+      if (prefs) {
+        if (Array.isArray(prefs.favorites)) setFavoritesCount(prefs.favorites.length);
+        if (prefs.avgGiven !== undefined) setAvgGiven(Number(prefs.avgGiven).toFixed(1));
+        if (prefs.phone) setPhone(prefs.phone);
+        if (prefs.location) setLocation(prefs.location);
+      }
+    } catch {}
+
+    try {
+      setLoadingMeasurements(true);
+      const measList = await apiFetch<any[]>("/api/measurements/my-measurements", { silent: true }).catch(() => []);
+      if (Array.isArray(measList)) {
+        setMeasurements(measList);
+        setSavedSetsCount(measList.length > 0 ? 1 : 0);
+      }
+    } catch {
+      // silent fail
+    } finally {
+      setLoadingMeasurements(false);
+    }
+  }, [storeOrders.length, setPhone, setLocation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStats();
+    }, [fetchStats])
+  );
 
   const customerName = storedName?.trim()
     ? storedName.trim()
@@ -349,7 +364,10 @@ export default function CustomerProfileScreen() {
         {/* Navigation List Items */}
         <View className="gap-3 px-1">
           {/* Measurement */}
-          <Pressable className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]">
+          <Pressable
+            onPress={() => setIsMeasurementsModalVisible(true)}
+            className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]"
+          >
             <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
               <MeasurementIcon />
             </View>
@@ -423,6 +441,100 @@ export default function CustomerProfileScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Measurements Details Modal */}
+      <Modal
+        visible={isMeasurementsModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsMeasurementsModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/60 items-center justify-center p-4">
+          <View
+            className="w-full bg-[#FBF7EF] rounded-3xl p-6 border border-[#E5E0D5] shadow-2xl"
+            style={{ maxWidth: 440 }}
+          >
+            {/* Modal Header */}
+            <View className="flex-row items-center justify-between pb-3 border-b border-[#EBE7DF]">
+              <View className="flex-row items-center gap-2.5">
+                <View className="w-9 h-9 rounded-full bg-[#4A080C]/10 items-center justify-center">
+                  <Ruler size={18} color="#4A080C" />
+                </View>
+                <View>
+                  <Text className="font-display font-semibold text-[18px] text-black">
+                    My Measurements
+                  </Text>
+                  <Text className="font-body text-[12px] text-[#8A7550]">
+                    Bespoke tailored metrics
+                  </Text>
+                </View>
+              </View>
+              <Pressable
+                onPress={() => setIsMeasurementsModalVisible(false)}
+                className="w-8 h-8 rounded-full bg-[#EBE7DF] items-center justify-center"
+              >
+                <X size={16} color="#1F1F1F" />
+              </Pressable>
+            </View>
+
+            {/* Modal Content */}
+            <ScrollView className="my-4 max-h-[360px]" showsVerticalScrollIndicator={false}>
+              {loadingMeasurements ? (
+                <View className="py-8 items-center justify-center">
+                  <ActivityIndicator size="small" color="#4A080C" />
+                  <Text className="font-body text-[13px] text-[#8A7550] mt-2">
+                    Loading measurements...
+                  </Text>
+                </View>
+              ) : measurements.length > 0 ? (
+                <View className="flex-row flex-wrap gap-2.5">
+                  {measurements.map((m: any, idx: number) => {
+                    const label = (m.field || "Metric")
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^./, (str: string) => str.toUpperCase())
+                      .trim();
+                    return (
+                      <View
+                        key={m.id || idx}
+                        className="bg-white rounded-2xl p-3 border border-[#EFE9DF] flex-1 min-w-[130px] shadow-sm"
+                      >
+                        <Text className="font-body text-[11px] uppercase tracking-wider text-[#8A7550]">
+                          {label}
+                        </Text>
+                        <Text className="font-display font-semibold text-[18px] text-[#4A080C] mt-0.5">
+                          {m.value} {m.unit || "in"}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              ) : (
+                <View className="py-8 items-center justify-center px-4">
+                  <View className="w-14 h-14 rounded-full bg-[#EBE7DF] items-center justify-center mb-3">
+                    <MeasurementIcon />
+                  </View>
+                  <Text className="font-display font-semibold text-[16px] text-black text-center mb-1">
+                    No Measurements Saved
+                  </Text>
+                  <Text className="font-body text-[13px] text-[#8A7550] text-center leading-relaxed">
+                    Your bespoke body measurements will be recorded during your consultation or fitting appointment.
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Modal Footer / Close Button */}
+            <Pressable
+              onPress={() => setIsMeasurementsModalVisible(false)}
+              className="w-full bg-[#4A080C] py-3.5 rounded-2xl items-center justify-center shadow-sm"
+            >
+              <Text className="font-body font-semibold text-[14px] text-white">
+                Done
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
