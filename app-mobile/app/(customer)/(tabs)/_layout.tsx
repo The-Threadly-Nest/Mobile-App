@@ -4,12 +4,48 @@ import * as NavigationBar from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle } from "react-native-svg";
 
-function DiscoverTabIcon({ color }: { color: string }) {
+function DiscoverTabIcon({ color, focused }: { color: string; focused: boolean }) {
+  if (focused) {
+    return (
+      <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+        <Path d="M12.7002 16.8801H13.4002C14.5502 16.8801 15.4902 15.9401 15.4902 14.7901V14.0901H12.7002V16.8801Z" fill={color} />
+        <Path d="M8.50977 14.7901C8.50977 15.9401 9.44977 16.8801 10.5998 16.8801H11.2998V14.0901H8.50977V14.7901Z" fill={color} />
+        <Path d="M8.50977 11.9999V12.6999H11.2998V9.90991H10.5998C9.44977 9.90991 8.50977 10.8499 8.50977 11.9999Z" fill={color} />
+        <Path d="M20.03 6.81994L14.28 2.78994C12.71 1.68994 10.31 1.74994 8.8 2.91994L3.79 6.82994C2.78 7.60994 2 9.20994 2 10.4699V17.3699C2 19.9199 4.07 21.9999 6.61 21.9999H17.38C19.92 21.9999 21.99 19.9299 21.99 17.3799V10.5999C22 9.24994 21.13 7.58994 20.03 6.81994ZM16.88 14.7899C16.88 16.7099 15.31 18.2799 13.39 18.2799H10.6C8.68 18.2799 7.11 16.7199 7.11 14.7899V11.9999C7.11 10.0799 8.68 8.50994 10.6 8.50994H13.39C15.31 8.50994 16.88 10.0699 16.88 11.9999V14.7899Z" fill={color} />
+        <Path d="M13.4002 9.90991H12.7002V12.6999H15.4902V11.9999C15.4902 10.8499 14.5502 9.90991 13.4002 9.90991Z" fill={color} />
+      </Svg>
+    );
+  }
+
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
       <Path
-        d="M12 3L2 11.5H5V20C5 20.5523 5.44772 21 6 21H10V15H14V21H18C18.5523 21 19 20.5523 19 20V11.5H22L12 3Z"
-        fill={color}
+        d="M9.02 2.83992L3.63 7.03992C2.73 7.73992 2 9.22992 2 10.3599V17.7699C2 20.0899 3.89 21.9899 6.21 21.9899H17.79C20.11 21.9899 22 20.0899 22 17.7799V10.4999C22 9.28992 21.19 7.73992 20.2 7.04992L14.02 2.71992C12.62 1.73992 10.37 1.78992 9.02 2.83992Z"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M10.5 18H13.5C15.15 18 16.5 16.65 16.5 15V12C16.5 10.35 15.15 9 13.5 9H10.5C8.85 9 7.5 10.35 7.5 12V15C7.5 16.65 8.85 18 10.5 18Z"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M12 9V18"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M7.5 13.5H16.5"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </Svg>
   );
@@ -63,13 +99,34 @@ function OrdersTabIcon({ color, focused }: { color: string; focused: boolean }) 
   );
 }
 
-function ProfileTabIcon({ color }: { color: string }) {
+function ProfileTabIcon({ color, focused }: { color: string; focused: boolean }) {
+  if (focused) {
+    return (
+      <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+        <Circle cx={12} cy={6.5} r={4.5} fill={color} />
+        <Path
+          d="M4.5 19.5C4.5 15.5 8 13 12 13C16 13 19.5 15.5 19.5 19.5"
+          fill={color}
+        />
+      </Svg>
+    );
+  }
+
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-      <Circle cx={12} cy={6.5} r={4.5} fill={color} />
       <Path
-        d="M4.5 19.5C4.5 15.5 8 13 12 13C16 13 19.5 15.5 19.5 19.5"
-        fill={color}
+        d="M12.1601 10.87C12.0601 10.86 11.9401 10.86 11.8301 10.87C9.45006 10.79 7.56006 8.84 7.56006 6.44C7.56006 3.99 9.54006 2 12.0001 2C14.4501 2 16.4401 3.99 16.4401 6.44C16.4301 8.84 14.5401 10.79 12.1601 10.87Z"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M7.16021 14.56C4.74021 16.18 4.74021 18.82 7.16021 20.43C9.91021 22.27 14.4202 22.27 17.1702 20.43C19.5902 18.81 19.5902 16.17 17.1702 14.56C14.4302 12.73 9.92021 12.73 7.16021 14.56Z"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </Svg>
   );
@@ -110,7 +167,7 @@ export default function TabsLayout() {
         name="browse"
         options={{
           title: "Discover",
-          tabBarIcon: ({ color }) => <DiscoverTabIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => <DiscoverTabIcon color={color} focused={focused} />,
         }}
       />
       <Tabs.Screen
@@ -124,7 +181,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => <ProfileTabIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => <ProfileTabIcon color={color} focused={focused} />,
         }}
       />
     </Tabs>

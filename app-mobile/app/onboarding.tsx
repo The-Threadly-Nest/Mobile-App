@@ -271,7 +271,7 @@ export default function OnboardingScreen() {
         onPress={handleBack}
         style={{
           position: "absolute",
-          top: 56,
+          top: 60,
           left: 24,
           width: 44,
           height: 44,

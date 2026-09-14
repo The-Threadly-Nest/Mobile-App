@@ -220,7 +220,8 @@ export default function CustomerProfileScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top"]}>
       <ScrollView
-        className="flex-1 px-4 pt-6"
+        className="flex-1 px-4"
+        style={{ paddingTop: 36 }}
         contentContainerStyle={[
           { paddingBottom: 64 },
           isLandscape && { maxWidth: 840, alignSelf: "center", width: "100%", paddingHorizontal: 16 },
@@ -230,7 +231,7 @@ export default function CustomerProfileScreen() {
         {/* Profile Avatar & Name Header */}
         <View className="items-center mb-6">
           <View className="mb-3">
-            <ProfileAvatarIcon size={64} monogramScale={0.7} />
+            <ProfileAvatarIcon size={64} name={customerName} />
           </View>
           <Text className="font-display font-semibold text-[24px] text-black">
             {customerName}
@@ -326,17 +327,19 @@ export default function CustomerProfileScreen() {
               </View>
             </View>
           ) : (
-            <View className="gap-3 pt-1">
+            <View className="gap-3 pt-1 w-full" style={{ width: "100%", alignSelf: "stretch" }}>
               {/* Phone Input */}
-              <PhoneInputWithCountry
-                label="Phone Number"
-                placeholder="801 234 5678"
-                value={tempPhone}
-                onChangePhone={setTempPhone}
-              />
+              <View style={{ width: "100%", alignSelf: "stretch" }}>
+                <PhoneInputWithCountry
+                  label="Phone Number"
+                  placeholder="801 234 5678"
+                  value={tempPhone}
+                  onChangePhone={setTempPhone}
+                />
+              </View>
 
               {/* Location Input & Auto Detect */}
-              <View>
+              <View style={{ width: "100%", alignSelf: "stretch" }}>
                 <View className="flex-row items-center justify-between mb-1">
                   <Text className="font-body text-[12px] text-[#8A7550]">Location</Text>
                   <Pressable
@@ -354,7 +357,8 @@ export default function CustomerProfileScreen() {
                   value={tempLocation}
                   onChangeText={setTempLocation}
                   placeholder="e.g. Lagos, Nigeria"
-                  className="bg-[#FBF7EF] border border-[#E5E0D5] rounded-xl px-3.5 py-2.5 text-[14px] text-black font-body"
+                  style={{ height: 46, width: "100%", alignSelf: "stretch" }}
+                  className="bg-[#FBF7EF] border border-[#E5E0D5] rounded-xl px-3.5 text-[14px] text-black font-body"
                 />
               </View>
             </View>

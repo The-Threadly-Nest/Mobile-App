@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, useWindowDimensions } from "react-native";
+import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, Modal, TextInput, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
-import { Plus, Tag } from "lucide-react-native";
+import { Plus, Trash2, Calendar, Clock, X } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { API_BASE_URL } from "@/api/config";
-import { adminApi, ordersApi, escalationsApi } from "@/shared/utils/apiClient";
+import { adminApi, ordersApi, escalationsApi, slotsApi } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface EscalationItem {
@@ -43,8 +43,11 @@ export default function AdminDashboard() {
   // Seed states directly from persistent device storage — instant 0-spinner load!
   const [orders, setOrders] = useState<any[]>(cachedOrders || []);
   const [escalations, setEscalations] = useState<EscalationItem[]>(cachedEscalations || []);
+  const [assignLoadingId, setAssignLoadingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(cachedOrders.length === 0 && cachedEscalations.length === 0);
   const [refreshing, setRefreshing] = useState(false);
+
+
 
   const fetchData = async () => {
     // Only show full-screen spinner if local device cache is completely empty
@@ -228,7 +231,7 @@ export default function AdminDashboard() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
       <ScrollView
         contentContainerStyle={[
-          { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 },
+          { paddingHorizontal: 24, paddingTop: 36, paddingBottom: 40 },
           isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}
@@ -369,138 +372,35 @@ export default function AdminDashboard() {
               </Text>
             </Pressable>
           </View>
-
-          {/* Stat Cards — Row 2: Completed + Declined */}
-          <View style={{ flexDirection: "row", gap: 12, marginTop: 12 }}>
-            <Pressable
-              onPress={() => router.push("/(admin)/orders" as any)}
-              style={({ pressed }) => ({
-                flex: 1,
-                height: 86,
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                justifyContent: "center",
-                alignItems: "center",
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Text
-                style={{
-                  fontFamily: "Fraunces-Bold",
-                  fontSize: 24,
-                  color: "#3B0508",
-                  marginBottom: 2,
-                }}
-              >
-                {completedOrdersCount}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "WorkSans_600SemiBold",
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  color: "#8A7550",
-                }}
-              >
-                COMPLETED ORDERS
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => router.push("/(admin)/escalations" as any)}
-              style={({ pressed }) => ({
-                flex: 1,
-                height: 86,
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                justifyContent: "center",
-                alignItems: "center",
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Text
-                style={{
-                  fontFamily: "Fraunces-Bold",
-                  fontSize: 24,
-                  color: "#3B0508",
-                  marginBottom: 2,
-                }}
-              >
-                {declinedBookingsCount}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "WorkSans_600SemiBold",
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  color: "#8A7550",
-                }}
-              >
-                DECLINED BOOKINGS
-              </Text>
-            </Pressable>
-          </View>
         </View>
 
-        {/* Quick Action Buttons Row */}
-        <View style={{ flexDirection: "row", gap: 12, marginBottom: 28 }}>
+        {/* Action Button Row — Take Measurement */}
+        <View style={{ marginBottom: 24, marginTop: 12 }}>
           <Pressable
             onPress={() => router.push("/(admin)/measurements/new")}
             style={({ pressed }) => [
               {
-                flex: 1,
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: "#4A080C",
                 height: 52,
                 borderRadius: 26,
-                gap: 6,
-                paddingHorizontal: 12,
+                gap: 8,
+                paddingHorizontal: 16,
                 opacity: pressed ? 0.9 : 1,
               },
             ]}
           >
-            <Plus size={18} color="#FFFFFF" />
+            <Plus size={20} color="#FFFFFF" />
             <Text
               style={{
-                fontFamily: "WorkSans_500Medium",
-                fontSize: 14,
+                fontFamily: "WorkSans_600SemiBold",
+                fontSize: 15,
                 color: "#FFFFFF",
               }}
             >
-              New measurement
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.push("/(admin)/catalog" as any)}
-            style={({ pressed }) => [
-              {
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#FFFFFF",
-                borderWidth: 1.5,
-                borderColor: "#4A080C",
-                height: 52,
-                borderRadius: 26,
-                gap: 6,
-                paddingHorizontal: 12,
-                opacity: pressed ? 0.85 : 1,
-              },
-            ]}
-          >
-            <Tag size={18} color="#4A080C" />
-            <Text
-              style={{
-                fontFamily: "WorkSans_500Medium",
-                fontSize: 14,
-                color: "#4A080C",
-              }}
-            >
-              Upload Clothes
+              Take Measurement
             </Text>
           </Pressable>
         </View>
@@ -661,9 +561,11 @@ export default function AdminDashboard() {
                 {/* Action Buttons Row */}
                 <View style={{ flexDirection: "row", gap: 12 }}>
                   <Pressable
+                    disabled={assignLoadingId === item.id}
                     onPress={async () => {
                       if (!item.id.startsWith("demo-")) {
                         const custName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
+                        setAssignLoadingId(item.id);
                         try {
                           const token = useAuthStore.getState().token;
                           if (token) {
@@ -673,21 +575,35 @@ export default function AdminDashboard() {
                             if (res.ok) {
                               const data = await res.json();
                               if (data.hasMeasurements === false) {
-                                router.push({
-                                  pathname: "/(admin)/measurements/new",
-                                  params: {
-                                    bookingId: item.id,
-                                    customerName: custName,
-                                    serviceTitle: item.reason || item.summary || "Bespoke Fitting",
-                                    appointmentTime: "Sat, Sept 6",
-                                    returnToAssign: "true",
-                                  },
-                                } as any);
+                                showAlert(
+                                  "Measurement Required",
+                                  `No measurements found for ${custName}. Please record measurement details before assigning staff.`,
+                                  [
+                                    {
+                                      text: "Add Measurement",
+                                      onPress: () => {
+                                        router.push({
+                                          pathname: "/(admin)/measurements/new",
+                                          params: {
+                                            bookingId: item.id,
+                                            customerName: custName,
+                                            serviceTitle: item.reason || item.summary || "Bespoke Fitting",
+                                            appointmentTime: "Sat, Sept 6",
+                                            returnToAssign: "true",
+                                          },
+                                        } as any);
+                                      },
+                                    },
+                                  ]
+                                );
                                 return;
                               }
                             }
                           }
-                        } catch {}
+                        } catch {
+                        } finally {
+                          setAssignLoadingId(null);
+                        }
                         router.push({
                           pathname: "/(admin)/escalations/assign",
                           params: {
@@ -707,19 +623,23 @@ export default function AdminDashboard() {
                         backgroundColor: "#4A080C",
                         alignItems: "center",
                         justifyContent: "center",
-                        opacity: pressed ? 0.9 : 1,
+                        opacity: pressed || assignLoadingId === item.id ? 0.7 : 1,
                       },
                     ]}
                   >
-                    <Text
-                      style={{
-                        fontFamily: "WorkSans_600SemiBold",
-                        fontSize: 14,
-                        color: "#FFFFFF",
-                      }}
-                    >
-                      Assign
-                    </Text>
+                    {assignLoadingId === item.id ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text
+                        style={{
+                          fontFamily: "WorkSans_600SemiBold",
+                          fontSize: 14,
+                          color: "#FFFFFF",
+                        }}
+                      >
+                        Assign
+                      </Text>
+                    )}
                   </Pressable>
 
                   <Pressable
@@ -759,6 +679,8 @@ export default function AdminDashboard() {
         </View>
         )}
       </ScrollView>
+
+
     </SafeAreaView>
   );
 }

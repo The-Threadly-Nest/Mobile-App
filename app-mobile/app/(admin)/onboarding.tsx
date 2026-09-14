@@ -572,6 +572,7 @@ const styles = StyleSheet.create({
   topBackHeader: {
     height: 40,
     justifyContent: "center",
+    marginTop: 16,
     marginBottom: 12,
   },
   topBackPlaceholder: {

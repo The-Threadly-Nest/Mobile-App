@@ -10,7 +10,7 @@ router.use(requireAuth);
 // List Available Slots (Admin/Staff only)
 router.get("/", requireRole("admin", "staff"), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const slots = await prisma.availableSlot.findMany({
       where: { fashionHouseId: fhId },
       orderBy: [
@@ -27,7 +27,7 @@ router.get("/", requireRole("admin", "staff"), async (req, res, next) => {
 // Create Available Slot (Admin/Staff only)
 router.post("/", requireRole("admin", "staff"), validate({ body: createAvailableSlotSchema }), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { date, time, booked } = req.body;
 
     // Check if slot already exists for this fashion house (avoid duplicates on same date/time)
@@ -56,7 +56,7 @@ router.post("/", requireRole("admin", "staff"), validate({ body: createAvailable
 // Update Available Slot (Admin/Staff only)
 router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateAvailableSlotSchema }), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
 
     // Tenant Isolation: Verify slot belongs to this tenant
     const existing = await prisma.availableSlot.findFirst({
@@ -83,6 +83,24 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateAvail
       }
     }
 
+    if (booked === true && !existing.booked) {
+      const result = await prisma.availableSlot.updateMany({
+        where: { id: req.params.id, fashionHouseId: fhId, booked: false },
+        data: {
+          booked: true,
+          ...(date !== undefined ? { date } : {}),
+          ...(time !== undefined ? { time } : {}),
+        },
+      });
+
+      if (result.count === 0) {
+        return res.status(409).json({ error: "This slot was just booked by someone else. Please choose another." });
+      }
+
+      const updated = await prisma.availableSlot.findUnique({ where: { id: req.params.id } });
+      return res.json(updated);
+    }
+
     const updated = await prisma.availableSlot.update({
       where: { id: req.params.id },
       data: {
@@ -101,7 +119,7 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateAvail
 // Delete Available Slot (Admin/Staff only)
 router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
 
     // Tenant Isolation: Verify slot belongs to this tenant
     const existing = await prisma.availableSlot.findFirst({

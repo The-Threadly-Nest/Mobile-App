@@ -61,11 +61,11 @@ router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
     const { id } = req.params;
 
     const existing = await prisma.moodBoardSketch.findFirst({
-      where: { id },
+      where: { id, staffId: req.authUserId! },
     });
 
     if (!existing) {
-      return res.status(404).json({ error: "Sketch not found" });
+      return res.status(404).json({ error: "Sketch not found or you do not have permission to delete it." });
     }
 
     await prisma.moodBoardSketch.delete({
@@ -83,7 +83,7 @@ router.get("/staff/:staffId", requireRole("admin"), async (req, res, next) => {
   try {
     const { staffId } = req.params;
 
-    const adminFashionHouseId = await getOwnFashionHouseId(req.authUserId!, "admin");
+    const adminFashionHouseId = getOwnFashionHouseId(req);
 
     // Verify target staff member belongs to the admin's fashion house
     const staffUser = await prisma.user.findUnique({
@@ -111,7 +111,7 @@ router.post("/:id/promote", requireRole("admin"), validate({ body: promoteSketch
     const { id } = req.params;
     const { priceFrom, name } = req.body;
 
-    const adminFashionHouseId = await getOwnFashionHouseId(req.authUserId!, "admin");
+    const adminFashionHouseId = getOwnFashionHouseId(req);
 
     // Fetch sketch
     const sketch = await prisma.moodBoardSketch.findUnique({

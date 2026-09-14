@@ -20,6 +20,7 @@ import preferencesRouter from "./routes/preferences";
 import moodboardRouter from "./routes/moodboard";
 import fashionHousesRouter from "./routes/fashionHouses";
 import customersRouter from "./routes/customers";
+import directMessagesRouter from "./routes/directMessages";
 import { errorHandler } from "./middleware/errorHandler";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./utils/swagger";
@@ -83,7 +84,11 @@ app.use((req: any, res, next) => {
         parts.push(`Result: ${responseBody.length} item${responseBody.length === 1 ? "" : "s"}${preview}`);
       } else if (typeof responseBody === "object") {
         if (responseBody.error) {
-          parts.push(`Error: "${responseBody.error}"`);
+          const errText =
+            typeof responseBody.error === "object"
+              ? responseBody.error.message || responseBody.error.code || JSON.stringify(responseBody.error)
+              : responseBody.error;
+          parts.push(`Error: "${errText}"`);
         } else if (responseBody.fileUrl) {
           parts.push(`File: ${responseBody.fileUrl}`);
         } else if (responseBody.title || responseBody.name) {
@@ -134,5 +139,6 @@ app.use("/api/preferences", preferencesRouter);
 app.use("/api/moodboard", moodboardRouter);
 app.use("/api/fashion-houses", fashionHousesRouter);
 app.use("/api/customers", customersRouter);
+app.use("/api/direct-messages", directMessagesRouter);
 
 app.use(errorHandler);

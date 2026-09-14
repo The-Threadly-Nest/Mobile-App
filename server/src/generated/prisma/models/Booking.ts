@@ -31,6 +31,7 @@ export type BookingMinAggregateOutputType = {
   styleNotes: string | null
   preferredDate: Date | null
   preferredTime: string | null
+  isFirstTime: boolean | null
   status: string | null
   createdAt: Date | null
 }
@@ -42,6 +43,7 @@ export type BookingMaxAggregateOutputType = {
   styleNotes: string | null
   preferredDate: Date | null
   preferredTime: string | null
+  isFirstTime: boolean | null
   status: string | null
   createdAt: Date | null
 }
@@ -53,6 +55,7 @@ export type BookingCountAggregateOutputType = {
   styleNotes: number
   preferredDate: number
   preferredTime: number
+  isFirstTime: number
   status: number
   createdAt: number
   _all: number
@@ -66,6 +69,7 @@ export type BookingMinAggregateInputType = {
   styleNotes?: true
   preferredDate?: true
   preferredTime?: true
+  isFirstTime?: true
   status?: true
   createdAt?: true
 }
@@ -77,6 +81,7 @@ export type BookingMaxAggregateInputType = {
   styleNotes?: true
   preferredDate?: true
   preferredTime?: true
+  isFirstTime?: true
   status?: true
   createdAt?: true
 }
@@ -88,6 +93,7 @@ export type BookingCountAggregateInputType = {
   styleNotes?: true
   preferredDate?: true
   preferredTime?: true
+  isFirstTime?: true
   status?: true
   createdAt?: true
   _all?: true
@@ -172,6 +178,7 @@ export type BookingGroupByOutputType = {
   styleNotes: string | null
   preferredDate: Date
   preferredTime: string
+  isFirstTime: boolean
   status: string
   createdAt: Date
   _count: BookingCountAggregateOutputType | null
@@ -204,6 +211,7 @@ export type BookingWhereInput = {
   styleNotes?: Prisma.StringNullableFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringFilter<"Booking"> | string
+  isFirstTime?: Prisma.BoolFilter<"Booking"> | boolean
   status?: Prisma.StringFilter<"Booking"> | string
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
@@ -218,6 +226,7 @@ export type BookingOrderByWithRelationInput = {
   styleNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
+  isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
@@ -235,6 +244,7 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   styleNotes?: Prisma.StringNullableFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringFilter<"Booking"> | string
+  isFirstTime?: Prisma.BoolFilter<"Booking"> | boolean
   status?: Prisma.StringFilter<"Booking"> | string
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
@@ -249,6 +259,7 @@ export type BookingOrderByWithAggregationInput = {
   styleNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
+  isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
@@ -266,6 +277,7 @@ export type BookingScalarWhereWithAggregatesInput = {
   styleNotes?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringWithAggregatesFilter<"Booking"> | string
+  isFirstTime?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   status?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
@@ -275,6 +287,7 @@ export type BookingCreateInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
@@ -289,6 +302,7 @@ export type BookingUncheckedCreateInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
@@ -299,6 +313,7 @@ export type BookingUpdateInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
@@ -313,6 +328,7 @@ export type BookingUncheckedUpdateInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
@@ -325,6 +341,7 @@ export type BookingCreateManyInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
 }
@@ -334,6 +351,7 @@ export type BookingUpdateManyMutationInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -345,6 +363,7 @@ export type BookingUncheckedUpdateManyInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -371,6 +390,7 @@ export type BookingCountOrderByAggregateInput = {
   styleNotes?: Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
+  isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -382,6 +402,7 @@ export type BookingMaxOrderByAggregateInput = {
   styleNotes?: Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
+  isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -393,6 +414,7 @@ export type BookingMinOrderByAggregateInput = {
   styleNotes?: Prisma.SortOrder
   preferredDate?: Prisma.SortOrder
   preferredTime?: Prisma.SortOrder
+  isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -502,6 +524,7 @@ export type BookingCreateWithoutCustomerInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
@@ -514,6 +537,7 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
@@ -555,6 +579,7 @@ export type BookingScalarWhereInput = {
   styleNotes?: Prisma.StringNullableFilter<"Booking"> | string | null
   preferredDate?: Prisma.DateTimeFilter<"Booking"> | Date | string
   preferredTime?: Prisma.StringFilter<"Booking"> | string
+  isFirstTime?: Prisma.BoolFilter<"Booking"> | boolean
   status?: Prisma.StringFilter<"Booking"> | string
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
 }
@@ -564,6 +589,7 @@ export type BookingCreateWithoutFashionHouseInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutBookingsInput
@@ -576,6 +602,7 @@ export type BookingUncheckedCreateWithoutFashionHouseInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
@@ -612,6 +639,7 @@ export type BookingCreateWithoutOrderInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
@@ -625,6 +653,7 @@ export type BookingUncheckedCreateWithoutOrderInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
 }
@@ -650,6 +679,7 @@ export type BookingUpdateWithoutOrderInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
@@ -663,6 +693,7 @@ export type BookingUncheckedUpdateWithoutOrderInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -673,6 +704,7 @@ export type BookingCreateManyCustomerInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
 }
@@ -682,6 +714,7 @@ export type BookingUpdateWithoutCustomerInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
@@ -694,6 +727,7 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
@@ -705,6 +739,7 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -715,6 +750,7 @@ export type BookingCreateManyFashionHouseInput = {
   styleNotes?: string | null
   preferredDate: Date | string
   preferredTime: string
+  isFirstTime?: boolean
   status?: string
   createdAt?: Date | string
 }
@@ -724,6 +760,7 @@ export type BookingUpdateWithoutFashionHouseInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
@@ -736,6 +773,7 @@ export type BookingUncheckedUpdateWithoutFashionHouseInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
@@ -747,6 +785,7 @@ export type BookingUncheckedUpdateManyWithoutFashionHouseInput = {
   styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -760,6 +799,7 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   styleNotes?: boolean
   preferredDate?: boolean
   preferredTime?: boolean
+  isFirstTime?: boolean
   status?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -774,6 +814,7 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   styleNotes?: boolean
   preferredDate?: boolean
   preferredTime?: boolean
+  isFirstTime?: boolean
   status?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -787,6 +828,7 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   styleNotes?: boolean
   preferredDate?: boolean
   preferredTime?: boolean
+  isFirstTime?: boolean
   status?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -800,11 +842,12 @@ export type BookingSelectScalar = {
   styleNotes?: boolean
   preferredDate?: boolean
   preferredTime?: boolean
+  isFirstTime?: boolean
   status?: boolean
   createdAt?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "styleNotes" | "preferredDate" | "preferredTime" | "status" | "createdAt", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "styleNotes" | "preferredDate" | "preferredTime" | "isFirstTime" | "status" | "createdAt", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -833,6 +876,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     styleNotes: string | null
     preferredDate: Date
     preferredTime: string
+    isFirstTime: boolean
     status: string
     createdAt: Date
   }, ExtArgs["result"]["booking"]>
@@ -1267,6 +1311,7 @@ export interface BookingFieldRefs {
   readonly styleNotes: Prisma.FieldRef<"Booking", 'String'>
   readonly preferredDate: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly preferredTime: Prisma.FieldRef<"Booking", 'String'>
+  readonly isFirstTime: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly status: Prisma.FieldRef<"Booking", 'String'>
   readonly createdAt: Prisma.FieldRef<"Booking", 'DateTime'>
 }

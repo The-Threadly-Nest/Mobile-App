@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 36,
+    paddingTop: 60,
     paddingBottom: 24,
     justifyContent: "flex-start",
   },

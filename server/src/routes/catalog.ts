@@ -10,7 +10,7 @@ router.use(requireAuth);
 // List Catalog Items (All authenticated roles)
 router.get("/", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const catalog = await prisma.catalogItem.findMany({
       where: { fashionHouseId: fhId },
       orderBy: { createdAt: "desc" },
@@ -24,14 +24,18 @@ router.get("/", async (req, res, next) => {
 // Create Catalog Item (Admin/Staff only)
 router.post("/", requireRole("admin", "staff"), validate({ body: createCatalogItemSchema }), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
-    const { name, priceFrom, imageUrl } = req.body;
+    const fhId = getOwnFashionHouseId(req);
+    const { name, description, category, sizes, colors, priceFrom, imageUrl } = req.body;
 
     const item = await prisma.catalogItem.create({
       data: {
         fashionHouseId: fhId,
         name,
-        priceFrom,
+        description: description ?? null,
+        category: category ?? null,
+        sizes: sizes ?? [],
+        colors: colors ?? [],
+        priceFrom: priceFrom ?? null,
         imageUrl,
       },
     });
@@ -45,7 +49,7 @@ router.post("/", requireRole("admin", "staff"), validate({ body: createCatalogIt
 // Update Catalog Item (Admin/Staff only)
 router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatalogItemSchema }), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
 
     // Tenant Isolation: Verify item belongs to this tenant
     const existing = await prisma.catalogItem.findFirst({
@@ -55,10 +59,18 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatal
       return res.status(404).json({ error: "Catalog item not found." });
     }
 
-    const { name, priceFrom, imageUrl } = req.body;
+    const { name, description, category, sizes, colors, priceFrom, imageUrl } = req.body;
     const updated = await prisma.catalogItem.update({
       where: { id: req.params.id },
-      data: { name, priceFrom, imageUrl },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(category !== undefined && { category }),
+        ...(sizes !== undefined && { sizes }),
+        ...(colors !== undefined && { colors }),
+        ...(priceFrom !== undefined ? { priceFrom } : { priceFrom: existing.priceFrom }),
+        ...(imageUrl !== undefined && { imageUrl }),
+      },
     });
 
     res.json(updated);
@@ -70,7 +82,7 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatal
 // Delete Catalog Item (Admin/Staff only)
 router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
 
     const existing = await prisma.catalogItem.findFirst({
       where: { id: req.params.id, fashionHouseId: fhId },

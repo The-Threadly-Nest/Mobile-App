@@ -271,7 +271,7 @@ export default function AdminOnboardingSlidesScreen() {
         onPress={handleBack}
         style={{
           position: "absolute",
-          top: 56,
+          top: 60,
           left: 24,
           width: 44,
           height: 44,

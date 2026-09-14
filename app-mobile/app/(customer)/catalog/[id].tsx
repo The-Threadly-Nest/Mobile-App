@@ -71,10 +71,22 @@ export default function CatalogItemDetailScreen() {
   }, [id]);
 
   const garmentName = garmentData?.name || initialName || "Bespoke Tailored Garment";
-  const garmentPrice =
-    typeof garmentData?.priceFrom === "number"
-      ? `From ₦ ${(garmentData.priceFrom / 100).toLocaleString()}`
-      : initialPrice || "From ₦ 150,000";
+  const rawPrice = garmentData?.priceFrom ?? initialPrice;
+  let garmentPrice = "Price on request";
+
+  if (rawPrice !== undefined && rawPrice !== null && rawPrice !== "") {
+    if (typeof rawPrice === "number") {
+      garmentPrice = `From ₦ ${rawPrice.toLocaleString()}`;
+    } else {
+      const strVal = String(rawPrice).trim();
+      if (strVal.includes("₦")) {
+        garmentPrice = strVal.startsWith("From ") ? strVal : `From ${strVal}`;
+      } else {
+        const numVal = Number(strVal.replace(/[^0-9.]/g, ""));
+        garmentPrice = !isNaN(numVal) && numVal > 0 ? `From ₦ ${numVal.toLocaleString()}` : strVal;
+      }
+    }
+  }
 
   const imageUrl =
     garmentData?.imageUrl ||
@@ -137,7 +149,9 @@ export default function CatalogItemDetailScreen() {
         <View style={styles.imageCard}>
           <CachedImage
             source={{ uri: imageUrl }}
-            style={[styles.heroImage, isLandscape && { height: 320 }]}
+            style={[styles.heroImage, isLandscape && { height: 340 }]}
+            contentFit="cover"
+            contentPosition="top center"
           />
           <View style={styles.badgePill}>
             <Text style={styles.badgeText}>{badgeLabel}</Text>
@@ -215,7 +229,7 @@ export default function CatalogItemDetailScreen() {
           onPress={handleBookFitting}
         >
           <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.bookBtnText}>Book Fitting & Custom Order</Text>
+          <Text style={styles.bookBtnText}>Order Style & Custom Fit</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -262,7 +276,7 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: "100%",
-    height: 280,
+    height: 340,
   },
   badgePill: {
     position: "absolute",

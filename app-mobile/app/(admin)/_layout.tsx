@@ -249,20 +249,27 @@ export default function AdminLayout() {
       {/* Hidden Non-Tab Routes */}
       <Tabs.Screen name="onboarding" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="profile-edit" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="catalog" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="catalog/[id]" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="customer-messages" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="staff" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="sketch-detail" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="draw" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="measurements" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="measurements/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="invoices" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="invoices/[orderId]" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="invoices/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="order-detail" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="escalations/assign" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="customers" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="customers/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/invite" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="invoices/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="chat" options={{ href: null, tabBarStyle: { display: "none" } }} />
     </Tabs>
   );

@@ -18,6 +18,7 @@ import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 
 // High-resolution local sketch assets map for 100% crisp native rendering
 const LOCAL_SKETCHES: Record<string, any> = {
@@ -120,7 +121,7 @@ export default function AdminSketchDetailScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={20} color="#000000" />
+            <BackArrowIcon size={20} color="#000000" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketch Detail</Text>
         </View>
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 36,
     paddingBottom: 40,
   },
   landscapeContainer: {

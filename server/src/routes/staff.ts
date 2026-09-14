@@ -82,12 +82,14 @@ router.post("/invite", validate({ body: inviteStaffSchema }), async (req, res, n
       },
     });
 
-    await sendStaffInviteEmail({
+    sendStaffInviteEmail({
       to: email,
       name: name.trim(),
       fashionHouseName: fh.shopName,
       tempPassword: password,
-    }).catch(() => {});
+    }).catch((err) => {
+      console.error("Failed to send staff invite email:", err);
+    });
 
     res.status(201).json({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, message: "Staff account created successfully." });
   } catch (err) {
@@ -174,7 +176,9 @@ router.post("/:staffId/resend-activation", async (req, res, next) => {
     const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await prisma.user.update({ where: { id: staffUser.id }, data: { resetTokenHash, resetTokenExpiresAt } });
 
-    await sendStaffActivationEmail(staffUser.email, staffUser.email, fh.shopName, rawToken);
+    sendStaffActivationEmail(staffUser.email, staffUser.email, fh.shopName, rawToken).catch((err) => {
+      console.error("Failed to send staff activation email:", err);
+    });
     res.json({ message: "Activation link resent." });
   } catch (err) {
     next(err);

@@ -20,6 +20,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 
 interface SketchItem {
   id: string;
@@ -241,7 +242,7 @@ export default function AdminMoodBoardRedesignScreen() {
               onPress={() => router.push("/(admin)/settings" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <ArrowLeft size={20} color="#000000" />
+              <BackArrowIcon size={20} color="#000000" />
             </Pressable>
             <Text style={styles.headerTitle}>Moodboards</Text>
           </View>
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 36,
     paddingBottom: 40,
   },
   landscapeContainer: {

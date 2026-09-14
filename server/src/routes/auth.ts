@@ -13,11 +13,13 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false });
 
-function issueToken(userId: string, email: string, role: string) {
+function issueToken(userId: string, email: string, role: string, fashionHouseId?: string | null) {
   if (!JWT_SECRET) throw Object.assign(new Error("Server misconfiguration"), { status: 500 });
-  return jwt.sign({ sub: userId, email, role }, JWT_SECRET, { expiresIn: "7d" });
+  const payload: Record<string, unknown> = { sub: userId, email, role };
+  if (fashionHouseId) payload.fashionHouseId = fashionHouseId;
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
 
 // Only Admin and Customer self-register. Staff accounts are created
@@ -35,7 +37,7 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
         const resetTokenHash = hashResetToken(code);
         const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-        const updatedUser = await prisma.$transaction(async (tx) => {
+        const txResult = await prisma.$transaction(async (tx) => {
           const user = await tx.user.update({
             where: { id: existing.id },
             data: {
@@ -47,14 +49,18 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
               resetTokenExpiresAt,
             },
           });
-          await tx.fashionHouse.create({
+          const fh = await tx.fashionHouse.create({
             data: { adminId: user.id, shopName: businessName || name },
           });
-          return user;
+          return { user, fashionHouseId: fh.id };
         });
+        const updatedUser = txResult.user;
 
-        await sendWelcomeEmail(email, name || updatedUser.name || "Admin", code).catch(() => {});
-        const token = issueToken(updatedUser.id, updatedUser.email, updatedUser.role);
+
+        sendWelcomeEmail(email, name || updatedUser.name || "Admin", code).catch((mailErr) => {
+          console.error("Failed to send welcome email:", mailErr);
+        });
+        const token = issueToken(updatedUser.id, updatedUser.email, updatedUser.role, txResult.fashionHouseId);
 
         return res.status(200).json({
           token,
@@ -101,7 +107,7 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
     const resetTokenHash = code ? hashResetToken(code) : null;
     const resetTokenExpiresAt = code ? new Date(Date.now() + 10 * 60 * 1000) : null;
 
-    const user = await prisma.$transaction(async (tx) => {
+    const { newUser: user, fashionHouseId: newFhId } = await prisma.$transaction(async (tx) => {
       const newUser = await tx.user.create({
         data: {
           email,
@@ -113,14 +119,18 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
           resetTokenExpiresAt,
         },
       });
+      let fashionHouseId: string | null = null;
       if (role === "admin") {
-        await tx.fashionHouse.create({ data: { adminId: newUser.id, shopName: businessName || name } });
+        const fh = await tx.fashionHouse.create({ data: { adminId: newUser.id, shopName: businessName || name } });
+        fashionHouseId = fh.id;
       }
-      return newUser;
+      return { newUser, fashionHouseId };
     });
 
-    await sendWelcomeEmail(email, name, code).catch(() => {});
-    const token = issueToken(user.id, user.email, user.role);
+    sendWelcomeEmail(email, name, code).catch((mailErr) => {
+      console.error("Failed to send welcome email:", mailErr);
+    });
+    const token = issueToken(user.id, user.email, user.role, newFhId);
 
     let shopName: string | null = null;
     let onboardingCompleted = false;
@@ -162,13 +172,15 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) return res.status(401).json({ error: "Incorrect email or password." });
 
-    const token = issueToken(user.id, user.email, user.role);
-
+    // Resolve fashionHouseId before token signing so it's embedded in the JWT
+    let loginFashionHouseId: string | null = user.fashionHouseId ?? null;
     let shopName: string | null = null;
     let onboardingCompleted = false;
+
     if (user.role === "admin") {
       const fh = await prisma.fashionHouse.findUnique({ where: { adminId: user.id } });
       if (fh) {
+        loginFashionHouseId = fh.id;
         if (fh.shopName) shopName = fh.shopName;
         onboardingCompleted = fh.onboardingCompleted ?? false;
       }
@@ -178,6 +190,8 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
         shopName = fh.shopName;
       }
     }
+
+    const token = issueToken(user.id, user.email, user.role, loginFashionHouseId);
 
     res.json({
       token,
@@ -197,6 +211,7 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
   }
 });
 
+
 // Always returns the same response regardless of whether the email
 // exists — standard defense against email enumeration.
 router.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSchema }), async (req, res, next) => {
@@ -209,11 +224,9 @@ router.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSche
       const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
       await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash, resetTokenExpiresAt } });
       console.log(`[AUTH] Reset PIN generated for ${normalizedEmail}: ${rawToken}`);
-      try {
-        await sendPasswordResetEmail(normalizedEmail, rawToken);
-      } catch (mailErr) {
+      sendPasswordResetEmail(normalizedEmail, rawToken).catch((mailErr) => {
         console.error("Failed to send password reset email:", mailErr);
-      }
+      });
     }
     res.json({ message: "If an account exists for this email, a reset link has been sent." });
   } catch (err) {
@@ -236,7 +249,9 @@ router.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema
       return res.status(400).json({ error: "This code has expired. Request a new one." });
     }
     if (hashResetToken(normalizedToken) !== user.resetTokenHash) {
-      return res.status(400).json({ error: "Invalid or expired code." });
+      // Burn the token on wrong guess to prevent brute-force
+      await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash: null, resetTokenExpiresAt: null } });
+      return res.status(400).json({ error: "Incorrect code. For your security, this code has been invalidated. Please request a new one." });
     }
 
     const newPasswordHash = await hashPassword(newPassword);
@@ -299,7 +314,7 @@ router.post("/activate-account", authLimiter, validate({ body: activateAccountSc
     const passwordHash = await hashPassword(password);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash, active: true, resetTokenHash: null, resetTokenExpiresAt: null } });
 
-    const jwtToken = issueToken(user.id, user.email, user.role);
+    const jwtToken = issueToken(user.id, user.email, user.role, user.fashionHouseId ?? null);
     res.json({ token: jwtToken, user: { id: user.id, email: user.email, role: user.role } });
   } catch (err) {
     next(err);
@@ -316,10 +331,13 @@ router.post("/verify-code", authLimiter, async (req, res, next) => {
       return res.status(400).json({ error: "Invalid or expired code." });
     }
     if (user.resetTokenExpiresAt < new Date()) {
+      await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash: null, resetTokenExpiresAt: null } });
       return res.status(400).json({ error: "This code has expired. Please request a new one." });
     }
     if (hashResetToken(code) !== user.resetTokenHash) {
-      return res.status(400).json({ error: "Incorrect verification code." });
+      // Burn the token on wrong guess to prevent brute-force
+      await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash: null, resetTokenExpiresAt: null } });
+      return res.status(400).json({ error: "Incorrect code. For your security, this code has been invalidated. Please request a new one." });
     }
 
     await prisma.user.update({
@@ -435,7 +453,8 @@ router.post("/google", authLimiter, async (req, res, next) => {
     }
 
     const onboardingCompleted = user.fashionHouseOwned?.onboardingCompleted ?? false;
-    const token = issueToken(user.id, user.email, user.role);
+    const googleFhId = user.fashionHouseOwned?.id ?? null;
+    const token = issueToken(user.id, user.email, user.role, googleFhId);
     res.json({
       token,
       user: {

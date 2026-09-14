@@ -64,7 +64,8 @@ export const ModelName = {
   Sketch: 'Sketch',
   CustomerPreference: 'CustomerPreference',
   MoodBoardSketch: 'MoodBoardSketch',
-  ChatSession: 'ChatSession'
+  ChatSession: 'ChatSession',
+  DirectMessage: 'DirectMessage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -110,6 +111,9 @@ export const FashionHouseScalarFieldEnum = {
   phone: 'phone',
   bio: 'bio',
   brandLogoUrl: 'brandLogoUrl',
+  bankName: 'bankName',
+  accountNumber: 'accountNumber',
+  accountName: 'accountName',
   categories: 'categories',
   currency: 'currency',
   onboardingCompleted: 'onboardingCompleted',
@@ -127,6 +131,7 @@ export const CustomerScalarFieldEnum = {
   name: 'name',
   phone: 'phone',
   sheetUrl: 'sheetUrl',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -165,6 +170,9 @@ export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof Or
 export const InvoiceScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
+  subtotal: 'subtotal',
+  taxRate: 'taxRate',
+  taxAmount: 'taxAmount',
   total: 'total',
   createdAt: 'createdAt'
 } as const
@@ -176,6 +184,10 @@ export const CatalogItemScalarFieldEnum = {
   id: 'id',
   fashionHouseId: 'fashionHouseId',
   name: 'name',
+  description: 'description',
+  category: 'category',
+  sizes: 'sizes',
+  colors: 'colors',
   priceFrom: 'priceFrom',
   imageUrl: 'imageUrl',
   createdAt: 'createdAt'
@@ -203,6 +215,7 @@ export const BookingScalarFieldEnum = {
   styleNotes: 'styleNotes',
   preferredDate: 'preferredDate',
   preferredTime: 'preferredTime',
+  isFirstTime: 'isFirstTime',
   status: 'status',
   createdAt: 'createdAt'
 } as const
@@ -273,6 +286,21 @@ export const ChatSessionScalarFieldEnum = {
 } as const
 
 export type ChatSessionScalarFieldEnum = (typeof ChatSessionScalarFieldEnum)[keyof typeof ChatSessionScalarFieldEnum]
+
+
+export const DirectMessageScalarFieldEnum = {
+  id: 'id',
+  fashionHouseId: 'fashionHouseId',
+  customerId: 'customerId',
+  senderRole: 'senderRole',
+  senderId: 'senderId',
+  text: 'text',
+  imageUrl: 'imageUrl',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type DirectMessageScalarFieldEnum = (typeof DirectMessageScalarFieldEnum)[keyof typeof DirectMessageScalarFieldEnum]
 
 
 export const SortOrder = {

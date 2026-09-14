@@ -141,9 +141,16 @@ export default function PersonalizeScreen() {
                   ]}
                 >
                   {isSelected && (
-                    <Check size={isLandscape ? 14 : 16} color="#FFFFFF" style={{ marginRight: 4 }} />
+                    <Check
+                      size={isLandscape ? 14 : 16}
+                      color="#FFFFFF"
+                      style={{ position: "absolute", left: 12 }}
+                    />
                   )}
                   <Text
+                    numberOfLines={1}
+                    adjustsFontSizeToFit={true}
+                    minimumFontScale={1.0}
                     style={[
                       styles.pillText,
                       isLandscape && { fontSize: 13 },
@@ -210,15 +217,21 @@ export default function PersonalizeScreen() {
                   onPress={() => setSelectedTiming(item)}
                   style={({ pressed }) => [
                     styles.pillButton,
+                    { width: 137, height: 48, borderRadius: 24 },
                     isLandscape && { paddingVertical: 8, borderRadius: 20 },
                     isSelected ? styles.pillSelected : styles.pillUnselected,
                     { opacity: pressed ? 0.8 : 1 },
                   ]}
                 >
                   {isSelected && (
-                    <Check size={isLandscape ? 14 : 16} color="#FFFFFF" style={{ marginRight: 4 }} />
+                    <Check
+                      size={isLandscape ? 14 : 16}
+                      color="#FFFFFF"
+                      style={{ position: "absolute", left: 12 }}
+                    />
                   )}
                   <Text
+                    numberOfLines={1}
                     style={[
                       styles.pillText,
                       isLandscape && { fontSize: 13 },
@@ -276,7 +289,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 24,
     paddingBottom: 40,
   },
   progressBarTrack: {
@@ -284,7 +297,7 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: "rgba(74, 8, 12, 0.15)",
     borderRadius: 2,
-    marginTop: 8,
+    marginTop: 36,
     marginBottom: 24,
     overflow: "hidden",
   },
@@ -340,7 +353,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 12,
     borderRadius: 28,
     borderWidth: 1,

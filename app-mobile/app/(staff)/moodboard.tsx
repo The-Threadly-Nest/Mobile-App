@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 36,
   },
   landscapeContainer: {
     maxWidth: 720,

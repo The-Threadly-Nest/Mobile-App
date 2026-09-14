@@ -69,7 +69,7 @@ router.use(requireAuth, requireRole("admin", "staff"));
 // GET /api/measurements/check/:customerName — Admin check if customer has measurements recorded
 router.get("/check/:customerName", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const customer = await prisma.customer.findFirst({
       where: { name: { equals: req.params.customerName, mode: "insensitive" }, fashionHouseId: fhId },
       include: { measurements: true },
@@ -87,7 +87,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 
 // Add Measurement (Single or Sheet)
 router.post("/", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { customerId, customerName, field, value, unit, standard, custom } = req.body;
 
     let targetCustomerId = customerId;
@@ -153,7 +153,7 @@ router.post("/", async (req, res, next) => {
 // List Measurements for Customer
 router.get("/customer/:customerId", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { customerId } = req.params;
 
     // Tenant Isolation: Verify customer belongs to the tenant

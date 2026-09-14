@@ -6,6 +6,7 @@ interface CachedImageProps {
   source: string | ImageSource | ImageSourcePropType | number | { uri: string } | null | undefined;
   style?: StyleProp<ImageStyle>;
   contentFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
+  contentPosition?: any;
   placeholder?: ImageSource | string;
   transition?: number;
   priority?: "low" | "normal" | "high";
@@ -22,6 +23,7 @@ export default function CachedImage({
   source,
   style,
   contentFit = "cover",
+  contentPosition,
   placeholder = { blurhash: DEFAULT_BLURHASH },
   transition = 200,
   priority = "normal",
@@ -42,6 +44,7 @@ export default function CachedImage({
       source={normalizedSource}
       placeholder={placeholder}
       contentFit={contentFit}
+      contentPosition={contentPosition}
       transition={transition}
       priority={priority}
       allowDownscaling={allowDownscaling}

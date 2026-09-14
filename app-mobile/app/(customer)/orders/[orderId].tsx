@@ -26,9 +26,11 @@ import {
   XCircle,
 } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import CachedImage from "@/shared/components/CachedImage";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
+import { alertEmitter } from "@/shared/utils/alertEmitter";
 
 const STAGES = [
   { key: "booked", label: "Appointment Booked", desc: "Fitting session scheduled" },
@@ -66,11 +68,45 @@ export default function CustomerOrderDetailScreen() {
     progressPercent?: string;
     imageUrl?: string;
     fashionHouseId?: string;
+    rawStatus?: string;
   }>();
 
   const [orderData, setOrderData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancelOrder = () => {
+    alertEmitter.emit({
+      title: "Cancel Fitting / Order",
+      message: "Are you sure you want to cancel this order? This action will invalidate your fitting appointment slot.",
+      confirmLabel: "Yes, Cancel",
+      cancelLabel: "Keep Order",
+      onConfirm: async () => {
+        setCancelling(true);
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/orders/track/${params.orderId}/cancel`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            alertEmitter.emit({ title: "Cancellation Error", message: data.error || "Failed to cancel order." });
+          } else {
+            setOrderData((prev: any) => ({ ...(prev || {}), status: "cancelled" }));
+            alertEmitter.emit({ title: "Order Cancelled", message: "Your order has been successfully cancelled." });
+          }
+        } catch (err: any) {
+          alertEmitter.emit({ title: "Error", message: err.message || "An unexpected error occurred." });
+        } finally {
+          setCancelling(false);
+        }
+      },
+    });
+  };
 
   const fetchOrderDetail = async () => {
     if (!params.orderId) {
@@ -96,6 +132,10 @@ export default function CustomerOrderDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchOrderDetail();
+      const interval = setInterval(() => {
+        fetchOrderDetail();
+      }, 15000);
+      return () => clearInterval(interval);
     }, [params.orderId, token])
   );
 
@@ -113,12 +153,28 @@ export default function CustomerOrderDetailScreen() {
   const estimatedReady =
     orderData?.estimatedReady || params.estimatedReady || "Fitting In 2 weeks";
   const currentStatus = orderData?.status || "booked";
-  const isDeclined = currentStatus === "declined" || currentStatus === "cancelled";
+  const isDeclined = currentStatus === "declined" || params.rawStatus === "declined";
+  const isCancelled = currentStatus === "cancelled" || params.rawStatus === "cancelled";
+  const isEnded = isDeclined || isCancelled;
   const activeStageIdx = STAGE_INDEX_MAP[currentStatus] ?? 0;
-  const coverImage =
+  let coverImage =
     orderData?.imageUrl ||
     params.imageUrl ||
     "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80";
+
+  if (!coverImage || coverImage.includes("unsplash.com/photo-1566174053879-31528523f8ae")) {
+    const type = (garmentTitle || "").toLowerCase();
+    if (type.includes("vintage") || type.includes("shirt")) {
+      coverImage = "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
+    } else if (type.includes("adire")) {
+      coverImage = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
+    } else if (type.includes("2piece") || type.includes("2 piece") || type.includes("suit") || type.includes("agbada")) {
+      coverImage = "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
+    } else if (type.includes("kaftan")) {
+      coverImage = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
+    }
+  }
+
   const fashionHouseId = orderData?.fashionHouseId || params.fashionHouseId;
 
   return (
@@ -143,12 +199,37 @@ export default function CustomerOrderDetailScreen() {
         }
       >
         {/* Compact Hero Card */}
-        <View style={[styles.compactHeroCard, isDeclined && { borderColor: "#FECDD3", backgroundColor: "#FFF5F5" }]}>
-          <Image source={{ uri: coverImage }} style={styles.compactImage} resizeMode="cover" />
+        <View
+          style={[
+            styles.compactHeroCard,
+            isDeclined && { borderColor: "#FECDD3", backgroundColor: "#FFF5F5" },
+            isCancelled && { borderColor: "#E5DFD5", backgroundColor: "#FFFFFF" },
+          ]}
+        >
+          <CachedImage
+            source={{ uri: coverImage }}
+            style={styles.compactImage}
+            contentFit="cover"
+            contentPosition="top center"
+          />
           <View style={styles.compactContent}>
             <View style={styles.badgeRow}>
-              <View style={[styles.orderBadge, isDeclined && { borderColor: "#DC2626", backgroundColor: "#FDEAEA" }]}>
-                <Text style={[styles.orderBadgeText, isDeclined && { color: "#DC2626" }]}>{orderNumber}</Text>
+              <View
+                style={[
+                  styles.orderBadge,
+                  isDeclined && { borderColor: "#DC2626", backgroundColor: "#FDEAEA" },
+                  isCancelled && { borderColor: "#E5DFD5", backgroundColor: "#F5EFE6" },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.orderBadgeText,
+                    isDeclined && { color: "#DC2626" },
+                    isCancelled && { color: "#4A080C" },
+                  ]}
+                >
+                  {orderNumber}
+                </Text>
               </View>
               <Text style={styles.fhNameText} numberOfLines={1}>
                 {fashionHouseName}
@@ -158,100 +239,23 @@ export default function CustomerOrderDetailScreen() {
               {garmentTitle}
             </Text>
             <View style={styles.dateRow}>
-              <Calendar size={13} color={isDeclined ? "#DC2626" : "#8A7550"} />
-              <Text style={[styles.dateText, isDeclined && { color: "#DC2626", fontFamily: "WorkSans_600SemiBold" }]} numberOfLines={1}>
-                {isDeclined ? "Fitting Request Declined" : estimatedReady}
+              <Calendar size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#4A080C" : "#8A7550"} />
+              <Text
+                style={[
+                  styles.dateText,
+                  isDeclined && { color: "#DC2626", fontFamily: "WorkSans_600SemiBold" },
+                  isCancelled && { color: "#4A080C", fontFamily: "WorkSans_600SemiBold" },
+                ]}
+                numberOfLines={1}
+              >
+                {isDeclined ? "Fitting Request Declined" : isCancelled ? "Order Cancelled by You" : estimatedReady}
               </Text>
             </View>
           </View>
         </View>
 
-        {isDeclined ? (
-          /* Declined Status Alert Banner Card */
-          <View
-            style={{
-              backgroundColor: "#FFFFFF",
-              borderRadius: 20,
-              padding: 20,
-              marginBottom: 14,
-              borderWidth: 1.5,
-              borderColor: "#FECDD3",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <View
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 26,
-                backgroundColor: "#FDEAEA",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 12,
-              }}
-            >
-              <XCircle size={28} color="#DC2626" />
-            </View>
-
-            <Text
-              style={{
-                fontFamily: "Fraunces-Bold",
-                fontSize: 18,
-                color: "#991B1B",
-                marginBottom: 6,
-                textAlign: "center",
-              }}
-            >
-              Appointment Declined
-            </Text>
-
-            <Text
-              style={{
-                fontFamily: "WorkSans_400Regular",
-                fontSize: 13.5,
-                color: "#7F1D1D",
-                textAlign: "center",
-                lineHeight: 19,
-                marginBottom: 16,
-              }}
-            >
-              The atelier was unable to accept this fitting request at the selected time. You can reach out directly to the concierge to select an alternative slot.
-            </Text>
-
-            <Pressable
-              onPress={() => {
-                if (fashionHouseId) {
-                  router.push(`/(customer)/chat/${fashionHouseId}` as any);
-                } else {
-                  router.push("/(customer)/(tabs)/browse" as any);
-                }
-              }}
-              style={({ pressed }) => [
-                {
-                  backgroundColor: "#4A080C",
-                  height: 44,
-                  paddingHorizontal: 20,
-                  borderRadius: 22,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  opacity: pressed ? 0.85 : 1,
-                },
-              ]}
-            >
-              <Text
-                style={{
-                  fontFamily: "WorkSans_600SemiBold",
-                  fontSize: 14,
-                  color: "#FFFFFF",
-                }}
-              >
-                Contact Concierge
-              </Text>
-            </Pressable>
-          </View>
-        ) : (
-          /* Live Timeline Stepper */
+        {/* Production Progress Stepper (Active orders) */}
+        {!isEnded && (
           <View style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardHeadline}>Production Progress</Text>
@@ -304,20 +308,45 @@ export default function CustomerOrderDetailScreen() {
           </View>
         )}
 
-        {/* Chat / Contact Action Button */}
-        <Pressable
-          onPress={() => {
-            if (fashionHouseId) {
-              router.push(`/(customer)/chat/${fashionHouseId}` as any);
-            } else {
-              router.push("/(customer)/(tabs)/browse" as any);
-            }
-          }}
-          style={({ pressed }) => [styles.chatActionBtn, { opacity: pressed ? 0.85 : 1 }]}
-        >
-          <MessageCircle size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.chatActionBtnText}>Message Concierge</Text>
-        </Pressable>
+        {/* Action Pill Buttons */}
+        <View style={styles.actionButtonRow}>
+          <Pressable
+            onPress={() => {
+              if (fashionHouseId) {
+                router.push({
+                  pathname: `/(customer)/direct-chat/${fashionHouseId}`,
+                  params: { fashionHouseName: orderData?.fashionHouse?.name || params.atelierName || 'Fashion House' },
+                } as any);
+              } else {
+                router.push("/(customer)/(tabs)/browse" as any);
+              }
+            }}
+            style={({ pressed }) => [styles.pillBtn, { opacity: pressed ? 0.85 : 1 }]}
+          >
+            <MessageCircle size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.pillBtnText}>Message</Text>
+          </Pressable>
+
+          {!isEnded && currentStatus !== "completed" && currentStatus !== "delivered" && (
+            <Pressable
+              onPress={handleCancelOrder}
+              disabled={cancelling}
+              style={({ pressed }) => [
+                styles.pillBtn,
+                { opacity: pressed || cancelling ? 0.85 : 1 },
+              ]}
+            >
+              {cancelling ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <XCircle size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.pillBtnText}>Cancel Order</Text>
+                </>
+              )}
+            </Pressable>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -327,12 +356,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FBF7EF" },
   headerBar: {
     height: 52,
+    marginTop: 36,
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
   },
   backBtn: {
     width: 36,
@@ -344,7 +372,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F0EBE1",
   },
-  headerTitle: { fontFamily: "WorkSans_700Bold", fontSize: 17, color: "#4A080C" },
+  headerTitle: { fontFamily: "Fraunces-SemiBold", fontSize: 24, color: "#1A1110" },
   scrollContent: { paddingHorizontal: 20, paddingVertical: 14, paddingBottom: 32 },
   compactHeroCard: {
     backgroundColor: "#FFFFFF",
@@ -412,10 +440,18 @@ const styles = StyleSheet.create({
   stepLabelCurrent: { color: "#4A080C", fontFamily: "WorkSans_700Bold" },
   stepLabelPending: { color: "#A0A0A0" },
   stepDesc: { fontFamily: "WorkSans_400Regular", fontSize: 11.5, color: "#8A7550", marginTop: 1 },
-  chatActionBtn: {
+  actionButtonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 6,
+    marginBottom: 8,
+  },
+  pillBtn: {
+    flex: 1,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: "#4A080C",
-    height: 48,
-    borderRadius: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -425,6 +461,26 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  chatActionBtnText: { fontFamily: "WorkSans_600SemiBold", fontSize: 14, color: "#FFFFFF" },
+  pillBtnText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14.5,
+    color: "#FFFFFF",
+  },
+  pillBtnSecondary: {
+    flex: 1,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillBtnSecondaryText: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 14.5,
+    color: "#4A080C",
+  },
 });
 

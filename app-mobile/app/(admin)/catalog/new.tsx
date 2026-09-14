@@ -74,10 +74,13 @@ export default function AdminNewGarmentScreen() {
       setError("Please enter a garment name or title.");
       return;
     }
-    const parsedPrice = parseFloat(priceFrom.replace(/[^\d.]/g, ""));
-    if (isNaN(parsedPrice) || parsedPrice <= 0) {
-      setError("Please enter a valid starting price.");
-      return;
+
+    let parsedPrice: number | null = null;
+    if (priceFrom.trim()) {
+      const num = parseFloat(priceFrom.replace(/[^\d.]/g, ""));
+      if (!isNaN(num) && num > 0) {
+        parsedPrice = Math.round(num);
+      }
     }
 
     setSaving(true);
@@ -92,7 +95,7 @@ export default function AdminNewGarmentScreen() {
       });
 
       showAlert("Success", "Garment added to your catalog successfully!");
-      setTimeout(() => router.push("/(admin)/catalog" as any), 1400);
+      setTimeout(() => router.replace("/(admin)/catalog" as any), 1000);
     } catch (err: any) {
       setError(err.message || "Could not save garment. Please try again.");
     } finally {
@@ -216,8 +219,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(74, 8, 12, 0.08)",
   },
   backBtn: {
     width: 38,
@@ -236,7 +237,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 36,
     paddingBottom: 100,
   },
   fieldLabel: {

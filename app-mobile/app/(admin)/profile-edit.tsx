@@ -167,8 +167,6 @@ export default function AdminProfileEditScreen() {
             paddingHorizontal: 20,
             flexDirection: "row",
             alignItems: "center",
-            borderBottomWidth: 1,
-            borderBottomColor: "rgba(0,0,0,0.05)",
           }}
         >
           <Pressable
@@ -203,7 +201,7 @@ export default function AdminProfileEditScreen() {
           <ScrollView
             automaticallyAdjustKeyboardInsets={true}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 36, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
             {/* Brand Logo Card */}

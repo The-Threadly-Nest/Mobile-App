@@ -2,6 +2,9 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import * as SecureStore from "expo-secure-store";
 
+import { useOrdersStore } from "./useOrdersStore";
+import { useAppDataStore } from "./useAppDataStore";
+
 type Role = "admin" | "staff" | "customer" | null;
 
 interface AuthState {
@@ -65,7 +68,13 @@ export const useAuthStore = create<AuthState>()(
       setHasSeenSketchpadGuide: (hasSeenSketchpadGuide) => set({ hasSeenSketchpadGuide }),
       setResendAvailableAt: (resendAvailableAt) => set({ resendAvailableAt }),
       setCreatedAt: (createdAt) => set({ createdAt }),
-      logout: () =>
+      logout: () => {
+        try {
+          useOrdersStore.getState().setOrders([]);
+          useAppDataStore.getState().clearCache();
+        } catch (e) {
+          console.warn("Failed to clear local caches on logout:", e);
+        }
         set({
           role: null,
           name: "",
@@ -79,7 +88,8 @@ export const useAuthStore = create<AuthState>()(
           hasSeenSketchpadGuide: false,
           resendAvailableAt: null,
           createdAt: null,
-        }),
+        });
+      },
     }),
     { name: "threadly-nest-auth", storage: createJSONStorage(() => secureStorage) }
   )

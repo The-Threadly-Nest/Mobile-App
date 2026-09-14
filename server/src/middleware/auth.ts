@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { prisma } from "../lib/prisma";
 
 declare global {
   namespace Express {
@@ -8,6 +7,7 @@ declare global {
       authUserId?: string;
       authEmail?: string;
       authRole?: "admin" | "staff" | "customer";
+      authFashionHouseId?: string | null;
     }
   }
 }
@@ -23,10 +23,16 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     return res.status(500).json({ error: "Server misconfiguration" });
   }
   try {
-    const decoded = jwt.verify(header.slice(7), secret) as { sub: string; email: string; role: string };
+    const decoded = jwt.verify(header.slice(7), secret) as {
+      sub: string;
+      email: string;
+      role: string;
+      fashionHouseId?: string;
+    };
     req.authUserId = decoded.sub;
     req.authEmail = decoded.email;
     req.authRole = decoded.role as "admin" | "staff" | "customer";
+    req.authFashionHouseId = decoded.fashionHouseId ?? null;
     next();
   } catch {
     return res.status(401).json({ error: "Invalid or expired token" });
@@ -42,24 +48,18 @@ export function requireRole(...allowed: Array<"admin" | "staff" | "customer">) {
   };
 }
 
-export async function getOwnFashionHouseId(userId: string, role: string): Promise<string> {
-  if (role === "admin") {
-    const admin = await prisma.user.findUnique({ where: { id: userId }, include: { fashionHouseOwned: true } });
-    if (!admin) {
-      throw Object.assign(new Error("Your session has expired. Please log in again."), { status: 401 });
-    }
-    if (!admin.fashionHouseOwned) {
-      throw Object.assign(new Error("Fashion house not found for this admin"), { status: 404 });
-    }
-    return admin.fashionHouseOwned.id;
-  } else {
-    const staff = await prisma.user.findUnique({ where: { id: userId } });
-    if (!staff) {
-      throw Object.assign(new Error("Your session has expired. Please log in again."), { status: 401 });
-    }
-    if (!staff.fashionHouseId) {
-      throw Object.assign(new Error("Fashion house not found for this staff member"), { status: 404 });
-    }
-    return staff.fashionHouseId;
+/**
+ * Returns the fashion house ID from the JWT claim — zero DB queries.
+ * Throws a 404 if the claim is missing (e.g. old tokens issued before this change).
+ */
+export function getOwnFashionHouseId(req: Request): string {
+  const fhId = req.authFashionHouseId;
+  if (!fhId) {
+    throw Object.assign(
+      new Error("Fashion house not found. Please log out and log in again to refresh your session."),
+      { status: 404 }
+    );
   }
+  return fhId;
 }
+

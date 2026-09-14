@@ -70,6 +70,7 @@ router.get("/", async (req, res, next) => {
         preferredTime: b.preferredTime,
         resolved: hasOrder || b.status === "assigned" || b.status === "completed" || b.status === "declined",
         bookingStatus,
+        status: b.status,
         createdAt: b.createdAt.toISOString(),
         customer: b.customer,
       };

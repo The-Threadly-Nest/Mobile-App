@@ -74,7 +74,11 @@ export default function AppAlert() {
             <View style={[styles.actions, isConfirm && styles.actionsRow]}>
               {isConfirm && (
                 <Pressable
-                  style={({ pressed }) => [styles.cancelBtn, { opacity: pressed ? 0.7 : 1 }]}
+                  style={({ pressed }) => [
+                    styles.cancelBtn,
+                    styles.btnEqual,
+                    { opacity: pressed ? 0.7 : 1 },
+                  ]}
                   onPress={() => close(payload.onCancel)}
                 >
                   <Text style={styles.cancelText}>{payload.cancelLabel ?? "Cancel"}</Text>
@@ -83,7 +87,7 @@ export default function AppAlert() {
               <Pressable
                 style={({ pressed }) => [
                   styles.confirmBtn,
-                  isConfirm && styles.confirmBtnFlex,
+                  isConfirm && styles.btnEqual,
                   { opacity: pressed ? 0.85 : 1 },
                 ]}
                 onPress={() => close(payload.onConfirm)}
@@ -143,11 +147,19 @@ const styles = StyleSheet.create({
   },
   actionsRow: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    width: "100%",
+  },
+  btnEqual: {
+    flex: 1,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelBtn: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
     borderWidth: 1.5,
@@ -160,13 +172,9 @@ const styles = StyleSheet.create({
   },
   confirmBtn: {
     backgroundColor: "#4A080C",
-    paddingHorizontal: 28,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
-  },
-  confirmBtnFlex: {
-    flex: 1,
-    alignItems: "center",
   },
   confirmText: {
     fontFamily: "WorkSans_600SemiBold",

@@ -8,6 +8,7 @@ import { buildTruncatedHistory, shouldForceEscalate } from "../lib/chatHistory";
 import { checkMessageGuardrails } from "../lib/chatGuardrails";
 import rateLimit from "express-rate-limit";
 import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
+import { parseFittingDate } from "../utils/dateUtils";
 
 const router = Router();
 router.use(requireAuth);
@@ -34,8 +35,10 @@ async function resolveSessionTarget(paramId: string, authUserId: string) {
     const targetUserId = paramId && paramId !== "default" ? paramId : authUserId;
     return { sessionCustomerId: targetUserId, fashionHouseId: fhId, role: user.role };
   } else if (user.role === "staff") {
-    const fhId = user.fashionHouseId || (await prisma.fashionHouse.findFirst())?.id || paramId;
-    return { sessionCustomerId: user.id, fashionHouseId: fhId, role: user.role };
+    if (!user.fashionHouseId) {
+      throw Object.assign(new Error("Your account is not associated with a fashion house. Contact your admin."), { status: 403 });
+    }
+    return { sessionCustomerId: user.id, fashionHouseId: user.fashionHouseId, role: user.role };
   } else {
     let fhId = paramId;
     if (fhId === "default") {
@@ -66,7 +69,7 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
 // POST /api/chat/message — send a message; history is fully managed server-side
 router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), async (req, res, next) => {
   try {
-    const { fashionHouseId: rawParam, message } = req.body;
+    const { fashionHouseId: rawParam, message, garmentName, audioUrl, audioDuration } = req.body;
     const authUserId = req.authUserId!;
     const { sessionCustomerId, fashionHouseId, role } = await resolveSessionTarget(rawParam, authUserId);
     const customerId = sessionCustomerId;
@@ -82,7 +85,11 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
     // 1b. If the sender is staff or admin, persist human chat message directly without invoking AI
     if (role === "staff" || role === "admin") {
       const turnRole = role === "admin" ? "admin" : "staff";
-      const updatedHistory = [...history, { role: turnRole, text: message }];
+      const turnText = message?.trim() || (audioUrl ? "[Voice Note]" : "");
+      const turn: any = { role: turnRole, text: turnText };
+      if (audioUrl) turn.audioUrl = audioUrl;
+      if (audioDuration !== undefined) turn.audioDuration = audioDuration;
+      const updatedHistory = [...history, turn];
       await prisma.chatSession.update({
         where: { id: session.id },
         data: { history: updatedHistory },
@@ -90,9 +97,11 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
 
       // Send push notification asynchronously
       if (role === "staff") {
-        sendNotificationToAdmin(fashionHouseId, "New Message from Staff", message.slice(0, 100));
+        const notifBody = audioUrl ? "🎙️ Voice message received" : (message || "").slice(0, 100);
+        sendNotificationToAdmin(fashionHouseId, audioUrl ? "New Voice Note from Staff" : "New Message from Staff", notifBody);
       } else {
-        sendNotificationToUser(sessionCustomerId, "New Message from Admin", message.slice(0, 100));
+        const notifBody = audioUrl ? "🎙️ Voice message received" : (message || "").slice(0, 100);
+        sendNotificationToUser(sessionCustomerId, audioUrl ? "New Voice Note from Admin" : "New Message from Admin", notifBody);
       }
 
       return res.json({ success: true, history: updatedHistory });
@@ -155,6 +164,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       catalogSummary,
       availableSlots,
       clientName: customerUser?.name || undefined,
+      targetGarmentName: garmentName || undefined,
       currentDate: new Date().toISOString().split("T")[0],
     });
 
@@ -177,23 +187,46 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       const functionCall = response.functionCalls()?.[0];
 
       if (functionCall?.name === "create_booking") {
-        const args = functionCall.args as { styleNotes: string; preferredDate: string; preferredTime: string };
+        const args = functionCall.args as { styleNotes: string; preferredDate: string; preferredTime: string; isFirstTime?: boolean };
+        const parsedDate = parseFittingDate(args.preferredDate || args.preferredTime);
         const booking = await prisma.booking.create({
-          data: { fashionHouseId, customerId, styleNotes: args.styleNotes, preferredDate: new Date(args.preferredDate), preferredTime: args.preferredTime, status: "pending_admin_review" },
+          data: {
+            fashionHouseId,
+            customerId,
+            styleNotes: args.styleNotes,
+            preferredDate: parsedDate,
+            preferredTime: args.preferredTime,
+            isFirstTime: args.isFirstTime ?? true,
+            status: "pending_admin_review",
+          },
         });
-        await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] } });
+        const confirmReply = `Your fitting request with ${fh.shopName} for ${args.preferredTime} has been received! Our team will confirm shortly.`;
+        const updatedHistory: ChatTurn[] = [
+          ...history,
+          { role: "user", text: message },
+          { role: "model", text: confirmReply },
+          { role: "model", text: "--- Chat Session Ended ---" },
+        ];
+        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory } });
         return res.json({
           type: "booking_created",
           booking,
-          reply: `Your fitting request with ${fh.shopName} for ${args.preferredTime} has been received! Our team will confirm shortly.`,
+          reply: confirmReply,
         });
       }
 
       if (functionCall?.name === "escalate_to_admin") {
         const args = functionCall.args as { reason: string; conversationSummary: string };
         await createEscalation(fashionHouseId, customerId, history, args.reason, args.conversationSummary);
-        await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] } });
-        return res.json({ type: "escalated", reason: args.reason, reply: "I've flagged this for the team, and someone will follow up with you directly." });
+        const escReply = "I've flagged this for the team, and someone will follow up with you directly.";
+        const updatedHistory: ChatTurn[] = [
+          ...history,
+          { role: "user", text: message },
+          { role: "model", text: escReply },
+          { role: "model", text: "--- Chat Session Ended ---" },
+        ];
+        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory } });
+        return res.json({ type: "escalated", reason: args.reason, reply: escReply });
       }
 
       replyText = response.text() || "";
@@ -217,6 +250,47 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
     await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory } });
 
     res.json({ type: "message", reply: modelReply });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/chat/escalate — Direct customer-initiated chat escalation to Admin
+router.post("/escalate", async (req, res, next) => {
+  try {
+    const { fashionHouseId: rawParam, reason, summary } = req.body;
+    const authUserId = req.authUserId!;
+    const { sessionCustomerId, fashionHouseId } = await resolveSessionTarget(rawParam || "default", authUserId);
+
+    const session = await prisma.chatSession.findUnique({
+      where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
+    });
+    const history = (session?.history as ChatTurn[]) ?? [];
+
+    const escalation = await prisma.chatEscalation.create({
+      data: {
+        fashionHouseId,
+        customerId: sessionCustomerId,
+        reason: reason || "Customer requested human assistant",
+        summary: summary || "Manual customer chat escalation",
+        transcript: JSON.stringify(history),
+      },
+    });
+
+    if (session) {
+      const updatedHistory: ChatTurn[] = [
+        ...history,
+        { role: "model", text: "I've flagged your session for administrators. A team member will join this chat shortly." },
+        { role: "model", text: "--- Chat Session Ended ---" },
+      ];
+      await prisma.chatSession.update({
+        where: { id: session.id },
+        data: { history: updatedHistory },
+      });
+    }
+
+    sendNotificationToAdmin(fashionHouseId, "Customer Escalation Request", "A customer requested direct admin assistance.");
+    res.status(201).json({ success: true, escalation });
   } catch (err) {
     next(err);
   }

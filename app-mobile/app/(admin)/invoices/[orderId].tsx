@@ -546,10 +546,30 @@ export default function InvoiceDetailScreen() {
                 <View style={styles.tableBottomBorder} />
               </View>
 
+              {/* Tax & Breakdown Calculation Row */}
+              <View style={{ marginBottom: 12 }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>Subtotal</Text>
+                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>₦{invoice.total.toLocaleString()}</Text>
+                </View>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>VAT / Tax (7.5%)</Text>
+                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>₦{Math.round(invoice.total * 0.075).toLocaleString()}</Text>
+                </View>
+              </View>
+
               {/* Grand Total Row */}
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalAmount}>₦{invoice.total.toLocaleString()}</Text>
+                <Text style={styles.totalLabel}>Total Due</Text>
+                <Text style={styles.totalAmount}>₦{Math.round(invoice.total * 1.075).toLocaleString()}</Text>
+              </View>
+
+              {/* Bank & Account Details Footer Section */}
+              <View style={{ marginTop: 20, paddingTop: 16, borderTopWidth: 1, borderColor: "#E4D5B7" }}>
+                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 12, color: "#4A080C", marginBottom: 4 }}>PAYMENT DETAILS</Text>
+                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}>Bank: Access Bank / GTBank</Text>
+                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}>Account No: 0123456789</Text>
+                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}>Account Name: {invoice.atelierName}</Text>
               </View>
             </View>
           </ViewShot>
@@ -712,7 +732,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: 36,
   },
   containerLandscape: {
     maxWidth: 680,

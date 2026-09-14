@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   Switch,
+  BackHandler,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
@@ -28,9 +29,18 @@ export default function BookingConfirmationScreen() {
 
   const [isFavourite, setIsFavourite] = useState(false);
   const addOrder = useOrdersStore((s) => s.addOrder);
+  const hasPostedRef = React.useRef(false);
 
   useEffect(() => {
-    if (fashionHouseName && garment) {
+    const handleGoHome = () => {
+      router.replace("/(customer)/(tabs)/browse" as any);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", handleGoHome);
+
+    if (fashionHouseName && garment && !hasPostedRef.current) {
+      hasPostedRef.current = true;
       const randomId = Math.floor(2300 + Math.random() * 900);
       addOrder({
         id: `booking-${Date.now()}`,
@@ -49,6 +59,8 @@ export default function BookingConfirmationScreen() {
         silent: true,
       }).catch(() => {});
     }
+
+    return () => backHandler.remove();
   }, [fashionHouseName, garment, fittingDate, addOrder]);
 
   return (
@@ -56,10 +68,7 @@ export default function BookingConfirmationScreen() {
       {/* Top Header */}
       <View className="flex-row items-center px-6 py-3 bg-[#FBF7EF]">
         <Pressable
-          onPress={() => {
-            if (router.canGoBack()) router.back();
-            else router.replace("/(customer)/(tabs)/home");
-          }}
+          onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
           className="w-10 h-10 rounded-full border border-[#D1D1D1] bg-white items-center justify-center mr-4"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >

@@ -87,3 +87,8 @@ export type MoodBoardSketch = Prisma.MoodBoardSketchModel
  * 
  */
 export type ChatSession = Prisma.ChatSessionModel
+/**
+ * Model DirectMessage
+ * 
+ */
+export type DirectMessage = Prisma.DirectMessageModel

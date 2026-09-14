@@ -6,6 +6,9 @@ import {
   ScrollView,
   StyleSheet,
   useWindowDimensions,
+  Modal,
+  TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -23,9 +26,14 @@ import {
   LogOut,
   ChevronRight,
   MessageSquare,
+  Calendar,
+  Clock,
+  Trash2,
+  X,
+  Plus,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { adminApi, ordersApi } from "@/shared/utils/apiClient";
+import { adminApi, ordersApi, slotsApi } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 import { API_BASE_URL } from "@/api/config";
@@ -46,6 +54,56 @@ export default function AdminSettingsScreen() {
   const [unreadChatCount, setUnreadChatCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(0);
   const [invoiceCount, setInvoiceCount] = useState(0);
+
+  // Fitting slots state & management
+  const [showSlotsModal, setShowSlotsModal] = useState(false);
+  const [slotsList, setSlotsList] = useState<any[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [newSlotDate, setNewSlotDate] = useState("");
+  const [newSlotTime, setNewSlotTime] = useState("");
+  const [addingSlot, setAddingSlot] = useState(false);
+
+  const fetchSlots = async () => {
+    setLoadingSlots(true);
+    try {
+      const data = await slotsApi.getSlots();
+      if (Array.isArray(data)) {
+        setSlotsList(data);
+      }
+    } catch (err) {
+      console.warn("Could not fetch fitting slots:", err);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  const handleAddSlot = async () => {
+    if (!newSlotDate.trim() || !newSlotTime.trim()) {
+      showAlert("Missing Fields", "Please enter both date (e.g. Sat, 12 Sep) and time (e.g. 10:00 AM).");
+      return;
+    }
+    setAddingSlot(true);
+    try {
+      const created = await slotsApi.createSlot(newSlotDate.trim(), newSlotTime.trim());
+      setSlotsList((prev) => [...prev, created]);
+      setNewSlotDate("");
+      setNewSlotTime("");
+      showAlert("Slot Added", `Fitting slot for ${created.date} at ${created.time} is now available.`);
+    } catch (err: any) {
+      showAlert("Add Failed", err?.message || "Could not add fitting slot.");
+    } finally {
+      setAddingSlot(false);
+    }
+  };
+
+  const handleDeleteSlot = async (slotId: string) => {
+    try {
+      await slotsApi.deleteSlot(slotId);
+      setSlotsList((prev) => prev.filter((s) => s.id !== slotId));
+    } catch (err: any) {
+      showAlert("Error", err?.message || "Could not delete slot.");
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -143,9 +201,26 @@ export default function AdminSettingsScreen() {
     {
       id: "catalog",
       title: "Catalog",
-      subtitle: "Collections & items",
+      subtitle: "Upload & manage clothes",
       icon: Tag,
       onPress: () => router.push("/(admin)/catalog" as any),
+    },
+    {
+      id: "customer-inquiries",
+      title: "Customer Inquiries",
+      subtitle: "Client direct messages",
+      icon: MessageSquare,
+      onPress: () => router.push("/(admin)/customer-messages" as any),
+    },
+    {
+      id: "fitting-slots",
+      title: "Fitting Slots",
+      subtitle: "Manage AI booking times",
+      icon: Calendar,
+      onPress: () => {
+        fetchSlots();
+        setShowSlotsModal(true);
+      },
     },
     {
       id: "settings",
@@ -286,6 +361,141 @@ export default function AdminSettingsScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Fitting Slots Management Modal */}
+      <Modal
+        visible={showSlotsModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSlotsModal(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}>
+          <View style={{ backgroundColor: "#FBF7EF", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: "85%" }}>
+            {/* Modal Header */}
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <View>
+                <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 20, color: "#4A080C" }}>
+                  Fitting Time Slots
+                </Text>
+                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#8A7550" }}>
+                  Manage available slots for AI booking assistant
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setShowSlotsModal(false)}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(58, 46, 26, 0.08)", justifyContent: "center", alignItems: "center" }}
+              >
+                <X size={18} color="#3A2E1A" />
+              </Pressable>
+            </View>
+
+            {/* Add New Slot Form */}
+            <View style={{ backgroundColor: "#FFFFFF", padding: 14, borderRadius: 16, borderWidth: 1, borderColor: "#E4D5B7", marginBottom: 16 }}>
+              <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A", marginBottom: 10 }}>
+                Add New Fitting Slot
+              </Text>
+              <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FBF7EF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
+                  <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
+                  <TextInput
+                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}
+                    placeholder="Sat, 12 Sep"
+                    placeholderTextColor="#A09075"
+                    value={newSlotDate}
+                    onChangeText={setNewSlotDate}
+                  />
+                </View>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FBF7EF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
+                  <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
+                  <TextInput
+                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}
+                    placeholder="10:00 AM"
+                    placeholderTextColor="#A09075"
+                    value={newSlotTime}
+                    onChangeText={setNewSlotTime}
+                  />
+                </View>
+              </View>
+
+              <Pressable
+                onPress={handleAddSlot}
+                disabled={addingSlot}
+                style={({ pressed }) => [{
+                  backgroundColor: "#4A080C",
+                  height: 40,
+                  borderRadius: 10,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  opacity: pressed || addingSlot ? 0.8 : 1,
+                }]}
+              >
+                {addingSlot ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#FFFFFF" }}>
+                    + Add Slot
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+
+            {/* List of Existing Slots */}
+            <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A", marginBottom: 10 }}>
+              Active Slots ({slotsList.length})
+            </Text>
+
+            <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
+              {loadingSlots ? (
+                <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+              ) : slotsList.length === 0 ? (
+                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 16 }}>
+                  No fitting slots configured yet. Add your first slot above!
+                </Text>
+              ) : (
+                slotsList.map((slot) => (
+                  <View
+                    key={slot.id}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      backgroundColor: "#FFFFFF",
+                      padding: 12,
+                      borderRadius: 12,
+                      marginBottom: 8,
+                      borderWidth: 1,
+                      borderColor: "rgba(58, 46, 26, 0.08)",
+                    }}
+                  >
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                      <Calendar size={16} color="#4A080C" />
+                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A" }}>
+                        {slot.date} · {slot.time}
+                      </Text>
+                      {slot.booked ? (
+                        <View style={{ backgroundColor: "#FDE8E8", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#D32F2F" }}>Booked</Text>
+                        </View>
+                      ) : (
+                        <View style={{ backgroundColor: "#E8F5E9", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
+                          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#2E7D32" }}>Available</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <Pressable
+                      onPress={() => handleDeleteSlot(slot.id)}
+                      style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, padding: 4 }]}
+                    >
+                      <Trash2 size={16} color="#D32F2F" />
+                    </Pressable>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -297,7 +507,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 36,
     paddingBottom: 40,
   },
   landscapeContainer: {

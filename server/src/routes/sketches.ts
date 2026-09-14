@@ -9,7 +9,7 @@ router.use(requireAuth, requireRole("admin", "staff"));
 
 router.get("/", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const sketches = await prisma.sketch.findMany({
       where: { fashionHouseId: fhId },
       orderBy: { createdAt: "desc" },
@@ -22,7 +22,7 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", validate({ body: createSketchSchema }), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { title, imageUrl } = req.body;
     const sketch = await prisma.sketch.create({
       data: {

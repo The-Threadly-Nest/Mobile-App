@@ -135,7 +135,43 @@ export default function FashionHouseScreen() {
 
   const mockPortfolio = isMockId ? (PORTFOLIO_IMAGES[targetId] || PORTFOLIO_IMAGES["1"]) : [];
   const catalogItems = fhData?.catalogItems || [];
-  const reviews = isMockId ? (MOCK_REVIEWS[targetId] || MOCK_REVIEWS["1"]) : [];
+
+  const defaultMockReviews = [
+    {
+      name: "Chiamaka O.",
+      text: "My bridal aso-ebi fit perfectly at the first try-on. Worth every naira.",
+      rating: 5,
+    },
+    {
+      name: "Blessing A.",
+      text: "Delivered three days ahead of my wedding. Very calm communication throughout.",
+      rating: 5,
+    },
+  ];
+
+  const reviews =
+    Array.isArray(fhData?.reviews) && fhData.reviews.length > 0
+      ? fhData.reviews.map((r: any) => ({
+          name: r.user?.name || r.name || "Customer",
+          text: r.comment || r.text || "",
+          rating: r.rating || 5,
+        }))
+      : isMockId && MOCK_REVIEWS[targetId]
+      ? MOCK_REVIEWS[targetId]
+      : defaultMockReviews;
+
+  const rawOrdersCount = fhData?.ordersCount ?? fhData?._count?.orders ?? (isMockId ? 2100 : 0);
+
+  const formatOrdersText = (count: number) => {
+    if (count >= 1000) {
+      const formatted = (count / 1000).toFixed(1).replace(/\.0$/, "");
+      return `${formatted}k+`;
+    }
+    if (count > 0) {
+      return `${count}+`;
+    }
+    return "2k+";
+  };
 
   if (loading && !fhData && !initialName && !mockTailor) {
     return (
@@ -149,7 +185,7 @@ export default function FashionHouseScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+        contentContainerStyle={{ paddingTop: 24, paddingBottom: Math.max(insets.bottom, 33) }}
       >
         {/* Hero Image */}
         <View style={[styles.heroContainer, isLandscape && { height: 180 }]}>
@@ -158,7 +194,8 @@ export default function FashionHouseScreen() {
           ) : (
             <CachedImage source={require("../../../assets/tailor-1.png")} style={styles.heroImage} />
           )}
-          {/* Gradient overlay */}
+
+          {/* Dark Overlay for crisp text readability */}
           <View style={styles.heroOverlay} />
 
           {/* Back Button */}
@@ -170,22 +207,22 @@ export default function FashionHouseScreen() {
           <View style={styles.heroTitle}>
             <Text style={[styles.heroName, isLandscape && { fontSize: 20 }]}>{displayName}</Text>
             <View style={styles.heroRatingRow}>
-              {renderStars(5.0)}
-              <Text style={styles.heroRatingText}>5.0 (Fashion House)</Text>
+              {renderStars(4.9)}
+              <Text style={styles.heroRatingText}>4.9 ({formatOrdersText(rawOrdersCount)})</Text>
             </View>
           </View>
         </View>
 
-        {/* Stats Row */}
+        {/* Stats Row - Moved down below hero photo */}
         <View style={[styles.statsCard, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>2 wks</Text>
+            <Text style={styles.statValue}>3 wks</Text>
             <Text style={styles.statLabel}>TURNAROUND</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>Bespoke</Text>
-            <Text style={styles.statLabel}>SERVICE</Text>
+            <Text style={styles.statValue}>₦1.2M</Text>
+            <Text style={styles.statLabel}>PRICE RANGE</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
@@ -196,43 +233,51 @@ export default function FashionHouseScreen() {
 
         {/* About Section */}
         <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
-          <Text style={styles.sectionTitle}>ABOUT THIS FASHION HOUSE</Text>
+          <Text style={styles.sectionTitle}>ABOUT</Text>
           <Text style={styles.aboutText}>{displayBio}</Text>
         </View>
 
-        {/* Portfolio / Catalog Section */}
+        {/* Portfolio Section */}
         <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
-          <Text style={styles.sectionTitle}>PORTFOLIO & CATALOG</Text>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>PORTFOLIO</Text>
+            <Pressable onPress={() => {}}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </Pressable>
+          </View>
 
           {catalogItems.length > 0 ? (
             <View style={styles.portfolioGrid}>
-              {catalogItems.map((item: any) => (
-                <Pressable
-                  key={item.id}
-                  style={styles.catalogCard}
-                  onPress={() => {
-                    router.push({
-                      pathname: `/(customer)/catalog/${item.id}`,
-                      params: {
-                        initialName: item.name,
-                        initialPrice: `From ₦ ${(item.priceFrom / 100).toLocaleString()}`,
-                        initialImage: item.imageUrl,
-                        initialVendorName: displayName,
-                        initialLocation: displayLocation,
-                        initialFashionHouseId: targetId,
-                      },
-                    });
-                  }}
-                >
-                  <CachedImage source={{ uri: item.imageUrl }} style={styles.catalogImage} />
-                  <Text style={styles.catalogTitle} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Text style={styles.catalogPrice}>
-                    From ₦ {(item.priceFrom / 100).toLocaleString()}
-                  </Text>
-                </Pressable>
-              ))}
+              {catalogItems.map((item: any) => {
+                const formattedPrice =
+                  typeof item.priceFrom === "number"
+                    ? `From ₦ ${item.priceFrom.toLocaleString()}`
+                    : item.priceFrom
+                      ? `From ${item.priceFrom}`
+                      : "Price on Request";
+
+                return (
+                  <Pressable
+                    key={item.id}
+                    style={styles.portfolioItemCard}
+                    onPress={() => {
+                      router.push({
+                        pathname: `/(customer)/catalog/${item.id}`,
+                        params: {
+                          initialName: item.name,
+                          initialPrice: formattedPrice,
+                          initialImage: item.imageUrl,
+                          initialVendorName: displayName,
+                          initialLocation: displayLocation,
+                          initialFashionHouseId: targetId,
+                        },
+                      });
+                    }}
+                  >
+                    <CachedImage source={{ uri: item.imageUrl }} style={styles.portfolioImage} />
+                  </Pressable>
+                );
+              })}
             </View>
           ) : fhData ? (
             <View style={styles.emptyCatalogCard}>
@@ -245,11 +290,9 @@ export default function FashionHouseScreen() {
           ) : mockPortfolio.length > 0 ? (
             <View style={styles.portfolioGrid}>
               {mockPortfolio.map((img, i) => (
-                <CachedImage
-                  key={i}
-                  source={img}
-                  style={[styles.portfolioImage, isLandscape && { width: "31%", height: 110 }]}
-                />
+                <View key={i} style={styles.portfolioItemCard}>
+                  <CachedImage source={img} style={styles.portfolioImage} />
+                </View>
               ))}
             </View>
           ) : (
@@ -263,7 +306,7 @@ export default function FashionHouseScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>REVIEWS</Text>
           <View style={styles.reviewsCard}>
-            {reviews.map((review, i) => (
+            {reviews.map((review: any, i: number) => (
               <View key={i}>
                 <View style={styles.reviewItem}>
                   <View style={styles.reviewHeader}>
@@ -284,23 +327,37 @@ export default function FashionHouseScreen() {
             </Pressable>
           </View>
         </View>
-      </ScrollView>
 
-      {/* Pinned Bottom Sticky Action Bar */}
-      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-        <Pressable
-          style={({ pressed }) => [styles.bookingBtn, { opacity: pressed ? 0.9 : 1 }]}
-          onPress={() =>
-            router.push({
-              pathname: `/(customer)/chat/${targetId}`,
-              params: { fashionHouseName: displayName },
-            })
-          }
-        >
-          <Calendar size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
-          <Text style={styles.bookingBtnText}>Book Appointment</Text>
-        </Pressable>
-      </View>
+        {/* Action Buttons - Below Reviews */}
+        <View style={{ paddingHorizontal: 20, marginTop: 28, flexDirection: 'row', gap: 12 }}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.bookingBtn,
+              { flex: 1, backgroundColor: '#EFECE6', opacity: pressed ? 0.9 : 1 },
+            ]}
+            onPress={() =>
+              router.push({
+                pathname: `/(customer)/direct-chat/${targetId}`,
+                params: { fashionHouseName: displayName },
+              })
+            }
+          >
+            <Text style={[styles.bookingBtnText, { color: '#4A080C' }]}>Message</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [styles.bookingBtn, { flex: 1.4, opacity: pressed ? 0.9 : 1 }]}
+            onPress={() =>
+              router.push({
+                pathname: `/(customer)/chat/${targetId}`,
+                params: { fashionHouseName: displayName },
+              })
+            }
+          >
+            <Text style={styles.bookingBtnText}>Start Booking</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -321,10 +378,10 @@ const styles = StyleSheet.create({
   },
   heroOverlay: {
     position: "absolute",
+    top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    height: "60%",
     backgroundColor: "rgba(0,0,0,0.35)",
   },
   backBtn: {
@@ -372,13 +429,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
     marginHorizontal: 20,
-    marginTop: -16,
+    marginTop: 36,
     borderRadius: 16,
-    paddingVertical: 16,
+    paddingVertical: 18,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 3,
     zIndex: 10,
   },
@@ -408,12 +465,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 24,
   },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
   sectionTitle: {
     fontFamily: "WorkSans_600SemiBold",
-    fontSize: 12,
+    fontSize: 13,
     color: "#4A080C",
     letterSpacing: 1.2,
-    marginBottom: 10,
+  },
+  viewAllText: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 14,
+    color: "#3A2E1A",
   },
   aboutText: {
     fontFamily: "WorkSans_400Regular",
@@ -424,12 +491,16 @@ const styles = StyleSheet.create({
   portfolioGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    justifyContent: "space-between",
+    rowGap: 12,
+  },
+  portfolioItemCard: {
+    width: "31%",
   },
   portfolioImage: {
-    width: "48%",
-    height: 140,
-    borderRadius: 12,
+    width: "100%",
+    height: 103,
+    borderRadius: 16,
     resizeMode: "cover",
   },
   catalogCard: {
@@ -531,28 +602,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3A2E1A",
   },
-  bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(58, 46, 26, 0.1)",
-  },
   bookingBtn: {
     backgroundColor: "#4A080C",
-    height: 50,
-    borderRadius: 25,
-    flexDirection: "row",
+    width: "100%",
+    maxWidth: 376,
+    height: 63,
+    borderRadius: 31.5,
+    alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
   },
   bookingBtnText: {
     fontFamily: "WorkSans_600SemiBold",
-    fontSize: 15,
+    fontSize: 16,
     color: "#FFFFFF",
   },
 });

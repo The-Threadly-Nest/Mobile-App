@@ -26,6 +26,8 @@ interface RequestOptions extends RequestInit {
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+let lastLogoutAlertTimestamp = 0;
+
 export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token, logout } = useAuthStore.getState();
   const url = `${API_BASE_URL}${endpoint}`;
@@ -103,7 +105,9 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     if (errorDetail.status === 401) {
       console.warn("[API Client] Session expired. Force logging out...");
       logout();
-      if (!options.silent) {
+      const now = Date.now();
+      if (!options.silent && now - lastLogoutAlertTimestamp > 10000) {
+        lastLogoutAlertTimestamp = now;
         alertEmitter.emit({ title: "Session Expired", message: "Your session has expired. Please log in again to continue." });
       }
       throw new ApiError(errorDetail);
@@ -180,6 +184,17 @@ export const escalationsApi = {
       silent: true,
     });
   },
+};
+
+export const slotsApi = {
+  getSlots: async () => apiFetch<any[]>("/api/slots", { silent: true }),
+  createSlot: async (date: string, time: string) =>
+    apiFetch<any>("/api/slots", {
+      method: "POST",
+      body: JSON.stringify({ date, time }),
+    }),
+  deleteSlot: async (id: string) =>
+    apiFetch<any>(`/api/slots/${id}`, { method: "DELETE" }),
 };
 
 

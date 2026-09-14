@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Plus, Trash2, Tag } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
@@ -20,7 +20,7 @@ import CachedImage from "@/shared/components/CachedImage";
 export interface CatalogItem {
   id: string;
   name: string;
-  priceFrom: number;
+  priceFrom: number | null;
   imageUrl: string;
   createdAt?: string;
 }
@@ -32,7 +32,7 @@ export default function AdminCatalogListScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchCatalog = async () => {
+  const fetchCatalog = useCallback(async () => {
     try {
       const data = await apiFetch<CatalogItem[]>("/api/catalog", { silent: true }).catch(() => []);
       if (Array.isArray(data)) {
@@ -44,11 +44,13 @@ export default function AdminCatalogListScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    fetchCatalog();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCatalog();
+    }, [fetchCatalog])
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -77,7 +79,8 @@ export default function AdminCatalogListScreen() {
     );
   };
 
-  const formatMoney = (val: number) => {
+  const formatMoney = (val: number | null | undefined) => {
+    if (!val || typeof val !== "number") return "Price on request";
     return `₦${val.toLocaleString()}`;
   };
 
@@ -135,10 +138,26 @@ export default function AdminCatalogListScreen() {
         ) : (
           <View style={styles.gridContainer}>
             {items.map((item) => (
-              <View key={item.id} style={styles.card}>
+              <Pressable
+                key={item.id}
+                style={({ pressed }) => [
+                  styles.card,
+                  { opacity: pressed ? 0.92 : 1 },
+                ]}
+                onPress={() => {
+                  router.push({
+                    pathname: `/(admin)/catalog/${item.id}`,
+                    params: {
+                      initialName: item.name,
+                      initialPrice: item.priceFrom !== null && item.priceFrom !== undefined ? String(item.priceFrom) : "",
+                      initialImage: item.imageUrl,
+                    },
+                  });
+                }}
+              >
                 <CachedImage source={{ uri: item.imageUrl }} style={styles.cardImage} />
                 <View style={styles.cardBody}>
-                  <Text style={styles.cardName} numberOfLines={1}>
+                  <Text style={styles.cardName} numberOfLines={2}>
                     {item.name}
                   </Text>
                   <Text style={styles.cardPrice}>
@@ -147,7 +166,10 @@ export default function AdminCatalogListScreen() {
                 </View>
 
                 <Pressable
-                  onPress={() => handleDelete(item.id, item.name)}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.id, item.name);
+                  }}
                   disabled={deletingId === item.id}
                   style={({ pressed }) => [styles.deleteBtn, { opacity: pressed ? 0.7 : 1 }]}
                 >
@@ -157,7 +179,7 @@ export default function AdminCatalogListScreen() {
                     <Trash2 size={16} color="#D32F2F" />
                   )}
                 </Pressable>
-              </View>
+              </Pressable>
             ))}
           </View>
         )}
@@ -177,8 +199,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(74, 8, 12, 0.08)",
   },
   backBtn: {
     width: 38,
@@ -210,7 +230,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 36,
     paddingBottom: 40,
   },
   subtext: {
@@ -282,7 +302,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: "100%",
-    height: 160,
+    height: 200,
     backgroundColor: "#F4EFE6",
   },
   cardBody: {

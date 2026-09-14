@@ -35,6 +35,8 @@ model User {
   chatSessions      ChatSession[]   @relation("CustomerChatSessions")
   preference        CustomerPreference?
   moodBoardSketches MoodBoardSketch[] @relation("StaffMoodBoardSketches")
+  sentDirectMessages     DirectMessage[] @relation("SentDirectMessages")
+  receivedDirectMessages DirectMessage[] @relation("ReceivedDirectMessages")
 
   @@index([fashionHouseId])
   @@map("users")
@@ -48,6 +50,9 @@ model FashionHouse {
   phone               String?
   bio                 String?
   brandLogoUrl        String?
+  bankName            String?
+  accountNumber       String?
+  accountName         String?
   categories          String[] @default([])
   currency            String   @default("NGN")
   onboardingCompleted Boolean  @default(false)
@@ -64,6 +69,7 @@ model FashionHouse {
   chatEscalations ChatEscalation[]
   chatSessions    ChatSession[]
   sketches        Sketch[]
+  directMessages  DirectMessage[]
 
   @@map("fashion_houses")
 }
@@ -75,6 +81,7 @@ model Customer {
   name           String
   phone          String?
   sheetUrl       String?
+  status         String   @default("active") // active | inactive
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -121,12 +128,16 @@ model Order {
 
   @@index([fashionHouseId])
   @@index([staffId])
+  @@index([fashionHouseId, status, createdAt])
   @@map("orders")
 }
 
 model Invoice {
   id        String   @id @default(uuid())
   orderId   String   @unique
+  subtotal  Int      @default(0)
+  taxRate   Float    @default(0.075)
+  taxAmount Int      @default(0)
   total     Int
   createdAt DateTime @default(now())
 
@@ -139,7 +150,11 @@ model CatalogItem {
   id             String   @id @default(uuid())
   fashionHouseId String
   name           String
-  priceFrom      Int
+  description    String?
+  category       String?
+  sizes          String[] @default([])
+  colors         String[] @default([])
+  priceFrom      Int?
   imageUrl       String
   createdAt      DateTime @default(now())
 
@@ -170,6 +185,7 @@ model Booking {
   styleNotes     String?  // nullable — not always provided at booking time
   preferredDate  DateTime
   preferredTime  String
+  isFirstTime    Boolean  @default(true)
   status         String   @default("pending_admin_review")
   createdAt      DateTime @default(now())
 
@@ -178,6 +194,7 @@ model Booking {
   order        Order?       // back-relation: the Order created from this booking
 
   @@index([fashionHouseId, status])
+  @@index([customerId, preferredDate])
   @@map("bookings")
 }
 
@@ -256,4 +273,23 @@ model ChatSession {
   @@unique([customerId, fashionHouseId])
   @@index([customerId])
   @@map("chat_sessions")
+}
+
+model DirectMessage {
+  id             String    @id @default(uuid())
+  fashionHouseId String
+  customerId     String    // User.id of the customer in the thread
+  senderRole     String    // "customer" | "admin"
+  senderId       String    // User.id of the message sender
+  text           String    @db.Text
+  imageUrl       String?
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentDirectMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  customer     User         @relation("ReceivedDirectMessages", fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([fashionHouseId, customerId, createdAt])
+  @@map("direct_messages")
 }

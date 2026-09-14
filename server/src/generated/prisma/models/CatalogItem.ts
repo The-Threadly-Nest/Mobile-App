@@ -38,6 +38,8 @@ export type CatalogItemMinAggregateOutputType = {
   id: string | null
   fashionHouseId: string | null
   name: string | null
+  description: string | null
+  category: string | null
   priceFrom: number | null
   imageUrl: string | null
   createdAt: Date | null
@@ -47,6 +49,8 @@ export type CatalogItemMaxAggregateOutputType = {
   id: string | null
   fashionHouseId: string | null
   name: string | null
+  description: string | null
+  category: string | null
   priceFrom: number | null
   imageUrl: string | null
   createdAt: Date | null
@@ -56,6 +60,10 @@ export type CatalogItemCountAggregateOutputType = {
   id: number
   fashionHouseId: number
   name: number
+  description: number
+  category: number
+  sizes: number
+  colors: number
   priceFrom: number
   imageUrl: number
   createdAt: number
@@ -75,6 +83,8 @@ export type CatalogItemMinAggregateInputType = {
   id?: true
   fashionHouseId?: true
   name?: true
+  description?: true
+  category?: true
   priceFrom?: true
   imageUrl?: true
   createdAt?: true
@@ -84,6 +94,8 @@ export type CatalogItemMaxAggregateInputType = {
   id?: true
   fashionHouseId?: true
   name?: true
+  description?: true
+  category?: true
   priceFrom?: true
   imageUrl?: true
   createdAt?: true
@@ -93,6 +105,10 @@ export type CatalogItemCountAggregateInputType = {
   id?: true
   fashionHouseId?: true
   name?: true
+  description?: true
+  category?: true
+  sizes?: true
+  colors?: true
   priceFrom?: true
   imageUrl?: true
   createdAt?: true
@@ -189,7 +205,11 @@ export type CatalogItemGroupByOutputType = {
   id: string
   fashionHouseId: string
   name: string
-  priceFrom: number
+  description: string | null
+  category: string | null
+  sizes: string[]
+  colors: string[]
+  priceFrom: number | null
   imageUrl: string
   createdAt: Date
   _count: CatalogItemCountAggregateOutputType | null
@@ -221,7 +241,11 @@ export type CatalogItemWhereInput = {
   id?: Prisma.StringFilter<"CatalogItem"> | string
   fashionHouseId?: Prisma.StringFilter<"CatalogItem"> | string
   name?: Prisma.StringFilter<"CatalogItem"> | string
-  priceFrom?: Prisma.IntFilter<"CatalogItem"> | number
+  description?: Prisma.StringNullableFilter<"CatalogItem"> | string | null
+  category?: Prisma.StringNullableFilter<"CatalogItem"> | string | null
+  sizes?: Prisma.StringNullableListFilter<"CatalogItem">
+  colors?: Prisma.StringNullableListFilter<"CatalogItem">
+  priceFrom?: Prisma.IntNullableFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeFilter<"CatalogItem"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
@@ -231,7 +255,11 @@ export type CatalogItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  priceFrom?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  sizes?: Prisma.SortOrder
+  colors?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
@@ -244,7 +272,11 @@ export type CatalogItemWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CatalogItemWhereInput | Prisma.CatalogItemWhereInput[]
   fashionHouseId?: Prisma.StringFilter<"CatalogItem"> | string
   name?: Prisma.StringFilter<"CatalogItem"> | string
-  priceFrom?: Prisma.IntFilter<"CatalogItem"> | number
+  description?: Prisma.StringNullableFilter<"CatalogItem"> | string | null
+  category?: Prisma.StringNullableFilter<"CatalogItem"> | string | null
+  sizes?: Prisma.StringNullableListFilter<"CatalogItem">
+  colors?: Prisma.StringNullableListFilter<"CatalogItem">
+  priceFrom?: Prisma.IntNullableFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeFilter<"CatalogItem"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
@@ -254,7 +286,11 @@ export type CatalogItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  priceFrom?: Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  sizes?: Prisma.SortOrder
+  colors?: Prisma.SortOrder
+  priceFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CatalogItemCountOrderByAggregateInput
@@ -271,7 +307,11 @@ export type CatalogItemScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CatalogItem"> | string
   fashionHouseId?: Prisma.StringWithAggregatesFilter<"CatalogItem"> | string
   name?: Prisma.StringWithAggregatesFilter<"CatalogItem"> | string
-  priceFrom?: Prisma.IntWithAggregatesFilter<"CatalogItem"> | number
+  description?: Prisma.StringNullableWithAggregatesFilter<"CatalogItem"> | string | null
+  category?: Prisma.StringNullableWithAggregatesFilter<"CatalogItem"> | string | null
+  sizes?: Prisma.StringNullableListFilter<"CatalogItem">
+  colors?: Prisma.StringNullableListFilter<"CatalogItem">
+  priceFrom?: Prisma.IntNullableWithAggregatesFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringWithAggregatesFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CatalogItem"> | Date | string
 }
@@ -279,7 +319,11 @@ export type CatalogItemScalarWhereWithAggregatesInput = {
 export type CatalogItemCreateInput = {
   id?: string
   name: string
-  priceFrom: number
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
   imageUrl: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutCatalogItemsInput
@@ -289,7 +333,11 @@ export type CatalogItemUncheckedCreateInput = {
   id?: string
   fashionHouseId: string
   name: string
-  priceFrom: number
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
   imageUrl: string
   createdAt?: Date | string
 }
@@ -297,7 +345,11 @@ export type CatalogItemUncheckedCreateInput = {
 export type CatalogItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutCatalogItemsNestedInput
@@ -307,7 +359,11 @@ export type CatalogItemUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,7 +372,11 @@ export type CatalogItemCreateManyInput = {
   id?: string
   fashionHouseId: string
   name: string
-  priceFrom: number
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
   imageUrl: string
   createdAt?: Date | string
 }
@@ -324,7 +384,11 @@ export type CatalogItemCreateManyInput = {
 export type CatalogItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -333,7 +397,11 @@ export type CatalogItemUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -352,6 +420,10 @@ export type CatalogItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  category?: Prisma.SortOrder
+  sizes?: Prisma.SortOrder
+  colors?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -365,6 +437,8 @@ export type CatalogItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -374,6 +448,8 @@ export type CatalogItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  category?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -425,10 +501,40 @@ export type CatalogItemUncheckedUpdateManyWithoutFashionHouseNestedInput = {
   deleteMany?: Prisma.CatalogItemScalarWhereInput | Prisma.CatalogItemScalarWhereInput[]
 }
 
+export type CatalogItemCreatesizesInput = {
+  set: string[]
+}
+
+export type CatalogItemCreatecolorsInput = {
+  set: string[]
+}
+
+export type CatalogItemUpdatesizesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type CatalogItemUpdatecolorsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type CatalogItemCreateWithoutFashionHouseInput = {
   id?: string
   name: string
-  priceFrom: number
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
   imageUrl: string
   createdAt?: Date | string
 }
@@ -436,7 +542,11 @@ export type CatalogItemCreateWithoutFashionHouseInput = {
 export type CatalogItemUncheckedCreateWithoutFashionHouseInput = {
   id?: string
   name: string
-  priceFrom: number
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
   imageUrl: string
   createdAt?: Date | string
 }
@@ -474,7 +584,11 @@ export type CatalogItemScalarWhereInput = {
   id?: Prisma.StringFilter<"CatalogItem"> | string
   fashionHouseId?: Prisma.StringFilter<"CatalogItem"> | string
   name?: Prisma.StringFilter<"CatalogItem"> | string
-  priceFrom?: Prisma.IntFilter<"CatalogItem"> | number
+  description?: Prisma.StringNullableFilter<"CatalogItem"> | string | null
+  category?: Prisma.StringNullableFilter<"CatalogItem"> | string | null
+  sizes?: Prisma.StringNullableListFilter<"CatalogItem">
+  colors?: Prisma.StringNullableListFilter<"CatalogItem">
+  priceFrom?: Prisma.IntNullableFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeFilter<"CatalogItem"> | Date | string
 }
@@ -482,7 +596,11 @@ export type CatalogItemScalarWhereInput = {
 export type CatalogItemCreateManyFashionHouseInput = {
   id?: string
   name: string
-  priceFrom: number
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
   imageUrl: string
   createdAt?: Date | string
 }
@@ -490,7 +608,11 @@ export type CatalogItemCreateManyFashionHouseInput = {
 export type CatalogItemUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -498,7 +620,11 @@ export type CatalogItemUpdateWithoutFashionHouseInput = {
 export type CatalogItemUncheckedUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -506,7 +632,11 @@ export type CatalogItemUncheckedUpdateWithoutFashionHouseInput = {
 export type CatalogItemUncheckedUpdateManyWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  priceFrom?: Prisma.IntFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -517,6 +647,10 @@ export type CatalogItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   fashionHouseId?: boolean
   name?: boolean
+  description?: boolean
+  category?: boolean
+  sizes?: boolean
+  colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
   createdAt?: boolean
@@ -527,6 +661,10 @@ export type CatalogItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   fashionHouseId?: boolean
   name?: boolean
+  description?: boolean
+  category?: boolean
+  sizes?: boolean
+  colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
   createdAt?: boolean
@@ -537,6 +675,10 @@ export type CatalogItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   fashionHouseId?: boolean
   name?: boolean
+  description?: boolean
+  category?: boolean
+  sizes?: boolean
+  colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
   createdAt?: boolean
@@ -547,12 +689,16 @@ export type CatalogItemSelectScalar = {
   id?: boolean
   fashionHouseId?: boolean
   name?: boolean
+  description?: boolean
+  category?: boolean
+  sizes?: boolean
+  colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
   createdAt?: boolean
 }
 
-export type CatalogItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "name" | "priceFrom" | "imageUrl" | "createdAt", ExtArgs["result"]["catalogItem"]>
+export type CatalogItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "name" | "description" | "category" | "sizes" | "colors" | "priceFrom" | "imageUrl" | "createdAt", ExtArgs["result"]["catalogItem"]>
 export type CatalogItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
 }
@@ -572,7 +718,11 @@ export type $CatalogItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
     id: string
     fashionHouseId: string
     name: string
-    priceFrom: number
+    description: string | null
+    category: string | null
+    sizes: string[]
+    colors: string[]
+    priceFrom: number | null
     imageUrl: string
     createdAt: Date
   }, ExtArgs["result"]["catalogItem"]>
@@ -1002,6 +1152,10 @@ export interface CatalogItemFieldRefs {
   readonly id: Prisma.FieldRef<"CatalogItem", 'String'>
   readonly fashionHouseId: Prisma.FieldRef<"CatalogItem", 'String'>
   readonly name: Prisma.FieldRef<"CatalogItem", 'String'>
+  readonly description: Prisma.FieldRef<"CatalogItem", 'String'>
+  readonly category: Prisma.FieldRef<"CatalogItem", 'String'>
+  readonly sizes: Prisma.FieldRef<"CatalogItem", 'String[]'>
+  readonly colors: Prisma.FieldRef<"CatalogItem", 'String[]'>
   readonly priceFrom: Prisma.FieldRef<"CatalogItem", 'Int'>
   readonly imageUrl: Prisma.FieldRef<"CatalogItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"CatalogItem", 'DateTime'>

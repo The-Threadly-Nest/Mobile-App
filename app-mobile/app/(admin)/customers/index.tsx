@@ -23,6 +23,7 @@ interface CustomerRecord {
   name: string;
   phone: string;
   ordersCount: number;
+  status?: string;
 }
 
 const DEFAULT_CUSTOMERS: CustomerRecord[] = [
@@ -31,42 +32,49 @@ const DEFAULT_CUSTOMERS: CustomerRecord[] = [
     name: "Chiamaka O.",
     phone: "+234 803 *** 6738",
     ordersCount: 4,
+    status: "active",
   },
   {
     id: "c2",
     name: "Blessing A.",
     phone: "+234 906 *** 0193",
     ordersCount: 2,
+    status: "active",
   },
   {
     id: "c3",
     name: "Ifeoma N.",
     phone: "+234 818 *** 2810",
     ordersCount: 1,
+    status: "inactive",
   },
   {
     id: "c4",
     name: "Jessica B.",
     phone: "+234 802 *** 4912",
     ordersCount: 3,
+    status: "active",
   },
   {
     id: "c5",
     name: "Adaobi E.",
     phone: "+234 703 *** 8104",
     ordersCount: 5,
+    status: "active",
   },
   {
     id: "c6",
     name: "Zainab K.",
     phone: "+234 814 *** 9921",
     ordersCount: 2,
+    status: "active",
   },
   {
     id: "c7",
     name: "Funmilayo A.",
     phone: "+234 905 *** 3180",
     ordersCount: 1,
+    status: "active",
   },
 ];
 
@@ -226,9 +234,25 @@ export default function CustomersScreen() {
                     <Text style={styles.avatarText}>{selectedCustomer.name.charAt(0).toUpperCase()}</Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 18, color: "#1A1110" }}>
-                      {selectedCustomer.name}
-                    </Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 18, color: "#1A1110" }}>
+                        {selectedCustomer.name}
+                      </Text>
+                      <View style={{
+                        backgroundColor: selectedCustomer.status === "inactive" ? "#E0E0E0" : "#E6F4EA",
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                        borderRadius: 8
+                      }}>
+                        <Text style={{
+                          fontFamily: "WorkSans_600SemiBold",
+                          fontSize: 11,
+                          color: selectedCustomer.status === "inactive" ? "#616161" : "#137333"
+                        }}>
+                          {selectedCustomer.status === "inactive" ? "Inactive" : "Active"}
+                        </Text>
+                      </View>
+                    </View>
                     <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#7A7265" }}>
                       {selectedCustomer.phone}
                     </Text>
@@ -249,12 +273,43 @@ export default function CustomersScreen() {
               onPress={handleNavigateToMeasurements}
               style={({ pressed }) => [
                 styles.measActionBtn,
-                { opacity: pressed ? 0.85 : 1 },
+                { opacity: pressed ? 0.85 : 1, marginBottom: 10 },
               ]}
             >
               <Ruler size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
               <Text style={styles.measActionBtnText}>Take / Edit Measurements</Text>
             </Pressable>
+
+            {selectedCustomer && (
+              <Pressable
+                onPress={async () => {
+                  const newStatus = selectedCustomer.status === "inactive" ? "active" : "inactive";
+                  if (token && selectedCustomer.id) {
+                    try {
+                      await fetch(`${API_BASE_URL}/api/customers/${selectedCustomer.id}/status`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ status: newStatus }),
+                      });
+                    } catch (e) {
+                      console.warn("Error updating customer status:", e);
+                    }
+                  }
+                  setSelectedCustomer({ ...selectedCustomer, status: newStatus });
+                  setCustomers((prev) =>
+                    prev.map((c) => (c.id === selectedCustomer.id ? { ...c, status: newStatus } : c))
+                  );
+                }}
+                style={({ pressed }) => [
+                  styles.measActionBtn,
+                  { backgroundColor: selectedCustomer.status === "inactive" ? "#4A080C" : "#8A7550", opacity: pressed ? 0.85 : 1 },
+                ]}
+              >
+                <Text style={styles.measActionBtnText}>
+                  {selectedCustomer.status === "inactive" ? "Set Account to Active" : "Mark Account as Inactive"}
+                </Text>
+              </Pressable>
+            )}
           </View>
         </View>
       </Modal>
@@ -270,7 +325,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: 36,
   },
   containerLandscape: {
     maxWidth: 680,

@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
+import { parseFittingDate, formatEstimatedReady } from "../utils/dateUtils";
 
 const router = Router();
 
@@ -43,6 +44,31 @@ function generateOrderNumberServer(idOrBookingId?: string): string {
   return `#TFH-${num}`;
 }
 
+function resolveGarmentImageUrl(garmentTitle?: string, fashionHouse?: any): string {
+  const lowerTitle = (garmentTitle || "").toLowerCase();
+  if (fashionHouse?.catalogItems && fashionHouse.catalogItems.length > 0) {
+    const match = fashionHouse.catalogItems.find(
+      (item: any) => lowerTitle.includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(lowerTitle)
+    );
+    if (match?.imageUrl) return match.imageUrl;
+    if (fashionHouse.catalogItems[0]?.imageUrl) return fashionHouse.catalogItems[0].imageUrl;
+  }
+
+  if (lowerTitle.includes("vintage") || lowerTitle.includes("shirt")) {
+    return "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
+  } else if (lowerTitle.includes("adire")) {
+    return "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
+  } else if (lowerTitle.includes("2piece") || lowerTitle.includes("2 piece") || lowerTitle.includes("suit") || lowerTitle.includes("agbada")) {
+    return "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
+  } else if (lowerTitle.includes("kaftan")) {
+    return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
+  }
+
+  if (fashionHouse?.brandLogoUrl) return fashionHouse.brandLogoUrl;
+
+  return "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80";
+}
+
 // GET /api/orders/my-orders — Customer list own bookings & orders
 router.get("/my-orders", requireAuth, async (req, res, next) => {
   try {
@@ -51,7 +77,13 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
       where: { customerId: userId },
       orderBy: { createdAt: "desc" },
       include: {
-        fashionHouse: { select: { shopName: true } },
+        fashionHouse: {
+          select: {
+            id: true,
+            shopName: true,
+            catalogItems: { select: { id: true, name: true, imageUrl: true } },
+          },
+        },
         order: { select: { id: true, status: true } },
       },
     });
@@ -67,6 +99,39 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
         mappedStatus = "declined";
       }
 
+      // Dynamically resolve real garment photo from fashion house catalog or garment type
+      let realImage = "";
+      const lowerNotes = (b.styleNotes || "").toLowerCase();
+      if (b.fashionHouse?.catalogItems && b.fashionHouse.catalogItems.length > 0) {
+        const match = b.fashionHouse.catalogItems.find(
+          (item) => lowerNotes.includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(lowerNotes)
+        );
+        if (match?.imageUrl) {
+          realImage = match.imageUrl;
+        } else {
+          realImage = b.fashionHouse.catalogItems[0].imageUrl;
+        }
+      }
+
+      if (!realImage) {
+        if (lowerNotes.includes("vintage") || lowerNotes.includes("shirt")) {
+          realImage = "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
+        } else if (lowerNotes.includes("adire")) {
+          realImage = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
+        } else if (
+          lowerNotes.includes("2piece") ||
+          lowerNotes.includes("2 piece") ||
+          lowerNotes.includes("suit") ||
+          lowerNotes.includes("agbada")
+        ) {
+          realImage = "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
+        } else if (lowerNotes.includes("kaftan")) {
+          realImage = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
+        } else {
+          realImage = "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&q=80";
+        }
+      }
+
       return {
         id: b.id,
         orderId: b.order?.id,
@@ -74,9 +139,9 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
         atelierName: b.fashionHouse?.shopName || "Fashion House",
         garmentType: b.styleNotes || "Bespoke Fitting",
         orderNumber: generateOrderNumberServer(canonicalId),
-        estimatedReady: `Fitting: ${b.preferredTime} on ${new Date(b.preferredDate).toISOString().split("T")[0]}`,
+        estimatedReady: formatEstimatedReady(b.preferredTime, b.preferredDate),
         progressPercent: getProgressPercent(currentStatus),
-        imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
+        imageUrl: realImage,
         status: mappedStatus,
         rawStatus: currentStatus,
       };
@@ -111,6 +176,8 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
       return res.status(404).json({ error: "Fashion house not found." });
     }
 
+    const parsedDate = parseFittingDate(fittingDate);
+
     // Deduplication check: if a booking was created in the last 2 minutes for this customer & fashion house, update it instead of creating a duplicate
     const recentCutoff = new Date(Date.now() - 2 * 60 * 1000);
     const existingPending = await prisma.booking.findFirst({
@@ -127,6 +194,7 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
         where: { id: existingPending.id },
         data: {
           styleNotes: garment || existingPending.styleNotes,
+          preferredDate: parsedDate,
           preferredTime: fittingDate || existingPending.preferredTime,
         },
       });
@@ -138,7 +206,7 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
         fashionHouseId: fh.id,
         customerId,
         styleNotes: garment || "Aso-Ebi",
-        preferredDate: new Date(),
+        preferredDate: parsedDate,
         preferredTime: fittingDate || "10:00 AM",
         status: "pending_admin_review",
       },
@@ -161,67 +229,88 @@ router.get("/track/:id", requireAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.authUserId!;
+    const isStaffOrAdmin = req.authRole === "admin" || req.authRole === "staff";
 
-    // 1. Try finding booking
-    const booking: any = await prisma.booking.findFirst({
-      where: {
-        id,
-        ...(req.authRole === "customer" ? { customerId: userId } : {}),
-      },
-      include: {
-        fashionHouse: {
-          select: { id: true, shopName: true, location: true, phone: true, brandLogoUrl: true },
+    // Fire both lookups in parallel — whichever resolves with a record wins
+    const [booking, order] = await Promise.all([
+      prisma.booking.findFirst({
+        where: {
+          id,
+          ...(!isStaffOrAdmin ? { customerId: userId } : {}),
         },
-        order: {
-          include: {
-            staff: { select: { id: true, name: true, email: true } },
+        include: {
+          fashionHouse: {
+            select: {
+              id: true,
+              shopName: true,
+              location: true,
+              phone: true,
+              brandLogoUrl: true,
+              catalogItems: { select: { id: true, name: true, imageUrl: true } },
+            },
+          },
+          order: {
+            include: {
+              staff: { select: { id: true, name: true, email: true } },
+            },
           },
         },
-      },
-    });
+      }),
+      prisma.order.findFirst({
+        where: { id },
+        include: {
+          fashionHouse: {
+            select: {
+              id: true,
+              shopName: true,
+              location: true,
+              phone: true,
+              brandLogoUrl: true,
+              catalogItems: { select: { id: true, name: true, imageUrl: true } },
+            },
+          },
+          customer: { select: { id: true, name: true, phone: true, userId: true } },
+          staff: { select: { id: true, name: true, email: true } },
+        },
+      }),
+    ]);
 
     if (booking) {
-      const currentStatus = booking.order?.status || booking.status;
+      const currentStatus = (booking as any).order?.status || booking.status;
+      const garmentType = (booking as any).order?.itemName || booking.styleNotes || "Bespoke Garment";
+      const imageUrl = resolveGarmentImageUrl(garmentType, booking.fashionHouse);
+
       return res.json({
         id: booking.id,
-        orderId: booking.order?.id,
+        orderId: (booking as any).order?.id,
         atelierName: booking.fashionHouse?.shopName || "Luxury Fashion House",
         fashionHouseId: booking.fashionHouseId,
         fashionHousePhone: booking.fashionHouse?.phone,
         fashionHouseLocation: booking.fashionHouse?.location,
-        garmentType: booking.order?.itemName || booking.styleNotes || "Bespoke Garment",
+        garmentType,
         status: currentStatus,
         progressPercent: getProgressPercent(currentStatus),
         preferredDate: booking.preferredDate,
         preferredTime: booking.preferredTime,
-        estimatedReady: `Fitting: ${booking.preferredTime} on ${new Date(booking.preferredDate).toISOString().split("T")[0]}`,
-        price: booking.order?.price,
-        imageUrl: booking.fashionHouse?.brandLogoUrl || "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80",
-        staff: booking.order?.staff
+        estimatedReady: formatEstimatedReady(booking.preferredTime, booking.preferredDate),
+        price: (booking as any).order?.price,
+        imageUrl,
+        staff: (booking as any).order?.staff
           ? {
-              name: booking.order.staff.name,
-              email: booking.order.staff.email,
+              name: (booking as any).order.staff.name,
+              email: (booking as any).order.staff.email,
             }
           : null,
       });
     }
 
-    // 2. Try finding order directly
-    const order = await prisma.order.findFirst({
-      where: { id },
-      include: {
-        fashionHouse: {
-          select: { id: true, shopName: true, location: true, phone: true, brandLogoUrl: true },
-        },
-        customer: { select: { id: true, name: true, phone: true, userId: true } },
-        staff: { select: { id: true, name: true, email: true } },
-      },
-    });
-
     if (order) {
-      if (req.authRole === "customer" && order.customer.userId !== userId) {
+      if (!isStaffOrAdmin && order.customer.userId !== userId) {
         return res.status(403).json({ error: "Access denied." });
       }
+
+      const garmentType = order.itemName || "Bespoke Garment";
+      const imageUrl = resolveGarmentImageUrl(garmentType, order.fashionHouse);
 
       return res.json({
         id: order.id,
@@ -230,12 +319,12 @@ router.get("/track/:id", requireAuth, async (req, res, next) => {
         fashionHouseId: order.fashionHouseId,
         fashionHousePhone: order.fashionHouse?.phone,
         fashionHouseLocation: order.fashionHouse?.location,
-        garmentType: order.itemName || "Bespoke Garment",
+        garmentType,
         status: order.status,
         progressPercent: getProgressPercent(order.status),
         estimatedReady: "In Production",
         price: order.price,
-        imageUrl: order.fashionHouse?.brandLogoUrl || "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80",
+        imageUrl,
         customer: {
           name: order.customer.name,
           phone: order.customer.phone,
@@ -255,12 +344,69 @@ router.get("/track/:id", requireAuth, async (req, res, next) => {
   }
 });
 
+// POST /api/orders/track/:id/cancel — Customer or Admin/Staff cancel booking/order
+router.post("/track/:id/cancel", requireAuth, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.authUserId!;
+    const isStaffOrAdmin = req.authRole === "admin" || req.authRole === "staff";
+
+    const [booking, order] = await Promise.all([
+      prisma.booking.findFirst({
+        where: {
+          id,
+          ...(!isStaffOrAdmin ? { customerId: userId } : {}),
+        },
+      }),
+      prisma.order.findFirst({
+        where: { id },
+        include: { customer: { select: { userId: true } } },
+      }),
+    ]);
+
+    if (!booking && !order) {
+      return res.status(404).json({ error: "Booking or order not found." });
+    }
+
+    if (order && !isStaffOrAdmin && order.customer.userId !== userId) {
+      return res.status(403).json({ error: "Access denied." });
+    }
+
+    const currentStatus = order?.status || booking?.status || "booked";
+    const nonCancellable = ["fabric_sourced", "in_production", "quality_check", "ready_for_pickup", "ready", "completed", "delivered"];
+    if (nonCancellable.includes(currentStatus)) {
+      return res.status(400).json({
+        error: "This order is already in production and cannot be self-cancelled. Please contact concierge for assistance.",
+      });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (booking) {
+        await tx.booking.update({
+          where: { id: booking.id },
+          data: { status: "cancelled" },
+        });
+      }
+      if (order) {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { status: "cancelled" },
+        });
+      }
+    });
+
+    res.json({ success: true, message: "Order cancelled successfully.", status: "cancelled" });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.use(requireAuth, requireRole("admin", "staff"));
 
 // Create Order (Admin / Staff)
 router.post("/", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { customerId, itemName, price, staffId } = req.body;
 
     if (!customerId || !itemName || !price) {
@@ -297,7 +443,7 @@ router.post("/", async (req, res, next) => {
 // List Orders
 router.get("/", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const whereClause: any = { fashionHouseId: fhId };
 
     if (req.authRole === "staff") {
@@ -325,7 +471,7 @@ router.get("/", async (req, res, next) => {
 // Get Single Order Details (Admin & Staff)
 router.get("/:id", async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const order = await prisma.order.findFirst({
       where: { id: req.params.id, fashionHouseId: fhId },
       include: {
@@ -369,7 +515,7 @@ router.get("/:id", async (req, res, next) => {
 // Admin Assign Staff Member to Order
 router.patch("/:id/assign", requireRole("admin"), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { staffId } = req.body;
 
     const order = await prisma.order.findFirst({
@@ -405,7 +551,7 @@ router.patch("/:id/assign", requireRole("admin"), async (req, res, next) => {
 // Update Status
 router.patch("/:id/status", validate({ body: updateOrderStatusSchema }), async (req, res, next) => {
   try {
-    const fhId = await getOwnFashionHouseId(req.authUserId!, req.authRole!);
+    const fhId = getOwnFashionHouseId(req);
     const { status } = req.body;
 
     // Tenant Isolation: Verify order belongs to this tenant

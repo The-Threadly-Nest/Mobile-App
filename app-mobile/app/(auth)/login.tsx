@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 60,
     paddingBottom: 32,
   },
   header: {
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
     marginBottom: 40,
-    marginTop: 8,
+    marginTop: 0,
   },
   backBtn: {
     width: 44,
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
   },
   forgotPasswordWrapper: {
     alignSelf: "flex-end",
-    marginBottom: 28,
+    marginBottom: 36,
   },
   forgotPasswordText: {
     fontFamily: "WorkSans_400Regular",

@@ -177,7 +177,7 @@ export default function BookingsScreen() {
                   }),
               summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
               status:
-                item.bookingStatus === "declined"
+                item.bookingStatus === "declined" || item.status === "declined"
                   ? "declined"
                   : item.resolved
                   ? "assigned"
@@ -205,9 +205,10 @@ export default function BookingsScreen() {
   const assignedCount = bookings.filter((b) => b.status === "assigned").length;
   const declinedCount = bookings.filter((b) => b.status === "declined").length;
 
-  const currentList = bookings.filter((b) => b.status === activeTab);
+  const [checkingBookingId, setCheckingBookingId] = useState<string | null>(null);
 
   const handleOpenAssign = async (booking: BookingItem) => {
+    setCheckingBookingId(booking.id);
     try {
       if (token) {
         const res = await fetch(`${API_BASE_URL}/api/measurements/check/${encodeURIComponent(booking.customerName)}`, {
@@ -216,22 +217,35 @@ export default function BookingsScreen() {
         if (res.ok) {
           const data = await res.json();
           if (data.hasMeasurements === false) {
-            router.push({
-              pathname: "/(admin)/measurements/new",
-              params: {
-                bookingId: booking.id,
-                customerName: booking.customerName,
-                serviceTitle: booking.serviceTitle,
-                appointmentTime: booking.appointmentTime,
-                returnToAssign: "true",
-              },
-            } as any);
+            showAlert(
+              "Measurement Required",
+              `No measurements found for ${booking.customerName}. Please record measurement details before assigning staff.`,
+              [
+                {
+                  text: "Add Measurement",
+                  onPress: () => {
+                    router.push({
+                      pathname: "/(admin)/measurements/new",
+                      params: {
+                        bookingId: booking.id,
+                        customerName: booking.customerName,
+                        serviceTitle: booking.serviceTitle,
+                        appointmentTime: booking.appointmentTime,
+                        returnToAssign: "true",
+                      },
+                    } as any);
+                  },
+                },
+              ]
+            );
             return;
           }
         }
       }
     } catch {
       // Fallback directly to assign screen if check fails
+    } finally {
+      setCheckingBookingId(null);
     }
 
     router.push({
@@ -440,12 +454,17 @@ export default function BookingsScreen() {
                     <View style={styles.actionsRow}>
                       <Pressable
                         onPress={() => handleOpenAssign(item)}
+                        disabled={checkingBookingId === item.id}
                         style={({ pressed }) => [
                           styles.assignBtn,
-                          { opacity: pressed ? 0.85 : 1 },
+                          { opacity: pressed || checkingBookingId === item.id ? 0.7 : 1 },
                         ]}
                       >
-                        <Text style={styles.assignBtnText}>Assign</Text>
+                        {checkingBookingId === item.id ? (
+                          <ActivityIndicator size="small" color="#FFFFFF" />
+                        ) : (
+                          <Text style={styles.assignBtnText}>Assign</Text>
+                        )}
                       </Pressable>
 
                       <Pressable
@@ -578,7 +597,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 36,
   },
   containerLandscape: {
     maxWidth: 680,

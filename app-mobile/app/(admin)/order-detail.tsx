@@ -418,8 +418,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(74, 8, 12, 0.08)",
   },
   backBtn: {
     width: 38,

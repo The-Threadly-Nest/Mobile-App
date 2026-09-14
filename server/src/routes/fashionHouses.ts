@@ -12,6 +12,7 @@ router.get("/", async (req, res, next) => {
         admin: { select: { email: true } },
         catalogItems: {
           orderBy: { priceFrom: "asc" },
+          take: 1, // Only the cheapest item is used for priceDisplay and coverImage
         },
       },
     });
@@ -21,12 +22,16 @@ router.get("/", async (req, res, next) => {
       const primaryCategory = categoriesList[0] || "Custom Tailoring";
 
       // Real Price calculation from uploaded catalog items!
+      // Real Price calculation from uploaded catalog items!
       let priceDisplay = "Price on Request";
       if (fh.catalogItems && fh.catalogItems.length > 0) {
         const minPrice = fh.catalogItems[0].priceFrom;
-        const symbol = fh.currency === "USD" ? "$" : "₦";
-        priceDisplay = `From ${symbol} ${minPrice.toLocaleString()}`;
+        if (minPrice !== null && minPrice !== undefined) {
+          const symbol = fh.currency === "USD" ? "$" : "₦";
+          priceDisplay = `From ${symbol} ${minPrice.toLocaleString()}`;
+        }
       }
+
 
       // Cover image: Use brand logo if available, else first uploaded catalog garment image, else default placeholder
       let coverImage = fh.brandLogoUrl;
@@ -69,6 +74,9 @@ router.get("/:id", async (req, res, next) => {
         catalogItems: {
           orderBy: { createdAt: "desc" },
         },
+        _count: {
+          select: { orders: true },
+        },
       },
     });
 
@@ -76,7 +84,8 @@ router.get("/:id", async (req, res, next) => {
       return res.status(404).json({ error: "Fashion house not found." });
     }
 
-    res.json(fh);
+    const ordersCount = fh._count?.orders ?? 0;
+    res.json({ ...fh, ordersCount });
   } catch (err) {
     next(err);
   }

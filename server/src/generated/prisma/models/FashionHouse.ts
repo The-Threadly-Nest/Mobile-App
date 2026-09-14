@@ -32,6 +32,9 @@ export type FashionHouseMinAggregateOutputType = {
   phone: string | null
   bio: string | null
   brandLogoUrl: string | null
+  bankName: string | null
+  accountNumber: string | null
+  accountName: string | null
   currency: string | null
   onboardingCompleted: boolean | null
   createdAt: Date | null
@@ -46,6 +49,9 @@ export type FashionHouseMaxAggregateOutputType = {
   phone: string | null
   bio: string | null
   brandLogoUrl: string | null
+  bankName: string | null
+  accountNumber: string | null
+  accountName: string | null
   currency: string | null
   onboardingCompleted: boolean | null
   createdAt: Date | null
@@ -60,6 +66,9 @@ export type FashionHouseCountAggregateOutputType = {
   phone: number
   bio: number
   brandLogoUrl: number
+  bankName: number
+  accountNumber: number
+  accountName: number
   categories: number
   currency: number
   onboardingCompleted: number
@@ -77,6 +86,9 @@ export type FashionHouseMinAggregateInputType = {
   phone?: true
   bio?: true
   brandLogoUrl?: true
+  bankName?: true
+  accountNumber?: true
+  accountName?: true
   currency?: true
   onboardingCompleted?: true
   createdAt?: true
@@ -91,6 +103,9 @@ export type FashionHouseMaxAggregateInputType = {
   phone?: true
   bio?: true
   brandLogoUrl?: true
+  bankName?: true
+  accountNumber?: true
+  accountName?: true
   currency?: true
   onboardingCompleted?: true
   createdAt?: true
@@ -105,6 +120,9 @@ export type FashionHouseCountAggregateInputType = {
   phone?: true
   bio?: true
   brandLogoUrl?: true
+  bankName?: true
+  accountNumber?: true
+  accountName?: true
   categories?: true
   currency?: true
   onboardingCompleted?: true
@@ -193,6 +211,9 @@ export type FashionHouseGroupByOutputType = {
   phone: string | null
   bio: string | null
   brandLogoUrl: string | null
+  bankName: string | null
+  accountNumber: string | null
+  accountName: string | null
   categories: string[]
   currency: string
   onboardingCompleted: boolean
@@ -229,6 +250,9 @@ export type FashionHouseWhereInput = {
   phone?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   bio?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   brandLogoUrl?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
+  bankName?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
+  accountNumber?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
+  accountName?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   categories?: Prisma.StringNullableListFilter<"FashionHouse">
   currency?: Prisma.StringFilter<"FashionHouse"> | string
   onboardingCompleted?: Prisma.BoolFilter<"FashionHouse"> | boolean
@@ -244,6 +268,7 @@ export type FashionHouseWhereInput = {
   chatEscalations?: Prisma.ChatEscalationListRelationFilter
   chatSessions?: Prisma.ChatSessionListRelationFilter
   sketches?: Prisma.SketchListRelationFilter
+  directMessages?: Prisma.DirectMessageListRelationFilter
 }
 
 export type FashionHouseOrderByWithRelationInput = {
@@ -254,6 +279,9 @@ export type FashionHouseOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   brandLogoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  accountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  accountName?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
@@ -269,6 +297,7 @@ export type FashionHouseOrderByWithRelationInput = {
   chatEscalations?: Prisma.ChatEscalationOrderByRelationAggregateInput
   chatSessions?: Prisma.ChatSessionOrderByRelationAggregateInput
   sketches?: Prisma.SketchOrderByRelationAggregateInput
+  directMessages?: Prisma.DirectMessageOrderByRelationAggregateInput
 }
 
 export type FashionHouseWhereUniqueInput = Prisma.AtLeast<{
@@ -282,6 +311,9 @@ export type FashionHouseWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   bio?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   brandLogoUrl?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
+  bankName?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
+  accountNumber?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
+  accountName?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   categories?: Prisma.StringNullableListFilter<"FashionHouse">
   currency?: Prisma.StringFilter<"FashionHouse"> | string
   onboardingCompleted?: Prisma.BoolFilter<"FashionHouse"> | boolean
@@ -297,6 +329,7 @@ export type FashionHouseWhereUniqueInput = Prisma.AtLeast<{
   chatEscalations?: Prisma.ChatEscalationListRelationFilter
   chatSessions?: Prisma.ChatSessionListRelationFilter
   sketches?: Prisma.SketchListRelationFilter
+  directMessages?: Prisma.DirectMessageListRelationFilter
 }, "id" | "adminId">
 
 export type FashionHouseOrderByWithAggregationInput = {
@@ -307,6 +340,9 @@ export type FashionHouseOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   brandLogoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
+  accountNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  accountName?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
@@ -328,6 +364,9 @@ export type FashionHouseScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
   bio?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
   brandLogoUrl?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
+  bankName?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
+  accountNumber?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
+  accountName?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
   categories?: Prisma.StringNullableListFilter<"FashionHouse">
   currency?: Prisma.StringWithAggregatesFilter<"FashionHouse"> | string
   onboardingCompleted?: Prisma.BoolWithAggregatesFilter<"FashionHouse"> | boolean
@@ -342,6 +381,9 @@ export type FashionHouseCreateInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -357,6 +399,7 @@ export type FashionHouseCreateInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateInput = {
@@ -367,6 +410,9 @@ export type FashionHouseUncheckedCreateInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -381,6 +427,7 @@ export type FashionHouseUncheckedCreateInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUpdateInput = {
@@ -390,6 +437,9 @@ export type FashionHouseUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -405,6 +455,7 @@ export type FashionHouseUpdateInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateInput = {
@@ -415,6 +466,9 @@ export type FashionHouseUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -429,6 +483,7 @@ export type FashionHouseUncheckedUpdateInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateManyInput = {
@@ -439,6 +494,9 @@ export type FashionHouseCreateManyInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -453,6 +511,9 @@ export type FashionHouseUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -468,6 +529,9 @@ export type FashionHouseUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -496,6 +560,9 @@ export type FashionHouseCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   brandLogoUrl?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  accountNumber?: Prisma.SortOrder
+  accountName?: Prisma.SortOrder
   categories?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
@@ -511,6 +578,9 @@ export type FashionHouseMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   brandLogoUrl?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  accountNumber?: Prisma.SortOrder
+  accountName?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -525,6 +595,9 @@ export type FashionHouseMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
   brandLogoUrl?: Prisma.SortOrder
+  bankName?: Prisma.SortOrder
+  accountNumber?: Prisma.SortOrder
+  accountName?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -705,6 +778,20 @@ export type FashionHouseUpdateOneRequiredWithoutChatSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FashionHouseUpdateToOneWithWhereWithoutChatSessionsInput, Prisma.FashionHouseUpdateWithoutChatSessionsInput>, Prisma.FashionHouseUncheckedUpdateWithoutChatSessionsInput>
 }
 
+export type FashionHouseCreateNestedOneWithoutDirectMessagesInput = {
+  create?: Prisma.XOR<Prisma.FashionHouseCreateWithoutDirectMessagesInput, Prisma.FashionHouseUncheckedCreateWithoutDirectMessagesInput>
+  connectOrCreate?: Prisma.FashionHouseCreateOrConnectWithoutDirectMessagesInput
+  connect?: Prisma.FashionHouseWhereUniqueInput
+}
+
+export type FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.FashionHouseCreateWithoutDirectMessagesInput, Prisma.FashionHouseUncheckedCreateWithoutDirectMessagesInput>
+  connectOrCreate?: Prisma.FashionHouseCreateOrConnectWithoutDirectMessagesInput
+  upsert?: Prisma.FashionHouseUpsertWithoutDirectMessagesInput
+  connect?: Prisma.FashionHouseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FashionHouseUpdateToOneWithWhereWithoutDirectMessagesInput, Prisma.FashionHouseUpdateWithoutDirectMessagesInput>, Prisma.FashionHouseUncheckedUpdateWithoutDirectMessagesInput>
+}
+
 export type FashionHouseCreateWithoutAdminInput = {
   id?: string
   shopName: string
@@ -712,6 +799,9 @@ export type FashionHouseCreateWithoutAdminInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -726,6 +816,7 @@ export type FashionHouseCreateWithoutAdminInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutAdminInput = {
@@ -735,6 +826,9 @@ export type FashionHouseUncheckedCreateWithoutAdminInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -749,6 +843,7 @@ export type FashionHouseUncheckedCreateWithoutAdminInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutAdminInput = {
@@ -763,6 +858,9 @@ export type FashionHouseCreateWithoutStaffInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -777,6 +875,7 @@ export type FashionHouseCreateWithoutStaffInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutStaffInput = {
@@ -787,6 +886,9 @@ export type FashionHouseUncheckedCreateWithoutStaffInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -800,6 +902,7 @@ export type FashionHouseUncheckedCreateWithoutStaffInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutStaffInput = {
@@ -825,6 +928,9 @@ export type FashionHouseUpdateWithoutAdminInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -839,6 +945,7 @@ export type FashionHouseUpdateWithoutAdminInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutAdminInput = {
@@ -848,6 +955,9 @@ export type FashionHouseUncheckedUpdateWithoutAdminInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -862,6 +972,7 @@ export type FashionHouseUncheckedUpdateWithoutAdminInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUpsertWithoutStaffInput = {
@@ -882,6 +993,9 @@ export type FashionHouseUpdateWithoutStaffInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -896,6 +1010,7 @@ export type FashionHouseUpdateWithoutStaffInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutStaffInput = {
@@ -906,6 +1021,9 @@ export type FashionHouseUncheckedUpdateWithoutStaffInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -919,6 +1037,7 @@ export type FashionHouseUncheckedUpdateWithoutStaffInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutCustomersInput = {
@@ -928,6 +1047,9 @@ export type FashionHouseCreateWithoutCustomersInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -942,6 +1064,7 @@ export type FashionHouseCreateWithoutCustomersInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutCustomersInput = {
@@ -952,6 +1075,9 @@ export type FashionHouseUncheckedCreateWithoutCustomersInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -965,6 +1091,7 @@ export type FashionHouseUncheckedCreateWithoutCustomersInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutCustomersInput = {
@@ -990,6 +1117,9 @@ export type FashionHouseUpdateWithoutCustomersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1004,6 +1134,7 @@ export type FashionHouseUpdateWithoutCustomersInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutCustomersInput = {
@@ -1014,6 +1145,9 @@ export type FashionHouseUncheckedUpdateWithoutCustomersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1027,6 +1161,7 @@ export type FashionHouseUncheckedUpdateWithoutCustomersInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutOrdersInput = {
@@ -1036,6 +1171,9 @@ export type FashionHouseCreateWithoutOrdersInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1050,6 +1188,7 @@ export type FashionHouseCreateWithoutOrdersInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutOrdersInput = {
@@ -1060,6 +1199,9 @@ export type FashionHouseUncheckedCreateWithoutOrdersInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1073,6 +1215,7 @@ export type FashionHouseUncheckedCreateWithoutOrdersInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutOrdersInput = {
@@ -1098,6 +1241,9 @@ export type FashionHouseUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1112,6 +1258,7 @@ export type FashionHouseUpdateWithoutOrdersInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutOrdersInput = {
@@ -1122,6 +1269,9 @@ export type FashionHouseUncheckedUpdateWithoutOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1135,6 +1285,7 @@ export type FashionHouseUncheckedUpdateWithoutOrdersInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutCatalogItemsInput = {
@@ -1144,6 +1295,9 @@ export type FashionHouseCreateWithoutCatalogItemsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1158,6 +1312,7 @@ export type FashionHouseCreateWithoutCatalogItemsInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutCatalogItemsInput = {
@@ -1168,6 +1323,9 @@ export type FashionHouseUncheckedCreateWithoutCatalogItemsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1181,6 +1339,7 @@ export type FashionHouseUncheckedCreateWithoutCatalogItemsInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutCatalogItemsInput = {
@@ -1206,6 +1365,9 @@ export type FashionHouseUpdateWithoutCatalogItemsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1220,6 +1382,7 @@ export type FashionHouseUpdateWithoutCatalogItemsInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutCatalogItemsInput = {
@@ -1230,6 +1393,9 @@ export type FashionHouseUncheckedUpdateWithoutCatalogItemsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1243,6 +1409,7 @@ export type FashionHouseUncheckedUpdateWithoutCatalogItemsInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutAvailableSlotsInput = {
@@ -1252,6 +1419,9 @@ export type FashionHouseCreateWithoutAvailableSlotsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1266,6 +1436,7 @@ export type FashionHouseCreateWithoutAvailableSlotsInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutAvailableSlotsInput = {
@@ -1276,6 +1447,9 @@ export type FashionHouseUncheckedCreateWithoutAvailableSlotsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1289,6 +1463,7 @@ export type FashionHouseUncheckedCreateWithoutAvailableSlotsInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutAvailableSlotsInput = {
@@ -1314,6 +1489,9 @@ export type FashionHouseUpdateWithoutAvailableSlotsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1328,6 +1506,7 @@ export type FashionHouseUpdateWithoutAvailableSlotsInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutAvailableSlotsInput = {
@@ -1338,6 +1517,9 @@ export type FashionHouseUncheckedUpdateWithoutAvailableSlotsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1351,6 +1533,7 @@ export type FashionHouseUncheckedUpdateWithoutAvailableSlotsInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutBookingsInput = {
@@ -1360,6 +1543,9 @@ export type FashionHouseCreateWithoutBookingsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1374,6 +1560,7 @@ export type FashionHouseCreateWithoutBookingsInput = {
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutBookingsInput = {
@@ -1384,6 +1571,9 @@ export type FashionHouseUncheckedCreateWithoutBookingsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1397,6 +1587,7 @@ export type FashionHouseUncheckedCreateWithoutBookingsInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutBookingsInput = {
@@ -1422,6 +1613,9 @@ export type FashionHouseUpdateWithoutBookingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1436,6 +1630,7 @@ export type FashionHouseUpdateWithoutBookingsInput = {
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutBookingsInput = {
@@ -1446,6 +1641,9 @@ export type FashionHouseUncheckedUpdateWithoutBookingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1459,6 +1657,7 @@ export type FashionHouseUncheckedUpdateWithoutBookingsInput = {
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutChatEscalationsInput = {
@@ -1468,6 +1667,9 @@ export type FashionHouseCreateWithoutChatEscalationsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1482,6 +1684,7 @@ export type FashionHouseCreateWithoutChatEscalationsInput = {
   bookings?: Prisma.BookingCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutChatEscalationsInput = {
@@ -1492,6 +1695,9 @@ export type FashionHouseUncheckedCreateWithoutChatEscalationsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1505,6 +1711,7 @@ export type FashionHouseUncheckedCreateWithoutChatEscalationsInput = {
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutChatEscalationsInput = {
@@ -1530,6 +1737,9 @@ export type FashionHouseUpdateWithoutChatEscalationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1544,6 +1754,7 @@ export type FashionHouseUpdateWithoutChatEscalationsInput = {
   bookings?: Prisma.BookingUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutChatEscalationsInput = {
@@ -1554,6 +1765,9 @@ export type FashionHouseUncheckedUpdateWithoutChatEscalationsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1567,6 +1781,7 @@ export type FashionHouseUncheckedUpdateWithoutChatEscalationsInput = {
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutSketchesInput = {
@@ -1576,6 +1791,9 @@ export type FashionHouseCreateWithoutSketchesInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1590,6 +1808,7 @@ export type FashionHouseCreateWithoutSketchesInput = {
   bookings?: Prisma.BookingCreateNestedManyWithoutFashionHouseInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutSketchesInput = {
@@ -1600,6 +1819,9 @@ export type FashionHouseUncheckedCreateWithoutSketchesInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1613,6 +1835,7 @@ export type FashionHouseUncheckedCreateWithoutSketchesInput = {
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutFashionHouseInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutSketchesInput = {
@@ -1638,6 +1861,9 @@ export type FashionHouseUpdateWithoutSketchesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1652,6 +1878,7 @@ export type FashionHouseUpdateWithoutSketchesInput = {
   bookings?: Prisma.BookingUpdateManyWithoutFashionHouseNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutSketchesInput = {
@@ -1662,6 +1889,9 @@ export type FashionHouseUncheckedUpdateWithoutSketchesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1675,6 +1905,7 @@ export type FashionHouseUncheckedUpdateWithoutSketchesInput = {
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseCreateWithoutChatSessionsInput = {
@@ -1684,6 +1915,9 @@ export type FashionHouseCreateWithoutChatSessionsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1698,6 +1932,7 @@ export type FashionHouseCreateWithoutChatSessionsInput = {
   bookings?: Prisma.BookingCreateNestedManyWithoutFashionHouseInput
   chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseUncheckedCreateWithoutChatSessionsInput = {
@@ -1708,6 +1943,9 @@ export type FashionHouseUncheckedCreateWithoutChatSessionsInput = {
   phone?: string | null
   bio?: string | null
   brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
   onboardingCompleted?: boolean
@@ -1721,6 +1959,7 @@ export type FashionHouseUncheckedCreateWithoutChatSessionsInput = {
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutFashionHouseInput
   chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
   sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+  directMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutFashionHouseInput
 }
 
 export type FashionHouseCreateOrConnectWithoutChatSessionsInput = {
@@ -1746,6 +1985,9 @@ export type FashionHouseUpdateWithoutChatSessionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1760,6 +2002,7 @@ export type FashionHouseUpdateWithoutChatSessionsInput = {
   bookings?: Prisma.BookingUpdateManyWithoutFashionHouseNestedInput
   chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUpdateManyWithoutFashionHouseNestedInput
 }
 
 export type FashionHouseUncheckedUpdateWithoutChatSessionsInput = {
@@ -1770,6 +2013,9 @@ export type FashionHouseUncheckedUpdateWithoutChatSessionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1782,6 +2028,131 @@ export type FashionHouseUncheckedUpdateWithoutChatSessionsInput = {
   availableSlots?: Prisma.AvailableSlotUncheckedUpdateManyWithoutFashionHouseNestedInput
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutFashionHouseNestedInput
   chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
+  sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
+  directMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput
+}
+
+export type FashionHouseCreateWithoutDirectMessagesInput = {
+  id?: string
+  shopName: string
+  location?: string | null
+  phone?: string | null
+  bio?: string | null
+  brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
+  categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
+  currency?: string
+  onboardingCompleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  admin: Prisma.UserCreateNestedOneWithoutFashionHouseOwnedInput
+  staff?: Prisma.UserCreateNestedManyWithoutFashionHouseInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutFashionHouseInput
+  catalogItems?: Prisma.CatalogItemCreateNestedManyWithoutFashionHouseInput
+  orders?: Prisma.OrderCreateNestedManyWithoutFashionHouseInput
+  availableSlots?: Prisma.AvailableSlotCreateNestedManyWithoutFashionHouseInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutFashionHouseInput
+  chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutFashionHouseInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutFashionHouseInput
+  sketches?: Prisma.SketchCreateNestedManyWithoutFashionHouseInput
+}
+
+export type FashionHouseUncheckedCreateWithoutDirectMessagesInput = {
+  id?: string
+  adminId: string
+  shopName: string
+  location?: string | null
+  phone?: string | null
+  bio?: string | null
+  brandLogoUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountName?: string | null
+  categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
+  currency?: string
+  onboardingCompleted?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  staff?: Prisma.UserUncheckedCreateNestedManyWithoutFashionHouseInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutFashionHouseInput
+  catalogItems?: Prisma.CatalogItemUncheckedCreateNestedManyWithoutFashionHouseInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutFashionHouseInput
+  availableSlots?: Prisma.AvailableSlotUncheckedCreateNestedManyWithoutFashionHouseInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutFashionHouseInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutFashionHouseInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutFashionHouseInput
+  sketches?: Prisma.SketchUncheckedCreateNestedManyWithoutFashionHouseInput
+}
+
+export type FashionHouseCreateOrConnectWithoutDirectMessagesInput = {
+  where: Prisma.FashionHouseWhereUniqueInput
+  create: Prisma.XOR<Prisma.FashionHouseCreateWithoutDirectMessagesInput, Prisma.FashionHouseUncheckedCreateWithoutDirectMessagesInput>
+}
+
+export type FashionHouseUpsertWithoutDirectMessagesInput = {
+  update: Prisma.XOR<Prisma.FashionHouseUpdateWithoutDirectMessagesInput, Prisma.FashionHouseUncheckedUpdateWithoutDirectMessagesInput>
+  create: Prisma.XOR<Prisma.FashionHouseCreateWithoutDirectMessagesInput, Prisma.FashionHouseUncheckedCreateWithoutDirectMessagesInput>
+  where?: Prisma.FashionHouseWhereInput
+}
+
+export type FashionHouseUpdateToOneWithWhereWithoutDirectMessagesInput = {
+  where?: Prisma.FashionHouseWhereInput
+  data: Prisma.XOR<Prisma.FashionHouseUpdateWithoutDirectMessagesInput, Prisma.FashionHouseUncheckedUpdateWithoutDirectMessagesInput>
+}
+
+export type FashionHouseUpdateWithoutDirectMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shopName?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admin?: Prisma.UserUpdateOneRequiredWithoutFashionHouseOwnedNestedInput
+  staff?: Prisma.UserUpdateManyWithoutFashionHouseNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutFashionHouseNestedInput
+  catalogItems?: Prisma.CatalogItemUpdateManyWithoutFashionHouseNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutFashionHouseNestedInput
+  availableSlots?: Prisma.AvailableSlotUpdateManyWithoutFashionHouseNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutFashionHouseNestedInput
+  chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutFashionHouseNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutFashionHouseNestedInput
+  sketches?: Prisma.SketchUpdateManyWithoutFashionHouseNestedInput
+}
+
+export type FashionHouseUncheckedUpdateWithoutDirectMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  adminId?: Prisma.StringFieldUpdateOperationsInput | string
+  shopName?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  brandLogoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staff?: Prisma.UserUncheckedUpdateManyWithoutFashionHouseNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutFashionHouseNestedInput
+  catalogItems?: Prisma.CatalogItemUncheckedUpdateManyWithoutFashionHouseNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutFashionHouseNestedInput
+  availableSlots?: Prisma.AvailableSlotUncheckedUpdateManyWithoutFashionHouseNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutFashionHouseNestedInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutFashionHouseNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutFashionHouseNestedInput
   sketches?: Prisma.SketchUncheckedUpdateManyWithoutFashionHouseNestedInput
 }
 
@@ -1800,6 +2171,7 @@ export type FashionHouseCountOutputType = {
   chatEscalations: number
   chatSessions: number
   sketches: number
+  directMessages: number
 }
 
 export type FashionHouseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1812,6 +2184,7 @@ export type FashionHouseCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   chatEscalations?: boolean | FashionHouseCountOutputTypeCountChatEscalationsArgs
   chatSessions?: boolean | FashionHouseCountOutputTypeCountChatSessionsArgs
   sketches?: boolean | FashionHouseCountOutputTypeCountSketchesArgs
+  directMessages?: boolean | FashionHouseCountOutputTypeCountDirectMessagesArgs
 }
 
 /**
@@ -1887,6 +2260,13 @@ export type FashionHouseCountOutputTypeCountSketchesArgs<ExtArgs extends runtime
   where?: Prisma.SketchWhereInput
 }
 
+/**
+ * FashionHouseCountOutputType without action
+ */
+export type FashionHouseCountOutputTypeCountDirectMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DirectMessageWhereInput
+}
+
 
 export type FashionHouseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1896,6 +2276,9 @@ export type FashionHouseSelect<ExtArgs extends runtime.Types.Extensions.Internal
   phone?: boolean
   bio?: boolean
   brandLogoUrl?: boolean
+  bankName?: boolean
+  accountNumber?: boolean
+  accountName?: boolean
   categories?: boolean
   currency?: boolean
   onboardingCompleted?: boolean
@@ -1911,6 +2294,7 @@ export type FashionHouseSelect<ExtArgs extends runtime.Types.Extensions.Internal
   chatEscalations?: boolean | Prisma.FashionHouse$chatEscalationsArgs<ExtArgs>
   chatSessions?: boolean | Prisma.FashionHouse$chatSessionsArgs<ExtArgs>
   sketches?: boolean | Prisma.FashionHouse$sketchesArgs<ExtArgs>
+  directMessages?: boolean | Prisma.FashionHouse$directMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.FashionHouseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["fashionHouse"]>
 
@@ -1922,6 +2306,9 @@ export type FashionHouseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   phone?: boolean
   bio?: boolean
   brandLogoUrl?: boolean
+  bankName?: boolean
+  accountNumber?: boolean
+  accountName?: boolean
   categories?: boolean
   currency?: boolean
   onboardingCompleted?: boolean
@@ -1938,6 +2325,9 @@ export type FashionHouseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   phone?: boolean
   bio?: boolean
   brandLogoUrl?: boolean
+  bankName?: boolean
+  accountNumber?: boolean
+  accountName?: boolean
   categories?: boolean
   currency?: boolean
   onboardingCompleted?: boolean
@@ -1954,6 +2344,9 @@ export type FashionHouseSelectScalar = {
   phone?: boolean
   bio?: boolean
   brandLogoUrl?: boolean
+  bankName?: boolean
+  accountNumber?: boolean
+  accountName?: boolean
   categories?: boolean
   currency?: boolean
   onboardingCompleted?: boolean
@@ -1961,7 +2354,7 @@ export type FashionHouseSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FashionHouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adminId" | "shopName" | "location" | "phone" | "bio" | "brandLogoUrl" | "categories" | "currency" | "onboardingCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["fashionHouse"]>
+export type FashionHouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adminId" | "shopName" | "location" | "phone" | "bio" | "brandLogoUrl" | "bankName" | "accountNumber" | "accountName" | "categories" | "currency" | "onboardingCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["fashionHouse"]>
 export type FashionHouseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   admin?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.FashionHouse$staffArgs<ExtArgs>
@@ -1973,6 +2366,7 @@ export type FashionHouseInclude<ExtArgs extends runtime.Types.Extensions.Interna
   chatEscalations?: boolean | Prisma.FashionHouse$chatEscalationsArgs<ExtArgs>
   chatSessions?: boolean | Prisma.FashionHouse$chatSessionsArgs<ExtArgs>
   sketches?: boolean | Prisma.FashionHouse$sketchesArgs<ExtArgs>
+  directMessages?: boolean | Prisma.FashionHouse$directMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.FashionHouseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FashionHouseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1995,6 +2389,7 @@ export type $FashionHousePayload<ExtArgs extends runtime.Types.Extensions.Intern
     chatEscalations: Prisma.$ChatEscalationPayload<ExtArgs>[]
     chatSessions: Prisma.$ChatSessionPayload<ExtArgs>[]
     sketches: Prisma.$SketchPayload<ExtArgs>[]
+    directMessages: Prisma.$DirectMessagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2004,6 +2399,9 @@ export type $FashionHousePayload<ExtArgs extends runtime.Types.Extensions.Intern
     phone: string | null
     bio: string | null
     brandLogoUrl: string | null
+    bankName: string | null
+    accountNumber: string | null
+    accountName: string | null
     categories: string[]
     currency: string
     onboardingCompleted: boolean
@@ -2413,6 +2811,7 @@ export interface Prisma__FashionHouseClient<T, Null = never, ExtArgs extends run
   chatEscalations<T extends Prisma.FashionHouse$chatEscalationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouse$chatEscalationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatEscalationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chatSessions<T extends Prisma.FashionHouse$chatSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouse$chatSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sketches<T extends Prisma.FashionHouse$sketchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouse$sketchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SketchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  directMessages<T extends Prisma.FashionHouse$directMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouse$directMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2449,6 +2848,9 @@ export interface FashionHouseFieldRefs {
   readonly phone: Prisma.FieldRef<"FashionHouse", 'String'>
   readonly bio: Prisma.FieldRef<"FashionHouse", 'String'>
   readonly brandLogoUrl: Prisma.FieldRef<"FashionHouse", 'String'>
+  readonly bankName: Prisma.FieldRef<"FashionHouse", 'String'>
+  readonly accountNumber: Prisma.FieldRef<"FashionHouse", 'String'>
+  readonly accountName: Prisma.FieldRef<"FashionHouse", 'String'>
   readonly categories: Prisma.FieldRef<"FashionHouse", 'String[]'>
   readonly currency: Prisma.FieldRef<"FashionHouse", 'String'>
   readonly onboardingCompleted: Prisma.FieldRef<"FashionHouse", 'Boolean'>
@@ -3068,6 +3470,30 @@ export type FashionHouse$sketchesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.SketchScalarFieldEnum | Prisma.SketchScalarFieldEnum[]
+}
+
+/**
+ * FashionHouse.directMessages
+ */
+export type FashionHouse$directMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DirectMessage
+   */
+  select?: Prisma.DirectMessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DirectMessage
+   */
+  omit?: Prisma.DirectMessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DirectMessageInclude<ExtArgs> | null
+  where?: Prisma.DirectMessageWhereInput
+  orderBy?: Prisma.DirectMessageOrderByWithRelationInput | Prisma.DirectMessageOrderByWithRelationInput[]
+  cursor?: Prisma.DirectMessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DirectMessageScalarFieldEnum | Prisma.DirectMessageScalarFieldEnum[]
 }
 
 /**

@@ -344,15 +344,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingTop: 60,
     paddingBottom: 32,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    marginBottom: 36,
-    marginTop: 8,
+    marginBottom: 60,
+    marginTop: 0,
   },
   backBtn: {
     width: 44,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_400Regular",
     fontSize: 12,
     color: "rgba(74, 8, 12, 0.60)",
-    marginBottom: 24,
+    marginBottom: 36,
     marginTop: -2,
   },
   errorText: {

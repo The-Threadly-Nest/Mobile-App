@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { MapPin, Search, Star, ShoppingBag, Store } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -166,7 +166,8 @@ export default function BrowseScreen() {
     : MOCK_TAILORS;
 
   const [tailorsList, setTailorsList] = useState<TailorItem[]>(initialTailors);
-  const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>(MOCK_MARKETPLACE);
+  const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>([]);
+  const [loadingMarketplace, setLoadingMarketplace] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
@@ -176,7 +177,7 @@ export default function BrowseScreen() {
   const [currentLocation, setCurrentLocation] = useState<string>(savedLocation || "Lagos, Nigeria");
   const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
 
-  const fetchFashionHouses = async () => {
+  const fetchFashionHouses = useCallback(async () => {
     try {
       const fetched = await apiFetch<TailorItem[]>("/api/fashion-houses", { silent: true }).catch(() => []);
       if (Array.isArray(fetched) && fetched.length > 0) {
@@ -194,16 +195,17 @@ export default function BrowseScreen() {
       console.log("Could not fetch real fashion houses:", err);
       setTailorsList(MOCK_TAILORS);
     }
-  };
+  }, [setCachedCatalog]);
 
-  const fetchMarketplace = async () => {
+  const fetchMarketplace = useCallback(async () => {
     try {
+      setLoadingMarketplace(true);
       const fetched = await apiFetch<any[]>("/api/catalog/marketplace", { silent: true }).catch(() => []);
       if (Array.isArray(fetched) && fetched.length > 0) {
         const formatted: MarketplaceItem[] = fetched.map((c: any, idx: number) => ({
           id: c.id,
           name: c.name,
-          priceFrom: typeof c.priceFrom === "number" ? `₦ ${(c.priceFrom / 100).toLocaleString()}` : c.priceFrom || "₦ 50,000",
+          priceFrom: typeof c.priceFrom === "number" ? `₦ ${c.priceFrom.toLocaleString()}` : (c.priceFrom ? String(c.priceFrom) : "Price on request"),
           imageUrl: c.imageUrl || MOCK_MARKETPLACE[idx % MOCK_MARKETPLACE.length].imageUrl,
           fashionHouseId: c.fashionHouseId,
           vendorName: c.fashionHouse?.shopName || "Luxury Fashion House",
@@ -220,8 +222,9 @@ export default function BrowseScreen() {
       setMarketplaceList(MOCK_MARKETPLACE);
     } finally {
       setLoading(false);
+      setLoadingMarketplace(false);
     }
-  };
+  }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -229,7 +232,7 @@ export default function BrowseScreen() {
     setRefreshing(false);
   };
 
-  const fetchCurrentLocation = async () => {
+  const fetchCurrentLocation = useCallback(async () => {
     try {
       setIsFetchingLocation(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -257,13 +260,17 @@ export default function BrowseScreen() {
     } finally {
       setIsFetchingLocation(false);
     }
-  };
+  }, [setStoreLocation]);
 
-  useEffect(() => {
-    fetchCurrentLocation();
-    fetchFashionHouses();
-    fetchMarketplace();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (!savedLocation) {
+        fetchCurrentLocation();
+      }
+      fetchFashionHouses();
+      fetchMarketplace();
+    }, [savedLocation, fetchCurrentLocation, fetchFashionHouses, fetchMarketplace])
+  );
 
   // Filtering for Vendors
   const filteredTailors = tailorsList.filter((item) => {
@@ -302,7 +309,7 @@ export default function BrowseScreen() {
   });
 
   const displayTailors = filteredTailors.length > 0 ? filteredTailors : tailorsList;
-  const displayMarketplace = filteredMarketplace.length > 0 ? filteredMarketplace : marketplaceList;
+  const displayMarketplace = (searchQuery || selectedCategory) ? filteredMarketplace : marketplaceList;
 
   const renderStarRating = (rating: number, starSize = 13) => {
     const stars = [];
@@ -336,6 +343,9 @@ export default function BrowseScreen() {
             <ActivityIndicator size="small" color="#4A080C" style={{ marginLeft: 4 }} />
           )}
         </Pressable>
+
+        {/* Brand Title */}
+        <Text style={styles.brandTitle}>The Threadly Nest</Text>
 
         {/* Vendors vs Marketplace Segmented Control Switch */}
         <View style={styles.segmentedContainer}>
@@ -446,85 +456,128 @@ export default function BrowseScreen() {
             </Pressable>
           )}
         />
+      ) : loadingMarketplace && marketplaceList.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingTop: 60 }}>
+          <ActivityIndicator size="large" color="#4A080C" />
+        </View>
       ) : (
-        /* Marketplace Garments View */
+        /* Marketplace Garments View — Strict 2-Column Grid (Fits 4 items above the fold) */
         <FlatList
-          key={`marketplace-${isLandscape ? "landscape" : "portrait"}`}
+          key={`marketplace-grid-${isLandscape ? "4col" : "2col"}`}
           data={displayMarketplace}
           keyExtractor={(item) => item.id}
-          numColumns={isLandscape ? 2 : 1}
-          columnWrapperStyle={isLandscape ? { gap: 12, marginBottom: 12 } : undefined}
+          numColumns={isLandscape ? 4 : 2}
+          columnWrapperStyle={{ gap: 10, marginBottom: 12 }}
           contentContainerStyle={[
             styles.listContainer,
-            isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%", paddingHorizontal: 16, paddingTop: 2, paddingBottom: 64 },
+            { paddingHorizontal: 12, paddingTop: 2, paddingBottom: 64, gap: 0 },
           ]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
-          renderItem={({ item }) => (
-            <Pressable
-              style={({ pressed }) => [
-                styles.card,
-                isLandscape && { flex: 1, marginBottom: 0, borderRadius: 16 },
-                { transform: [{ scale: pressed ? 0.985 : 1 }] },
-              ]}
-              onPress={() => {
-                router.push({
-                  pathname: `/(customer)/catalog/${item.id}`,
-                  params: {
-                    initialName: item.name,
-                    initialPrice: item.priceFrom,
-                    initialImage: item.imageUrl,
-                    initialVendorName: item.vendorName,
-                    initialLocation: item.location,
-                    initialFashionHouseId: item.fashionHouseId || "1",
-                    badge: item.badge,
-                    categoryTag: item.categoryTag,
+          renderItem={({ item }) => {
+            const cardHeight = isLandscape ? 220 : 255;
+            const cardWidth = isLandscape
+              ? (width - 24 - 30) / 4
+              : (width - 34) / 2;
+
+            return (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.card,
+                  {
+                    width: cardWidth,
+                    maxWidth: cardWidth,
+                    height: cardHeight,
+                    marginBottom: 0,
+                    borderRadius: 14,
                   },
-                });
-              }}
-            >
-              {/* Image Container */}
-              <View style={[styles.imageContainer, isLandscape && { height: 140 }]}>
-                <CachedImage source={{ uri: item.imageUrl }} style={styles.cardImage} />
-                <View style={[styles.badge, { backgroundColor: "#4A080C" }]}>
-                  <Text style={styles.badgeText}>{item.badge}</Text>
+                  { transform: [{ scale: pressed ? 0.985 : 1 }] },
+                ]}
+                onPress={() => {
+                  router.push({
+                    pathname: `/(customer)/catalog/${item.id}`,
+                    params: {
+                      initialName: item.name,
+                      initialPrice: item.priceFrom || "Price upon request",
+                      initialImage: item.imageUrl,
+                      initialVendorName: item.vendorName,
+                      initialLocation: item.location,
+                      initialFashionHouseId: item.fashionHouseId || "1",
+                      badge: item.badge,
+                      categoryTag: item.categoryTag,
+                    },
+                  });
+                }}
+              >
+                {/* Image Container */}
+                <View style={[styles.imageContainer, { height: isLandscape ? 115 : 145, backgroundColor: "#EBE6DC" }]}>
+                  <CachedImage
+                    source={{ uri: item.imageUrl }}
+                    style={styles.cardImage}
+                    contentFit="cover"
+                    contentPosition="top center"
+                  />
+                  {item.badge ? (
+                    <View
+                      style={[
+                        styles.badge,
+                        {
+                          top: 12,
+                          left: 12,
+                          bottom: undefined,
+                          backgroundColor: "rgba(74, 8, 12, 0.88)",
+                          paddingHorizontal: 7,
+                          paddingVertical: 2,
+                          borderRadius: 12,
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.badgeText, { fontSize: 8, letterSpacing: 0.4 }]}>{item.badge}</Text>
+                    </View>
+                  ) : null}
                 </View>
-              </View>
 
-              {/* Content Container */}
-              <View style={[styles.cardContent, isLandscape && { padding: 8 }]}>
-                <View style={styles.rowBetween}>
-                  <Text style={styles.cardTitle} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                  <Text style={styles.cardPrice}>{item.priceFrom}</Text>
-                </View>
+                {/* Content Container */}
+                <View style={[styles.cardContent, { padding: 8, flex: 1, justifyContent: "space-between" }]}>
+                  <View>
+                    <Text style={[styles.cardTitle, { flex: 0, fontSize: 13.5, lineHeight: 17, color: "#000000", marginRight: 0, marginBottom: 2 }]} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                    <Text style={[styles.cardPrice, { fontSize: 12, marginBottom: 2 }]} numberOfLines={1}>
+                      {item.priceFrom ? item.priceFrom : "Price on request"}
+                    </Text>
 
-                <Text style={styles.vendorSubtext}>
-                  By {item.vendorName} · {item.location}
-                </Text>
-
-                <View style={styles.actionRow}>
-                  <View style={styles.tagPill}>
-                    <Text style={styles.tagText}>{item.categoryTag}</Text>
+                    <Text style={[styles.vendorSubtext, { fontSize: 10, marginBottom: 0, textTransform: "uppercase" }]} numberOfLines={1}>
+                      {item.vendorName}
+                    </Text>
                   </View>
 
                   <Pressable
-                    style={styles.orderBtn}
+                    style={[styles.orderBtn, { paddingVertical: 6, borderRadius: 16, alignItems: "center", justifyContent: "center" }]}
                     onPress={() => {
                       const targetFhId = item.fashionHouseId || "1";
+                      const numericPrice = item.priceFrom ? parseFloat(item.priceFrom.replace(/[^0-9.]/g, '')) || 0 : 0;
                       router.push({
-                        pathname: `/(customer)/chat/${targetFhId}`,
-                        params: { garmentName: item.name, garmentPrice: item.priceFrom },
+                        pathname: `/(customer)/catalog/details`,
+                        params: {
+                          id: item.id,
+                          initialName: item.name,
+                          initialPrice: String(numericPrice),
+                          initialImage: item.imageUrl,
+                          initialVendorName: item.vendorName,
+                          initialFashionHouseId: targetFhId,
+                          badge: item.badge,
+                          categoryTag: item.categoryTag,
+                        },
                       });
                     }}
                   >
-                    <Text style={styles.orderBtnText}>Book Fitting</Text>
+                    <Text style={[styles.orderBtnText, { fontSize: 11, textAlign: "center" }]}>Order Style</Text>
                   </Pressable>
                 </View>
-              </View>
-            </Pressable>
-          )}
+              </Pressable>
+            );
+          }}
         />
       )}
     </SafeAreaView>
@@ -537,31 +590,38 @@ const styles = StyleSheet.create({
     backgroundColor: "#FBF7EF",
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingTop: 36,
+    paddingBottom: 6,
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  brandTitle: {
+    fontFamily: "Fraunces-Bold",
+    fontSize: 26,
+    color: "#4A080C",
+    marginBottom: 16,
+    letterSpacing: 0.3,
   },
   locationText: {
     fontFamily: "WorkSans_500Medium",
-    fontSize: 14,
+    fontSize: 13,
     color: "#3A2E1A",
   },
   segmentedContainer: {
     flexDirection: "row",
     backgroundColor: "#EBE0D3",
-    borderRadius: 24,
-    padding: 4,
-    marginBottom: 14,
+    borderRadius: 32,
+    padding: 3,
+    marginBottom: 16,
   },
   segmentedPill: {
     flex: 1,
-    height: 42,
-    borderRadius: 20,
+    height: 48,
+    borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -571,7 +631,7 @@ const styles = StyleSheet.create({
   },
   segmentedText: {
     fontFamily: "WorkSans_600SemiBold",
-    fontSize: 14,
+    fontSize: 13,
     color: "#3A2E1A",
   },
   segmentedTextActive: {
@@ -581,12 +641,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderRadius: 25,
+    borderRadius: 32,
     borderWidth: 0.5,
     borderColor: "#404040",
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     height: 48,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   searchInput: {
     flex: 1,
@@ -625,7 +685,7 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 20,
     paddingBottom: 24,
-    gap: 18,
+    gap: 24,
   },
   card: {
     backgroundColor: "#FFFFFF",
@@ -633,8 +693,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowOpacity: 0.10,
+    shadowRadius: 10,
     elevation: 2,
     borderWidth: 1,
     borderColor: "#F0EBE1",
@@ -677,7 +737,6 @@ const styles = StyleSheet.create({
     fontFamily: "Fraunces-Bold",
     fontSize: 17,
     color: "#000000",
-    flex: 1,
     marginRight: 8,
   },
   cardPrice: {

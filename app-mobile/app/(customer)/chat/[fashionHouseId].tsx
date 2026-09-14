@@ -65,7 +65,23 @@ export default function BookingChatScreen() {
     garmentName?: string;
     garmentPrice?: string;
   }>();
-  const [history, setHistory] = useState<Turn[]>(DEFAULT_INITIAL_TURNS);
+
+  const initialTurns: Turn[] = garmentName
+    ? [
+        {
+          role: "model",
+          text: `Welcome! We are delighted to assist you with your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Please select an available fitting slot below to schedule your measurement session:`,
+          slots: [
+            { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
+            { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
+            { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+            { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
+          ],
+        },
+      ]
+    : DEFAULT_INITIAL_TURNS;
+
+  const [history, setHistory] = useState<Turn[]>(initialTurns);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [loadingSession, setLoadingSession] = useState(true);
@@ -115,7 +131,32 @@ export default function BookingChatScreen() {
             const body = await res.json();
             const serverHistory: Turn[] = body.history ?? [];
             if (serverHistory.length > 0) {
-              setHistory(serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) })));
+              const formatted = serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) }));
+              const lastTurn = formatted[formatted.length - 1];
+              if (
+                lastTurn.text.includes("--- Chat Session Ended ---") ||
+                lastTurn.text.toLowerCase().includes("session ended")
+              ) {
+                if (garmentName) {
+                  formatted.push({
+                    role: "model",
+                    text: `Welcome back! We are delighted to assist you with your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Please select an available fitting slot below:`,
+                    slots: [
+                      { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
+                      { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
+                      { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+                      { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
+                    ],
+                  });
+                } else {
+                  formatted.push({
+                    role: "model",
+                    text: "Welcome back! We are delighted to assist you with your next fitting. What occasion are we styling for today?",
+                    options: ["Wedding", "Owambe / Gala", "Casual & Daily", "Custom Bespoke"],
+                  });
+                }
+              }
+              setHistory(formatted);
             }
           }
         }
@@ -131,11 +172,31 @@ export default function BookingChatScreen() {
     const textToSend = (messageText ?? draft).trim();
     if (!textToSend || sending) return;
 
+    if (bookingConfirmed) setBookingConfirmed(false);
+
     const userTurn: Turn = { role: "user", text: textToSend };
     setHistory((prev) => [...prev, userTurn]);
     setDraft("");
     setSending(true);
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+
+    if (escalatedToHuman) {
+      try {
+        if (token && fashionHouseId) {
+          await fetch(`${API_BASE_URL}/api/chat/message`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ fashionHouseId, message: textToSend }),
+          });
+        }
+      } catch (err) {
+        console.warn("Escalated message error:", err);
+      } finally {
+        setSending(false);
+        setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+      }
+      return;
+    }
 
     const lower = textToSend.toLowerCase();
 
@@ -178,7 +239,7 @@ export default function BookingChatScreen() {
         const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ fashionHouseId, message: textToSend }),
+          body: JSON.stringify({ fashionHouseId, message: textToSend, garmentName: activeGarment }),
         });
         if (res.ok) {
           const body = await res.json();
@@ -191,13 +252,40 @@ export default function BookingChatScreen() {
         }
       }
 
+      const lowerReply = replyText.toLowerCase();
+      const isEscalation =
+        responseType === "escalated" ||
+        lowerReply.includes("flagged") ||
+        lowerReply.includes("follow up with you directly") ||
+        lowerReply.includes("team member will join");
+
+      if (isEscalation) {
+        setEscalatedToHuman(true);
+        const escalationTurn: Turn = {
+          role: "model",
+          text: replyText || `I've flagged your session for ${fashionHouseName} administrators. A team member will join this chat shortly.`,
+          options: undefined,
+          slots: undefined,
+        };
+        const endTurn: Turn = {
+          role: "model",
+          text: "--- Chat Session Ended ---",
+        };
+        setHistory((prev) => [...prev, escalationTurn, endTurn]);
+        return;
+      }
+
       if (responseType === "booking_created" || lower.includes("slot") || lower.includes("sep")) {
         setBookingConfirmed(true);
         const confirmTurn: Turn = {
           role: "model",
           text: replyText || `Your fitting request with ${fashionHouseName} has been received! Our team will confirm shortly.`,
         };
-        setHistory((prev) => [...prev, confirmTurn]);
+        const endTurn: Turn = {
+          role: "model",
+          text: "--- Chat Session Ended ---",
+        };
+        setHistory((prev) => [...prev, confirmTurn, endTurn]);
 
         const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Sat, 6 Sep · 10:00 AM";
 
@@ -238,39 +326,35 @@ export default function BookingChatScreen() {
           : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
 
       const cleanedReply = cleanRawSlotText(replyText);
-      const lowerReply = replyText.toLowerCase();
+      const replyLower = (cleanedReply || "").toLowerCase();
 
-      // Check if slot booking was suggested in the reply or requested by user
-      const mentionsSlots =
-        lowerReply.includes("slot") ||
-        lowerReply.includes("reserve your session") ||
-        lowerReply.includes("fitting slot") ||
-        lowerReply.includes("select an available") ||
-        lowerReply.includes("convenient time below") ||
-        lowerReply.includes("sep ·") ||
-        lowerReply.includes("10:00 am") ||
-        lowerReply.includes("2:00 pm");
-
-      const isFabricChoice =
+      const mentionsFabric =
+        replyLower.includes("fabric") ||
+        replyLower.includes("material") ||
         lower.includes("fabric") ||
         lower.includes("bring my own") ||
         lower.includes("discuss at fitting");
 
+      const mentionsSlots =
+        replyLower.includes("slot") ||
+        replyLower.includes("available time") ||
+        lower.includes("slot") ||
+        lower.includes("schedule") ||
+        lower.includes("appointment") ||
+        lower.includes("book fitting");
+
       const isOccasionChoice =
-        !mentionsSlots && (
-          lower.includes("wedding") ||
-          lower.includes("owambe") ||
-          lower.includes("gala") ||
-          lower.includes("casual") ||
-          lower.includes("just for me") ||
-          lower.includes("custom bespoke")
-        );
+        lower.includes("wedding") ||
+        lower.includes("owambe") ||
+        lower.includes("gala") ||
+        lower.includes("casual") ||
+        lower.includes("just for me") ||
+        lower.includes("custom bespoke");
 
       const isStyleChoice =
-        !mentionsSlots && (
+        !isOccasionChoice && (
           lower.includes("gown") ||
           lower.includes("aso-ebi") ||
-          lower.includes("both") ||
           lower.includes("agbada") ||
           lower.includes("kaftan") ||
           lower.includes("senator") ||
@@ -279,26 +363,27 @@ export default function BookingChatScreen() {
           houseCategories.some((c) => lower.includes(c.toLowerCase()))
         );
 
-      const isRequestingSlots =
-        mentionsSlots ||
-        isFabricChoice ||
-        lower.includes("date") ||
-        lower.includes("slot") ||
-        lower.includes("time") ||
-        lower.includes("when") ||
-        lower.includes("schedule") ||
-        lower.includes("appointment") ||
-        lower.includes("book") ||
-        lower.includes("fitting");
-
       let responseTurn: Turn = {
         role: "model",
-        text: cleanedReply || `We would love to craft this for you! Would you like to explore our in-house fabric collection, or bring your own?`,
+        text: cleanedReply,
       };
 
-      if (isRequestingSlots) {
+      const hasPreselectedGarment = !!garmentName || (selectedGarment && selectedGarment !== "Bespoke Fitting Session");
+
+      if (hasPreselectedGarment) {
+        // MARKETPLACE FLOW: Garment is already selected ("you have the cloth already")!
+        // Always present fitting slots directly
+        responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName} for your ${selectedGarment}. Please select a convenient time below:`;
+        responseTurn.options = undefined;
+        responseTurn.slots = [
+          { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
+          { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
+          { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
+        ];
+      } else if (mentionsSlots) {
         responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
-        responseTurn.options = undefined; // Strictly clear options so pills and slots never clash
+        responseTurn.options = undefined;
         responseTurn.slots = [
           { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
           { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
@@ -306,15 +391,25 @@ export default function BookingChatScreen() {
           { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
         ];
       } else if (isOccasionChoice) {
-        responseTurn.text = cleanedReply || `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
+        // VENDOR FLOW: Ask for Garment Style
+        responseTurn.text = cleanedReply || `Wonderful! We would be honored to craft something exquisite for you. What garment style or silhouette do you have in mind?`;
         responseTurn.options = styleOptions;
         responseTurn.slots = undefined;
       } else if (isStyleChoice) {
-        responseTurn.text = cleanedReply || `We would love to create this bespoke piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
-        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
+        responseTurn.text = cleanedReply || `Great choice! Would you like to select a fabric from our in-house collection, or bring your own?`;
+        responseTurn.options = ["Fashion House Fabric", "Bring My Own Fabric", "Discuss at Fitting"];
         responseTurn.slots = undefined;
+      } else if (mentionsFabric) {
+        responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
+        responseTurn.options = undefined;
+        responseTurn.slots = [
+          { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
+          { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
+          { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
+        ];
       } else {
-        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
+        responseTurn.options = styleOptions;
         responseTurn.slots = undefined;
       }
 
@@ -326,63 +421,22 @@ export default function BookingChatScreen() {
           ? houseCategories.slice(0, 4)
           : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
 
-      const isOccasionChoice =
-        lower.includes("wedding") ||
-        lower.includes("owambe") ||
-        lower.includes("gala") ||
-        lower.includes("casual") ||
-        lower.includes("just for me") ||
-        lower.includes("custom bespoke");
-
-      const isStyleChoice =
-        lower.includes("gown") ||
-        lower.includes("aso-ebi") ||
-        lower.includes("both") ||
-        lower.includes("agbada") ||
-        lower.includes("kaftan");
-
-      const isFabricChoice =
-        lower.includes("fabric") ||
-        lower.includes("bring my own") ||
-        lower.includes("discuss at fitting");
-
-      const isRequestingSlots =
-        isFabricChoice ||
-        lower.includes("date") ||
-        lower.includes("slot") ||
-        lower.includes("time") ||
-        lower.includes("when") ||
-        lower.includes("schedule") ||
-        lower.includes("appointment") ||
-        lower.includes("book") ||
-        lower.includes("fitting");
-
-      let responseTurn: Turn = {
-        role: "model",
-        text: `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
-      };
-
-      if (isRequestingSlots) {
-        responseTurn.text = `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
-        responseTurn.options = undefined;
-        responseTurn.slots = [
-          { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-          { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-          { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-        ];
-      } else if (isOccasionChoice) {
-        responseTurn.text = `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`;
-        responseTurn.options = styleOptions;
-        responseTurn.slots = undefined;
-      } else if (isStyleChoice) {
-        responseTurn.text = `We would love to create this piece for you! Would you like to select a fabric from our in-house collection, or bring your own?`;
-        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
-        responseTurn.slots = undefined;
-      } else {
-        responseTurn.options = ["Fashion House fabric", "Bring my own fabric", "Discuss at fitting"];
-        responseTurn.slots = undefined;
-      }
+      let responseTurn: Turn = garmentName
+        ? {
+            role: "model",
+            text: `Please select an available fitting slot below to complete your order for ${garmentName}:`,
+            slots: [
+              { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
+              { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
+              { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
+              { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
+            ],
+          }
+        : {
+            role: "model",
+            text: `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
+            options: styleOptions,
+          };
 
       setHistory((prev) => [...prev, responseTurn]);
     } finally {
@@ -391,13 +445,42 @@ export default function BookingChatScreen() {
     }
   };
 
+  const [isFirstTimeCustomer, setIsFirstTimeCustomer] = useState(true);
+  const [escalatedToHuman, setEscalatedToHuman] = useState(false);
+
+  const handleManualEscalation = async () => {
+    try {
+      if (token && fashionHouseId) {
+        await fetch(`${API_BASE_URL}/api/chat/escalate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ fashionHouseId, reason: "Customer initiated manual escalation" }),
+        });
+      }
+      setEscalatedToHuman(true);
+      const escalationTurn: Turn = {
+        role: "model",
+        text: `I've flagged your session for ${fashionHouseName} administrators. A team member will join this chat shortly.`,
+        options: undefined,
+        slots: undefined,
+      };
+      const endTurn: Turn = {
+        role: "model",
+        text: "--- Chat Session Ended ---",
+      };
+      setHistory((prev) => [...prev, escalationTurn, endTurn]);
+    } catch (err) {
+      console.warn("Escalation error:", err);
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
       {/* Top Header */}
-      <View className="flex-row items-center px-6 py-4 bg-cream">
+      <View className="flex-row items-center px-6 py-4 bg-cream border-b border-grey100">
         <Pressable
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-4"
+          className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-3"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
           <BackArrowIcon size={18} color="#000000" />
@@ -414,9 +497,18 @@ export default function BookingChatScreen() {
             {fashionHouseName}
           </Text>
           <Text className="font-body text-[13px] text-grey700">
-            Booking Assistant
+            {escalatedToHuman ? "Human Support Mode" : "Booking Assistant"}
           </Text>
         </View>
+
+        {!escalatedToHuman && (
+          <Pressable
+            onPress={handleManualEscalation}
+            className="px-3 py-1.5 rounded-full bg-[#EBE0D3] border border-oxblood"
+          >
+            <Text className="font-body-medium text-[11px] text-oxblood">Talk to Admin</Text>
+          </Pressable>
+        )}
       </View>
 
       <KeyboardAvoidingView
@@ -438,6 +530,22 @@ export default function BookingChatScreen() {
             </View>
           ) : (
             history.map((turn, index) => {
+              const isSessionEnded =
+                turn.role === ("system" as any) ||
+                (turn.text && (turn.text.includes("--- Chat Session Ended ---") || turn.text.toLowerCase().includes("session ended")));
+
+              if (isSessionEnded) {
+                return (
+                  <View key={index} style={{ flexDirection: "row", alignItems: "center", marginVertical: 24, paddingHorizontal: 12 }}>
+                    <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
+                    <Text style={{ marginHorizontal: 16, fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#4A080C", letterSpacing: 2, textTransform: "uppercase" }}>
+                      ENDED
+                    </Text>
+                    <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
+                  </View>
+                );
+              }
+
               const isUser = turn.role === "user";
               return (
                 <View key={index} className="w-full">
@@ -448,16 +556,32 @@ export default function BookingChatScreen() {
                   )}
 
                   <View
-                    className={`max-w-[85%] p-4 ${
+                    style={[
+                      {
+                        maxWidth: "85%",
+                        padding: 16,
+                        borderRadius: 16,
+                      },
                       isUser
-                        ? "bg-[#C4A763] self-end rounded-[16px] rounded-br-[4px]"
-                        : "bg-oxblood self-start rounded-[16px] rounded-bl-[4px]"
-                    }`}
+                        ? {
+                            backgroundColor: "rgba(74, 8, 12, 0.25)",
+                            alignSelf: "flex-end",
+                            borderBottomRightRadius: 4,
+                          }
+                        : {
+                            backgroundColor: "#4A080C",
+                            alignSelf: "flex-start",
+                            borderBottomLeftRadius: 4,
+                          },
+                    ]}
                   >
                     <Text
-                      className={`font-body text-[15px] leading-[22px] ${
-                        isUser ? "text-white" : "text-white"
-                      }`}
+                      style={{
+                        fontFamily: "WorkSans_400Regular",
+                        fontSize: 15,
+                        lineHeight: 22,
+                        color: isUser ? "#4A080C" : "#FFFFFF",
+                      }}
                     >
                       {sanitizeText(turn.text)}
                     </Text>
