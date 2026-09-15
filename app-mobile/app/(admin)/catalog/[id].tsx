@@ -73,7 +73,7 @@ export default function AdminEditGarmentScreen() {
         mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [4, 5],
-        quality: 0.8,
+        quality: 0.7,
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {

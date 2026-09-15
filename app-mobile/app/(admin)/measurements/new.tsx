@@ -131,7 +131,7 @@ export default function NewMeasurementScreen() {
     setCustomFields((prev) => prev.filter((f) => f.id !== id));
   };
 
-  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
 
   const handleToggleVoiceRecord = async () => {
     try {

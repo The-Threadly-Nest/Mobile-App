@@ -19,9 +19,24 @@ interface AppDataState {
 }
 
 const secureStorage = {
-  getItem: async (name: string) => (await SecureStore.getItemAsync(name)) ?? null,
-  setItem: async (name: string, value: string) => SecureStore.setItemAsync(name, value),
-  removeItem: async (name: string) => SecureStore.deleteItemAsync(name),
+  getItem: async (name: string) => {
+    try {
+      return (await SecureStore.getItemAsync(name)) ?? null;
+    } catch {
+      return null;
+    }
+  },
+  setItem: async (name: string, value: string) => {
+    try {
+      if (value.length > 2000) return; // Prevent Android SecureStore 2048-byte limit warning
+      await SecureStore.setItemAsync(name, value);
+    } catch {}
+  },
+  removeItem: async (name: string) => {
+    try {
+      await SecureStore.deleteItemAsync(name);
+    } catch {}
+  },
 };
 
 export const useAppDataStore = create<AppDataState>()(

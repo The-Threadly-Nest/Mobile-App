@@ -188,7 +188,6 @@ export default function CustomerOrderDetailScreen() {
           <BackArrowIcon size={20} color="#4A080C" />
         </Pressable>
         <Text style={styles.headerTitle}>Order Tracking</Text>
-        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView
@@ -312,13 +311,19 @@ export default function CustomerOrderDetailScreen() {
         <View style={styles.actionButtonRow}>
           <Pressable
             onPress={() => {
-              if (fashionHouseId) {
+              const targetFhId = fashionHouseId || orderData?.fashionHouseId || orderData?.fashionHouse?.id;
+              const targetFhName = orderData?.atelierName || params.atelierName || "Fashion House";
+
+              if (targetFhId) {
                 router.push({
-                  pathname: `/(customer)/direct-chat/${fashionHouseId}`,
-                  params: { fashionHouseName: orderData?.fashionHouse?.name || params.atelierName || 'Fashion House' },
+                  pathname: `/(customer)/direct-chat/${targetFhId}`,
+                  params: { fashionHouseName: targetFhName },
                 } as any);
               } else {
-                router.push("/(customer)/(tabs)/browse" as any);
+                alertEmitter.emit({
+                  title: "Contact Atelier",
+                  message: "Fetching atelier contact info, please try again in a moment.",
+                });
               }
             }}
             style={({ pressed }) => [styles.pillBtn, { opacity: pressed ? 0.85 : 1 }]}
@@ -360,7 +365,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
+    gap: 12,
   },
   backBtn: {
     width: 36,

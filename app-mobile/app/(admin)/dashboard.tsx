@@ -182,9 +182,18 @@ export default function AdminDashboard() {
       (e.bookingStatus === "completed" || e.status === "completed" || e.status === "delivered")
   ).length;
 
-  const completedOrdersCount = completedOrdersFromOrders + completedBookingsWithoutOrder;
+  // Total Revenue: Only include orders/invoices that are marked as Paid or completed/delivered
+  const paidOrders = realOrders.filter(
+    (o) =>
+      o.isPaid === true ||
+      o.paymentStatus === "Paid" ||
+      o.invoiceStatus === "Paid" ||
+      o.status === "Paid" ||
+      o.status === "completed" ||
+      o.status === "delivered"
+  );
 
-  const totalRevenue = realOrders.reduce((sum, o) => sum + (o.price || 0), 0);
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.price || 0), 0);
 
   // Deduplicate pending escalations/bookings by ID or customer reference
   const uniquePendingEscalations = new Map<string, any>();
@@ -223,6 +232,13 @@ export default function AdminDashboard() {
   // Display real pending escalations from database
   const displayRequests = pendingEscalations.slice(0, 3);
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
   const formatMoney = (val: number) => {
     return `₦${val.toLocaleString()}`;
   };
@@ -250,17 +266,18 @@ export default function AdminDashboard() {
         </Text>
 
         {/* Serif Greeting */}
-        <View style={{ width: 252, height: 60, justifyContent: "center", marginBottom: 24 }}>
+        <View style={{ marginBottom: 20, justifyContent: "center" }}>
           <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
             style={{
               fontFamily: "Fraunces-SemiBold",
-              fontSize: 28,
+              fontSize: 26,
               color: "#3B0508",
-              lineHeight: 32,
+              lineHeight: 34,
             }}
           >
-            Good morning,{"\n"}
-            {adminFirstName}
+            {getGreeting()}, {adminFirstName}
           </Text>
         </View>
 
@@ -575,26 +592,24 @@ export default function AdminDashboard() {
                             if (res.ok) {
                               const data = await res.json();
                               if (data.hasMeasurements === false) {
-                                showAlert(
+                                showConfirm(
                                   "Measurement Required",
                                   `No measurements found for ${custName}. Please record measurement details before assigning staff.`,
-                                  [
-                                    {
-                                      text: "Add Measurement",
-                                      onPress: () => {
-                                        router.push({
-                                          pathname: "/(admin)/measurements/new",
-                                          params: {
-                                            bookingId: item.id,
-                                            customerName: custName,
-                                            serviceTitle: item.reason || item.summary || "Bespoke Fitting",
-                                            appointmentTime: "Sat, Sept 6",
-                                            returnToAssign: "true",
-                                          },
-                                        } as any);
-                                      },
+                                  {
+                                    confirmLabel: "Add Measurement",
+                                    onConfirm: () => {
+                                      router.push({
+                                        pathname: "/(admin)/measurements/new",
+                                        params: {
+                                          bookingId: item.id,
+                                          customerName: custName,
+                                          serviceTitle: item.reason || item.summary || "Bespoke Fitting",
+                                          appointmentTime: "Sat, Sept 6",
+                                          returnToAssign: "true",
+                                        },
+                                      } as any);
                                     },
-                                  ]
+                                  }
                                 );
                                 return;
                               }

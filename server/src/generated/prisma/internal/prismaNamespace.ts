@@ -1792,6 +1792,8 @@ export const DirectMessageScalarFieldEnum = {
   senderId: 'senderId',
   text: 'text',
   imageUrl: 'imageUrl',
+  audioUrl: 'audioUrl',
+  audioDuration: 'audioDuration',
   readAt: 'readAt',
   createdAt: 'createdAt'
 } as const

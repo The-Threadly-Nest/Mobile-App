@@ -49,7 +49,7 @@ router.get("/thread/:fashionHouseId", async (req, res, next) => {
       data: { readAt: new Date() },
     });
 
-    // Attach the AI chat transcript from the latest escalation for this thread
+    // Attach the AI chat transcript from the latest escalation or chatSession for this thread
     // so both customer and admin can see the prior AI conversation history
     let transcript: unknown[] = [];
     try {
@@ -58,7 +58,18 @@ router.get("/thread/:fashionHouseId", async (req, res, next) => {
         orderBy: { createdAt: "desc" },
       });
       if (escalation?.transcript) {
-        transcript = JSON.parse(escalation.transcript as string);
+        transcript = typeof escalation.transcript === "string"
+          ? JSON.parse(escalation.transcript)
+          : (escalation.transcript as unknown[]);
+      }
+
+      if (!Array.isArray(transcript) || transcript.length === 0) {
+        const session = await prisma.chatSession.findUnique({
+          where: { customerId_fashionHouseId: { customerId, fashionHouseId } },
+        });
+        if (session?.history && Array.isArray(session.history)) {
+          transcript = session.history as unknown[];
+        }
       }
     } catch {
       // If parsing fails, transcript stays empty — non-fatal
@@ -75,10 +86,15 @@ router.get("/thread/:fashionHouseId", async (req, res, next) => {
 router.post("/thread/:fashionHouseId", async (req, res, next) => {
   try {
     const { fashionHouseId, customerId, senderRole, senderId } = await resolveThread(req.authUserId!, req.params.fashionHouseId);
-    const { text, imageUrl } = req.body as { text?: string; imageUrl?: string };
+    const { text, imageUrl, audioUrl, audioDuration } = req.body as {
+      text?: string;
+      imageUrl?: string;
+      audioUrl?: string;
+      audioDuration?: number;
+    };
 
-    if (!text?.trim() && !imageUrl) {
-      return res.status(400).json({ error: "Message text or image is required." });
+    if (!text?.trim() && !imageUrl && !audioUrl) {
+      return res.status(400).json({ error: "Message text, image, or audio is required." });
     }
 
     const message = await prisma.directMessage.create({
@@ -89,6 +105,8 @@ router.post("/thread/:fashionHouseId", async (req, res, next) => {
         senderId,
         text: text?.trim() ?? "",
         imageUrl: imageUrl ?? null,
+        audioUrl: audioUrl ?? null,
+        audioDuration: audioDuration ? Math.round(Number(audioDuration)) : null,
       },
       include: {
         sender: { select: { id: true, name: true, role: true } },
@@ -117,6 +135,66 @@ router.patch("/thread/:fashionHouseId/read", async (req, res, next) => {
     });
 
     res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/direct-messages/my-threads — customer endpoint to list all active chat threads
+router.get("/my-threads", async (req, res, next) => {
+  try {
+    const customerId = req.authUserId;
+    if (!customerId) {
+      return res.status(401).json({ error: "Unauthorized access." });
+    }
+
+    // Find all distinct fashion houses where this customer has direct messages
+    const distinctThreads = await prisma.directMessage.findMany({
+      where: { customerId },
+      distinct: ["fashionHouseId"],
+      orderBy: { createdAt: "desc" },
+      include: {
+        fashionHouse: {
+          select: { id: true, shopName: true, brandLogoUrl: true },
+        },
+      },
+    });
+
+    const threads = await Promise.all(
+      distinctThreads.map(async (dm) => {
+        const [latestMessage, unreadCount] = await Promise.all([
+          prisma.directMessage.findFirst({
+            where: { customerId, fashionHouseId: dm.fashionHouseId },
+            orderBy: { createdAt: "desc" },
+          }),
+          prisma.directMessage.count({
+            where: {
+              customerId,
+              fashionHouseId: dm.fashionHouseId,
+              senderRole: { not: "customer" },
+              readAt: null,
+            },
+          }),
+        ]);
+
+        let snippet = latestMessage?.text || "";
+        if (!snippet) {
+          if (latestMessage?.imageUrl) snippet = "📷 Photo";
+          else snippet = "Voice message";
+        }
+
+        return {
+          fashionHouseId: dm.fashionHouseId,
+          fashionHouseName: dm.fashionHouse?.shopName || "Fashion House",
+          fashionHouseLogo: dm.fashionHouse?.brandLogoUrl || null,
+          latestMessage: snippet,
+          latestAt: latestMessage?.createdAt || null,
+          unreadCount,
+        };
+      })
+    );
+
+    res.json(threads);
   } catch (err) {
     next(err);
   }

@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -48,6 +49,7 @@ export default function AdminSettingsScreen() {
   const email = useAuthStore((s) => s.email);
   const token = useAuthStore((s) => s.token);
   const storedShopName = useAuthStore((s) => s.shopName);
+  const shopLogo = useAuthStore((s) => s.shopLogo);
   const [businessName, setBusinessName] = useState(storedShopName || name || "");
 
   const [staffCount, setStaffCount] = useState(0);
@@ -165,7 +167,7 @@ export default function AdminSettingsScreen() {
     {
       id: "staff",
       title: "Staff",
-      subtitle: staffCount > 0 ? `${staffCount} member${staffCount === 1 ? "" : "s"}` : "Manage & chat",
+      subtitle: staffCount > 0 ? `${staffCount} member${staffCount === 1 ? "" : "s"}` : "Manage team",
       badge: unreadChatCount > 0 ? unreadChatCount : undefined,
       icon: UserCheck,
       onPress: () => router.push("/(admin)/staff" as any),
@@ -206,21 +208,18 @@ export default function AdminSettingsScreen() {
       onPress: () => router.push("/(admin)/catalog" as any),
     },
     {
-      id: "customer-inquiries",
-      title: "Customer Inquiries",
-      subtitle: "Client direct messages",
+      id: "chat",
+      title: "Chat",
+      subtitle: "Staff & customer messages",
       icon: MessageSquare,
-      onPress: () => router.push("/(admin)/customer-messages" as any),
+      onPress: () => router.push("/(admin)/messages" as any),
     },
     {
       id: "fitting-slots",
       title: "Fitting Slots",
       subtitle: "Manage AI booking times",
       icon: Calendar,
-      onPress: () => {
-        fetchSlots();
-        setShowSlotsModal(true);
-      },
+      onPress: () => router.push("/(admin)/profile-edit" as any),
     },
     {
       id: "settings",
@@ -272,11 +271,15 @@ export default function AdminSettingsScreen() {
             { opacity: pressed ? 0.92 : 1 },
           ]}
         >
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {displayTitle.charAt(0).toUpperCase()}
-            </Text>
-          </View>
+          {shopLogo ? (
+            <Image source={{ uri: shopLogo }} style={[styles.avatar, { borderWidth: 1.5, borderColor: "#C4A763" }]} resizeMode="cover" />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {displayTitle.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          )}
           <View style={{ flex: 1 }}>
             <Text style={styles.accountName} numberOfLines={1}>
               {displayTitle}

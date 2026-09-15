@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
+import { Prisma } from "@prisma/client";
 import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { sendChatMessageSchema } from "../schemas/chat.schema";
 import { getModel, buildSystemPrompt } from "../lib/gemini";
-import { buildTruncatedHistory, shouldForceEscalate } from "../lib/chatHistory";
+import { buildTruncatedHistory, shouldForceEscalate, ChatTurn } from "../lib/chatHistory";
 import { checkMessageGuardrails } from "../lib/chatGuardrails";
 import rateLimit from "express-rate-limit";
 import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
@@ -23,7 +24,7 @@ const chatLimiter = rateLimit({
   message: { error: "Too many messages. Please wait a moment before continuing." },
 });
 
-type ChatTurn = { role: "user" | "model"; text: string };
+
 
 async function resolveSessionTarget(paramId: string, authUserId: string) {
   const user = await prisma.user.findUnique({ where: { id: authUserId } });
@@ -60,7 +61,7 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
       where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
     });
 
-    res.json({ history: (session?.history as ChatTurn[]) ?? [] });
+    res.json({ history: (session?.history as unknown as ChatTurn[]) ?? [] });
   } catch (err) {
     next(err);
   }
@@ -80,28 +81,39 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       update: {},
       create: { customerId: sessionCustomerId, fashionHouseId, history: [] },
     });
-    const history = (session.history as ChatTurn[]) ?? [];
+    const history = (session.history as unknown as ChatTurn[]) ?? [];
 
     // 1b. If the sender is staff or admin, persist human chat message directly without invoking AI
     if (role === "staff" || role === "admin") {
       const turnRole = role === "admin" ? "admin" : "staff";
       const turnText = message?.trim() || (audioUrl ? "[Voice Note]" : "");
-      const turn: any = { role: turnRole, text: turnText };
+      const turn: any = { role: turnRole, text: turnText, createdAt: new Date().toISOString() };
       if (audioUrl) turn.audioUrl = audioUrl;
       if (audioDuration !== undefined) turn.audioDuration = audioDuration;
       const updatedHistory = [...history, turn];
       await prisma.chatSession.update({
         where: { id: session.id },
-        data: { history: updatedHistory },
+        data: { history: updatedHistory as unknown as Prisma.InputJsonValue },
       });
 
+      // Fetch fashion house name for notification title
+      const fhName = await prisma.fashionHouse.findUnique({
+        where: { id: fashionHouseId },
+        select: { shopName: true },
+      }).then((fh) => fh?.shopName || "The Fashion House");
+
       // Send push notification asynchronously
+      const notifBody = audioUrl ? "🎙️ Voice message received" : (message || "").slice(0, 100);
       if (role === "staff") {
-        const notifBody = audioUrl ? "🎙️ Voice message received" : (message || "").slice(0, 100);
-        sendNotificationToAdmin(fashionHouseId, audioUrl ? "New Voice Note from Staff" : "New Message from Staff", notifBody);
+        // Use the staff member's own name in the notification
+        const staffName = await prisma.user.findUnique({
+          where: { id: authUserId },
+          select: { name: true },
+        }).then((u) => u?.name || "A staff member");
+        sendNotificationToAdmin(fashionHouseId, audioUrl ? `New Voice Note from ${staffName}` : `New Message from ${staffName}`, notifBody);
       } else {
-        const notifBody = audioUrl ? "🎙️ Voice message received" : (message || "").slice(0, 100);
-        sendNotificationToUser(sessionCustomerId, audioUrl ? "New Voice Note from Admin" : "New Message from Admin", notifBody);
+        // Use the fashion house name when admin messages the customer
+        sendNotificationToUser(sessionCustomerId, audioUrl ? `New Voice Note from ${fhName}` : `New Message from ${fhName}`, notifBody);
       }
 
       return res.json({ success: true, history: updatedHistory });
@@ -117,7 +129,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
     if (shouldForceEscalate(history)) {
       await createEscalation(fashionHouseId, customerId, history, "max_turns_exceeded");
       // Clear session after escalation so customer can start fresh
-      await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] } });
+      await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] as unknown as Prisma.InputJsonValue } });
       return res.json({ type: "escalated", reason: "max_turns_exceeded", reply: "Let me get someone from the team to help you directly with this." });
     }
 
@@ -207,7 +219,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
           { role: "model", text: confirmReply },
           { role: "model", text: "--- Chat Session Ended ---" },
         ];
-        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory } });
+        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory as unknown as Prisma.InputJsonValue } });
         return res.json({
           type: "booking_created",
           booking,
@@ -225,7 +237,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
           { role: "model", text: escReply },
           { role: "model", text: "--- Chat Session Ended ---" },
         ];
-        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory } });
+        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory as unknown as Prisma.InputJsonValue } });
         return res.json({ type: "escalated", reason: args.reason, reply: escReply });
       }
 
@@ -244,10 +256,10 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
 
     const updatedHistory: ChatTurn[] = [
       ...history,
-      { role: "user", text: message },
-      { role: "model", text: modelReply },
+      { role: "user", text: message, createdAt: new Date().toISOString() },
+      { role: "model", text: modelReply, createdAt: new Date().toISOString() },
     ];
-    await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory } });
+    await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory as unknown as Prisma.InputJsonValue } });
 
     res.json({ type: "message", reply: modelReply });
   } catch (err) {
@@ -265,7 +277,7 @@ router.post("/escalate", async (req, res, next) => {
     const session = await prisma.chatSession.findUnique({
       where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
     });
-    const history = (session?.history as ChatTurn[]) ?? [];
+    const history = (session?.history as unknown as ChatTurn[]) ?? [];
 
     const escalation = await prisma.chatEscalation.create({
       data: {
@@ -285,7 +297,7 @@ router.post("/escalate", async (req, res, next) => {
       ];
       await prisma.chatSession.update({
         where: { id: session.id },
-        data: { history: updatedHistory },
+        data: { history: updatedHistory as unknown as Prisma.InputJsonValue },
       });
     }
 

@@ -4,6 +4,20 @@ import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/au
 import { validate } from "../middleware/validate";
 import { createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
 import { parseFittingDate, formatEstimatedReady } from "../utils/dateUtils";
+import { sendNotificationToUser } from "../lib/notifications";
+
+const STATUS_LABELS: Record<string, { title: string; body: string }> = {
+  pending_admin_review:  { title: "Order Received ✅",         body: "Your order is under review by the fashion house." },
+  measurements_confirmed:{ title: "Measurements Confirmed 📏",  body: "Your measurements have been confirmed. Production begins soon!" },
+  fabric_sourced:        { title: "Fabric Sourced 🧵",          body: "The perfect fabric for your garment has been sourced." },
+  in_production:         { title: "In Production ✂️",          body: "Your garment is now being crafted by our tailors." },
+  quality_check:         { title: "Quality Check 🔍",           body: "Final quality checks are underway on your order." },
+  ready_for_pickup:      { title: "Ready for Pickup 🎉",        body: "Your garment is ready! Come pick it up at your convenience." },
+  ready:                 { title: "Ready for Pickup 🎉",        body: "Your garment is ready! Come pick it up at your convenience." },
+  completed:             { title: "Order Completed 🌟",         body: "Thank you! Your order has been marked as completed." },
+  delivered:             { title: "Order Delivered 📦",         body: "Your garment has been delivered. Enjoy wearing it!" },
+  cancelled:             { title: "Order Cancelled",            body: "Your order has been cancelled. Contact us if you have questions." },
+};
 
 const router = Router();
 
@@ -554,9 +568,13 @@ router.patch("/:id/status", validate({ body: updateOrderStatusSchema }), async (
     const fhId = getOwnFashionHouseId(req);
     const { status } = req.body;
 
-    // Tenant Isolation: Verify order belongs to this tenant
+    // Tenant Isolation: Verify order belongs to this tenant — also pull customer & fashion house for notification
     const order = await prisma.order.findFirst({
       where: { id: req.params.id, fashionHouseId: fhId },
+      include: {
+        customer: { select: { userId: true, name: true } },
+        fashionHouse: { select: { shopName: true } },
+      },
     });
     if (!order) {
       return res.status(404).json({ error: "Order not found." });
@@ -572,6 +590,19 @@ router.patch("/:id/status", validate({ body: updateOrderStatusSchema }), async (
         where: { id: order.bookingId },
         data: { status },
       }).catch(() => {});
+    }
+
+    // Fire push notification to the customer (non-blocking)
+    const notif = STATUS_LABELS[status];
+    const customerUserId = order.customer?.userId;
+    if (notif && customerUserId) {
+      const shopName = order.fashionHouse?.shopName || "The Fashion House";
+      sendNotificationToUser(
+        customerUserId,
+        notif.title,
+        `${shopName}: ${notif.body}`,
+        { orderId: order.id, status }
+      );
     }
 
     res.json(updated);

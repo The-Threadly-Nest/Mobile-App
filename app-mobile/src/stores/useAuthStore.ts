@@ -11,6 +11,7 @@ interface AuthState {
   role: Role;
   name: string;
   shopName: string;
+  shopLogo: string | null;
   email: string;
   phone: string;
   location: string;
@@ -23,6 +24,7 @@ interface AuthState {
   setRole: (role: Role) => void;
   setName: (name: string) => void;
   setShopName: (shopName: string) => void;
+  setShopLogo: (shopLogo: string | null) => void;
   setEmail: (email: string) => void;
   setPhone: (phone: string) => void;
   setLocation: (location: string) => void;
@@ -47,6 +49,7 @@ export const useAuthStore = create<AuthState>()(
       role: null,
       name: "",
       shopName: "",
+      shopLogo: null,
       email: "",
       phone: "",
       location: "Lagos, Nigeria",
@@ -59,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
       setRole: (role) => set({ role }),
       setName: (name) => set({ name }),
       setShopName: (shopName) => set({ shopName }),
+      setShopLogo: (shopLogo) => set({ shopLogo }),
       setEmail: (email) => set({ email }),
       setPhone: (phone) => set({ phone }),
       setLocation: (location) => set({ location }),

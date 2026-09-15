@@ -96,7 +96,13 @@ export default function InvoicesListScreen() {
   const invoices: InvoiceItem[] = React.useMemo(() => {
     if (currentOrders && currentOrders.length > 0) {
       return currentOrders.map((o: any, idx: number) => {
-        const isPaid = o.status === "completed" || o.status === "delivered";
+        const isPaid =
+          o.isPaid === true ||
+          o.paymentStatus === "Paid" ||
+          o.invoiceStatus === "Paid" ||
+          o.status === "Paid" ||
+          o.status === "completed" ||
+          o.status === "delivered";
         const orderNum = o.orderNumber || `#TFH-${(o.id || String(idx)).slice(0, 4).toUpperCase()}`;
         return {
           id: o.id || `inv-${idx + 1}`,

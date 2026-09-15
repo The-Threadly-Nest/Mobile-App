@@ -25,6 +25,14 @@ function MeasurementIcon() {
   );
 }
 
+function MessagesIcon() {
+  return (
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </Svg>
+  );
+}
+
 function OrdersIcon() {
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
@@ -383,6 +391,19 @@ export default function CustomerProfileScreen() {
                 {savedSetsCount} saved {savedSetsCount === 1 ? "set" : "sets"}
               </Text>
             </View>
+          </Pressable>
+
+          {/* My Messages */}
+          <Pressable
+            onPress={() => router.push("/(customer)/messages" as const)}
+            className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]"
+          >
+            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
+              <MessagesIcon />
+            </View>
+            <Text className="font-body text-[14px] text-black flex-1">
+              My Messages
+            </Text>
           </Pressable>
 
           {/* My Orders */}

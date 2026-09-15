@@ -1,4 +1,10 @@
-interface ChatTurn { role: "user" | "model"; text: string }
+export interface ChatTurn {
+  role: "user" | "model" | "admin" | "staff";
+  text: string;
+  audioUrl?: string;
+  audioDuration?: number;
+  createdAt?: string;
+}
 
 const RECENT_TURNS_TO_KEEP = 6;
 const MAX_TURNS_BEFORE_ESCALATE = 8;

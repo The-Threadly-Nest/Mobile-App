@@ -1,4 +1,5 @@
 import { Platform } from "react-native";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import { API_BASE_URL } from "@/api/config";
 import { alertEmitter } from "./alertEmitter";
 
@@ -9,6 +10,9 @@ let notificationListener: any = null;
  */
 export async function initNotifications() {
   try {
+    const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient || Constants.appOwnership === "expo";
+    if (isExpoGo) return;
+
     const Notifications = require("expo-notifications");
 
     // 1. Configure foreground notification handler so alerts/sounds/badges show while app is open
@@ -53,6 +57,9 @@ export async function initNotifications() {
  */
 export async function registerPushToken(authToken: string) {
   try {
+    const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient || Constants.appOwnership === "expo";
+    if (isExpoGo) return;
+
     const Notifications = require("expo-notifications");
     const Device = require("expo-device");
 

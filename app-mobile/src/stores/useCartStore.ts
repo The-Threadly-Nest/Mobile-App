@@ -4,13 +4,22 @@ import * as SecureStore from 'expo-secure-store';
 
 const secureStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
-    return await SecureStore.getItemAsync(name);
+    try {
+      return await SecureStore.getItemAsync(name);
+    } catch {
+      return null;
+    }
   },
   setItem: async (name: string, value: string): Promise<void> => {
-    await SecureStore.setItemAsync(name, value);
+    try {
+      if (value.length > 2000) return; // Prevent Android SecureStore 2048-byte limit warning
+      await SecureStore.setItemAsync(name, value);
+    } catch {}
   },
   removeItem: async (name: string): Promise<void> => {
-    await SecureStore.deleteItemAsync(name);
+    try {
+      await SecureStore.deleteItemAsync(name);
+    } catch {}
   },
 };
 

@@ -1,11 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { View, Text } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+
+// ─── Local Tray Notification for Admin Customer Inquiries & Escalations ───────
+async function scheduleCustomerNotification(senderName: string, text: string) {
+  try {
+    const Notifications = require("expo-notifications");
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: `💬 Customer Inquiry: ${senderName}`,
+        body: text || "You have a new customer message or escalation.",
+        sound: "default",
+        data: { screen: "messages" },
+      },
+      trigger: null, // Fire immediately
+    });
+  } catch (e) {
+    console.warn("[notification] Failed to schedule customer notification:", e);
+  }
+}
 
 function DashboardIcon({ color, focused }: { color: string; focused: boolean }) {
   const activeColor = focused ? "#4A080C" : color;
@@ -158,33 +176,94 @@ export default function AdminLayout() {
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
   const token = useAuthStore((s) => s.token);
+  const pathname = usePathname();
+
   const [unreadCount, setUnreadCount] = useState(0);
+  const prevCountRef = useRef(0);
+  const pathnameRef = useRef(pathname);
 
   useEffect(() => {
-    // Match Android navigation bar to white background
-    NavigationBar.setBackgroundColorAsync("#FFFFFF");
-    NavigationBar.setButtonStyleAsync("dark");
+    pathnameRef.current = pathname;
+  }, [pathname]);
+
+  useEffect(() => {
+    // Match Android navigation bar to white background if supported
+    try {
+      NavigationBar.setBackgroundColorAsync("#FFFFFF");
+      NavigationBar.setButtonStyleAsync("dark");
+    } catch {}
   }, []);
 
+  // ── Clear badge immediately when admin views customer messages or escalations ──────
+  useEffect(() => {
+    if (pathname.includes("messages") || pathname.includes("escalations")) {
+      setUnreadCount(0);
+      prevCountRef.current = 0;
+    }
+  }, [pathname]);
+
+  // ── Poll for Customer Direct Messages & AI Escalations every 15s ───────────────────
   useEffect(() => {
     if (!token) return;
-    const fetchBadge = async () => {
+
+    const fetchCustomerUnread = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/staff`, {
+        // 1. Fetch customer direct message threads
+        const threadsRes = await fetch(`${API_BASE_URL}/api/direct-messages/threads`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            const total = data.reduce((acc: number, st: any) => acc + (st.unreadCount || 0), 0);
-            setUnreadCount(total);
+
+        let threadsUnread = 0;
+        let latestSender = "Customer";
+        let latestMsg = "You have a new customer message.";
+
+        if (threadsRes.ok) {
+          const threads = await threadsRes.json();
+          if (Array.isArray(threads)) {
+            threadsUnread = threads.reduce((acc: number, t: any) => acc + (t.unreadCount || 0), 0);
+            const activeThread = threads.find((t: any) => t.unreadCount > 0);
+            if (activeThread) {
+              latestSender = activeThread.customerName || "Customer";
+              latestMsg = activeThread.latestMessage || latestMsg;
+            }
           }
         }
-      } catch (e) {}
+
+        // 2. Fetch pending AI escalations count
+        const escRes = await fetch(`${API_BASE_URL}/api/escalations`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        let escUnread = 0;
+        if (escRes.ok) {
+          const escData = await escRes.json();
+          const escalationsList = escData.escalations || [];
+          escUnread = escalationsList.filter((e: any) => !e.resolved).length;
+        }
+
+        const totalUnread = threadsUnread + escUnread;
+        const isOnChatScreen =
+          pathnameRef.current.includes("messages") ||
+          pathnameRef.current.includes("escalations");
+
+        if (isOnChatScreen) {
+          setUnreadCount(0);
+          prevCountRef.current = 0;
+        } else {
+          if (totalUnread > prevCountRef.current) {
+            // New message/escalation arrived — trigger local system notification
+            await scheduleCustomerNotification(latestSender, latestMsg);
+          }
+          prevCountRef.current = totalUnread;
+          setUnreadCount(totalUnread);
+        }
+      } catch (e) {
+        // Silent fail
+      }
     };
 
-    fetchBadge();
-    const interval = setInterval(fetchBadge, 30_000);
+    fetchCustomerUnread();
+    const interval = setInterval(fetchCustomerUnread, 15_000);
     return () => clearInterval(interval);
   }, [token]);
 
@@ -249,25 +328,20 @@ export default function AdminLayout() {
       {/* Hidden Non-Tab Routes */}
       <Tabs.Screen name="onboarding" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="profile-edit" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="catalog" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/[id]" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="customer-messages" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="staff" options={{ href: null, tabBarStyle: { display: "none" } }} />
+      <Tabs.Screen name="messages" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="sketch-detail" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="draw" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/[staffId]/moodboard" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="measurements" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="measurements/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="invoices" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="invoices/[orderId]" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="invoices/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="order-detail" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="escalations/assign" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="customers" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="customers/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/invite" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="chat" options={{ href: null, tabBarStyle: { display: "none" } }} />

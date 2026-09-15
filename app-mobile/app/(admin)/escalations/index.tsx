@@ -204,6 +204,7 @@ export default function BookingsScreen() {
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
   const assignedCount = bookings.filter((b) => b.status === "assigned").length;
   const declinedCount = bookings.filter((b) => b.status === "declined").length;
+  const currentList = bookings.filter((b) => b.status === activeTab);
 
   const [checkingBookingId, setCheckingBookingId] = useState<string | null>(null);
 
@@ -217,26 +218,24 @@ export default function BookingsScreen() {
         if (res.ok) {
           const data = await res.json();
           if (data.hasMeasurements === false) {
-            showAlert(
+            showConfirm(
               "Measurement Required",
               `No measurements found for ${booking.customerName}. Please record measurement details before assigning staff.`,
-              [
-                {
-                  text: "Add Measurement",
-                  onPress: () => {
-                    router.push({
-                      pathname: "/(admin)/measurements/new",
-                      params: {
-                        bookingId: booking.id,
-                        customerName: booking.customerName,
-                        serviceTitle: booking.serviceTitle,
-                        appointmentTime: booking.appointmentTime,
-                        returnToAssign: "true",
-                      },
-                    } as any);
-                  },
+              {
+                confirmLabel: "Add Measurement",
+                onConfirm: () => {
+                  router.push({
+                    pathname: "/(admin)/measurements/new",
+                    params: {
+                      bookingId: booking.id,
+                      customerName: booking.customerName,
+                      serviceTitle: booking.serviceTitle,
+                      appointmentTime: booking.appointmentTime,
+                      returnToAssign: "true",
+                    },
+                  } as any);
                 },
-              ]
+              }
             );
             return;
           }

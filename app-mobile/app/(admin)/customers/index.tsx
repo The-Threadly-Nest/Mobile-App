@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Search, X, Ruler, UserCheck } from "lucide-react-native";
+import { Search, X, Ruler, UserCheck, MessageSquare } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -192,10 +192,9 @@ export default function CustomersScreen() {
                   <Text style={styles.avatarText}>{initial}</Text>
                 </View>
 
-                {/* Customer Details */}
+                {/* Customer Details — Phone number hidden */}
                 <View style={styles.detailsContainer}>
                   <Text style={styles.customerName}>{item.name}</Text>
-                  <Text style={styles.customerPhone}>{item.phone}</Text>
                 </View>
 
                 {/* Orders Badge */}
@@ -269,6 +268,23 @@ export default function CustomersScreen() {
             )}
 
             {/* Action Buttons */}
+            <Pressable
+              onPress={() => {
+                setModalVisible(false);
+                router.push({
+                  pathname: "/(admin)/messages",
+                  params: { customerId: selectedCustomer?.id, customerName: selectedCustomer?.name },
+                } as any);
+              }}
+              style={({ pressed }) => [
+                styles.measActionBtn,
+                { opacity: pressed ? 0.85 : 1, marginBottom: 10, backgroundColor: "#4A080C" },
+              ]}
+            >
+              <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.measActionBtnText}>Chat with {selectedCustomer?.name || "Customer"}</Text>
+            </Pressable>
+
             <Pressable
               onPress={handleNavigateToMeasurements}
               style={({ pressed }) => [

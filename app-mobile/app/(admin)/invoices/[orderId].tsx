@@ -8,10 +8,11 @@ import {
   StyleSheet,
   useWindowDimensions,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { Share2, FileText, Image as ImageIcon, X, Printer } from "lucide-react-native";
+import { Share2, FileText, Image as ImageIcon, X, Printer, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import ViewShot from "react-native-view-shot";
 import * as Print from "expo-print";
@@ -20,6 +21,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
+import { API_BASE_URL } from "@/api/config";
 
 interface InvoiceDetail {
   id: string;
@@ -103,12 +105,15 @@ export default function InvoiceDetailScreen() {
   const viewShotRef = useRef<ViewShot>(null);
 
   const authShopName = useAuthStore((s) => s.shopName);
+  const authShopLogo = useAuthStore((s) => s.shopLogo);
+  const token = useAuthStore((s) => s.token);
   const storeOrders = useAppDataStore((s) => s.orders);
 
   // Match from store if possible
   const matchedOrder = storeOrders.find((o: any) => o.id === orderId || o.orderNumber === orderId);
 
   const atelierName = authShopName || "Adaeze Couture";
+  const shopLogo = authShopLogo || matchedOrder?.shopLogo || matchedOrder?.fashionHouseLogo;
   const customerName = paramCustomerName || matchedOrder?.customer || (orderId && INVOICE_DATABASE[orderId]?.customerName) || "Customer";
   const orderNumber = paramOrderNumber || matchedOrder?.orderNumber || (orderId && INVOICE_DATABASE[orderId]?.orderNumber) || (orderId ? (orderId.startsWith("#") ? orderId : `#TFH-${orderId.slice(0, 4).toUpperCase()}`) : "#TFH-2291");
   const invoiceNumber = (orderId && INVOICE_DATABASE[orderId]?.invoiceNumber) || orderNumber.replace("#TFH-", "INV-").replace("#", "INV-");
@@ -148,12 +153,28 @@ export default function InvoiceDetailScreen() {
 
   const isPaid = invoice.status === "Paid";
 
-  const handleMarkAsPaid = () => {
-    setInvoice((prev) => ({ ...prev, status: "Paid" }));
-    showAlert("Payment Updated", `Invoice ${invoice.invoiceNumber} has been marked as Paid.`);
+  const handleMarkAsPaid = async () => {
+    try {
+      setInvoice((prev) => ({ ...prev, status: "Paid" }));
+      if (token && orderId) {
+        await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ status: "Paid" }),
+        }).catch(() => { });
+      }
+      showAlert("Payment Updated", `Invoice ${invoice.invoiceNumber} has been marked as Paid and added to revenue.`);
+    } catch (err: any) {
+      showAlert("Error", err.message || "Failed to update payment status.");
+    }
   };
 
   const getHTMLContent = () => {
+    const subtotal = invoice.total;
+    const vat = Math.round(subtotal * 0.075);
+    const grandTotal = subtotal + vat;
+    const initial = invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A";
+
     return `
       <!DOCTYPE html>
       <html>
@@ -163,10 +184,7 @@ export default function InvoiceDetailScreen() {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
         <style>
-          @page {
-            size: A4 portrait;
-            margin: 0;
-          }
+          @page { size: A4 portrait; margin: 0; }
           * { box-sizing: border-box; margin: 0; padding: 0; }
           html, body {
             height: 100%;
@@ -180,114 +198,164 @@ export default function InvoiceDetailScreen() {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
+          }
+          .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-20deg);
+            font-family: 'Fraunces', serif;
+            font-size: 38px;
+            font-weight: 700;
+            color: #4A080C;
+            opacity: 0.04;
+            text-align: center;
+            pointer-events: none;
+            line-height: 1.2;
           }
           .card {
             background-color: #FFFFFF;
             border-radius: 28px;
-            padding: 40px 36px;
+            padding: 36px 32px;
             border: 1px solid rgba(74, 8, 12, 0.12);
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
+            z-index: 1;
           }
           .atelier-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+          }
+          .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+          }
+          .logo-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background-color: #4A080C;
+            border: 1.5px solid #C4A763;
+            color: #FBF7EF;
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
           .atelier-name {
             font-family: 'Fraunces', serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: #4A080C;
-            margin-bottom: 6px;
+            margin-bottom: 2px;
           }
-          .invoice-subtitle {
-            font-size: 15px;
-            color: #7A7265;
+          .app-tag {
+            font-size: 12px;
+            font-weight: 500;
+            color: #8A7550;
+            letter-spacing: 0.4px;
           }
           .status-pill {
-            padding: 6px 18px;
-            border-radius: 14px;
-            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 13px;
             font-weight: 600;
-            background-color: ${isPaid ? '#D8EED7' : '#F4ECE1'};
-            color: ${isPaid ? '#2E7D32' : '#B57E42'};
+            background-color: ${isPaid ? 'rgba(74, 8, 12, 0.12)' : '#F4ECE1'};
+            color: ${isPaid ? '#4A080C' : '#B57E42'};
           }
           .dashed-line {
-            border-top: 1.5px dashed #D5D8D2;
-            margin: 28px 0;
+            border-top: 1.5px dashed #E4D5B7;
+            margin: 24px 0;
           }
           .info-row {
             display: flex;
             justify-content: space-between;
           }
           .field-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: #8A8275;
             letter-spacing: 0.8px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
           }
           .field-value {
-            font-size: 19px;
+            font-size: 17px;
             font-weight: 600;
             color: #4A080C;
           }
           .items-section {
-            flex: 1;
-            margin-top: 10px;
+            margin-top: 8px;
           }
           .table-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
           }
           .item-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #F4F0E8;
           }
-          .item-name {
-            font-size: 17px;
-            color: #1A1110;
-          }
-          .item-price {
-            font-size: 17px;
-            font-weight: 600;
-            color: #1A1110;
-          }
-          .table-bottom-border {
-            border-bottom: 0.5px solid #4A080C;
-            margin-top: 16px;
-            margin-bottom: 24px;
+          .item-name { font-size: 15px; color: #1A1110; }
+          .item-price { font-size: 15px; font-weight: 600; color: #1A1110; }
+          .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #8A7550;
+            margin-top: 14px;
+            margin-bottom: 6px;
           }
           .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
+            margin-top: 6px;
           }
-          .total-label {
+          .total-label, .total-amount {
             font-family: 'Fraunces', serif;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: #4A080C;
           }
-          .total-amount {
-            font-family: 'Fraunces', serif;
-            font-size: 24px;
-            font-weight: 700;
-            color: #4A080C;
+          .payment-card {
+            background-color: #F9F5EE;
+            border: 1px solid rgba(74, 8, 12, 0.12);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 18px;
           }
+          .payment-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8A7550;
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+            text-align: center;
+          }
+          .payment-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+          }
+          .payment-col-label { font-size: 10px; color: #8A7550; font-weight: 600; margin-bottom: 2px; }
+          .payment-col-val { font-size: 13px; color: #4A080C; font-weight: 600; }
           .footer-note {
             text-align: center;
-            margin-top: 24px;
-            font-size: 13px;
+            margin-top: 20px;
+            font-size: 12px;
             color: #7A7265;
             line-height: 1.5;
           }
@@ -295,12 +363,19 @@ export default function InvoiceDetailScreen() {
       </head>
       <body>
         <div class="page-container">
+          <div class="watermark">THE THREADLY NEST<br/>OFFICIAL INVOICE</div>
           <div class="card">
             <div>
               <div class="atelier-row">
-                <div>
-                  <div class="atelier-name">${invoice.atelierName}</div>
-                  <div class="invoice-subtitle">${invoice.invoiceNumber}  •  ${invoice.date}</div>
+                <div class="brand-left">
+                  ${shopLogo
+                    ? `<img src="${shopLogo}" style="width: 48px; height: 48px; border-radius: 24px; border: 1.5px solid #C4A763; object-fit: cover;" />`
+                    : `<div class="logo-badge">${initial}</div>`
+                  }
+                  <div>
+                    <div class="atelier-name">${invoice.atelierName}</div>
+                    <div class="app-tag">The Threadly Nest • ${invoice.invoiceNumber}</div>
+                  </div>
                 </div>
                 <div class="status-pill">${invoice.status}</div>
               </div>
@@ -313,8 +388,9 @@ export default function InvoiceDetailScreen() {
                   <div class="field-value">${invoice.customerName}</div>
                 </div>
                 <div style="text-align: right;">
-                  <div class="field-label">ORDER</div>
+                  <div class="field-label">ORDER & DATE</div>
                   <div class="field-value">${invoice.orderNumber}</div>
+                  <div style="font-size: 12px; color: #7A7265; margin-top: 2px;">${invoice.date}</div>
                 </div>
               </div>
 
@@ -323,33 +399,57 @@ export default function InvoiceDetailScreen() {
               <div class="items-section">
                 <div class="table-header">
                   <div class="field-label">ITEM</div>
-                  <div class="field-label">TOTAL</div>
+                  <div class="field-label">AMOUNT</div>
                 </div>
 
                 ${invoice.items
                   .map(
                     (item) => `
-                  <div class="item-row">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-price">&#8358;${item.amount.toLocaleString()}</div>
-                  </div>
-                `
+                    <div class="item-row">
+                      <div class="item-name">${item.name}</div>
+                      <div class="item-price">&#8358;${item.amount.toLocaleString()}</div>
+                    </div>
+                  `
                   )
                   .join('')}
+              </div>
+
+              <div class="summary-row">
+                <div>Subtotal</div>
+                <div style="font-weight: 600; color: #3A2E1A;">&#8358;${subtotal.toLocaleString()}</div>
+              </div>
+              <div class="summary-row">
+                <div>VAT / Tax (7.5%)</div>
+                <div style="font-weight: 600; color: #3A2E1A;">&#8358;${vat.toLocaleString()}</div>
+              </div>
+
+              <div class="total-row">
+                <div class="total-label">Total Due</div>
+                <div class="total-amount">&#8358;${grandTotal.toLocaleString()}</div>
               </div>
             </div>
 
             <div>
-              <div class="table-bottom-border"></div>
-
-              <div class="total-row">
-                <div class="total-label">Total</div>
-                <div class="total-amount">&#8358;${invoice.total.toLocaleString()}</div>
+              <div class="payment-card">
+                <div class="payment-title">PAYMENT INFORMATION</div>
+                <div class="payment-grid">
+                  <div>
+                    <div class="payment-col-label">BANK</div>
+                    <div class="payment-col-val">Access Bank</div>
+                  </div>
+                  <div>
+                    <div class="payment-col-label">ACCOUNT NO.</div>
+                    <div class="payment-col-val">0123456789</div>
+                  </div>
+                  <div>
+                    <div class="payment-col-label">BENEFICIARY</div>
+                    <div class="payment-col-val">${invoice.atelierName}</div>
+                  </div>
+                </div>
               </div>
 
               <div class="footer-note">
-                Thank you for choosing <strong>${invoice.atelierName}</strong>.<br/>
-                Bespoke craftsmanship tailored to perfection.
+                <strong>The Threadly Nest</strong>
               </div>
             </div>
           </div>
@@ -369,6 +469,7 @@ export default function InvoiceDetailScreen() {
     const customFileName = `${cleanCustomer} - Invoice from ${cleanAtelier}.pdf`;
     const targetUri = `${FileSystem.cacheDirectory}${customFileName}`;
 
+    await FileSystem.deleteAsync(targetUri, { idempotent: true });
     await FileSystem.copyAsync({
       from: uri,
       to: targetUri,
@@ -395,6 +496,11 @@ export default function InvoiceDetailScreen() {
     try {
       setIsGenerating(true);
       const uri = await generatePDFUri();
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        showAlert("Notice", "Sharing is not supported on this device/environment.");
+        return;
+      }
       await Sharing.shareAsync(uri, {
         UTI: ".pdf",
         mimeType: "application/pdf",
@@ -413,6 +519,11 @@ export default function InvoiceDetailScreen() {
     try {
       setIsGenerating(true);
       const uri = await generatePDFUri();
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        showAlert("Notice", "Sharing is not supported on this device/environment.");
+        return;
+      }
       await Sharing.shareAsync(uri, {
         UTI: ".pdf",
         mimeType: "application/pdf",
@@ -438,10 +549,17 @@ export default function InvoiceDetailScreen() {
       const customFileName = `${cleanCustomer} - Invoice from ${cleanAtelier}.png`;
       const targetUri = `${FileSystem.cacheDirectory}${customFileName}`;
 
+      await FileSystem.deleteAsync(targetUri, { idempotent: true });
       await FileSystem.copyAsync({
         from: uri,
         to: targetUri,
       });
+
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        showAlert("Notice", "Sharing is not supported on this device/environment.");
+        return;
+      }
 
       await Sharing.shareAsync(targetUri, {
         UTI: ".png",
@@ -483,13 +601,70 @@ export default function InvoiceDetailScreen() {
           {/* Capturable White Card Container */}
           <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1.0 }}>
             <View style={styles.card}>
-              {/* Atelier & Status Header */}
-              <View style={styles.atelierRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.atelierName}>{invoice.atelierName}</Text>
-                  <Text style={styles.invoiceSubtitle}>
-                    {invoice.invoiceNumber}  •  {invoice.date}
-                  </Text>
+              {/* Background Watermark */}
+              <View
+                pointerEvents="none"
+                style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 0,
+                  opacity: 0.04,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "Fraunces-Bold",
+                    fontSize: 26,
+                    color: "#4A080C",
+                    transform: [{ rotate: "-20deg" }],
+                    textAlign: "center",
+                  }}
+                >
+                  THE THREADLY NEST{"\n"}OFFICIAL INVOICE
+                </Text>
+              </View>
+
+              {/* Atelier Logo & Status Header */}
+              <View style={[styles.atelierRow, { zIndex: 1 }]}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12, flex: 1 }}>
+                  {shopLogo ? (
+                    <Image
+                      source={{ uri: shopLogo }}
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 22,
+                        borderWidth: 1.5,
+                        borderColor: "#C4A763",
+                      }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 22,
+                        backgroundColor: "#4A080C",
+                        borderWidth: 1.5,
+                        borderColor: "#C4A763",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Text style={{ fontFamily: "Fraunces-Bold", fontSize: 20, color: "#FBF7EF" }}>
+                        {invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A"}
+                      </Text>
+                    </View>
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.atelierName}>{invoice.atelierName}</Text>
+                    <Text style={styles.invoiceSubtitle}>
+                      The Threadly Nest • {invoice.invoiceNumber}
+                    </Text>
+                  </View>
                 </View>
 
                 <View
@@ -513,15 +688,18 @@ export default function InvoiceDetailScreen() {
               <View style={styles.dashedLine} />
 
               {/* Billed To & Order Row */}
-              <View style={styles.infoRow}>
+              <View style={[styles.infoRow, { zIndex: 1 }]}>
                 <View style={styles.infoCol}>
                   <Text style={styles.fieldLabel}>BILLED TO</Text>
                   <Text style={styles.fieldValue}>{invoice.customerName}</Text>
                 </View>
 
                 <View style={[styles.infoCol, { alignItems: "flex-end" }]}>
-                  <Text style={styles.fieldLabel}>ORDER</Text>
+                  <Text style={styles.fieldLabel}>ORDER & DATE</Text>
                   <Text style={styles.fieldValue}>{invoice.orderNumber}</Text>
+                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#7A7265", marginTop: 2 }}>
+                    {invoice.date}
+                  </Text>
                 </View>
               </View>
 
@@ -529,7 +707,7 @@ export default function InvoiceDetailScreen() {
               <View style={styles.dashedLine} />
 
               {/* Line Items Table */}
-              <View style={styles.itemsTable}>
+              <View style={[styles.itemsTable, { zIndex: 1 }]}>
                 <View style={styles.tableHeaderRow}>
                   <Text style={styles.fieldLabel}>ITEM</Text>
                   <Text style={styles.fieldLabel}>TOTAL</Text>
@@ -541,13 +719,10 @@ export default function InvoiceDetailScreen() {
                     <Text style={styles.itemPrice}>₦{item.amount.toLocaleString()}</Text>
                   </View>
                 ))}
-
-                {/* Items Bottom Solid Underline */}
-                <View style={styles.tableBottomBorder} />
               </View>
 
               {/* Tax & Breakdown Calculation Row */}
-              <View style={{ marginBottom: 12 }}>
+              <View style={{ marginTop: 14, marginBottom: 12, zIndex: 1 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
                   <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>Subtotal</Text>
                   <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>₦{invoice.total.toLocaleString()}</Text>
@@ -559,46 +734,66 @@ export default function InvoiceDetailScreen() {
               </View>
 
               {/* Grand Total Row */}
-              <View style={styles.totalRow}>
+              <View style={[styles.totalRow, { zIndex: 1 }]}>
                 <Text style={styles.totalLabel}>Total Due</Text>
                 <Text style={styles.totalAmount}>₦{Math.round(invoice.total * 1.075).toLocaleString()}</Text>
               </View>
 
-              {/* Bank & Account Details Footer Section */}
-              <View style={{ marginTop: 20, paddingTop: 16, borderTopWidth: 1, borderColor: "#E4D5B7" }}>
-                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 12, color: "#4A080C", marginBottom: 4 }}>PAYMENT DETAILS</Text>
-                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}>Bank: Access Bank / GTBank</Text>
-                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}>Account No: 0123456789</Text>
-                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}>Account Name: {invoice.atelierName}</Text>
+              {/* Payment Information Card Box */}
+              <View
+                style={{
+                  marginTop: 18,
+                  padding: 14,
+                  backgroundColor: "#F9F5EE",
+                  borderRadius: 14,
+                  borderWidth: 1,
+                  borderColor: "rgba(74, 8, 12, 0.12)",
+                  zIndex: 1,
+                }}
+              >
+                <Text
+                  style={{
+                    fontFamily: "WorkSans_600SemiBold",
+                    fontSize: 11,
+                    color: "#8A7550",
+                    letterSpacing: 0.8,
+                    marginBottom: 8,
+                    textAlign: "center",
+                  }}
+                >
+                  PAYMENT INFORMATION
+                </Text>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+                  <View>
+                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BANK</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>Access Bank</Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>ACCOUNT NO.</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>0123456789</Text>
+                  </View>
+                  <View>
+                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BENEFICIARY</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.atelierName}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Footer Tag */}
+              <View style={{ marginTop: 16, alignItems: "center", zIndex: 1 }}>
+                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#4A080C", textAlign: "center" }}>
+                  The Threadly Nest
+                </Text>
               </View>
             </View>
           </ViewShot>
 
-          {/* Action Buttons Row */}
+          {/* Action Pills Row: Share & Mark as Paid */}
           <View style={styles.actionButtonsContainer}>
             <View style={styles.actionButtonsRow}>
-              {/* Print Button */}
+              {/* Share Pill */}
               <Pressable
-                onPress={handlePrint}
-                disabled={isGenerating}
-                style={({ pressed }) => [
-                  styles.primaryBtn,
-                  { opacity: pressed || isGenerating ? 0.85 : 1 },
-                ]}
-              >
-                {isGenerating ? (
-                  <ActivityIndicator color="#FFFFFF" size="small" />
-                ) : (
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                    <Printer size={18} color="#FFFFFF" />
-                    <Text style={styles.primaryBtnText}>Print</Text>
-                  </View>
-                )}
-              </Pressable>
-
-              {/* Download PDF Button */}
-              <Pressable
-                onPress={handleDownloadPDF}
+                onPress={() => setShareModalVisible(true)}
                 disabled={isGenerating}
                 style={({ pressed }) => [
                   styles.outlineBtn,
@@ -606,85 +801,46 @@ export default function InvoiceDetailScreen() {
                 ]}
               >
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <FileText size={18} color="#4A080C" />
-                  <Text style={styles.outlineBtnText}>Download</Text>
+                  <Share2 size={18} color="#4A080C" />
+                  <Text style={styles.outlineBtnText}>Share</Text>
                 </View>
               </Pressable>
-            </View>
 
-            {/* Mark as Paid OR Share Button */}
-            {!isPaid ? (
+              {/* Mark as Paid Pill */}
               <Pressable
                 onPress={handleMarkAsPaid}
+                disabled={isPaid}
                 style={({ pressed }) => [
-                  styles.secondaryBtn,
-                  { opacity: pressed ? 0.85 : 1 },
+                  styles.primaryBtn,
+                  { opacity: pressed ? 0.75 : isPaid ? 0.5 : 1 },
                 ]}
               >
-                <Text style={styles.secondaryBtnText}>Mark as Paid</Text>
+                <Text style={styles.primaryBtnText}>{isPaid ? "Paid" : "Mark as Paid"}</Text>
               </Pressable>
-            ) : (
-              <Pressable
-                onPress={() => setShareModalVisible(true)}
-                style={({ pressed }) => [
-                  styles.secondaryBtn,
-                  { opacity: pressed ? 0.85 : 1 },
-                ]}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Share2 size={18} color="#4A080C" />
-                  <Text style={styles.secondaryBtnText}>Share Invoice</Text>
-                </View>
-              </Pressable>
-            )}
+            </View>
           </View>
         </ScrollView>
       </View>
 
-      {/* Share Chooser Modal */}
+      {/* Share Modal */}
       <Modal
         visible={shareModalVisible}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setShareModalVisible(false)}
       >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setShareModalVisible(false)}
-        >
+        <Pressable style={styles.modalOverlay} onPress={() => setShareModalVisible(false)}>
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Share & Print Invoice</Text>
-              <Pressable onPress={() => setShareModalVisible(false)} hitSlop={8}>
+              <Text style={styles.modalTitle}>Share Invoice</Text>
+              <Pressable onPress={() => setShareModalVisible(false)}>
                 <X size={20} color="#7A7265" />
               </Pressable>
             </View>
+            <Text style={styles.modalSubtitle}>Choose how you'd like to share this invoice.</Text>
 
-            <Text style={styles.modalSubtitle}>
-              Choose how you would like to output or share this invoice:
-            </Text>
-
-            {/* Option 1: Print Directly */}
-            <Pressable
-              onPress={() => {
-                setShareModalVisible(false);
-                handlePrint();
-              }}
-              style={({ pressed }) => [
-                styles.modalOption,
-                { backgroundColor: pressed ? "#F5EFE6" : "#FFFFFF" },
-              ]}
-            >
-              <View style={styles.optionIconContainer}>
-                <Printer size={22} color="#4A080C" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.optionTitle}>Print Invoice</Text>
-                <Text style={styles.optionDesc}>Send directly to wireless / AirPrint printer</Text>
-              </View>
-            </Pressable>
-
-            {/* Option 2: PDF */}
+            {/* Option 1: PDF */}
             <Pressable
               onPress={handleShareAsPDF}
               style={({ pressed }) => [
@@ -701,7 +857,7 @@ export default function InvoiceDetailScreen() {
               </View>
             </Pressable>
 
-            {/* Option 3: Image */}
+            {/* Option 2: Image */}
             <Pressable
               onPress={handleShareAsImage}
               style={({ pressed }) => [
@@ -873,7 +1029,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4ECE1",
   },
   paidPill: {
-    backgroundColor: "#D8EED7",
+    backgroundColor: "rgba(74, 8, 12, 0.12)",
   },
   statusText: {
     fontFamily: "WorkSans_600SemiBold",
@@ -883,7 +1039,7 @@ const styles = StyleSheet.create({
     color: "#B57E42",
   },
   paidText: {
-    color: "#2E7D32",
+    color: "#4A080C",
   },
   actionButtonsContainer: {
     marginTop: 28,

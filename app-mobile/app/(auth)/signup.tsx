@@ -291,9 +291,7 @@ export default function SignupScreen() {
 
             {/* Or Divider */}
             <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>Or</Text>
-              <View style={styles.dividerLine} />
             </View>
 
             {/* Continue with Google Button */}
@@ -351,7 +349,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    marginBottom: 60,
+    marginBottom: 36,
     marginTop: 0,
   },
   backBtn: {
@@ -471,6 +469,7 @@ const styles = StyleSheet.create({
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     marginBottom: 24,
   },
   dividerLine: {

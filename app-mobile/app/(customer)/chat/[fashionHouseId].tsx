@@ -523,6 +523,7 @@ export default function BookingChatScreen() {
           className="flex-1 px-6 pt-2"
           contentContainerStyle={{ paddingBottom: 20, gap: 16 }}
           showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
         >
           {loadingSession ? (
             <View className="py-8 items-center">

@@ -283,6 +283,8 @@ model DirectMessage {
   senderId       String    // User.id of the message sender
   text           String    @db.Text
   imageUrl       String?
+  audioUrl       String?
+  audioDuration  Int?
   readAt         DateTime?
   createdAt      DateTime  @default(now())
 
