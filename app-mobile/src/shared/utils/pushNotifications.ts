@@ -57,7 +57,8 @@ export async function initNotifications() {
  */
 export async function registerPushToken(authToken: string) {
   try {
-    const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient || Constants.appOwnership === "expo";
+    // Expo Go does not support custom push tokens — standalone/internal builds only
+    const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
     if (isExpoGo) return;
 
     const Notifications = require("expo-notifications");
@@ -74,9 +75,19 @@ export async function registerPushToken(authToken: string) {
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
-    if (finalStatus !== "granted") return;
+    if (finalStatus !== "granted") {
+      console.warn("[pushToken] Notification permission not granted.");
+      return;
+    }
 
-    const pushTokenData = await Notifications.getExpoPushTokenAsync();
+    // Expo SDK 49+ requires projectId to be passed explicitly
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    if (!projectId) {
+      console.warn("[pushToken] No EAS projectId found in app config.");
+      return;
+    }
+
+    const pushTokenData = await Notifications.getExpoPushTokenAsync({ projectId });
     const pushToken = pushTokenData.data;
 
     if (pushToken && authToken) {
@@ -90,6 +101,6 @@ export async function registerPushToken(authToken: string) {
       });
     }
   } catch (e) {
-    console.warn("[pushToken] Push notification registration skipped or unavailable:", e);
+    console.warn("[pushToken] Push notification registration failed:", e);
   }
 }
