@@ -27,6 +27,10 @@ import { swaggerSpec } from "./utils/swagger";
 
 export const app = express();
 
+// Trust Vercel's edge proxy so X-Forwarded-For is read correctly by express-rate-limit.
+// Without this, every request appears to come from the same internal IP, breaking rate limiting.
+app.set("trust proxy", 1);
+
 // Disable 304 caching in development so every request returns fresh data
 app.set("etag", false);
 
