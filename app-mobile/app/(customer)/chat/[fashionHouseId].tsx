@@ -175,10 +175,13 @@ export default function BookingChatScreen() {
     if (bookingConfirmed) setBookingConfirmed(false);
 
     const userTurn: Turn = { role: "user", text: textToSend };
-    setHistory((prev) => [...prev, userTurn]);
+    setHistory((prev) => {
+      const next = [...prev, userTurn];
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+      return next;
+    });
     setDraft("");
     setSending(true);
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
 
     if (escalatedToHuman) {
       try {
@@ -193,7 +196,6 @@ export default function BookingChatScreen() {
         console.warn("Escalated message error:", err);
       } finally {
         setSending(false);
-        setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
       }
       return;
     }
@@ -441,7 +443,6 @@ export default function BookingChatScreen() {
       setHistory((prev) => [...prev, responseTurn]);
     } finally {
       setSending(false);
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
 
@@ -523,7 +524,7 @@ export default function BookingChatScreen() {
           className="flex-1 px-6 pt-2"
           contentContainerStyle={{ paddingBottom: 20, gap: 16 }}
           showsVerticalScrollIndicator={false}
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
+          onContentSizeChange={undefined}
         >
           {loadingSession ? (
             <View className="py-8 items-center">

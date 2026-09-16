@@ -798,8 +798,6 @@ export default function AdminMessagesScreen() {
               renderItem={renderMessageItem}
               ListHeaderComponent={renderTranscriptSection}
               contentContainerStyle={styles.scrollContent}
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-              onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
             />
           )}
 

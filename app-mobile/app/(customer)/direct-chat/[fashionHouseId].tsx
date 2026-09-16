@@ -218,8 +218,11 @@ export default function CustomerDirectChatScreen() {
       createdAt: new Date().toISOString(),
       isRead: false,
     };
-    setMessages((prev) => [...prev, optimisticMsg]);
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    setMessages((prev) => {
+      const next = [...prev, optimisticMsg];
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+      return next;
+    });
 
     try {
       const result = await apiFetch<DirectMessage>(`/api/direct-messages/thread/${fashionHouseId}`, {
@@ -233,7 +236,6 @@ export default function CustomerDirectChatScreen() {
       console.error('Failed to send message:', err);
     } finally {
       setSending(false);
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
 
@@ -527,8 +529,6 @@ export default function CustomerDirectChatScreen() {
       >
         <ScrollView
           ref={scrollRef}
-          onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
           showsVerticalScrollIndicator={false}

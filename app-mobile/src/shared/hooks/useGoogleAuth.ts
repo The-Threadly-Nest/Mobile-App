@@ -3,6 +3,7 @@ import { NativeModules } from "react-native";
 import { API_BASE_URL } from "@/api/config";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { router } from "expo-router";
+import { registerPushToken } from "@/shared/utils/pushNotifications";
 
 // Dynamically import Google Sign-In to prevent crashing in Expo Go
 let GoogleSignin: any = null;
@@ -85,6 +86,11 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       setCreatedAt(data.user.createdAt ?? new Date().toISOString());
       setIsVerified(userVerified);
       setOnboardingCompleted(userOnboardingCompleted);
+
+      // Register push token asynchronously after Google Sign-In
+      registerPushToken(data.token).catch((err) =>
+        console.warn("[GoogleAuth] Push token registration failed:", err)
+      );
 
       if (data.user.role === "admin") {
         if (!userOnboardingCompleted) {

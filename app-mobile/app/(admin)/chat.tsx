@@ -237,12 +237,15 @@ export default function AdminStaffChatScreen() {
     })();
   }, [selectedStaff, token]);
 
-  // Auto-scroll to bottom on load / messages change
+  // Auto-scroll to bottom when message history loads (not on every optimistic update —
+  // handleSend owns the scroll for new outgoing messages to avoid competing reflows)
+  const prevLengthRef = useRef(0);
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
-        scrollRef.current?.scrollToEnd({ animated: false });
-      }, 60);
+    const prev = prevLengthRef.current;
+    prevLengthRef.current = messages.length;
+    // Only scroll on initial load or incoming messages (not optimistic adds handled in handleSend)
+    if (messages.length > 0 && prev === 0) {
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 80);
     }
   }, [messages.length]);
 
@@ -258,10 +261,15 @@ export default function AdminStaffChatScreen() {
       status: "Delivered",
     };
 
-    setMessages((prev) => [...prev, newMsg]);
     setInputText("");
     setSending(true);
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    // Add optimistic message then scroll once — single source of truth for scroll
+    setMessages((prev) => {
+      const next = [...prev, newMsg];
+      // Defer scroll until after React flushes the state update
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+      return next;
+    });
 
     try {
       if (token) {
@@ -278,7 +286,6 @@ export default function AdminStaffChatScreen() {
       console.warn("Failed to send admin message", e);
     } finally {
       setSending(false);
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
 
@@ -514,8 +521,6 @@ export default function AdminStaffChatScreen() {
       <View style={{ flex: 1 }}>
         <ScrollView
           ref={scrollRef}
-          onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
           showsVerticalScrollIndicator={false}

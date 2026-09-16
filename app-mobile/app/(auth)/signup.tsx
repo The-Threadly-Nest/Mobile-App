@@ -19,6 +19,7 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
+import { registerPushToken } from "@/shared/utils/pushNotifications";
 
 export default function SignupScreen() {
   const { width, height } = useWindowDimensions();
@@ -111,6 +112,11 @@ export default function SignupScreen() {
       setRoleStore(body.user.role);
       setIsVerified(role !== "admin");
       setResendAvailableAt(Date.now() + 60000);
+
+      // Register push token asynchronously so notifications work immediately
+      registerPushToken(body.token).catch((err) =>
+        console.warn("[Signup] Push token registration failed:", err)
+      );
       router.replace(
         role === "admin"
           ? { pathname: "/(auth)/verify", params: { email: email.trim().toLowerCase() } }

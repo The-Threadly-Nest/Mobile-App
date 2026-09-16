@@ -227,12 +227,13 @@ export default function StaffChatScreen() {
     })();
   }, [fashionHouseId, token, adminName]);
 
-  // Auto-scroll to bottom on load / messages change
+  // Only scroll on initial history load — handleSend owns the scroll for outgoing messages
+  const prevLengthRef = useRef(0);
   useEffect(() => {
-    if (messages.length > 0) {
-      setTimeout(() => {
-        scrollRef.current?.scrollToEnd({ animated: false });
-      }, 60);
+    const prev = prevLengthRef.current;
+    prevLengthRef.current = messages.length;
+    if (messages.length > 0 && prev === 0) {
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 80);
     }
   }, [messages.length]);
 
@@ -248,10 +249,13 @@ export default function StaffChatScreen() {
       status: "Delivered",
     };
 
-    setMessages((prev) => [...prev, newMsg]);
     setInputText("");
     setSending(true);
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+    setMessages((prev) => {
+      const next = [...prev, newMsg];
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+      return next;
+    });
 
     try {
       if (token) {
@@ -268,7 +272,6 @@ export default function StaffChatScreen() {
       console.error("Failed to send chat message", e);
     } finally {
       setSending(false);
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
 
@@ -497,8 +500,6 @@ export default function StaffChatScreen() {
       <View style={{ flex: 1 }}>
         <ScrollView
           ref={scrollRef}
-          onLayout={() => scrollRef.current?.scrollToEnd({ animated: false })}
-          onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
           showsVerticalScrollIndicator={false}

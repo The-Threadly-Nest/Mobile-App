@@ -6,7 +6,13 @@ export async function sendNotificationToUser(userId: string, title: string, body
       where: { id: userId },
       select: { pushToken: true },
     });
-    if (!user?.pushToken) return;
+
+    if (!user?.pushToken) {
+      console.log(`[push-notification] Skipped — no pushToken for user ${userId}`);
+      return;
+    }
+
+    console.log(`[push-notification] Sending to user ${userId}: "${title}"`);
 
     const res = await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
@@ -29,8 +35,11 @@ export async function sendNotificationToUser(userId: string, title: string, body
       console.warn("[push-notification] Expo delivery error:", ticket.message, ticket.details);
       // Stale/unregistered token — clear it so future sends don't keep failing silently
       if (ticket.details?.error === "DeviceNotRegistered") {
+        console.warn(`[push-notification] Clearing stale pushToken for user ${userId}`);
         await prisma.user.update({ where: { id: userId }, data: { pushToken: null } });
       }
+    } else {
+      console.log(`[push-notification] Delivered successfully to user ${userId}`);
     }
   } catch (err) {
     console.warn("[push-notification] Failed to send push notification:", err);

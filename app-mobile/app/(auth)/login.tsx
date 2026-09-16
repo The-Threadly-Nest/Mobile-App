@@ -19,6 +19,7 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
+import { registerPushToken } from "@/shared/utils/pushNotifications";
 
 export default function LoginScreen() {
   const { width, height } = useWindowDimensions();
@@ -88,6 +89,11 @@ export default function LoginScreen() {
       setCreatedAt(body.user.createdAt ?? null);
       setIsVerified(userVerified);
       setOnboardingCompleted(userOnboardingCompleted);
+
+      // Register push token asynchronously so notifications work immediately without cold start
+      registerPushToken(body.token).catch((err) =>
+        console.warn("[Login] Push token registration failed:", err)
+      );
 
       if (body.user.role === "admin") {
         if (!userVerified) {
