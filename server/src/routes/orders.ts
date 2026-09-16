@@ -4,7 +4,7 @@ import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/au
 import { validate } from "../middleware/validate";
 import { createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
 import { parseFittingDate, formatEstimatedReady } from "../utils/dateUtils";
-import { sendNotificationToUser } from "../lib/notifications";
+import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
 
 const STATUS_LABELS: Record<string, { title: string; body: string }> = {
   pending_admin_review:  { title: "Order Received ✅",         body: "Your order is under review by the fashion house." },
@@ -231,6 +231,14 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
       where: { customerId, fashionHouseId: fh.id },
       data: { history: [] },
     }).catch(() => {});
+
+    // Notify admin of new booking (non-blocking)
+    sendNotificationToAdmin(
+      fh.id,
+      "New Booking Request 📋",
+      `A customer has requested a fitting appointment.`,
+      { bookingId: booking.id }
+    );
 
     res.status(201).json(booking);
   } catch (err) {

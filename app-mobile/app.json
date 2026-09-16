@@ -38,7 +38,11 @@
         }
       ],
       "expo-audio",
-      "expo-notifications"
+      ["expo-notifications", {
+        "icon": "./assets/icon.png",
+        "color": "#4A080C",
+        "sounds": []
+      }]
     ],
     "extra": {
       "router": {

@@ -10,7 +10,7 @@ let notificationListener: any = null;
  */
 export async function initNotifications() {
   try {
-    const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient || Constants.appOwnership === "expo";
+    const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
     if (isExpoGo) return;
 
     const Notifications = require("expo-notifications");

@@ -93,7 +93,7 @@ export default function SplashScreen() {
       toValue: 1,
       duration: 4000,
       useNativeDriver: false, // width animation requires layout reflow
-    }).start(() => {
+    }).start(async () => {
       const currentToken = useAuthStore.getState().token;
       const currentRole = useAuthStore.getState().role;
       const currentIsVerified = useAuthStore.getState().isVerified;
@@ -102,7 +102,7 @@ export default function SplashScreen() {
 
       // Navigate once the progress bar is completely filled
       if (currentToken && currentRole && !isUnauthorized) {
-        registerPushToken(currentToken);
+        await registerPushToken(currentToken);
         if (currentRole === "admin") {
           if (!currentIsVerified) {
             router.replace({ pathname: "/(auth)/verify", params: { email: currentEmail } });
