@@ -45,6 +45,7 @@ export type DirectMessageMinAggregateOutputType = {
   audioUrl: string | null
   audioDuration: number | null
   readAt: Date | null
+  deletedForEveryoneAt: Date | null
   createdAt: Date | null
 }
 
@@ -59,6 +60,7 @@ export type DirectMessageMaxAggregateOutputType = {
   audioUrl: string | null
   audioDuration: number | null
   readAt: Date | null
+  deletedForEveryoneAt: Date | null
   createdAt: Date | null
 }
 
@@ -73,6 +75,7 @@ export type DirectMessageCountAggregateOutputType = {
   audioUrl: number
   audioDuration: number
   readAt: number
+  deletedForEveryoneAt: number
   createdAt: number
   _all: number
 }
@@ -97,6 +100,7 @@ export type DirectMessageMinAggregateInputType = {
   audioUrl?: true
   audioDuration?: true
   readAt?: true
+  deletedForEveryoneAt?: true
   createdAt?: true
 }
 
@@ -111,6 +115,7 @@ export type DirectMessageMaxAggregateInputType = {
   audioUrl?: true
   audioDuration?: true
   readAt?: true
+  deletedForEveryoneAt?: true
   createdAt?: true
 }
 
@@ -125,6 +130,7 @@ export type DirectMessageCountAggregateInputType = {
   audioUrl?: true
   audioDuration?: true
   readAt?: true
+  deletedForEveryoneAt?: true
   createdAt?: true
   _all?: true
 }
@@ -226,6 +232,7 @@ export type DirectMessageGroupByOutputType = {
   audioUrl: string | null
   audioDuration: number | null
   readAt: Date | null
+  deletedForEveryoneAt: Date | null
   createdAt: Date
   _count: DirectMessageCountAggregateOutputType | null
   _avg: DirectMessageAvgAggregateOutputType | null
@@ -263,6 +270,7 @@ export type DirectMessageWhereInput = {
   audioUrl?: Prisma.StringNullableFilter<"DirectMessage"> | string | null
   audioDuration?: Prisma.IntNullableFilter<"DirectMessage"> | number | null
   readAt?: Prisma.DateTimeNullableFilter<"DirectMessage"> | Date | string | null
+  deletedForEveryoneAt?: Prisma.DateTimeNullableFilter<"DirectMessage"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DirectMessage"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   sender?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -280,6 +288,7 @@ export type DirectMessageOrderByWithRelationInput = {
   audioUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   audioDuration?: Prisma.SortOrderInput | Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedForEveryoneAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
   sender?: Prisma.UserOrderByWithRelationInput
@@ -300,6 +309,7 @@ export type DirectMessageWhereUniqueInput = Prisma.AtLeast<{
   audioUrl?: Prisma.StringNullableFilter<"DirectMessage"> | string | null
   audioDuration?: Prisma.IntNullableFilter<"DirectMessage"> | number | null
   readAt?: Prisma.DateTimeNullableFilter<"DirectMessage"> | Date | string | null
+  deletedForEveryoneAt?: Prisma.DateTimeNullableFilter<"DirectMessage"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DirectMessage"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   sender?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -317,6 +327,7 @@ export type DirectMessageOrderByWithAggregationInput = {
   audioUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   audioDuration?: Prisma.SortOrderInput | Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletedForEveryoneAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.DirectMessageCountOrderByAggregateInput
   _avg?: Prisma.DirectMessageAvgOrderByAggregateInput
@@ -339,6 +350,7 @@ export type DirectMessageScalarWhereWithAggregatesInput = {
   audioUrl?: Prisma.StringNullableWithAggregatesFilter<"DirectMessage"> | string | null
   audioDuration?: Prisma.IntNullableWithAggregatesFilter<"DirectMessage"> | number | null
   readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DirectMessage"> | Date | string | null
+  deletedForEveryoneAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DirectMessage"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DirectMessage"> | Date | string
 }
 
@@ -350,6 +362,7 @@ export type DirectMessageCreateInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
   sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
@@ -367,6 +380,7 @@ export type DirectMessageUncheckedCreateInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -378,6 +392,7 @@ export type DirectMessageUpdateInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
   sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
@@ -395,6 +410,7 @@ export type DirectMessageUncheckedUpdateInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -409,6 +425,7 @@ export type DirectMessageCreateManyInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -420,6 +437,7 @@ export type DirectMessageUpdateManyMutationInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -434,6 +452,7 @@ export type DirectMessageUncheckedUpdateManyInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -458,6 +477,7 @@ export type DirectMessageCountOrderByAggregateInput = {
   audioUrl?: Prisma.SortOrder
   audioDuration?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  deletedForEveryoneAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -476,6 +496,7 @@ export type DirectMessageMaxOrderByAggregateInput = {
   audioUrl?: Prisma.SortOrder
   audioDuration?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  deletedForEveryoneAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -490,6 +511,7 @@ export type DirectMessageMinOrderByAggregateInput = {
   audioUrl?: Prisma.SortOrder
   audioDuration?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
+  deletedForEveryoneAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -631,6 +653,7 @@ export type DirectMessageCreateWithoutSenderInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
   customer: Prisma.UserCreateNestedOneWithoutReceivedDirectMessagesInput
@@ -646,6 +669,7 @@ export type DirectMessageUncheckedCreateWithoutSenderInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -667,6 +691,7 @@ export type DirectMessageCreateWithoutCustomerInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
   sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
@@ -682,6 +707,7 @@ export type DirectMessageUncheckedCreateWithoutCustomerInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -725,6 +751,7 @@ export type DirectMessageScalarWhereInput = {
   audioUrl?: Prisma.StringNullableFilter<"DirectMessage"> | string | null
   audioDuration?: Prisma.IntNullableFilter<"DirectMessage"> | number | null
   readAt?: Prisma.DateTimeNullableFilter<"DirectMessage"> | Date | string | null
+  deletedForEveryoneAt?: Prisma.DateTimeNullableFilter<"DirectMessage"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DirectMessage"> | Date | string
 }
 
@@ -752,6 +779,7 @@ export type DirectMessageCreateWithoutFashionHouseInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
   sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
   customer: Prisma.UserCreateNestedOneWithoutReceivedDirectMessagesInput
@@ -767,6 +795,7 @@ export type DirectMessageUncheckedCreateWithoutFashionHouseInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -806,6 +835,7 @@ export type DirectMessageCreateManySenderInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -819,6 +849,7 @@ export type DirectMessageCreateManyCustomerInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -830,6 +861,7 @@ export type DirectMessageUpdateWithoutSenderInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput
@@ -845,6 +877,7 @@ export type DirectMessageUncheckedUpdateWithoutSenderInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -858,6 +891,7 @@ export type DirectMessageUncheckedUpdateManyWithoutSenderInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -869,6 +903,7 @@ export type DirectMessageUpdateWithoutCustomerInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
   sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
@@ -884,6 +919,7 @@ export type DirectMessageUncheckedUpdateWithoutCustomerInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -897,6 +933,7 @@ export type DirectMessageUncheckedUpdateManyWithoutCustomerInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -910,6 +947,7 @@ export type DirectMessageCreateManyFashionHouseInput = {
   audioUrl?: string | null
   audioDuration?: number | null
   readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -921,6 +959,7 @@ export type DirectMessageUpdateWithoutFashionHouseInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput
@@ -936,6 +975,7 @@ export type DirectMessageUncheckedUpdateWithoutFashionHouseInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -949,6 +989,7 @@ export type DirectMessageUncheckedUpdateManyWithoutFashionHouseInput = {
   audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -965,6 +1006,7 @@ export type DirectMessageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   audioUrl?: boolean
   audioDuration?: boolean
   readAt?: boolean
+  deletedForEveryoneAt?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -982,6 +1024,7 @@ export type DirectMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   audioUrl?: boolean
   audioDuration?: boolean
   readAt?: boolean
+  deletedForEveryoneAt?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -999,6 +1042,7 @@ export type DirectMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   audioUrl?: boolean
   audioDuration?: boolean
   readAt?: boolean
+  deletedForEveryoneAt?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1016,10 +1060,11 @@ export type DirectMessageSelectScalar = {
   audioUrl?: boolean
   audioDuration?: boolean
   readAt?: boolean
+  deletedForEveryoneAt?: boolean
   createdAt?: boolean
 }
 
-export type DirectMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "senderRole" | "senderId" | "text" | "imageUrl" | "audioUrl" | "audioDuration" | "readAt" | "createdAt", ExtArgs["result"]["directMessage"]>
+export type DirectMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "senderRole" | "senderId" | "text" | "imageUrl" | "audioUrl" | "audioDuration" | "readAt" | "deletedForEveryoneAt" | "createdAt", ExtArgs["result"]["directMessage"]>
 export type DirectMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1054,6 +1099,7 @@ export type $DirectMessagePayload<ExtArgs extends runtime.Types.Extensions.Inter
     audioUrl: string | null
     audioDuration: number | null
     readAt: Date | null
+    deletedForEveryoneAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["directMessage"]>
   composites: {}
@@ -1491,6 +1537,7 @@ export interface DirectMessageFieldRefs {
   readonly audioUrl: Prisma.FieldRef<"DirectMessage", 'String'>
   readonly audioDuration: Prisma.FieldRef<"DirectMessage", 'Int'>
   readonly readAt: Prisma.FieldRef<"DirectMessage", 'DateTime'>
+  readonly deletedForEveryoneAt: Prisma.FieldRef<"DirectMessage", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"DirectMessage", 'DateTime'>
 }
     

@@ -37,6 +37,13 @@ import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import { uploadFile } from '@/shared/utils/upload';
 import { useAppAlert } from '@/shared/hooks/useAppAlert';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
+import {
+  createChatCacheOwner,
+  deleteCachedConversation,
+  readChatCache,
+  writeChatCache,
+} from '@/shared/services/chatCache';
 
 interface ThreadSummary {
   customerId: string;
@@ -60,6 +67,7 @@ interface DirectMessage {
   audioDuration?: number;
   createdAt: string;
   isRead?: boolean;
+  deletedForEveryoneAt?: string | null;
 }
 
 interface TranscriptTurn {
@@ -67,6 +75,11 @@ interface TranscriptTurn {
   text: string;
   createdAt?: string;
   timestamp?: string | number;
+}
+
+interface DirectChatCache {
+  messages: DirectMessage[];
+  transcript: TranscriptTurn[];
 }
 
 const EMOJIS = ['😊', '👍', '✂️', '👗', '✨', '🪡', '🧵', '❤️', '🙌', '🔥', '👌', '👏'];
@@ -125,12 +138,47 @@ function AnimatedWaveform({
   );
 }
 
+// WhatsApp-style message tail components
+const SentTail = () => (
+  <View
+    style={{
+      position: 'absolute',
+      bottom: 0,
+      right: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderTopColor: '#4A080C',
+      borderLeftWidth: 9,
+      borderLeftColor: 'transparent',
+    }}
+  />
+);
+
+const ReceivedTail = ({ color = 'rgba(74,8,12,0.12)' }: { color?: string }) => (
+  <View
+    style={{
+      position: 'absolute',
+      bottom: 0,
+      left: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderTopColor: color,
+      borderRightWidth: 9,
+      borderRightColor: 'transparent',
+    }}
+  />
+);
+
 export default function AdminMessagesScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ customerId?: string; customerName?: string; activeTab?: string; staffId?: string }>();
   const insets = useSafeAreaInsets();
-  const { showAlert } = useAppAlert();
+  const { showAlert, showConfirm } = useAppAlert();
   const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createChatCacheOwner(role, email);
 
   const [activeTab, setActiveTab] = useState<'customers' | 'staff'>(
     params.activeTab === 'staff' ? 'staff' : 'customers'
@@ -145,11 +193,13 @@ export default function AdminMessagesScreen() {
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [deletingChat, setDeletingChat] = useState(false);
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
 
   // Audio Recording & Playback
   const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
@@ -161,25 +211,21 @@ export default function AdminMessagesScreen() {
   const playerRef = useRef<any>(null);
 
   const flatListRef = useRef<FlatList>(null);
+  const isNearBottomRef = useRef(true);
   const initialOpenedRef = useRef(false);
+  const activeThreadIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 100);
+      () => {
+        if (isNearBottomRef.current) {
+          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+        }
       }
-    );
-    const hideSub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => setKeyboardHeight(0)
     );
     return () => {
       showSub.remove();
-      hideSub.remove();
     };
   }, []);
 
@@ -244,23 +290,136 @@ export default function AdminMessagesScreen() {
   }, [activeTab]);
 
   const openThread = async (thread: ThreadSummary) => {
+    activeThreadIdRef.current = thread.customerId;
     setSelectedCustomer(thread);
+    setMessages([]);
+    setTranscript([]);
+    setInitialPositionReady(false);
+    // Clear unread count locally so badge updates immediately
+    setThreads((prev) =>
+      prev.map((t) => (t.customerId === thread.customerId ? { ...t, unreadCount: 0 } : t))
+    );
     setLoadingMessages(true);
     try {
-      apiFetch(`/api/direct-messages/thread/${thread.customerId}/read`, { method: 'PATCH' }).catch(() => {});
+      const cached = await readChatCache<DirectChatCache>(
+        cacheOwner,
+        'admin-customer-direct',
+        thread.customerId
+      );
+      if (activeThreadIdRef.current !== thread.customerId) return;
+      if (cached) {
+        setMessages(Array.isArray(cached.messages) ? cached.messages : []);
+        setTranscript(Array.isArray(cached.transcript) ? cached.transcript : []);
+        setLoadingMessages(false);
+      }
+
+      apiFetch(`/api/direct-messages/thread/${thread.customerId}/read`, { method: 'PATCH' }).catch(() => { });
       const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${thread.customerId}`);
-      if (data && Array.isArray(data.messages)) {
-        setMessages(data.messages);
-      }
-      if (data && Array.isArray(data.transcript)) {
-        setTranscript(data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---')));
-      }
+      if (activeThreadIdRef.current !== thread.customerId) return;
+      setMessages(data && Array.isArray(data.messages) ? data.messages : []);
+      setTranscript(
+        data && Array.isArray(data.transcript)
+          ? data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---'))
+          : []
+      );
     } catch (err) {
       console.error('Error fetching thread messages:', err);
     } finally {
-      setLoadingMessages(false);
+      if (activeThreadIdRef.current === thread.customerId) {
+        setLoadingMessages(false);
+      }
     }
   };
+
+  const closeThread = () => {
+    activeThreadIdRef.current = null;
+    setSelectedCustomer(null);
+    setMessages([]);
+    setTranscript([]);
+    setInitialPositionReady(false);
+  };
+
+  const handleDeleteChat = () => {
+    if (!selectedCustomer || deletingChat) return;
+    const thread = selectedCustomer;
+    showConfirm(
+      'Delete this chat?',
+      `Messages in your chat with ${thread.customerName} will be deleted.`,
+      {
+        confirmLabel: 'Delete chat',
+        cancelLabel: 'Cancel',
+        onConfirm: async () => {
+          activeThreadIdRef.current = null;
+          setDeletingChat(true);
+          try {
+            await apiFetch(`/api/direct-messages/thread/${thread.customerId}`, { method: 'DELETE' });
+            await deleteCachedConversation(cacheOwner, 'admin-customer-direct', thread.customerId);
+            setThreads((current) => current.filter((item) => item.customerId !== thread.customerId));
+            closeThread();
+          } catch (err: any) {
+            activeThreadIdRef.current = thread.customerId;
+            showAlert("Couldn't delete chat", 'Please try again.');
+          } finally {
+            setDeletingChat(false);
+          }
+        },
+      }
+    );
+  };
+
+  const handleDeleteMessageForEveryone = (message: DirectMessage, isMine: boolean) => {
+    if (!isMine || message.id.startsWith('temp-') || message.deletedForEveryoneAt) return;
+    const sentAt = new Date(message.createdAt).getTime();
+    if (!Number.isFinite(sentAt) || Date.now() - sentAt > 10 * 60 * 1000) {
+      return;
+    }
+    showConfirm(
+      'Delete message?',
+      'Delete this message for everyone?',
+      {
+        confirmLabel: 'Delete for everyone',
+        cancelLabel: 'Cancel',
+        onConfirm: async () => {
+          setDeletingMessageId(message.id);
+          try {
+            const deleted = await apiFetch<DirectMessage>(
+              `/api/direct-messages/messages/${message.id}`,
+              { method: 'DELETE' }
+            );
+            setMessages((current) => current.map((item) => (item.id === message.id ? deleted : item)));
+          } catch (err: any) {
+            showAlert("Couldn't delete message", 'Please try again.');
+          } finally {
+            setDeletingMessageId(null);
+          }
+        },
+      }
+    );
+  };
+
+  const previousContentCountRef = useRef(0);
+
+  useEffect(() => {
+    const contentCount = messages.length + transcript.length;
+    const contentIncreased = contentCount > previousContentCountRef.current;
+    previousContentCountRef.current = contentCount;
+    if (initialPositionReady && contentIncreased && isNearBottomRef.current && selectedCustomer) {
+      const timer = setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length, transcript.length, selectedCustomer, initialPositionReady]);
+
+  useEffect(() => {
+    if (!selectedCustomer || loadingMessages) return;
+    void writeChatCache<DirectChatCache>(
+      cacheOwner,
+      'admin-customer-direct',
+      selectedCustomer.customerId,
+      { messages, transcript }
+    );
+  }, [cacheOwner, loadingMessages, messages, selectedCustomer, transcript]);
 
   useEffect(() => {
     if (!selectedCustomer) return;
@@ -268,9 +427,12 @@ export default function AdminMessagesScreen() {
       try {
         const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${selectedCustomer.customerId}`);
         if (data && Array.isArray(data.messages)) {
-          setMessages(data.messages);
+          setMessages((current) => mergeDirectMessages(current, data.messages));
         }
-      } catch (err) {}
+        if (data && Array.isArray(data.transcript)) {
+          setTranscript(data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---')));
+        }
+      } catch (err) { }
     }, 4000);
     return () => clearInterval(interval);
   }, [selectedCustomer]);
@@ -290,6 +452,7 @@ export default function AdminMessagesScreen() {
       createdAt: new Date().toISOString(),
       isRead: true,
     };
+    isNearBottomRef.current = true;
     setMessages((prev) => [...prev, optimisticMsg]);
 
     try {
@@ -302,6 +465,9 @@ export default function AdminMessagesScreen() {
       }
     } catch (err) {
       console.error('Failed to send admin message:', err);
+      setMessages((current) => current.filter((message) => message.id !== tempId));
+      setInputText((current) => current || textToSend);
+      showAlert("Couldn't send message", 'Please try again.');
     } finally {
       setSending(false);
     }
@@ -371,7 +537,7 @@ export default function AdminMessagesScreen() {
     if (timerRef.current) clearInterval(timerRef.current);
     try {
       await audioRecorder.stop();
-    } catch {}
+    } catch { }
     setIsRecording(false);
     setIsPaused(false);
     setRecordingDuration(0);
@@ -487,9 +653,9 @@ export default function AdminMessagesScreen() {
   const renderThreadItem = ({ item }: { item: ThreadSummary }) => {
     const timeStr = item.latestAt
       ? new Date(item.latestAt).toLocaleDateString([], {
-          month: 'short',
-          day: 'numeric',
-        })
+        month: 'short',
+        day: 'numeric',
+      })
       : '';
 
     return (
@@ -535,21 +701,25 @@ export default function AdminMessagesScreen() {
           const timeStr = turn.createdAt
             ? new Date(turn.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             : turn.timestamp
-            ? new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : '';
+              ? new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : '';
 
           return (
             <View key={`t-${idx}`} style={styles.messageBlock}>
               {!isUser && (
                 <Text style={styles.senderNameText}>Booking Assistant</Text>
               )}
-              <View style={[styles.bubbleBase, isUser ? styles.receivedBubble : styles.sentBubble]}>
-                <Text style={[styles.bubbleText, isUser ? styles.receivedText : styles.sentText]}>
-                  {turn.text}
-                </Text>
+              {/* Bubble + tail wrapper */}
+              <View style={{ position: 'relative', alignSelf: isUser ? 'flex-end' : 'flex-start' }}>
+                <View style={[styles.bubbleBase, isUser ? styles.receivedBubble : styles.sentBubble]}>
+                  <Text style={[styles.bubbleText, isUser ? styles.receivedText : styles.sentText]}>
+                    {turn.text}
+                  </Text>
+                </View>
+                {isUser ? <SentTail /> : <ReceivedTail />}
               </View>
               {timeStr ? (
-                <View style={styles.statusRow}>
+                <View style={[styles.statusRow, isUser ? {} : { alignSelf: 'flex-start' }]}>
                   <Text style={styles.statusText}>{timeStr}</Text>
                 </View>
               ) : null}
@@ -578,7 +748,8 @@ export default function AdminMessagesScreen() {
       item.senderRole === 'FASHION_HOUSE' ||
       item.senderType === 'FASHION_HOUSE' ||
       (item.senderRole !== 'customer' && item.senderType !== 'CUSTOMER');
-    const msgBody = item.text || item.content;
+    const isDeleted = Boolean(item.deletedForEveryoneAt);
+    const msgBody = isDeleted ? 'This message was deleted' : item.text || item.content;
     const timeStr = new Date(item.createdAt).toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
@@ -597,69 +768,79 @@ export default function AdminMessagesScreen() {
               {selectedCustomer.customerName || item.sender?.name || 'Customer'}
             </Text>
           )}
-          <View
-            style={[
-              styles.bubbleBase,
-              isFashionHouse ? styles.sentBubble : styles.receivedBubble,
-              item.imageUrl ? { padding: 4 } : null,
-            ]}
+          {/* Bubble + tail wrapper */}
+          <Pressable
+            onLongPress={() => handleDeleteMessageForEveryone(item, isFashionHouse)}
+            delayLongPress={400}
+            disabled={!isFashionHouse || isDeleted || deletingMessageId === item.id}
+            style={{ position: 'relative', alignSelf: isFashionHouse ? 'flex-end' : 'flex-start' }}
           >
-            {item.imageUrl ? (
-              <Image
-                source={{ uri: item.imageUrl }}
-                style={{
-                  width: 220,
-                  height: 180,
-                  borderRadius: 14,
-                }}
-                resizeMode="cover"
-              />
-            ) : null}
-            {msgBody ? (
-              <Text style={[styles.bubbleText, isFashionHouse ? styles.sentText : styles.receivedText]}>
-                {msgBody}
-              </Text>
-            ) : null}
-            {item.audioUrl ? (
-              <Pressable
-                onPress={() => togglePlayAudio(item.audioUrl!, item.id)}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
-              >
-                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isFashionHouse ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {playingAudioId === item.id ? (
-                    <Pause size={16} color={isFashionHouse ? '#FFFFFF' : '#4A080C'} />
-                  ) : (
-                    <Play size={16} color={isFashionHouse ? '#FFFFFF' : '#4A080C'} style={{ marginLeft: 2 }} />
-                  )}
-                </View>
-                <View style={{ flex: 1, justifyContent: 'center' }}>
-                  <AnimatedWaveform
-                    isAnimating={playingAudioId === item.id}
-                    color={isFashionHouse ? '#FFFFFF' : '#4A080C'}
-                    inactiveColor={isFashionHouse ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
-                    barCount={16}
-                    height={24}
-                  />
-                </View>
-                <Text style={{ fontFamily: 'WorkSans_500Medium', fontSize: 12, color: isFashionHouse ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
-                  {formatDuration(item.audioDuration || 0)}
+            <View
+              style={[
+                styles.bubbleBase,
+                isFashionHouse ? styles.sentBubble : styles.receivedBubble,
+                !isDeleted && item.imageUrl ? { padding: 4 } : null,
+              ]}
+            >
+              {!isDeleted && item.imageUrl ? (
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  style={{
+                    width: 220,
+                    height: 180,
+                    borderRadius: 14,
+                  }}
+                  resizeMode="cover"
+                />
+              ) : null}
+              {msgBody ? (
+                <Text style={[styles.bubbleText, isFashionHouse ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: 'italic' }]}>
+                  {msgBody}
                 </Text>
-              </Pressable>
-            ) : null}
-          </View>
+              ) : null}
+              {!isDeleted && item.audioUrl ? (
+                <Pressable
+                  onPress={() => togglePlayAudio(item.audioUrl!, item.id)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
+                >
+                  <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isFashionHouse ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {playingAudioId === item.id ? (
+                      <Pause size={16} color={isFashionHouse ? '#FFFFFF' : '#4A080C'} />
+                    ) : (
+                      <Play size={16} color={isFashionHouse ? '#FFFFFF' : '#4A080C'} style={{ marginLeft: 2 }} />
+                    )}
+                  </View>
+                  <View style={{ flex: 1, justifyContent: 'center' }}>
+                    <AnimatedWaveform
+                      isAnimating={playingAudioId === item.id}
+                      color={isFashionHouse ? '#FFFFFF' : '#4A080C'}
+                      inactiveColor={isFashionHouse ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
+                      barCount={16}
+                      height={24}
+                    />
+                  </View>
+                  <Text style={{ fontFamily: 'WorkSans_500Medium', fontSize: 12, color: isFashionHouse ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
+                    {formatDuration(item.audioDuration || 0)}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+            {isFashionHouse ? <SentTail /> : <ReceivedTail />}
+          </Pressable>
 
-          {isFashionHouse && (
-            <View style={styles.statusRow}>
-              <Text style={styles.statusText}>{timeStr}</Text>
-              {item.id.startsWith('temp-') ? (
+          {/* Timestamp row — shown for both sent and received */}
+          <View style={[styles.statusRow, !isFashionHouse && { alignSelf: 'flex-start' }]}>
+            <Text style={styles.statusText}>{timeStr}</Text>
+            {isFashionHouse && (
+              item.id.startsWith('temp-') ? (
                 <Check size={14} color="#8A7550" />
               ) : item.isRead ? (
                 <CheckCheck size={14} color="#4A080C" />
               ) : (
                 <CheckCheck size={14} color="#8A7550" />
-              )}
-            </View>
-          )}
+              )
+            )}
+          </View>
         </View>
       </React.Fragment>
     );
@@ -672,7 +853,7 @@ export default function AdminMessagesScreen() {
       {/* Header */}
       <View style={styles.headerBar}>
         {selectedCustomer ? (
-          <TouchableOpacity style={styles.headerBtn} onPress={() => setSelectedCustomer(null)}>
+          <TouchableOpacity style={styles.headerBtn} onPress={closeThread}>
             <BackArrowIcon size={20} color="#4A080C" />
           </TouchableOpacity>
         ) : (
@@ -689,7 +870,23 @@ export default function AdminMessagesScreen() {
             <Text style={styles.headerSubtitleText}>{selectedCustomer.customerEmail}</Text>
           ) : null}
         </View>
-        <View style={{ width: 40 }} />
+        {selectedCustomer ? (
+          <TouchableOpacity
+            style={[styles.headerBtn, deletingChat && { opacity: 0.6 }]}
+            onPress={handleDeleteChat}
+            disabled={deletingChat}
+            accessibilityRole="button"
+            accessibilityLabel="Delete chat"
+          >
+            {deletingChat ? (
+              <ActivityIndicator size="small" color="#4A080C" />
+            ) : (
+              <Trash2 size={19} color="#4A080C" />
+            )}
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
       </View>
 
       {!selectedCustomer && (
@@ -784,7 +981,7 @@ export default function AdminMessagesScreen() {
       ) : (
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           {loadingMessages && messages.length === 0 ? (
             <View style={styles.centerContainer}>
@@ -794,16 +991,31 @@ export default function AdminMessagesScreen() {
             <FlatList
               ref={flatListRef}
               data={messages}
+              style={{ opacity: initialPositionReady ? 1 : 0 }}
               keyExtractor={(item) => item.id}
               renderItem={renderMessageItem}
               ListHeaderComponent={renderTranscriptSection}
               contentContainerStyle={styles.scrollContent}
+              onContentSizeChange={() => {
+                if (!initialPositionReady) {
+                  flatListRef.current?.scrollToEnd({ animated: false });
+                  requestAnimationFrame(() => setInitialPositionReady(true));
+                }
+              }}
+              scrollEventThrottle={16}
+              onScroll={({ nativeEvent }) => {
+                const distanceFromBottom =
+                  nativeEvent.contentSize.height -
+                  nativeEvent.layoutMeasurement.height -
+                  nativeEvent.contentOffset.y;
+                isNearBottomRef.current = distanceFromBottom < 80;
+              }}
             />
           )}
 
           {/* Emoji Picker Bar */}
           {showEmojiPicker && (
-            <View style={[styles.emojiPickerBar, { bottom: 64 + (keyboardHeight > 0 ? keyboardHeight + 8 : Math.max(insets.bottom, 12)) }]}>
+            <View style={[styles.emojiPickerBar, { bottom: 64 + Math.max(insets.bottom, 12) }]}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                 {EMOJIS.map((emoji) => (
                   <Pressable
@@ -823,8 +1035,7 @@ export default function AdminMessagesScreen() {
             style={[
               styles.inputToolbarContainer,
               {
-                paddingBottom: keyboardHeight > 0 ? 12 : Math.max(insets.bottom, 12),
-                marginBottom: keyboardHeight > 0 ? keyboardHeight + 8 : 0,
+                paddingBottom: Math.max(insets.bottom, 12),
               },
             ]}
           >
@@ -888,7 +1099,10 @@ export default function AdminMessagesScreen() {
                     onChangeText={setInputText}
                     onFocus={() => setShowEmojiPicker(false)}
                     onSubmitEditing={handleSend}
+                    submitBehavior="submit"
                     returnKeyType="send"
+                    placeholder={selectedCustomer ? `Message ${selectedCustomer.customerName.split(' ')[0]}...` : 'Type a message...'}
+                    placeholderTextColor="#8A7550"
                   />
                   <Pressable
                     onPress={() => {
@@ -1117,6 +1331,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 18,
+    overflow: 'visible',
   },
   sentBubble: {
     alignSelf: 'flex-end',

@@ -25,13 +25,7 @@ scratch/
 **/scratch/
 server/scratch/
 
-# Test files & test directories
-__tests__/
-**/__tests__/
-*.test.ts
-*.test.tsx
-*.spec.ts
-*.spec.tsx
+# Automated regression tests are committed and run in CI.
 
 # OS / Editor temporary files & caches
 .DS_Store
@@ -46,3 +40,6 @@ FIGMA_MOCK_DATA.md
 .agents/
 **/.agents/
 .agents/rules/figma_mock_data.md
+
+#docs
+docs/

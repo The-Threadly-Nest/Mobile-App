@@ -10,6 +10,8 @@ import { API_BASE_URL } from "@/api/config";
 
 export default function ResetPasswordScreen() {
   const { token, email, firstTimeStaff } = useLocalSearchParams<{ token: string; email: string; firstTimeStaff?: string }>();
+  const sessionToken = useAuthStore((s) => s.token);
+  const setSessionToken = useAuthStore((s) => s.setToken);
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
   const [inputEmail, setInputEmail] = useState(email || "");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -30,11 +32,11 @@ export default function ResetPasswordScreen() {
     setLoading(true);
     try {
       if (isFirstTimeStaff) {
+        if (!sessionToken) throw new Error("Please log in before changing your password.");
         const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
           body: JSON.stringify({
-            email: inputEmail.trim(),
             currentPassword,
             newPassword,
           }),
@@ -45,6 +47,8 @@ export default function ResetPasswordScreen() {
         if (!res.ok) {
           throw new Error(body.error || "Could not update password. Please check your current password.");
         }
+        if (!body.token) throw new Error("Please log in again to continue.");
+        setSessionToken(body.token);
         setOnboardingCompleted(true);
         router.replace("/(staff)/dashboard");
         return;

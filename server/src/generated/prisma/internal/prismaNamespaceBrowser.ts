@@ -65,7 +65,8 @@ export const ModelName = {
   CustomerPreference: 'CustomerPreference',
   MoodBoardSketch: 'MoodBoardSketch',
   ChatSession: 'ChatSession',
-  DirectMessage: 'DirectMessage'
+  DirectMessage: 'DirectMessage',
+  DirectMessageThreadState: 'DirectMessageThreadState'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -299,10 +300,23 @@ export const DirectMessageScalarFieldEnum = {
   audioUrl: 'audioUrl',
   audioDuration: 'audioDuration',
   readAt: 'readAt',
+  deletedForEveryoneAt: 'deletedForEveryoneAt',
   createdAt: 'createdAt'
 } as const
 
 export type DirectMessageScalarFieldEnum = (typeof DirectMessageScalarFieldEnum)[keyof typeof DirectMessageScalarFieldEnum]
+
+
+export const DirectMessageThreadStateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fashionHouseId: 'fashionHouseId',
+  customerId: 'customerId',
+  clearedAt: 'clearedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DirectMessageThreadStateScalarFieldEnum = (typeof DirectMessageThreadStateScalarFieldEnum)[keyof typeof DirectMessageThreadStateScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -174,7 +174,7 @@ router.post("/:staffId/resend-activation", async (req, res, next) => {
     const rawToken = generateResetToken();
     const resetTokenHash = hashResetToken(rawToken);
     const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    await prisma.user.update({ where: { id: staffUser.id }, data: { resetTokenHash, resetTokenExpiresAt } });
+    await prisma.user.update({ where: { id: staffUser.id, fashionHouseId: fh.id, role: "staff" }, data: { resetTokenHash, resetTokenExpiresAt } });
 
     sendStaffActivationEmail(staffUser.email, staffUser.email, fh.shopName, rawToken).catch((err) => {
       console.error("Failed to send staff activation email:", err);

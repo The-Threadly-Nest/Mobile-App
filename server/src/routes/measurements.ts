@@ -12,49 +12,8 @@ const router = Router();
 router.get("/my-measurements", requireAuth, async (req, res, next) => {
   try {
     const userId = req.authUserId!;
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { preference: true },
-    });
-
-    const customerConditions: any[] = [
-      { userId },
-      { id: userId },
-    ];
-
-    if (user?.name) {
-      customerConditions.push({ name: { equals: user.name, mode: "insensitive" } });
-      customerConditions.push({ name: { contains: user.name, mode: "insensitive" } });
-    }
-    if (user?.email) {
-      const emailHandle = user.email.split("@")[0].replace(/[._]/g, " ");
-      customerConditions.push({ name: { equals: emailHandle, mode: "insensitive" } });
-      customerConditions.push({ name: { contains: emailHandle, mode: "insensitive" } });
-    }
-    if (user?.preference?.phone) {
-      customerConditions.push({ phone: user.preference.phone });
-    }
-
-    const customerRecords = await prisma.customer.findMany({
-      where: { OR: customerConditions },
-      select: { id: true },
-    });
-
-    const ordersWithCustomers = await prisma.order.findMany({
-      where: { OR: [{ customer: { userId } }, { customerId: userId }] },
-      select: { customerId: true },
-    });
-
-    const targetCustomerIds = Array.from(
-      new Set([
-        userId,
-        ...customerRecords.map((c) => c.id),
-        ...ordersWithCustomers.map((o) => o.customerId),
-      ])
-    );
-
     const measurements = await prisma.measurement.findMany({
-      where: { customerId: { in: targetCustomerIds } },
+      where: { customer: { userId } },
       orderBy: { recordedAt: "desc" },
     });
 
@@ -106,6 +65,11 @@ router.post("/", async (req, res, next) => {
     if (!targetCustomerId) {
       return res.status(400).json({ error: "Customer ID or Name is required." });
     }
+
+    const ownedCustomer = await prisma.customer.findFirst({
+      where: { id: targetCustomerId, fashionHouseId: fhId }, select: { id: true },
+    });
+    if (!ownedCustomer) return res.status(404).json({ error: "Customer not found." });
 
     // Bulk sheet save (e.g. from Admin Measurement Capture form)
     if (standard && typeof standard === "object") {
@@ -220,7 +184,7 @@ If no valid measurements are found, output exactly: {}`;
     ]);
 
     const rawText = result.response.text().trim();
-    console.log("[parse-voice] Gemini raw output:", rawText);
+
 
     // ── Extraction strategy 1: pull the first {...} block from the output ──
     const jsonBlockMatch = rawText.match(/\{[^{}]*\}/s);

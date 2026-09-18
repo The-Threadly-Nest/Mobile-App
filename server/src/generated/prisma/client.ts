@@ -114,3 +114,8 @@ export type ChatSession = Prisma.ChatSessionModel
  * 
  */
 export type DirectMessage = Prisma.DirectMessageModel
+/**
+ * Model DirectMessageThreadState
+ * 
+ */
+export type DirectMessageThreadState = Prisma.DirectMessageThreadStateModel

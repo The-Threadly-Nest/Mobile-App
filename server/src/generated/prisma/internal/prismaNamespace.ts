@@ -411,7 +411,8 @@ export const ModelName = {
   CustomerPreference: 'CustomerPreference',
   MoodBoardSketch: 'MoodBoardSketch',
   ChatSession: 'ChatSession',
-  DirectMessage: 'DirectMessage'
+  DirectMessage: 'DirectMessage',
+  DirectMessageThreadState: 'DirectMessageThreadState'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -427,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference" | "moodBoardSketch" | "chatSession" | "directMessage"
+    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference" | "moodBoardSketch" | "chatSession" | "directMessage" | "directMessageThreadState"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1541,6 +1542,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DirectMessageThreadState: {
+      payload: Prisma.$DirectMessageThreadStatePayload<ExtArgs>
+      fields: Prisma.DirectMessageThreadStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DirectMessageThreadStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DirectMessageThreadStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>
+        }
+        findFirst: {
+          args: Prisma.DirectMessageThreadStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DirectMessageThreadStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>
+        }
+        findMany: {
+          args: Prisma.DirectMessageThreadStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>[]
+        }
+        create: {
+          args: Prisma.DirectMessageThreadStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>
+        }
+        createMany: {
+          args: Prisma.DirectMessageThreadStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DirectMessageThreadStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>[]
+        }
+        delete: {
+          args: Prisma.DirectMessageThreadStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>
+        }
+        update: {
+          args: Prisma.DirectMessageThreadStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.DirectMessageThreadStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DirectMessageThreadStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DirectMessageThreadStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.DirectMessageThreadStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageThreadStatePayload>
+        }
+        aggregate: {
+          args: Prisma.DirectMessageThreadStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDirectMessageThreadState>
+        }
+        groupBy: {
+          args: Prisma.DirectMessageThreadStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DirectMessageThreadStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DirectMessageThreadStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DirectMessageThreadStateCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1795,10 +1870,23 @@ export const DirectMessageScalarFieldEnum = {
   audioUrl: 'audioUrl',
   audioDuration: 'audioDuration',
   readAt: 'readAt',
+  deletedForEveryoneAt: 'deletedForEveryoneAt',
   createdAt: 'createdAt'
 } as const
 
 export type DirectMessageScalarFieldEnum = (typeof DirectMessageScalarFieldEnum)[keyof typeof DirectMessageScalarFieldEnum]
+
+
+export const DirectMessageThreadStateScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  fashionHouseId: 'fashionHouseId',
+  customerId: 'customerId',
+  clearedAt: 'clearedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DirectMessageThreadStateScalarFieldEnum = (typeof DirectMessageThreadStateScalarFieldEnum)[keyof typeof DirectMessageThreadStateScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2089,6 +2177,7 @@ export type GlobalOmitConfig = {
   moodBoardSketch?: Prisma.MoodBoardSketchOmit
   chatSession?: Prisma.ChatSessionOmit
   directMessage?: Prisma.DirectMessageOmit
+  directMessageThreadState?: Prisma.DirectMessageThreadStateOmit
 }
 
 /* Types for Logging */

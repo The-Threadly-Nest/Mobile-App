@@ -105,7 +105,7 @@ router.patch("/:id/status", async (req, res, next) => {
     }
 
     const updated = await prisma.customer.update({
-      where: { id: customer.id },
+      where: { id: customer.id, fashionHouseId: fhId },
       data: { status },
     });
 

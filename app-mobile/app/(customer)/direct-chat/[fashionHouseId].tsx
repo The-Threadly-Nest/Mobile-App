@@ -34,6 +34,14 @@ import { uploadFile } from '@/shared/utils/upload';
 import { useAppAlert } from '@/shared/hooks/useAppAlert';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { StatusBar } from 'expo-status-bar';
+import MessageDeleteMenu from '@/shared/components/MessageDeleteMenu';
+import { mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
+import {
+  createChatCacheOwner,
+  deleteCachedConversation,
+  readChatCache,
+  writeChatCache,
+} from '@/shared/services/chatCache';
 
 interface DirectMessage {
   id: string;
@@ -47,6 +55,7 @@ interface DirectMessage {
   audioDuration?: number;
   createdAt: string;
   isRead?: boolean;
+  deletedForEveryoneAt?: string | null;
 }
 
 interface TranscriptTurn {
@@ -54,6 +63,11 @@ interface TranscriptTurn {
   text: string;
   createdAt?: string;
   timestamp?: string | number;
+}
+
+interface DirectChatCache {
+  messages: DirectMessage[];
+  transcript: TranscriptTurn[];
 }
 
 const EMOJIS = ['😊', '👍', '✂️', '👗', '✨', '🪡', '🧵', '❤️', '🙌', '🔥', '👌', '👏'];
@@ -112,10 +126,44 @@ function AnimatedWaveform({
   );
 }
 
+// WhatsApp-style message tail components
+const SentTail = () => (
+  <View
+    style={{
+      position: 'absolute',
+      bottom: 0,
+      right: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderTopColor: '#4A080C',
+      borderLeftWidth: 9,
+      borderLeftColor: 'transparent',
+    }}
+  />
+);
+
+const ReceivedTail = ({ color = 'rgba(74,8,12,0.12)' }: { color?: string }) => (
+  <View
+    style={{
+      position: 'absolute',
+      bottom: 0,
+      left: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderTopColor: color,
+      borderRightWidth: 9,
+      borderRightColor: 'transparent',
+    }}
+  />
+);
+
 export default function CustomerDirectChatScreen() {
   const insets = useSafeAreaInsets();
-  const { showAlert } = useAppAlert();
+  const { showAlert, showConfirm } = useAppAlert();
   const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
   const { fashionHouseId, fashionHouseName, fashionHouseLogo } = useLocalSearchParams<{
     fashionHouseId: string;
     fashionHouseName?: string;
@@ -126,10 +174,16 @@ export default function CustomerDirectChatScreen() {
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [deletingChat, setDeletingChat] = useState(false);
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
+  const [selectedMessageForDeletion, setSelectedMessageForDeletion] = useState<{
+    message: DirectMessage;
+    isMine: boolean;
+  } | null>(null);
 
   // Audio Recording & Playback
   const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
@@ -141,67 +195,185 @@ export default function CustomerDirectChatScreen() {
   const playerRef = useRef<any>(null);
 
   const scrollRef = useRef<ScrollView>(null);
-  const hasInitialScrolled = useRef(false);
+  const isNearBottomRef = useRef(true);
+  const activeConversationIdRef = useRef<string | null>(null);
+  const hydratedConversationIdRef = useRef<string | null>(null);
   const displayName = fashionHouseName || 'Fashion House';
+  const cacheOwner = createChatCacheOwner(role, email);
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        setTimeout(() => {
-          scrollRef.current?.scrollToEnd({ animated: true });
-        }, 100);
+      () => {
+        if (isNearBottomRef.current) {
+          setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+        }
       }
-    );
-    const hideSub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => setKeyboardHeight(0)
     );
     return () => {
       showSub.remove();
-      hideSub.remove();
     };
   }, []);
 
   const fetchMessages = async (silent = false) => {
     if (!fashionHouseId) return;
+    const conversationId = fashionHouseId;
     try {
-      if (!silent) setLoading(true);
-      const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${fashionHouseId}`);
-      if (data && Array.isArray(data.messages)) {
-        setMessages(data.messages);
+      if (!silent) {
+        hydratedConversationIdRef.current = null;
+        setLoading(true);
+        setInitialPositionReady(false);
+        setMessages([]);
+        setTranscript([]);
+        const cached = await readChatCache<DirectChatCache>(
+          cacheOwner,
+          'customer-direct',
+          conversationId
+        );
+        if (activeConversationIdRef.current !== conversationId) return;
+        if (cached) {
+          setMessages(Array.isArray(cached.messages) ? cached.messages : []);
+          setTranscript(Array.isArray(cached.transcript) ? cached.transcript : []);
+          hydratedConversationIdRef.current = conversationId;
+          setLoading(false);
+        }
       }
-      if (data && Array.isArray(data.transcript)) {
-        setTranscript(data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---')));
-      }
+      const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${conversationId}`);
+      if (activeConversationIdRef.current !== conversationId) return;
+      const nextMessages = data && Array.isArray(data.messages) ? data.messages : [];
+      const nextTranscript = data && Array.isArray(data.transcript)
+        ? data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---'))
+        : [];
+      setMessages((current) => mergeDirectMessages(current, nextMessages));
+      setTranscript(nextTranscript);
+      hydratedConversationIdRef.current = conversationId;
+      void writeChatCache<DirectChatCache>(cacheOwner, 'customer-direct', conversationId, {
+        messages: nextMessages,
+        transcript: nextTranscript,
+      });
     } catch (err) {
       console.error('Error loading direct messages:', err);
     } finally {
-      if (!silent) setLoading(false);
+      if (!silent && activeConversationIdRef.current === conversationId) {
+        hydratedConversationIdRef.current = conversationId;
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
+    activeConversationIdRef.current = fashionHouseId;
     fetchMessages();
     const interval = setInterval(() => {
       fetchMessages(true);
     }, 5000);
-    return () => clearInterval(interval);
-  }, [fashionHouseId]);
+    return () => {
+      clearInterval(interval);
+      if (activeConversationIdRef.current === fashionHouseId) {
+        activeConversationIdRef.current = null;
+      }
+    };
+  }, [fashionHouseId, cacheOwner]);
 
-  // Scroll to bottom: instant on first load, smooth for each new message after
   useEffect(() => {
-    if (messages.length === 0) return;
-    if (!hasInitialScrolled.current) {
-      setTimeout(() => {
-        scrollRef.current?.scrollToEnd({ animated: false });
-        hasInitialScrolled.current = true;
-      }, 80);
-    } else {
+    if (
+      loading ||
+      !fashionHouseId ||
+      hydratedConversationIdRef.current !== fashionHouseId
+    ) return;
+    void writeChatCache<DirectChatCache>(cacheOwner, 'customer-direct', fashionHouseId, {
+      messages,
+      transcript,
+    });
+  }, [cacheOwner, fashionHouseId, loading, messages, transcript]);
+
+  const previousContentCountRef = useRef(0);
+
+  // Follow newly appended messages only while the user is already near the bottom.
+  useEffect(() => {
+    const contentCount = messages.length + transcript.length;
+    const contentIncreased = contentCount > previousContentCountRef.current;
+    previousContentCountRef.current = contentCount;
+    if (!initialPositionReady || !contentIncreased || !isNearBottomRef.current) return;
+    const timer =
       setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+    return () => clearTimeout(timer);
+  }, [messages.length, transcript.length, initialPositionReady]);
+
+  const handleDeleteChat = () => {
+    if (!fashionHouseId || deletingChat) return;
+    showConfirm(
+      'Delete this chat?',
+      `Messages in your chat with ${displayName} will be deleted.`,
+      {
+        confirmLabel: 'Delete chat',
+        cancelLabel: 'Cancel',
+        onConfirm: async () => {
+          activeConversationIdRef.current = null;
+          setDeletingChat(true);
+          try {
+            await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, { method: 'DELETE' });
+            await deleteCachedConversation(cacheOwner, 'customer-direct', fashionHouseId);
+            setMessages([]);
+            setTranscript([]);
+            if (router.canGoBack()) router.back();
+            else router.replace('/(customer)/messages' as any);
+          } catch (err: any) {
+            activeConversationIdRef.current = fashionHouseId;
+            showAlert("Couldn't delete chat", 'Please try again.');
+          } finally {
+            setDeletingChat(false);
+          }
+        },
+      }
+    );
+  };
+
+  const openMessageDeleteMenu = (message: DirectMessage, isMine: boolean) => {
+    if (message.id.startsWith('temp-')) return;
+    setSelectedMessageForDeletion({ message, isMine });
+  };
+
+  const canDeleteSelectedForEveryone = (() => {
+    if (!selectedMessageForDeletion?.isMine) return false;
+    const { message } = selectedMessageForDeletion;
+    if (message.deletedForEveryoneAt) return false;
+    const sentAt = new Date(message.createdAt).getTime();
+    return Number.isFinite(sentAt) && Date.now() - sentAt <= 10 * 60 * 1000;
+  })();
+
+  const handleDeleteSelectedForEveryone = async () => {
+    if (!selectedMessageForDeletion || !canDeleteSelectedForEveryone) return;
+    const { message } = selectedMessageForDeletion;
+    setDeletingMessageId(message.id);
+    try {
+      const deleted = await apiFetch<DirectMessage>(
+        `/api/direct-messages/messages/${message.id}`,
+        { method: 'DELETE' }
+      );
+      setMessages((current) => current.map((item) => (item.id === message.id ? deleted : item)));
+    } catch {
+      showAlert("Couldn't delete message", 'Please try again.');
+    } finally {
+      setDeletingMessageId(null);
+      setSelectedMessageForDeletion(null);
     }
-  }, [messages.length]);
+  };
+
+  const handleDeleteSelectedForMe = async () => {
+    if (!selectedMessageForDeletion) return;
+    const { message } = selectedMessageForDeletion;
+    setDeletingMessageId(message.id);
+    try {
+      await apiFetch(`/api/direct-messages/messages/${message.id}/me`, { method: 'DELETE' });
+      setMessages((current) => current.filter((item) => item.id !== message.id));
+    } catch {
+      showAlert("Couldn't delete message", 'Please try again.');
+    } finally {
+      setDeletingMessageId(null);
+      setSelectedMessageForDeletion(null);
+    }
+  };
 
   const handleSend = async () => {
     const textToSend = inputText.trim();
@@ -218,11 +390,8 @@ export default function CustomerDirectChatScreen() {
       createdAt: new Date().toISOString(),
       isRead: false,
     };
-    setMessages((prev) => {
-      const next = [...prev, optimisticMsg];
-      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
-      return next;
-    });
+    isNearBottomRef.current = true;
+    setMessages((prev) => [...prev, optimisticMsg]);
 
     try {
       const result = await apiFetch<DirectMessage>(`/api/direct-messages/thread/${fashionHouseId}`, {
@@ -234,6 +403,9 @@ export default function CustomerDirectChatScreen() {
       }
     } catch (err) {
       console.error('Failed to send message:', err);
+      setMessages((current) => current.filter((message) => message.id !== tempId));
+      setInputText((current) => current || textToSend);
+      showAlert("Couldn't send message", 'Please try again.');
     } finally {
       setSending(false);
     }
@@ -267,6 +439,7 @@ export default function CustomerDirectChatScreen() {
             createdAt: new Date().toISOString(),
             isRead: false,
           };
+          isNearBottomRef.current = true;
           setMessages((prev) => [...prev, tempMsg]);
 
           await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, {
@@ -362,6 +535,7 @@ export default function CustomerDirectChatScreen() {
         createdAt: new Date().toISOString(),
         isRead: false,
       };
+      isNearBottomRef.current = true;
       setMessages((prev) => [...prev, tempMsg]);
 
       await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, {
@@ -519,6 +693,19 @@ export default function CustomerDirectChatScreen() {
             <Text style={styles.headerSubtitleText}>Direct Support Chat</Text>
           </View>
         </View>
+        <Pressable
+          onPress={handleDeleteChat}
+          disabled={deletingChat}
+          accessibilityRole="button"
+          accessibilityLabel="Delete chat"
+          style={({ pressed }) => [styles.headerBtn, { opacity: pressed || deletingChat ? 0.6 : 1 }]}
+        >
+          {deletingChat ? (
+            <ActivityIndicator size="small" color="#4A080C" />
+          ) : (
+            <Trash2 size={19} color="#4A080C" />
+          )}
+        </Pressable>
       </View>
 
       {/* Main Chat Area */}
@@ -532,13 +719,27 @@ export default function CustomerDirectChatScreen() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={({ nativeEvent }) => {
+            const distanceFromBottom =
+              nativeEvent.contentSize.height -
+              nativeEvent.layoutMeasurement.height -
+              nativeEvent.contentOffset.y;
+            isNearBottomRef.current = distanceFromBottom < 80;
+          }}
+          onContentSizeChange={() => {
+            if (!initialPositionReady && !loading) {
+              scrollRef.current?.scrollToEnd({ animated: false });
+              requestAnimationFrame(() => setInitialPositionReady(true));
+            }
+          }}
         >
           {loading ? (
             <View style={styles.centerContainer}>
               <ActivityIndicator size="small" color="#4A080C" />
             </View>
           ) : (
-            <>
+            <View style={{ opacity: initialPositionReady ? 1 : 0 }}>
               {renderTranscriptSection()}
               {messages.length === 0 && transcript.length === 0 ? (
                 <View style={styles.centerContainer}>
@@ -563,7 +764,8 @@ export default function CustomerDirectChatScreen() {
                     msg.senderRole === 'customer' ||
                     msg.senderType === 'CUSTOMER' ||
                     (msg.senderRole !== 'admin' && msg.senderType !== 'FASHION_HOUSE');
-                  const msgBody = msg.text || msg.content;
+                  const isDeleted = Boolean(msg.deletedForEveryoneAt);
+                  const msgBody = isDeleted ? 'This message was deleted' : msg.text || msg.content;
                   const timeStr = new Date(msg.createdAt).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -581,75 +783,85 @@ export default function CustomerDirectChatScreen() {
                         <Text style={styles.senderNameText}>{displayName}</Text>
                       )}
 
-                      <View
-                        style={[
-                          styles.bubbleBase,
-                          isMe ? styles.sentBubble : styles.receivedBubble,
-                          msg.imageUrl ? { padding: 4 } : null,
-                        ]}
+                      {/* Bubble + tail wrapper */}
+                      <Pressable
+                        onLongPress={() => openMessageDeleteMenu(msg, isMe)}
+                        delayLongPress={400}
+                        disabled={msg.id.startsWith('temp-') || deletingMessageId === msg.id}
+                        style={{ position: 'relative', alignSelf: isMe ? 'flex-end' : 'flex-start' }}
                       >
-                        {msg.imageUrl ? (
-                          <Image
-                            source={{ uri: msg.imageUrl }}
-                            style={{
-                              width: 220,
-                              height: 180,
-                              borderRadius: 14,
-                            }}
-                            resizeMode="cover"
-                          />
-                        ) : null}
-                        {msgBody ? (
-                          <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText]}>
-                            {msgBody}
-                          </Text>
-                        ) : null}
-                        {msg.audioUrl ? (
-                          <Pressable
-                            onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
-                            style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
-                          >
-                            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              {playingAudioId === msg.id ? (
-                                <Pause size={16} color={isMe ? '#FFFFFF' : '#4A080C'} />
-                              ) : (
-                                <Play size={16} color={isMe ? '#FFFFFF' : '#4A080C'} style={{ marginLeft: 2 }} />
-                              )}
-                            </View>
-                            <View style={{ flex: 1, justifyContent: 'center' }}>
-                              <AnimatedWaveform
-                                isAnimating={playingAudioId === msg.id}
-                                color={isMe ? '#FFFFFF' : '#4A080C'}
-                                inactiveColor={isMe ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
-                                barCount={16}
-                                height={24}
-                              />
-                            </View>
-                            <Text style={{ fontFamily: 'WorkSans_500Medium', fontSize: 12, color: isMe ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
-                              {formatDuration(msg.audioDuration || 0)}
+                        <View
+                          style={[
+                            styles.bubbleBase,
+                            isMe ? styles.sentBubble : styles.receivedBubble,
+                            !isDeleted && msg.imageUrl ? { padding: 4 } : null,
+                          ]}
+                        >
+                          {!isDeleted && msg.imageUrl ? (
+                            <Image
+                              source={{ uri: msg.imageUrl }}
+                              style={{
+                                width: 220,
+                                height: 180,
+                                borderRadius: 14,
+                              }}
+                              resizeMode="cover"
+                            />
+                          ) : null}
+                          {msgBody ? (
+                            <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: 'italic' }]}>
+                              {msgBody}
                             </Text>
-                          </Pressable>
-                        ) : null}
-                      </View>
+                          ) : null}
+                          {!isDeleted && msg.audioUrl ? (
+                            <Pressable
+                              onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
+                              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
+                            >
+                              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                {playingAudioId === msg.id ? (
+                                  <Pause size={16} color={isMe ? '#FFFFFF' : '#4A080C'} />
+                                ) : (
+                                  <Play size={16} color={isMe ? '#FFFFFF' : '#4A080C'} style={{ marginLeft: 2 }} />
+                                )}
+                              </View>
+                              <View style={{ flex: 1, justifyContent: 'center' }}>
+                                <AnimatedWaveform
+                                  isAnimating={playingAudioId === msg.id}
+                                  color={isMe ? '#FFFFFF' : '#4A080C'}
+                                  inactiveColor={isMe ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
+                                  barCount={16}
+                                  height={24}
+                                />
+                              </View>
+                              <Text style={{ fontFamily: 'WorkSans_500Medium', fontSize: 12, color: isMe ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
+                                {formatDuration(msg.audioDuration || 0)}
+                              </Text>
+                            </Pressable>
+                          ) : null}
+                        </View>
+                        {isMe ? <SentTail /> : <ReceivedTail />}
+                      </Pressable>
 
-                      {isMe && (
-                        <View style={styles.statusRow}>
-                          <Text style={styles.statusText}>{timeStr}</Text>
-                          {msg.id.startsWith('temp-') ? (
+                      {/* Timestamp row — shown for both sent and received */}
+                      <View style={[styles.statusRow, !isMe && { alignSelf: 'flex-start' }]}>
+                        <Text style={styles.statusText}>{timeStr}</Text>
+                        {isMe && (
+                          msg.id.startsWith('temp-') ? (
                             <Check size={14} color="#8A7550" />
                           ) : msg.isRead ? (
                             <CheckCheck size={14} color="#4A080C" />
                           ) : (
                             <CheckCheck size={14} color="#8A7550" />
-                          )}
-                        </View>
-                      )}
+                          )
+                        )}
+                      </View>
                     </View>
                   </React.Fragment>
                 );
               })
               )}
-            </>
+            </View>
           )}
 
           {uploadingImage && (
@@ -745,7 +957,10 @@ export default function CustomerDirectChatScreen() {
                   onChangeText={setInputText}
                   onFocus={() => setShowEmojiPicker(false)}
                   onSubmitEditing={handleSend}
+                  submitBehavior="submit"
                   returnKeyType="send"
+                  placeholder={`Message ${displayName.split(' ')[0]}...`}
+                  placeholderTextColor="#8A7550"
                 />
                 <Pressable
                   onPress={() => {
@@ -785,6 +1000,14 @@ export default function CustomerDirectChatScreen() {
           )}
         </View>
       </KeyboardAvoidingView>
+      <MessageDeleteMenu
+        visible={selectedMessageForDeletion !== null}
+        canDeleteForEveryone={canDeleteSelectedForEveryone}
+        busy={deletingMessageId !== null}
+        onDeleteForEveryone={handleDeleteSelectedForEveryone}
+        onDeleteForMe={handleDeleteSelectedForMe}
+        onCancel={() => setSelectedMessageForDeletion(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -909,6 +1132,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 18,
+    overflow: 'visible',
   },
   sentBubble: {
     alignSelf: 'flex-end',

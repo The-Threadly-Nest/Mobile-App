@@ -34,9 +34,9 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
   }
 
   if (status === 500) {
-    console.error(`[500 Server Error] [${req.method} ${req.path}] Unhandled error:`, err);
+    console.error(JSON.stringify({ event: "request_failed", status, code }));
   } else {
-    console.warn(`[${status} ${code}] [${req.method} ${req.path}] Details:`, details || err.message);
+    console.warn(JSON.stringify({ event: "request_rejected", status, code }));
   }
 
   res.status(status).json({

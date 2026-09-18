@@ -42,7 +42,8 @@
         "icon": "./assets/icon.png",
         "color": "#4A080C",
         "sounds": []
-      }]
+      }],
+      "expo-sqlite"
     ],
     "extra": {
       "router": {

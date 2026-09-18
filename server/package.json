@@ -6,9 +6,11 @@
     "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc",
     "vercel-build": "prisma generate",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit --incremental false"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1112.0",

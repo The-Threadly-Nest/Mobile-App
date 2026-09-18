@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://validation:validation@127.0.0.1:5432/validation
+      DIRECT_URL: postgresql://validation:validation@127.0.0.1:5432/validation
+      EXPO_PUBLIC_DATA_MODE: real
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            app-mobile/package-lock.json
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: server
+      - name: Install mobile dependencies
+        run: npm ci
+        working-directory: app-mobile
+      - name: Validate Prisma schema
+        run: npx prisma validate
+        working-directory: server
+      - name: Run security regression tests
+        run: npm test
+        working-directory: server
+      - name: Type-check server
+        run: npm run typecheck
+        working-directory: server
+      - name: Build server
+        run: npm run build
+        working-directory: server
+      - name: Type-check mobile app
+        run: npm run typecheck
+        working-directory: app-mobile
+      - name: Enforce real production data mode
+        run: npm run validate:production-data
+        working-directory: app-mobile
+      - name: Scan committed content for secrets
+        uses: gitleaks/gitleaks-action@v2

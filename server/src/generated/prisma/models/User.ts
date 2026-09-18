@@ -256,6 +256,7 @@ export type UserWhereInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchListRelationFilter
   sentDirectMessages?: Prisma.DirectMessageListRelationFilter
   receivedDirectMessages?: Prisma.DirectMessageListRelationFilter
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -282,6 +283,7 @@ export type UserOrderByWithRelationInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchOrderByRelationAggregateInput
   sentDirectMessages?: Prisma.DirectMessageOrderByRelationAggregateInput
   receivedDirectMessages?: Prisma.DirectMessageOrderByRelationAggregateInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -311,6 +313,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   moodBoardSketches?: Prisma.MoodBoardSketchListRelationFilter
   sentDirectMessages?: Prisma.DirectMessageListRelationFilter
   receivedDirectMessages?: Prisma.DirectMessageListRelationFilter
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateListRelationFilter
 }, "id" | "email" | "googleId">
 
 export type UserOrderByWithAggregationInput = {
@@ -374,6 +377,7 @@ export type UserCreateInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -399,6 +403,7 @@ export type UserUncheckedCreateInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -424,6 +429,7 @@ export type UserUpdateInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -449,6 +455,7 @@ export type UserUncheckedUpdateInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -756,6 +763,20 @@ export type UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedDirectMessagesInput, Prisma.UserUpdateWithoutReceivedDirectMessagesInput>, Prisma.UserUncheckedUpdateWithoutReceivedDirectMessagesInput>
 }
 
+export type UserCreateNestedOneWithoutDirectMessageThreadStatesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDirectMessageThreadStatesInput, Prisma.UserUncheckedCreateWithoutDirectMessageThreadStatesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDirectMessageThreadStatesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutDirectMessageThreadStatesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutDirectMessageThreadStatesInput, Prisma.UserUncheckedCreateWithoutDirectMessageThreadStatesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutDirectMessageThreadStatesInput
+  upsert?: Prisma.UserUpsertWithoutDirectMessageThreadStatesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDirectMessageThreadStatesInput, Prisma.UserUpdateWithoutDirectMessageThreadStatesInput>, Prisma.UserUncheckedUpdateWithoutDirectMessageThreadStatesInput>
+}
+
 export type UserCreateWithoutFashionHouseOwnedInput = {
   id?: string
   email: string
@@ -778,6 +799,7 @@ export type UserCreateWithoutFashionHouseOwnedInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
@@ -802,6 +824,7 @@ export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFashionHouseOwnedInput = {
@@ -831,6 +854,7 @@ export type UserCreateWithoutFashionHouseInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFashionHouseInput = {
@@ -855,6 +879,7 @@ export type UserUncheckedCreateWithoutFashionHouseInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFashionHouseInput = {
@@ -900,6 +925,7 @@ export type UserUpdateWithoutFashionHouseOwnedInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
@@ -924,6 +950,7 @@ export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithWhereUniqueWithoutFashionHouseInput = {
@@ -983,6 +1010,7 @@ export type UserCreateWithoutDelegatedOrdersInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
@@ -1007,6 +1035,7 @@ export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDelegatedOrdersInput = {
@@ -1047,6 +1076,7 @@ export type UserUpdateWithoutDelegatedOrdersInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
@@ -1071,6 +1101,7 @@ export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBookingsInput = {
@@ -1095,6 +1126,7 @@ export type UserCreateWithoutBookingsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBookingsInput = {
@@ -1119,6 +1151,7 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBookingsInput = {
@@ -1159,6 +1192,7 @@ export type UserUpdateWithoutBookingsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBookingsInput = {
@@ -1183,6 +1217,7 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatEscalationsInput = {
@@ -1207,6 +1242,7 @@ export type UserCreateWithoutChatEscalationsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatEscalationsInput = {
@@ -1231,6 +1267,7 @@ export type UserUncheckedCreateWithoutChatEscalationsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatEscalationsInput = {
@@ -1271,6 +1308,7 @@ export type UserUpdateWithoutChatEscalationsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatEscalationsInput = {
@@ -1295,6 +1333,7 @@ export type UserUncheckedUpdateWithoutChatEscalationsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPreferenceInput = {
@@ -1319,6 +1358,7 @@ export type UserCreateWithoutPreferenceInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPreferenceInput = {
@@ -1343,6 +1383,7 @@ export type UserUncheckedCreateWithoutPreferenceInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPreferenceInput = {
@@ -1383,6 +1424,7 @@ export type UserUpdateWithoutPreferenceInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreferenceInput = {
@@ -1407,6 +1449,7 @@ export type UserUncheckedUpdateWithoutPreferenceInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMoodBoardSketchesInput = {
@@ -1431,6 +1474,7 @@ export type UserCreateWithoutMoodBoardSketchesInput = {
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMoodBoardSketchesInput = {
@@ -1455,6 +1499,7 @@ export type UserUncheckedCreateWithoutMoodBoardSketchesInput = {
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMoodBoardSketchesInput = {
@@ -1495,6 +1540,7 @@ export type UserUpdateWithoutMoodBoardSketchesInput = {
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMoodBoardSketchesInput = {
@@ -1519,6 +1565,7 @@ export type UserUncheckedUpdateWithoutMoodBoardSketchesInput = {
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutChatSessionsInput = {
@@ -1543,6 +1590,7 @@ export type UserCreateWithoutChatSessionsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutChatSessionsInput = {
@@ -1567,6 +1615,7 @@ export type UserUncheckedCreateWithoutChatSessionsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutChatSessionsInput = {
@@ -1607,6 +1656,7 @@ export type UserUpdateWithoutChatSessionsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatSessionsInput = {
@@ -1631,6 +1681,7 @@ export type UserUncheckedUpdateWithoutChatSessionsInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSentDirectMessagesInput = {
@@ -1655,6 +1706,7 @@ export type UserCreateWithoutSentDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSentDirectMessagesInput = {
@@ -1679,6 +1731,7 @@ export type UserUncheckedCreateWithoutSentDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSentDirectMessagesInput = {
@@ -1708,6 +1761,7 @@ export type UserCreateWithoutReceivedDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReceivedDirectMessagesInput = {
@@ -1732,6 +1786,7 @@ export type UserUncheckedCreateWithoutReceivedDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReceivedDirectMessagesInput = {
@@ -1772,6 +1827,7 @@ export type UserUpdateWithoutSentDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSentDirectMessagesInput = {
@@ -1796,6 +1852,7 @@ export type UserUncheckedUpdateWithoutSentDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReceivedDirectMessagesInput = {
@@ -1831,6 +1888,7 @@ export type UserUpdateWithoutReceivedDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReceivedDirectMessagesInput = {
@@ -1855,6 +1913,123 @@ export type UserUncheckedUpdateWithoutReceivedDirectMessagesInput = {
   preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutDirectMessageThreadStatesInput = {
+  id?: string
+  email: string
+  googleId?: string | null
+  passwordHash?: string | null
+  name?: string | null
+  role: string
+  active?: boolean
+  pushToken?: string | null
+  resetTokenHash?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
+  fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
+  delegatedOrders?: Prisma.OrderCreateNestedManyWithoutStaffInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutCustomerInput
+  chatEscalations?: Prisma.ChatEscalationCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceCreateNestedOneWithoutUserInput
+  moodBoardSketches?: Prisma.MoodBoardSketchCreateNestedManyWithoutStaffInput
+  sentDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutSenderInput
+  receivedDirectMessages?: Prisma.DirectMessageCreateNestedManyWithoutCustomerInput
+}
+
+export type UserUncheckedCreateWithoutDirectMessageThreadStatesInput = {
+  id?: string
+  email: string
+  googleId?: string | null
+  passwordHash?: string | null
+  name?: string | null
+  role: string
+  fashionHouseId?: string | null
+  active?: boolean
+  pushToken?: string | null
+  resetTokenHash?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
+  delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCustomerInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedCreateNestedManyWithoutCustomerInput
+  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutCustomerInput
+  preference?: Prisma.CustomerPreferenceUncheckedCreateNestedOneWithoutUserInput
+  moodBoardSketches?: Prisma.MoodBoardSketchUncheckedCreateNestedManyWithoutStaffInput
+  sentDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutSenderInput
+  receivedDirectMessages?: Prisma.DirectMessageUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type UserCreateOrConnectWithoutDirectMessageThreadStatesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutDirectMessageThreadStatesInput, Prisma.UserUncheckedCreateWithoutDirectMessageThreadStatesInput>
+}
+
+export type UserUpsertWithoutDirectMessageThreadStatesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutDirectMessageThreadStatesInput, Prisma.UserUncheckedUpdateWithoutDirectMessageThreadStatesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutDirectMessageThreadStatesInput, Prisma.UserUncheckedCreateWithoutDirectMessageThreadStatesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutDirectMessageThreadStatesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutDirectMessageThreadStatesInput, Prisma.UserUncheckedUpdateWithoutDirectMessageThreadStatesInput>
+}
+
+export type UserUpdateWithoutDirectMessageThreadStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
+  fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
+  delegatedOrders?: Prisma.OrderUpdateManyWithoutStaffNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutCustomerNestedInput
+  chatEscalations?: Prisma.ChatEscalationUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUpdateOneWithoutUserNestedInput
+  moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
+  sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
+  receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+}
+
+export type UserUncheckedUpdateWithoutDirectMessageThreadStatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  googleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
+  delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutCustomerNestedInput
+  chatEscalations?: Prisma.ChatEscalationUncheckedUpdateManyWithoutCustomerNestedInput
+  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutCustomerNestedInput
+  preference?: Prisma.CustomerPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
+  sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
+  receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type UserCreateManyFashionHouseInput = {
@@ -1894,6 +2069,7 @@ export type UserUpdateWithoutFashionHouseInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFashionHouseInput = {
@@ -1918,6 +2094,7 @@ export type UserUncheckedUpdateWithoutFashionHouseInput = {
   moodBoardSketches?: Prisma.MoodBoardSketchUncheckedUpdateManyWithoutStaffNestedInput
   sentDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutSenderNestedInput
   receivedDirectMessages?: Prisma.DirectMessageUncheckedUpdateManyWithoutCustomerNestedInput
+  directMessageThreadStates?: Prisma.DirectMessageThreadStateUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutFashionHouseInput = {
@@ -1948,6 +2125,7 @@ export type UserCountOutputType = {
   moodBoardSketches: number
   sentDirectMessages: number
   receivedDirectMessages: number
+  directMessageThreadStates: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1958,6 +2136,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   moodBoardSketches?: boolean | UserCountOutputTypeCountMoodBoardSketchesArgs
   sentDirectMessages?: boolean | UserCountOutputTypeCountSentDirectMessagesArgs
   receivedDirectMessages?: boolean | UserCountOutputTypeCountReceivedDirectMessagesArgs
+  directMessageThreadStates?: boolean | UserCountOutputTypeCountDirectMessageThreadStatesArgs
 }
 
 /**
@@ -2019,6 +2198,13 @@ export type UserCountOutputTypeCountReceivedDirectMessagesArgs<ExtArgs extends r
   where?: Prisma.DirectMessageWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountDirectMessageThreadStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DirectMessageThreadStateWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2044,6 +2230,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   moodBoardSketches?: boolean | Prisma.User$moodBoardSketchesArgs<ExtArgs>
   sentDirectMessages?: boolean | Prisma.User$sentDirectMessagesArgs<ExtArgs>
   receivedDirectMessages?: boolean | Prisma.User$receivedDirectMessagesArgs<ExtArgs>
+  directMessageThreadStates?: boolean | Prisma.User$directMessageThreadStatesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2109,6 +2296,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   moodBoardSketches?: boolean | Prisma.User$moodBoardSketchesArgs<ExtArgs>
   sentDirectMessages?: boolean | Prisma.User$sentDirectMessagesArgs<ExtArgs>
   receivedDirectMessages?: boolean | Prisma.User$receivedDirectMessagesArgs<ExtArgs>
+  directMessageThreadStates?: boolean | Prisma.User$directMessageThreadStatesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2131,6 +2319,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     moodBoardSketches: Prisma.$MoodBoardSketchPayload<ExtArgs>[]
     sentDirectMessages: Prisma.$DirectMessagePayload<ExtArgs>[]
     receivedDirectMessages: Prisma.$DirectMessagePayload<ExtArgs>[]
+    directMessageThreadStates: Prisma.$DirectMessageThreadStatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2550,6 +2739,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   moodBoardSketches<T extends Prisma.User$moodBoardSketchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$moodBoardSketchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MoodBoardSketchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sentDirectMessages<T extends Prisma.User$sentDirectMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentDirectMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   receivedDirectMessages<T extends Prisma.User$receivedDirectMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedDirectMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  directMessageThreadStates<T extends Prisma.User$directMessageThreadStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$directMessageThreadStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessageThreadStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3215,6 +3405,30 @@ export type User$receivedDirectMessagesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.DirectMessageScalarFieldEnum | Prisma.DirectMessageScalarFieldEnum[]
+}
+
+/**
+ * User.directMessageThreadStates
+ */
+export type User$directMessageThreadStatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DirectMessageThreadState
+   */
+  select?: Prisma.DirectMessageThreadStateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DirectMessageThreadState
+   */
+  omit?: Prisma.DirectMessageThreadStateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DirectMessageThreadStateInclude<ExtArgs> | null
+  where?: Prisma.DirectMessageThreadStateWhereInput
+  orderBy?: Prisma.DirectMessageThreadStateOrderByWithRelationInput | Prisma.DirectMessageThreadStateOrderByWithRelationInput[]
+  cursor?: Prisma.DirectMessageThreadStateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DirectMessageThreadStateScalarFieldEnum | Prisma.DirectMessageThreadStateScalarFieldEnum[]
 }
 
 /**

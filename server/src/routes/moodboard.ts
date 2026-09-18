@@ -1,3 +1,4 @@
+import { moodboardAccessWhere } from "../lib/authorization";
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
@@ -86,8 +87,8 @@ router.get("/staff/:staffId", requireRole("admin"), async (req, res, next) => {
     const adminFashionHouseId = getOwnFashionHouseId(req);
 
     // Verify target staff member belongs to the admin's fashion house
-    const staffUser = await prisma.user.findUnique({
-      where: { id: staffId },
+    const staffUser = await prisma.user.findFirst({
+      where: { id: staffId, role: "staff", fashionHouseId: adminFashionHouseId },
     });
 
     if (!staffUser || staffUser.fashionHouseId !== adminFashionHouseId) {
@@ -114,8 +115,8 @@ router.post("/:id/promote", requireRole("admin"), validate({ body: promoteSketch
     const adminFashionHouseId = getOwnFashionHouseId(req);
 
     // Fetch sketch
-    const sketch = await prisma.moodBoardSketch.findUnique({
-      where: { id },
+    const sketch = await prisma.moodBoardSketch.findFirst({
+      where: { id, ...moodboardAccessWhere(req) },
     });
 
     if (!sketch) {

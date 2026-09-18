@@ -61,7 +61,7 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatal
 
     const { name, description, category, sizes, colors, priceFrom, imageUrl } = req.body;
     const updated = await prisma.catalogItem.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id, fashionHouseId: fhId },
       data: {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
@@ -92,7 +92,7 @@ router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
     }
 
     await prisma.catalogItem.delete({
-      where: { id: req.params.id },
+      where: { id: req.params.id, fashionHouseId: fhId },
     });
 
     res.json({ message: "Catalog item deleted successfully." });
@@ -152,4 +152,3 @@ router.get("/item/:id", async (req, res, next) => {
 });
 
 export default router;
-

@@ -37,6 +37,11 @@ import { API_BASE_URL } from "@/api/config";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import {
+  createChatCacheOwner,
+  readChatCache,
+  writeChatCache,
+} from "@/shared/services/chatCache";
 
 interface StaffMember {
   id: string;
@@ -115,16 +120,53 @@ function AnimatedWaveform({
   );
 }
 
+// WhatsApp-style message tail components
+const SentTail = () => (
+  <View
+    style={{
+      position: "absolute",
+      bottom: 0,
+      right: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderTopColor: "#4A080C",
+      borderLeftWidth: 9,
+      borderLeftColor: "transparent",
+    }}
+  />
+);
+
+const ReceivedTail = ({ color = "rgba(74,8,12,0.12)" }: { color?: string }) => (
+  <View
+    style={{
+      position: "absolute",
+      bottom: 0,
+      left: -7,
+      width: 0,
+      height: 0,
+      borderTopWidth: 9,
+      borderTopColor: color,
+      borderRightWidth: 9,
+      borderRightColor: "transparent",
+    }}
+  />
+);
+
 export default function AdminStaffChatScreen() {
   const params = useLocalSearchParams<{ staffId?: string }>();
   const token = useAuthStore((s) => s.token);
   const adminName = useAuthStore((s) => s.name) || "Admin";
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createChatCacheOwner(role, email);
 
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -142,6 +184,8 @@ export default function AdminStaffChatScreen() {
   const { showAlert } = useAppAlert();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
+  const isNearBottomRef = useRef(true);
+  const hydratedStaffIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -196,16 +240,34 @@ export default function AdminStaffChatScreen() {
 
   // Load session history for selected staff
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       if (!token || !selectedStaff) return;
+      hydratedStaffIdRef.current = null;
       setLoading(true);
+      setInitialPositionReady(false);
       setMessages([]); // Reset messages immediately to avoid showing old/mock messages during fetch
       try {
+        const cached = await readChatCache<ChatMessage[]>(
+          cacheOwner,
+          "admin-staff",
+          selectedStaff.id
+        );
+        if (cancelled) return;
+        if (cached) {
+          setMessages(Array.isArray(cached) ? cached : []);
+          hydratedStaffIdRef.current = selectedStaff.id;
+          setLoading(false);
+        }
+
         const res = await fetch(`${API_BASE_URL}/api/chat/session/${selectedStaff.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (cancelled) return;
         if (res.ok) {
           const body = await res.json();
+          if (cancelled) return;
           if (Array.isArray(body.history) && body.history.length > 0) {
             const formatted: ChatMessage[] = body.history.map((h: any, idx: number) => {
               const isMe = h.role === "admin" || h.role === "model";
@@ -225,29 +287,42 @@ export default function AdminStaffChatScreen() {
               };
             });
             setMessages(formatted);
+            hydratedStaffIdRef.current = selectedStaff.id;
+            void writeChatCache(cacheOwner, "admin-staff", selectedStaff.id, formatted);
           } else {
             setMessages([]);
+            hydratedStaffIdRef.current = selectedStaff.id;
+            void writeChatCache<ChatMessage[]>(cacheOwner, "admin-staff", selectedStaff.id, []);
           }
         }
       } catch (e) {
         console.warn("Failed to load staff chat history", e);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          hydratedStaffIdRef.current = selectedStaff.id;
+          setLoading(false);
+        }
       }
     })();
-  }, [selectedStaff, token]);
 
-  // Auto-scroll to bottom when message history loads (not on every optimistic update —
-  // handleSend owns the scroll for new outgoing messages to avoid competing reflows)
-  const prevLengthRef = useRef(0);
+    return () => {
+      cancelled = true;
+    };
+  }, [cacheOwner, selectedStaff, token]);
+
   useEffect(() => {
-    const prev = prevLengthRef.current;
-    prevLengthRef.current = messages.length;
-    // Only scroll on initial load or incoming messages (not optimistic adds handled in handleSend)
-    if (messages.length > 0 && prev === 0) {
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 80);
-    }
-  }, [messages.length]);
+    if (loading || !selectedStaff || hydratedStaffIdRef.current !== selectedStaff.id) return;
+    void writeChatCache(cacheOwner, "admin-staff", selectedStaff.id, messages);
+  }, [cacheOwner, loading, messages, selectedStaff]);
+
+  const previousMessageCountRef = useRef(0);
+  useEffect(() => {
+    const messagesIncreased = messages.length > previousMessageCountRef.current;
+    previousMessageCountRef.current = messages.length;
+    if (!initialPositionReady || !messagesIncreased || !isNearBottomRef.current) return;
+    const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+    return () => clearTimeout(timer);
+  }, [messages.length, initialPositionReady]);
 
   const handleSend = async () => {
     const textToSend = inputText.trim();
@@ -264,12 +339,8 @@ export default function AdminStaffChatScreen() {
     setInputText("");
     setSending(true);
     // Add optimistic message then scroll once — single source of truth for scroll
-    setMessages((prev) => {
-      const next = [...prev, newMsg];
-      // Defer scroll until after React flushes the state update
-      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
-      return next;
-    });
+    isNearBottomRef.current = true;
+    setMessages((prev) => [...prev, newMsg]);
 
     try {
       if (token) {
@@ -317,8 +388,8 @@ export default function AdminStaffChatScreen() {
             time: "Just now",
             status: "Delivered",
           };
+          isNearBottomRef.current = true;
           setMessages((prev) => [...prev, imageMsg]);
-          setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
         } catch (e: any) {
           showAlert("Upload Error", e.message || "Failed to upload image.");
         } finally {
@@ -408,6 +479,7 @@ export default function AdminStaffChatScreen() {
         status: "Delivered",
       };
 
+      isNearBottomRef.current = true;
       setMessages((prev) => [...prev, newMsg]);
 
       if (token && selectedStaff) {
@@ -521,9 +593,24 @@ export default function AdminStaffChatScreen() {
       <View style={{ flex: 1 }}>
         <ScrollView
           ref={scrollRef}
+          style={{ opacity: !loading && initialPositionReady ? 1 : 0 }}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={({ nativeEvent }) => {
+            const distanceFromBottom =
+              nativeEvent.contentSize.height -
+              nativeEvent.layoutMeasurement.height -
+              nativeEvent.contentOffset.y;
+            isNearBottomRef.current = distanceFromBottom < 80;
+          }}
+          onContentSizeChange={() => {
+            if (!loading && !initialPositionReady) {
+              scrollRef.current?.scrollToEnd({ animated: false });
+              requestAnimationFrame(() => setInitialPositionReady(true));
+            }
+          }}
         >
           {loading ? (
             <View style={styles.centerContainer}>
@@ -556,58 +643,62 @@ export default function AdminStaffChatScreen() {
                     <Text style={styles.senderNameText}>{msg.senderName}</Text>
                   )}
 
-                  <View
-                    style={[
-                      styles.bubbleBase,
-                      isMe ? styles.sentBubble : styles.receivedBubble,
-                      msg.imageUrl ? { padding: 4 } : null,
-                    ]}
-                  >
-                    {msg.imageUrl ? (
-                      <Image
-                        source={{ uri: msg.imageUrl }}
-                        style={{
-                          width: 220,
-                          height: 180,
-                          borderRadius: 14,
-                        }}
-                        resizeMode="cover"
-                      />
-                    ) : null}
-                    {msg.text ? (
-                      <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText]}>
-                        {msg.text}
-                      </Text>
-                    ) : null}
-                    {msg.audioUrl ? (
-                      <Pressable
-                        onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
-                        style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 6, minWidth: 180 }}
-                      >
-                        {/* Play / Pause button */}
-                        <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? "rgba(255,255,255,0.25)" : "rgba(74,8,12,0.15)", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          {playingAudioId === msg.id ? (
-                            <Pause size={16} color={isMe ? "#FFFFFF" : "#4A080C"} />
-                          ) : (
-                            <Play size={16} color={isMe ? "#FFFFFF" : "#4A080C"} style={{ marginLeft: 2 }} />
-                          )}
-                        </View>
-                        {/* Animated Waveform */}
-                        <View style={{ flex: 1, justifyContent: "center" }}>
-                          <AnimatedWaveform
-                            isAnimating={playingAudioId === msg.id}
-                            color={isMe ? "#FFFFFF" : "#4A080C"}
-                            inactiveColor={isMe ? "rgba(255,255,255,0.4)" : "rgba(74,8,12,0.4)"}
-                            barCount={16}
-                            height={24}
-                          />
-                        </View>
-                        {/* Duration */}
-                        <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: isMe ? "rgba(255,255,255,0.85)" : "#8A7550", flexShrink: 0 }}>
-                          {formatDuration(msg.audioDuration || 0)}
+                  {/* Bubble + tail wrapper */}
+                  <View style={{ position: "relative", alignSelf: isMe ? "flex-end" : "flex-start" }}>
+                    <View
+                      style={[
+                        styles.bubbleBase,
+                        isMe ? styles.sentBubble : styles.receivedBubble,
+                        msg.imageUrl ? { padding: 4 } : null,
+                      ]}
+                    >
+                      {msg.imageUrl ? (
+                        <Image
+                          source={{ uri: msg.imageUrl }}
+                          style={{
+                            width: 220,
+                            height: 180,
+                            borderRadius: 14,
+                          }}
+                          resizeMode="cover"
+                        />
+                      ) : null}
+                      {msg.text ? (
+                        <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText]}>
+                          {msg.text}
                         </Text>
-                      </Pressable>
-                    ) : null}
+                      ) : null}
+                      {msg.audioUrl ? (
+                        <Pressable
+                          onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
+                          style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 6, minWidth: 180 }}
+                        >
+                          {/* Play / Pause button */}
+                          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? "rgba(255,255,255,0.25)" : "rgba(74,8,12,0.15)", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            {playingAudioId === msg.id ? (
+                              <Pause size={16} color={isMe ? "#FFFFFF" : "#4A080C"} />
+                            ) : (
+                              <Play size={16} color={isMe ? "#FFFFFF" : "#4A080C"} style={{ marginLeft: 2 }} />
+                            )}
+                          </View>
+                          {/* Animated Waveform */}
+                          <View style={{ flex: 1, justifyContent: "center" }}>
+                            <AnimatedWaveform
+                              isAnimating={playingAudioId === msg.id}
+                              color={isMe ? "#FFFFFF" : "#4A080C"}
+                              inactiveColor={isMe ? "rgba(255,255,255,0.4)" : "rgba(74,8,12,0.4)"}
+                              barCount={16}
+                              height={24}
+                            />
+                          </View>
+                          {/* Duration */}
+                          <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: isMe ? "rgba(255,255,255,0.85)" : "#8A7550", flexShrink: 0 }}>
+                            {formatDuration(msg.audioDuration || 0)}
+                          </Text>
+                        </Pressable>
+                      ) : null}
+                    </View>
+                    {isMe ? <SentTail /> : <ReceivedTail />}
                   </View>
 
                   {/* Status & Timestamp Row */}
@@ -637,6 +728,12 @@ export default function AdminStaffChatScreen() {
             </View>
           )}
         </ScrollView>
+
+        {(loading || !initialPositionReady) && (
+          <View style={[StyleSheet.absoluteFill, styles.centerContainer]} pointerEvents="none">
+            <ActivityIndicator size="small" color="#4A080C" />
+          </View>
+        )}
 
         {/* Emoji Bar Popup */}
         {showEmojiPicker && (
@@ -918,6 +1015,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 18,
+    overflow: "visible",
   },
   sentBubble: {
     alignSelf: "flex-end",

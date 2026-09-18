@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { OAuth2Client } from "google-auth-library";
 import { prisma } from "../lib/prisma";
+import { credentialVersion } from "../lib/session";
 import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
-import { signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, activateAccountSchema } from "../schemas/auth.schema";
+import { changePasswordSchema, signupSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, activateAccountSchema } from "../schemas/auth.schema";
 import { hashPassword, verifyPassword, generateResetToken, hashResetToken } from "../lib/password";
 import { sendPasswordResetEmail, sendWelcomeEmail } from "../lib/mailer";
 
@@ -15,9 +16,9 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false });
 
-function issueToken(userId: string, email: string, role: string, fashionHouseId?: string | null) {
+function issueToken(userId: string, email: string, role: string, fashionHouseId: string | null | undefined, passwordHash: string | null) {
   if (!JWT_SECRET) throw Object.assign(new Error("Server misconfiguration"), { status: 500 });
-  const payload: Record<string, unknown> = { sub: userId, email, role };
+  const payload: Record<string, unknown> = { sub: userId, email, role, credentialVersion: credentialVersion(userId, passwordHash, JWT_SECRET) };
   if (fashionHouseId) payload.fashionHouseId = fashionHouseId;
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
@@ -30,75 +31,7 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
     const existing = await prisma.user.findUnique({ where: { email } });
 
     if (existing) {
-      // 1. Staff email can be used to create a Fashion House (Admin)
-      if (existing.role === "staff" && role === "admin") {
-        const passwordHash = await hashPassword(password);
-        const code = generateResetToken();
-        const resetTokenHash = hashResetToken(code);
-        const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-
-        const txResult = await prisma.$transaction(async (tx) => {
-          const user = await tx.user.update({
-            where: { id: existing.id },
-            data: {
-              role: "admin",
-              fashionHouseId: null,
-              passwordHash,
-              name: name || existing.name,
-              resetTokenHash,
-              resetTokenExpiresAt,
-            },
-          });
-          const fh = await tx.fashionHouse.create({
-            data: { adminId: user.id, shopName: businessName || name },
-          });
-          return { user, fashionHouseId: fh.id };
-        });
-        const updatedUser = txResult.user;
-
-
-        sendWelcomeEmail(email, name || updatedUser.name || "Admin", code).catch((mailErr) => {
-          console.error("Failed to send welcome email:", mailErr);
-        });
-        const token = issueToken(updatedUser.id, updatedUser.email, updatedUser.role, txResult.fashionHouseId);
-
-        return res.status(200).json({
-          token,
-          user: {
-            id: updatedUser.id,
-            email: updatedUser.email,
-            role: updatedUser.role,
-            name: updatedUser.name ?? "",
-            shopName: businessName || name,
-            isVerified: false,
-            onboardingCompleted: false,
-            createdAt: updatedUser.createdAt,
-          },
-        });
-      }
-
-      // 2. Admin email cannot be used to create customer or staff
-      if (existing.role === "admin") {
-        return res.status(400).json({
-          error: "This email is registered to a Fashion House Admin and cannot be used to create a Customer or Staff account.",
-        });
-      }
-
-      // 3. Customer email cannot be used to create admin or staff account
-      if (existing.role === "customer") {
-        if (role === "admin") {
-          return res.status(400).json({
-            error: "This email is registered to a Customer account and cannot be used to create a Fashion House Admin account.",
-          });
-        }
-        return res.status(400).json({
-          error: "An account with this email already exists. Please log in instead.",
-        });
-      }
-
-      return res.status(400).json({
-        error: "An account with this email already exists. Please log in instead.",
-      });
+      return res.status(400).json({ error: "An account with this email already exists. Please log in instead." });
     }
 
     const passwordHash = await hashPassword(password);
@@ -130,7 +63,7 @@ router.post("/signup", authLimiter, validate({ body: signupSchema }), async (req
     sendWelcomeEmail(email, name, code).catch((mailErr) => {
       console.error("Failed to send welcome email:", mailErr);
     });
-    const token = issueToken(user.id, user.email, user.role, newFhId);
+    const token = issueToken(user.id, user.email, user.role, newFhId, user.passwordHash);
 
     let shopName: string | null = null;
     let onboardingCompleted = false;
@@ -191,7 +124,7 @@ router.post("/login", authLimiter, validate({ body: loginSchema }), async (req, 
       }
     }
 
-    const token = issueToken(user.id, user.email, user.role, loginFashionHouseId);
+    const token = issueToken(user.id, user.email, user.role, loginFashionHouseId, user.passwordHash);
 
     res.json({
       token,
@@ -223,7 +156,6 @@ router.post("/forgot-password", authLimiter, validate({ body: forgotPasswordSche
       const resetTokenHash = hashResetToken(rawToken);
       const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
       await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash, resetTokenExpiresAt } });
-      console.log(`[AUTH] Reset PIN generated for ${normalizedEmail}: ${rawToken}`);
       sendPasswordResetEmail(normalizedEmail, rawToken).catch((mailErr) => {
         console.error("Failed to send password reset email:", mailErr);
       });
@@ -262,15 +194,10 @@ router.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema
   }
 });
 
-router.post("/change-password", authLimiter, async (req, res, next) => {
+router.post("/change-password", requireAuth, authLimiter, validate({ body: changePasswordSchema }), async (req, res, next) => {
   try {
-    const { email, currentPassword, newPassword } = req.body;
-    if (!email || !currentPassword || !newPassword) {
-      return res.status(400).json({ error: "Email, current password, and new password are required." });
-    }
-
-    const normalizedEmail = email.toLowerCase().trim();
-    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    const { currentPassword, newPassword } = req.body;
+    const user = await prisma.user.findUnique({ where: { id: req.authUserId! } });
     if (!user || !user.passwordHash) {
       return res.status(401).json({ error: "Incorrect email or current password." });
     }
@@ -283,10 +210,10 @@ router.post("/change-password", authLimiter, async (req, res, next) => {
     const newPasswordHash = await hashPassword(newPassword);
     await prisma.user.update({
       where: { id: user.id },
-      data: { passwordHash: newPasswordHash, active: true },
+      data: { passwordHash: newPasswordHash, resetTokenHash: null, resetTokenExpiresAt: null },
     });
 
-    res.json({ message: "Password updated successfully." });
+    res.json({ message: "Password updated successfully.", token: issueToken(user.id, user.email, user.role, req.authFashionHouseId, newPasswordHash) });
   } catch (err) {
     next(err);
   }
@@ -314,7 +241,7 @@ router.post("/activate-account", authLimiter, validate({ body: activateAccountSc
     const passwordHash = await hashPassword(password);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash, active: true, resetTokenHash: null, resetTokenExpiresAt: null } });
 
-    const jwtToken = issueToken(user.id, user.email, user.role, user.fashionHouseId ?? null);
+    const jwtToken = issueToken(user.id, user.email, user.role, user.fashionHouseId ?? null, passwordHash);
     res.json({ token: jwtToken, user: { id: user.id, email: user.email, role: user.role } });
   } catch (err) {
     next(err);
@@ -398,7 +325,7 @@ router.post("/google", authLimiter, async (req, res, next) => {
         audience: process.env.GOOGLE_CLIENT_ID,
       });
       const payload = ticket.getPayload();
-      if (!payload) throw new Error("Empty payload");
+      if (!payload || !payload.email_verified) throw new Error("Unverified Google identity");
       googleId = payload.sub;
       email = payload.email!;
       name = payload.name;
@@ -412,6 +339,10 @@ router.post("/google", authLimiter, async (req, res, next) => {
       where: { OR: [{ googleId }, { email }] },
       include: { fashionHouseOwned: true },
     });
+
+    if (user && (!user.active || (user.googleId && user.googleId !== googleId))) {
+      return res.status(401).json({ error: "Unable to sign in with this account." });
+    }
 
     if (!user) {
       // Create new user with selected role
@@ -453,8 +384,8 @@ router.post("/google", authLimiter, async (req, res, next) => {
     }
 
     const onboardingCompleted = user.fashionHouseOwned?.onboardingCompleted ?? false;
-    const googleFhId = user.fashionHouseOwned?.id ?? null;
-    const token = issueToken(user.id, user.email, user.role, googleFhId);
+    const googleFhId = user.fashionHouseOwned?.id ?? user.fashionHouseId ?? null;
+    const token = issueToken(user.id, user.email, user.role, googleFhId, user.passwordHash);
     res.json({
       token,
       user: {

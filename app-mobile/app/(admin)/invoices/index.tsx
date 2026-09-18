@@ -26,33 +26,6 @@ interface InvoiceItem {
   orderNumber?: string;
 }
 
-const MOCK_INVOICES: InvoiceItem[] = [
-  {
-    id: "inv-1",
-    invoiceNumber: "INV-1042",
-    customerName: "Chiamaka O.",
-    date: "Sep 6, 2026",
-    amount: 816000,
-    status: "Pending",
-  },
-  {
-    id: "inv-2",
-    invoiceNumber: "INV-1041",
-    customerName: "Blessing A.",
-    date: "Aug 30, 2026",
-    amount: 378000,
-    status: "Paid",
-  },
-  {
-    id: "inv-3",
-    invoiceNumber: "INV-1040",
-    customerName: "Ifeoma N.",
-    date: "Jul 14, 2026",
-    amount: 378000,
-    status: "Paid",
-  },
-];
-
 export default function InvoicesListScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
@@ -96,13 +69,6 @@ export default function InvoicesListScreen() {
   const invoices: InvoiceItem[] = React.useMemo(() => {
     if (currentOrders && currentOrders.length > 0) {
       return currentOrders.map((o: any, idx: number) => {
-        const isPaid =
-          o.isPaid === true ||
-          o.paymentStatus === "Paid" ||
-          o.invoiceStatus === "Paid" ||
-          o.status === "Paid" ||
-          o.status === "completed" ||
-          o.status === "delivered";
         const orderNum = o.orderNumber || `#TFH-${(o.id || String(idx)).slice(0, 4).toUpperCase()}`;
         return {
           id: o.id || `inv-${idx + 1}`,
@@ -110,13 +76,13 @@ export default function InvoicesListScreen() {
           orderNumber: orderNum,
           customerName: o.customer?.name || o.customer || "Customer",
           garment: o.itemName || o.item || "Bespoke Fitting & Tailoring",
-          date: o.fittingDate || o.createdAt ? new Date(o.createdAt || Date.now()).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Sep 6, 2026",
-          amount: o.price || 350000,
-          status: isPaid ? "Paid" : "Pending",
+          date: o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Date unavailable",
+          amount: typeof o.price === "number" ? o.price : 0,
+          status: o.invoice?.status === "Paid" ? "Paid" : "Pending",
         };
       });
     }
-    return MOCK_INVOICES;
+    return [];
   }, [currentOrders]);
 
   return (

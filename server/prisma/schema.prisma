@@ -37,6 +37,8 @@ model User {
   moodBoardSketches MoodBoardSketch[] @relation("StaffMoodBoardSketches")
   sentDirectMessages     DirectMessage[] @relation("SentDirectMessages")
   receivedDirectMessages DirectMessage[] @relation("ReceivedDirectMessages")
+  directMessageThreadStates DirectMessageThreadState[]
+  directMessageDeletions DirectMessageUserDeletion[]
 
   @@index([fashionHouseId])
   @@map("users")
@@ -286,12 +288,43 @@ model DirectMessage {
   audioUrl       String?
   audioDuration  Int?
   readAt         DateTime?
+  deletedForEveryoneAt DateTime?
   createdAt      DateTime  @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   sender       User         @relation("SentDirectMessages", fields: [senderId], references: [id], onDelete: Cascade)
   customer     User         @relation("ReceivedDirectMessages", fields: [customerId], references: [id], onDelete: Cascade)
+  userDeletions DirectMessageUserDeletion[]
 
   @@index([fashionHouseId, customerId, createdAt])
   @@map("direct_messages")
+}
+
+model DirectMessageThreadState {
+  id             String   @id @default(uuid())
+  userId         String
+  fashionHouseId String
+  customerId     String
+  clearedAt      DateTime
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fashionHouseId, customerId])
+  @@index([fashionHouseId, customerId])
+  @@map("direct_message_thread_states")
+}
+
+model DirectMessageUserDeletion {
+  id        String   @id @default(uuid())
+  userId    String
+  messageId String
+  deletedAt DateTime @default(now())
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message DirectMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId])
+  @@index([messageId])
+  @@map("direct_message_user_deletions")
 }

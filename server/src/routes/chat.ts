@@ -261,6 +261,14 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
     ];
     await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory as unknown as Prisma.InputJsonValue } });
 
+    // Notify admin of new customer AI-chat message (WhatsApp-style: always notify the other side)
+    sendNotificationToAdmin(
+      fashionHouseId,
+      customerUser?.name || "Customer",
+      message.slice(0, 100),
+      { screen: "messages", customerId }
+    );
+
     res.json({ type: "message", reply: modelReply });
   } catch (err) {
     next(err);

@@ -115,10 +115,7 @@ router.get("/:escalationId", validate({ params: escalationIdParamSchema }), asyn
 
     const measurements = await prisma.measurement.findMany({
       where: {
-        OR: [
-          { customerId: escalation.customerId },
-          { customer: { userId: escalation.customerId } },
-        ],
+        customer: { userId: escalation.customerId, fashionHouseId: fh.id },
       },
       orderBy: { recordedAt: "desc" },
     });
@@ -149,7 +146,7 @@ router.patch("/:escalationId/resolve", validate({ params: escalationIdParamSchem
       if (!staff) return res.status(404).json({ error: "Staff member not found in this fashion house" });
     }
 
-    const updated = await prisma.chatEscalation.update({ where: { id: escalation.id }, data: { resolved: true } });
+    const updated = await prisma.chatEscalation.update({ where: { id: escalation.id, fashionHouseId: fh.id }, data: { resolved: true } });
     res.json(updated);
   } catch (err) {
     next(err);
@@ -194,28 +191,55 @@ router.post("/assign", async (req, res, next) => {
     const fh = await getAdminFashionHouseOrThrow(req.authUserId!);
     const { bookingId, staffId, serviceTitle, customerName, price, measurements } = req.body;
 
+    // Validate every supplied foreign reference before any write.
+    if (bookingId) {
+      if (typeof bookingId !== "string") return res.status(400).json({ error: "Invalid booking." });
+      const ownedBooking = await prisma.booking.findFirst({
+        where: { id: bookingId, fashionHouseId: fh.id }, select: { id: true },
+      });
+      if (!ownedBooking) return res.status(404).json({ error: "Booking not found." });
+    }
     let validStaffId: string | null = null;
-    if (staffId && typeof staffId === "string" && !staffId.startsWith("t")) {
+    if (staffId) {
+      if (typeof staffId !== "string") return res.status(400).json({ error: "Invalid staff member." });
       const staffUser = await prisma.user.findFirst({
         where: { id: staffId, fashionHouseId: fh.id, role: "staff" },
       });
-      if (staffUser) validStaffId = staffUser.id;
+      if (!staffUser) return res.status(404).json({ error: "Staff member not found." });
+      validStaffId = staffUser.id;
     }
 
     let targetCustomerId: string | null = null;
-    if (bookingId && !bookingId.startsWith("demo-")) {
+    if (bookingId) {
       const dbBooking = await prisma.booking.findFirst({
         where: { id: bookingId, fashionHouseId: fh.id },
         select: { customerId: true },
       });
       if (dbBooking?.customerId) {
-        // Verify this ID actually exists in the Customer table (not a User ID)
-        const verifiedCustomer = await prisma.customer.findUnique({
-          where: { id: dbBooking.customerId },
+        const linkedCustomers = await prisma.customer.findMany({
+          where: { userId: dbBooking.customerId, fashionHouseId: fh.id },
           select: { id: true },
+          take: 2,
         });
-        if (verifiedCustomer) {
-          targetCustomerId = verifiedCustomer.id;
+        if (linkedCustomers.length > 1) {
+          return res.status(409).json({ error: "This customer has duplicate profiles and requires manual review." });
+        }
+        if (linkedCustomers.length === 1) {
+          targetCustomerId = linkedCustomers[0].id;
+        } else {
+          const bookingUser = await prisma.user.findUnique({
+            where: { id: dbBooking.customerId },
+            select: { id: true, name: true, email: true },
+          });
+          if (!bookingUser) return res.status(409).json({ error: "The booking customer could not be resolved." });
+          const linkedCustomer = await prisma.customer.create({
+            data: {
+              fashionHouseId: fh.id,
+              userId: bookingUser.id,
+              name: bookingUser.name?.trim() || bookingUser.email.split("@")[0],
+            },
+          });
+          targetCustomerId = linkedCustomer.id;
         }
       }
     }
@@ -235,23 +259,10 @@ router.post("/assign", async (req, res, next) => {
       targetCustomerId = customer.id;
     }
 
-    if (!targetCustomerId) {
-      let customer = await prisma.customer.findFirst({
-        where: { fashionHouseId: fh.id },
-      });
-      if (!customer) {
-        customer = await prisma.customer.create({
-          data: {
-            fashionHouseId: fh.id,
-            name: customerName || "Customer",
-          },
-        });
-      }
-      targetCustomerId = customer.id;
-    }
+    if (!targetCustomerId) return res.status(400).json({ error: "A booking or customer name is required." });
 
     const parsedPrice = typeof price === "number" && !isNaN(price) && price >= 0 ? price : 0;
-    const cleanBookingId = bookingId && !bookingId.startsWith("demo-") ? bookingId : null;
+    const cleanBookingId = bookingId ? bookingId : null;
 
     // 1. Check if an order already exists for this specific booking
     let existingOrder = cleanBookingId
@@ -271,7 +282,7 @@ router.post("/assign", async (req, res, next) => {
 
     if (existingOrder) {
       order = await prisma.order.update({
-        where: { id: existingOrder.id },
+        where: { id: existingOrder.id, fashionHouseId: fh.id },
         data: {
           staffId: validStaffId,
           bookingId: cleanBookingId ?? existingOrder.bookingId,
@@ -319,7 +330,7 @@ router.post("/assign", async (req, res, next) => {
     }
 
     // 3. Mark booking request and chat escalation as assigned in database
-    if (bookingId && !bookingId.startsWith("demo-")) {
+    if (bookingId) {
       await prisma.booking.updateMany({
         where: { id: bookingId, fashionHouseId: fh.id },
         data: { status: "assigned" },
@@ -329,22 +340,11 @@ router.post("/assign", async (req, res, next) => {
         where: { id: bookingId, fashionHouseId: fh.id },
         data: { resolved: true },
       }).catch(() => {});
-    } else {
-      // If bookingId is demo or unassigned, resolve pending escalations for this fashion house
-      await prisma.chatEscalation.updateMany({
-        where: { fashionHouseId: fh.id, resolved: false },
-        data: { resolved: true },
-      }).catch(() => {});
     }
 
     res.json({ success: true, order });
   } catch (err: any) {
-    console.error("[assign] Error details:", {
-      message: err?.message,
-      code: err?.code,
-      meta: err?.meta,
-      stack: err?.stack,
-    });
+    console.error("[assign] Operation failed");
     next(err);
   }
 });

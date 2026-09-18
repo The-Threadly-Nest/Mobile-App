@@ -5,7 +5,9 @@
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit --incremental false",
+    "validate:production-data": "node scripts/validate-production-data-mode.js"
   },
   "dependencies": {
     "@expo-google-fonts/work-sans": "^0.2.3",
@@ -29,6 +31,7 @@
     "expo-secure-store": "~15.0.8",
     "expo-sharing": "~14.0.8",
     "expo-splash-screen": "~31.0.13",
+    "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
     "expo-web-browser": "~15.0.11",
     "lucide-react-native": "^0.376.0",

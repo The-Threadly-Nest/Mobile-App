@@ -102,7 +102,7 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateAvail
     }
 
     const updated = await prisma.availableSlot.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id, fashionHouseId: fhId },
       data: {
         date: date !== undefined ? date : existing.date,
         time: time !== undefined ? time : existing.time,
@@ -130,7 +130,7 @@ router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
     }
 
     await prisma.availableSlot.delete({
-      where: { id: req.params.id },
+      where: { id: req.params.id, fashionHouseId: fhId },
     });
 
     res.status(204).end();

@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { prisma } from "../lib/prisma";
+import { credentialVersion } from "../lib/session";
 
 declare global {
   namespace Express {
@@ -12,7 +14,7 @@ declare global {
   }
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const header = req.headers.authorization;
   if (!header?.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Missing or malformed Authorization header" });
@@ -23,19 +25,38 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     return res.status(500).json({ error: "Server misconfiguration" });
   }
   try {
-    const decoded = jwt.verify(header.slice(7), secret) as {
+    const decoded = jwt.verify(header.slice(7), secret, { algorithms: ["HS256"] }) as {
       sub: string;
       email: string;
       role: string;
       fashionHouseId?: string;
+      credentialVersion?: string;
     };
-    req.authUserId = decoded.sub;
-    req.authEmail = decoded.email;
-    req.authRole = decoded.role as "admin" | "staff" | "customer";
-    req.authFashionHouseId = decoded.fashionHouseId ?? null;
+    if (typeof decoded.sub !== "string" || !decoded.credentialVersion) {
+      return res.status(401).json({ error: "Please log in again." });
+    }
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.sub },
+      select: { id: true, email: true, role: true, active: true, passwordHash: true,
+        fashionHouseId: true, fashionHouseOwned: { select: { id: true } } },
+    });
+    if (!user?.active || !["admin", "staff", "customer"].includes(user.role) ||
+        decoded.role !== user.role ||
+        decoded.credentialVersion !== credentialVersion(user.id, user.passwordHash, secret)) {
+      return res.status(401).json({ error: "Please log in again." });
+    }
+    req.authUserId = user.id;
+    req.authEmail = user.email;
+    req.authRole = user.role as "admin" | "staff" | "customer";
+    req.authFashionHouseId = user.role === "admin"
+      ? user.fashionHouseOwned?.id ?? null
+      : user.role === "staff" ? user.fashionHouseId : null;
     next();
-  } catch {
-    return res.status(401).json({ error: "Invalid or expired token" });
+  } catch (err) {
+    if (err instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+    next(err);
   }
 }
 
@@ -49,10 +70,12 @@ export function requireRole(...allowed: Array<"admin" | "staff" | "customer">) {
 }
 
 /**
- * Returns the fashion house ID from the JWT claim — zero DB queries.
- * Throws a 404 if the claim is missing (e.g. old tokens issued before this change).
+ * Returns the current house resolved from the database by requireAuth.
  */
 export function getOwnFashionHouseId(req: Request): string {
+  if (req.authRole !== "admin" && req.authRole !== "staff") {
+    throw Object.assign(new Error("Fashion house access required."), { status: 403 });
+  }
   const fhId = req.authFashionHouseId;
   if (!fhId) {
     throw Object.assign(
@@ -62,4 +85,3 @@ export function getOwnFashionHouseId(req: Request): string {
   }
   return fhId;
 }
-

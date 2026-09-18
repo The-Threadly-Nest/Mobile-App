@@ -23,12 +23,6 @@ interface TailorOption {
   activeOrders: number;
 }
 
-const DEFAULT_TAILORS: TailorOption[] = [
-  { id: "t1", name: "Ngozi Umeh", activeOrders: 3 },
-  { id: "t2", name: "Tunde Bakare", activeOrders: 5 },
-  { id: "t3", name: "Funmilayo Adeyemi", activeOrders: 1 },
-];
-
 export default function AssignStaffScreen() {
   const params = useLocalSearchParams<{
     bookingId?: string;
@@ -42,12 +36,12 @@ export default function AssignStaffScreen() {
   const { showAlert } = useAppAlert();
   const token = useAuthStore((s) => s.token);
 
-  const customerName = params.customerName || "Chiamaka O.";
-  const serviceTitle = params.serviceTitle || "Bridal Aso-Ebi";
-  const appointmentTime = params.appointmentTime || "Sat, Sept 6";
+  const customerName = params.customerName || "Customer";
+  const serviceTitle = params.serviceTitle || "Bespoke Fitting";
+  const appointmentTime = params.appointmentTime || "Appointment time unavailable";
 
-  const [tailors, setTailors] = useState<TailorOption[]>(DEFAULT_TAILORS);
-  const [selectedTailorId, setSelectedTailorId] = useState<string>("t1");
+  const [tailors, setTailors] = useState<TailorOption[]>([]);
+  const [selectedTailorId, setSelectedTailorId] = useState<string>("");
   const [loadingStaff, setLoadingStaff] = useState<boolean>(true);
 
   // Garment Title, Price & Measurement Inputs
@@ -97,6 +91,10 @@ export default function AssignStaffScreen() {
 
   const handleConfirm = async () => {
     const tailor = tailors.find((t) => t.id === selectedTailorId) || tailors[0];
+    if (!tailor) {
+      showAlert("No Staff Available", "Add an active staff member before assigning this booking.");
+      return;
+    }
     const cleanedPrice = Number(priceInput.replace(/[^0-9]/g, "")) || 0;
 
     try {

@@ -1,3 +1,4 @@
+import { orderAccessWhere, bookingAccessWhere } from "../lib/authorization";
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
@@ -258,7 +259,7 @@ router.get("/track/:id", requireAuth, async (req, res, next) => {
       prisma.booking.findFirst({
         where: {
           id,
-          ...(!isStaffOrAdmin ? { customerId: userId } : {}),
+          ...bookingAccessWhere(req),
         },
         include: {
           fashionHouse: {
@@ -279,7 +280,7 @@ router.get("/track/:id", requireAuth, async (req, res, next) => {
         },
       }),
       prisma.order.findFirst({
-        where: { id },
+        where: { id, ...orderAccessWhere(req) },
         include: {
           fashionHouse: {
             select: {
@@ -377,11 +378,11 @@ router.post("/track/:id/cancel", requireAuth, async (req, res, next) => {
       prisma.booking.findFirst({
         where: {
           id,
-          ...(!isStaffOrAdmin ? { customerId: userId } : {}),
+          ...bookingAccessWhere(req),
         },
       }),
       prisma.order.findFirst({
-        where: { id },
+        where: { id, ...orderAccessWhere(req) },
         include: { customer: { select: { userId: true } } },
       }),
     ]);
@@ -444,6 +445,14 @@ router.post("/", async (req, res, next) => {
     }
 
     const assignedStaffId = staffId || (req.authRole === "staff" ? req.authUserId : null);
+
+    if (assignedStaffId) {
+      const staff = await prisma.user.findFirst({
+        where: { id: assignedStaffId, fashionHouseId: fhId, role: "staff", active: true },
+        select: { id: true },
+      });
+      if (!staff) return res.status(404).json({ error: "Staff member not found." });
+    }
 
     const order = await prisma.order.create({
       data: {
@@ -511,15 +520,6 @@ router.get("/:id", async (req, res, next) => {
     }
 
     let measurements = order.customer.measurements || [];
-    if (measurements.length === 0 && order.customer.userId) {
-      const userMeasurements = await prisma.measurement.findMany({
-        where: { customerId: order.customer.userId },
-        orderBy: { recordedAt: "desc" },
-      });
-      if (userMeasurements.length > 0) {
-        measurements = userMeasurements;
-      }
-    }
 
     res.json({
       ...order,
@@ -557,7 +557,7 @@ router.patch("/:id/assign", requireRole("admin"), async (req, res, next) => {
     }
 
     const updated = await prisma.order.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id, fashionHouseId: fhId },
       data: { staffId: staffId || null },
       include: {
         staff: { select: { id: true, name: true, email: true } },
@@ -589,13 +589,13 @@ router.patch("/:id/status", validate({ body: updateOrderStatusSchema }), async (
     }
 
     const updated = await prisma.order.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id, fashionHouseId: fhId },
       data: { status },
     });
 
     if (order.bookingId) {
       await prisma.booking.update({
-        where: { id: order.bookingId },
+        where: { id: order.bookingId, fashionHouseId: fhId },
         data: { status },
       }).catch(() => {});
     }

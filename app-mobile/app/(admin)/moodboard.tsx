@@ -37,46 +37,13 @@ interface TailorSection {
   sketches: SketchItem[];
 }
 
-const DEFAULT_TAILORS: TailorSection[] = [
-  {
-    id: "s1",
-    name: "Ngozi Umeh",
-    initial: "N",
-    sketches: [
-      { id: "sk1", title: "Ankara Vest & Wide-Leg Pants", image: require("../../assets/sketches/sketch-1.png") },
-      { id: "sk2", title: "Folklore Corset & Trousers", image: require("../../assets/sketches/sketch-2.png") },
-      { id: "sk3", title: "Burgundy Leather & Distressed Denim", image: require("../../assets/sketches/sketch-3.png") },
-    ],
-  },
-  {
-    id: "s2",
-    name: "Tunde Bakare",
-    initial: "T",
-    sketches: [
-      { id: "sk4", title: "Denim Balloon-Sleeve Wrap Dress", image: require("../../assets/sketches/sketch-4.png") },
-      { id: "sk5", title: "Structured Patchwork Denim Blazer", image: require("../../assets/sketches/sketch-5.png") },
-      { id: "sk6", title: "Linen Blend Resort Set", image: require("../../assets/sketches/sketch-6.png") },
-    ],
-  },
-  {
-    id: "s3",
-    name: "Funmilayo Adeyemi",
-    initial: "F",
-    sketches: [
-      { id: "sk7", title: "Puff-Sleeve Belted Midi Dress", image: require("../../assets/sketches/sketch-7.png") },
-      { id: "sk8", title: "Backless Gown & Wide-Brim Hat", image: require("../../assets/sketches/sketch-8.png") },
-      { id: "sk9", title: "Off-the-Shoulder Turtleneck Gown", image: require("../../assets/sketches/sketch-9.png") },
-    ],
-  },
-];
-
 export default function AdminMoodBoardRedesignScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
   const token = useAuthStore((s) => s.token);
 
-  const [tailorSections, setTailorSections] = useState<TailorSection[]>(DEFAULT_TAILORS);
+  const [tailorSections, setTailorSections] = useState<TailorSection[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Promote Modal state
@@ -90,11 +57,7 @@ export default function AdminMoodBoardRedesignScreen() {
     if (!token) return;
     setLoading(true);
     try {
-      // 1. Keep the original tailor sections at the top
-      const sections: TailorSection[] = DEFAULT_TAILORS.map((t) => ({
-        ...t,
-        sketches: [...t.sketches],
-      }));
+      const sections: TailorSection[] = [];
 
       // 2. Fetch remote staff sketches and merge/append them
       const staffRes = await fetch(`${API_BASE_URL}/api/staff`, {

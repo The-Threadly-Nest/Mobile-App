@@ -16,3 +16,6 @@ const getDevServerIp = () => {
 
 export const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL || getDevServerIp();
+import { resolveDataMode } from "@/config/dataMode";
+
+export const DATA_MODE = resolveDataMode(process.env.EXPO_PUBLIC_DATA_MODE, __DEV__);

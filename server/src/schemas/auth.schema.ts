@@ -2,6 +2,11 @@ import { z } from "zod";
 
 const passwordSchema = z.string().min(8).regex(/[A-Z]/, "Must include an uppercase letter").regex(/[0-9]/, "Must include a number");
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: passwordSchema,
+});
+
 export const signupSchema = z.object({
   email: z.string().email(),
   password: passwordSchema,

@@ -34,80 +34,12 @@ app.set("trust proxy", 1);
 // Disable 304 caching in development so every request returns fresh data
 app.set("etag", false);
 
-// Comprehensive Single-Line Logger (No emojis, no box borders)
-app.use((req: any, res, next) => {
+// Log operational metadata only: never bodies, queries, URLs, or responses.
+app.use((req, res, next) => {
   const start = Date.now();
-  const timeStr = new Date().toLocaleTimeString();
-
-  let responseBody: any = null;
-  const originalJson = res.json.bind(res);
-  const originalSend = res.send.bind(res);
-
-  res.json = (body: any) => {
-    responseBody = body;
-    return originalJson(body);
-  };
-
-  res.send = (body: any) => {
-    if (!responseBody && typeof body === "string") {
-      try {
-        responseBody = JSON.parse(body);
-      } catch {
-        responseBody = body;
-      }
-    }
-    return originalSend(body);
-  };
-
   res.on("finish", () => {
-    const duration = Date.now() - start;
-    const parts: string[] = [
-      `[${timeStr}] ${req.method} ${req.originalUrl || req.url} -> ${res.statusCode} (${duration}ms)`
-    ];
-
-    // Log Query Params if present
-    if (req.query && Object.keys(req.query).length > 0) {
-      parts.push(`Query: ${JSON.stringify(req.query)}`);
-    }
-
-    // Log Request Body
-    if (req.body && Object.keys(req.body).length > 0) {
-      const sanitized = { ...req.body };
-      if (sanitized.password) sanitized.password = "••••";
-      parts.push(`Body: ${JSON.stringify(sanitized)}`);
-    }
-
-    // Log Response Summary
-    if (responseBody) {
-      if (Array.isArray(responseBody)) {
-        const sampleTitles = responseBody
-          .slice(0, 3)
-          .map((i: any) => `"${i.title || i.name || i.id}"`)
-          .filter(Boolean);
-        const preview = sampleTitles.length > 0 ? ` (${sampleTitles.join(", ")})` : "";
-        parts.push(`Result: ${responseBody.length} item${responseBody.length === 1 ? "" : "s"}${preview}`);
-      } else if (typeof responseBody === "object") {
-        if (responseBody.error) {
-          const errText =
-            typeof responseBody.error === "object"
-              ? responseBody.error.message || responseBody.error.code || JSON.stringify(responseBody.error)
-              : responseBody.error;
-          parts.push(`Error: "${errText}"`);
-        } else if (responseBody.fileUrl) {
-          parts.push(`File: ${responseBody.fileUrl}`);
-        } else if (responseBody.title || responseBody.name) {
-          parts.push(`Item: "${responseBody.title || responseBody.name}"`);
-        } else {
-          parts.push(`Result: ${JSON.stringify(responseBody).slice(0, 120)}`);
-        }
-      } else {
-        parts.push(`Result: ${String(responseBody).slice(0, 100)}`);
-      }
-    }
-
-    console.log(parts.join(" | "));
+    console.log(JSON.stringify({ method: req.method, status: res.statusCode, durationMs: Date.now() - start }));
   });
-
   next();
 });
 

@@ -26,8 +26,8 @@ router.post("/", validate({ body: generateInvoiceSchema }), async (req, res, nex
     }
 
     // Check if invoice already exists
-    const existing = await prisma.invoice.findUnique({
-      where: { orderId },
+    const existing = await prisma.invoice.findFirst({
+      where: { orderId, order: { fashionHouseId: fhId } },
     });
     if (existing) {
       return res.status(400).json({ error: "An invoice has already been generated for this order." });
@@ -59,8 +59,8 @@ router.post("/", validate({ body: generateInvoiceSchema }), async (req, res, nex
 router.get("/order/:orderId", async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
-    const invoice = await prisma.invoice.findUnique({
-      where: { orderId: req.params.orderId },
+    const invoice = await prisma.invoice.findFirst({
+      where: { orderId: req.params.orderId, order: { fashionHouseId: fhId } },
       include: {
         order: {
           include: {

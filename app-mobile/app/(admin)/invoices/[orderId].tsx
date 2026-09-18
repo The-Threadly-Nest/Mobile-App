@@ -154,19 +154,10 @@ export default function InvoiceDetailScreen() {
   const isPaid = invoice.status === "Paid";
 
   const handleMarkAsPaid = async () => {
-    try {
-      setInvoice((prev) => ({ ...prev, status: "Paid" }));
-      if (token && orderId) {
-        await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ status: "Paid" }),
-        }).catch(() => { });
-      }
-      showAlert("Payment Updated", `Invoice ${invoice.invoiceNumber} has been marked as Paid and added to revenue.`);
-    } catch (err: any) {
-      showAlert("Error", err.message || "Failed to update payment status.");
-    }
+    showAlert(
+      "Payment Confirmation Unavailable",
+      "Payment cannot be marked as paid until an authorized, auditable payment workflow is configured."
+    );
   };
 
   const getHTMLContent = () => {

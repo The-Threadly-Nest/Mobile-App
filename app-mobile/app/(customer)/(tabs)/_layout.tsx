@@ -3,6 +3,7 @@ import { Tabs } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle } from "react-native-svg";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 
 function DiscoverTabIcon({ color, focused }: { color: string; focused: boolean }) {
   if (focused) {
@@ -135,6 +136,7 @@ function ProfileTabIcon({ color, focused }: { color: string; focused: boolean })
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
+  const unreadMessageCount = useAppDataStore((s) => s.unreadMessageCount);
 
   useEffect(() => {
     // Match nav bar to tab bar background — blends seamlessly
@@ -182,6 +184,15 @@ export default function TabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, focused }) => <ProfileTabIcon color={color} focused={focused} />,
+          tabBarBadge: unreadMessageCount > 0 ? (unreadMessageCount > 99 ? "99+" : unreadMessageCount) : undefined,
+          tabBarBadgeStyle: {
+            backgroundColor: "#4A080C",
+            color: "#FFFFFF",
+            fontSize: 9,
+            minWidth: 16,
+            height: 16,
+            borderRadius: 8,
+          },
         }}
       />
     </Tabs>

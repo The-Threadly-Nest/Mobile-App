@@ -17,6 +17,11 @@ import { ArrowUp, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
+import {
+  createChatCacheOwner,
+  readChatCache,
+  writeChatCache,
+} from "@/shared/services/chatCache";
 
 interface Slot {
   id: string;
@@ -85,6 +90,7 @@ export default function BookingChatScreen() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [loadingSession, setLoadingSession] = useState(true);
+  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [selectedSlotLabel, setSelectedSlotLabel] = useState<string | null>(null);
   const [fashionHouseName, setFashionHouseName] = useState(paramFhName || "Fashion House");
@@ -94,16 +100,41 @@ export default function BookingChatScreen() {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [isFavourite, setIsFavourite] = useState(false);
   const token = useAuthStore((s) => s.token);
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createChatCacheOwner(role, email);
   const scrollRef = useRef<ScrollView>(null);
+  const isNearBottomRef = useRef(true);
+  const hydratedConversationIdRef = useRef<string | null>(null);
+  const previousHistoryCountRef = useRef(0);
 
   // Load session history and real fashion house name on mount
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
+      hydratedConversationIdRef.current = null;
+      setLoadingSession(true);
+      setHistory(initialTurns);
       try {
+        const cached = await readChatCache<Turn[]>(
+          cacheOwner,
+          "customer-booking",
+          fashionHouseId
+        );
+        if (cancelled) return;
+        if (cached) {
+          setHistory(Array.isArray(cached) ? cached : initialTurns);
+          hydratedConversationIdRef.current = fashionHouseId;
+          setLoadingSession(false);
+        }
+
         if (fashionHouseId) {
           const fhRes = await fetch(`${API_BASE_URL}/api/fashion-houses/${fashionHouseId}`);
+          if (cancelled) return;
           if (fhRes.ok) {
             const fhBody = await fhRes.json();
+            if (cancelled) return;
             if (fhBody.shopName) {
               setFashionHouseName(fhBody.shopName);
             }
@@ -112,8 +143,10 @@ export default function BookingChatScreen() {
             }
           } else if (!paramFhName) {
             const listRes = await fetch(`${API_BASE_URL}/api/fashion-houses`);
+            if (cancelled) return;
             if (listRes.ok) {
               const listBody = await listRes.json();
+              if (cancelled) return;
               if (Array.isArray(listBody) && listBody.length > 0) {
                 setFashionHouseName(listBody[0].shopName);
                 if (Array.isArray(listBody[0].categories)) {
@@ -127,8 +160,10 @@ export default function BookingChatScreen() {
           const res = await fetch(`${API_BASE_URL}/api/chat/session/${fashionHouseId}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
+          if (cancelled) return;
           if (res.ok) {
             const body = await res.json();
+            if (cancelled) return;
             const serverHistory: Turn[] = body.history ?? [];
             if (serverHistory.length > 0) {
               const formatted = serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) }));
@@ -157,16 +192,46 @@ export default function BookingChatScreen() {
                 }
               }
               setHistory(formatted);
+              hydratedConversationIdRef.current = fashionHouseId;
+              void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, formatted);
+            } else {
+              setHistory(initialTurns);
+              hydratedConversationIdRef.current = fashionHouseId;
+              void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, initialTurns);
             }
           }
         }
       } catch {
         // Fallback to default
       } finally {
-        setLoadingSession(false);
+        if (!cancelled) {
+          hydratedConversationIdRef.current = fashionHouseId;
+          setLoadingSession(false);
+        }
       }
     })();
-  }, [fashionHouseId, token]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cacheOwner, fashionHouseId, token]);
+
+  useEffect(() => {
+    if (
+      loadingSession ||
+      !fashionHouseId ||
+      hydratedConversationIdRef.current !== fashionHouseId
+    ) return;
+    void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, history);
+  }, [cacheOwner, fashionHouseId, history, loadingSession]);
+
+  useEffect(() => {
+    const historyIncreased = history.length > previousHistoryCountRef.current;
+    previousHistoryCountRef.current = history.length;
+    if (!initialPositionReady || !historyIncreased || !isNearBottomRef.current) return;
+    const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+    return () => clearTimeout(timer);
+  }, [history.length, initialPositionReady]);
 
   const handleSend = async (messageText?: string) => {
     const textToSend = (messageText ?? draft).trim();
@@ -175,11 +240,8 @@ export default function BookingChatScreen() {
     if (bookingConfirmed) setBookingConfirmed(false);
 
     const userTurn: Turn = { role: "user", text: textToSend };
-    setHistory((prev) => {
-      const next = [...prev, userTurn];
-      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
-      return next;
-    });
+    isNearBottomRef.current = true;
+    setHistory((prev) => [...prev, userTurn]);
     setDraft("");
     setSending(true);
 
@@ -519,12 +581,26 @@ export default function BookingChatScreen() {
       >
         <ScrollView
           ref={scrollRef}
+          style={{ opacity: !loadingSession && initialPositionReady ? 1 : 0 }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           className="flex-1 px-6 pt-2"
           contentContainerStyle={{ paddingBottom: 20, gap: 16 }}
           showsVerticalScrollIndicator={false}
-          onContentSizeChange={undefined}
+          scrollEventThrottle={16}
+          onScroll={({ nativeEvent }) => {
+            const distanceFromBottom =
+              nativeEvent.contentSize.height -
+              nativeEvent.layoutMeasurement.height -
+              nativeEvent.contentOffset.y;
+            isNearBottomRef.current = distanceFromBottom < 80;
+          }}
+          onContentSizeChange={() => {
+            if (!loadingSession && !initialPositionReady) {
+              scrollRef.current?.scrollToEnd({ animated: false });
+              requestAnimationFrame(() => setInitialPositionReady(true));
+            }
+          }}
         >
           {loadingSession ? (
             <View className="py-8 items-center">
@@ -687,6 +763,15 @@ export default function BookingChatScreen() {
           )}
         </ScrollView>
 
+        {(loadingSession || !initialPositionReady) && (
+          <View
+            pointerEvents="none"
+            style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, alignItems: "center", justifyContent: "center" }}
+          >
+            <ActivityIndicator size="small" color="#4A080C" />
+          </View>
+        )}
+
         {/* Input Area */}
         {!bookingConfirmed && !loadingSession && (
           <View
@@ -702,7 +787,9 @@ export default function BookingChatScreen() {
                 value={draft}
                 onChangeText={setDraft}
                 onFocus={() => {
-                  setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+                  if (isNearBottomRef.current) {
+                    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+                  }
                 }}
                 placeholder="Type a message..."
                 placeholderTextColor="rgba(74, 8, 12, 0.7)"

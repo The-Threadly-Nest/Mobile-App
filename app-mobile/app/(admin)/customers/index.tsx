@@ -26,58 +26,6 @@ interface CustomerRecord {
   status?: string;
 }
 
-const DEFAULT_CUSTOMERS: CustomerRecord[] = [
-  {
-    id: "c1",
-    name: "Chiamaka O.",
-    phone: "+234 803 *** 6738",
-    ordersCount: 4,
-    status: "active",
-  },
-  {
-    id: "c2",
-    name: "Blessing A.",
-    phone: "+234 906 *** 0193",
-    ordersCount: 2,
-    status: "active",
-  },
-  {
-    id: "c3",
-    name: "Ifeoma N.",
-    phone: "+234 818 *** 2810",
-    ordersCount: 1,
-    status: "inactive",
-  },
-  {
-    id: "c4",
-    name: "Jessica B.",
-    phone: "+234 802 *** 4912",
-    ordersCount: 3,
-    status: "active",
-  },
-  {
-    id: "c5",
-    name: "Adaobi E.",
-    phone: "+234 703 *** 8104",
-    ordersCount: 5,
-    status: "active",
-  },
-  {
-    id: "c6",
-    name: "Zainab K.",
-    phone: "+234 814 *** 9921",
-    ordersCount: 2,
-    status: "active",
-  },
-  {
-    id: "c7",
-    name: "Funmilayo A.",
-    phone: "+234 905 *** 3180",
-    ordersCount: 1,
-    status: "active",
-  },
-];
-
 export default function CustomersScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
@@ -102,16 +50,12 @@ export default function CustomersScreen() {
         });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setCustomers(data);
-          } else {
-            setCustomers(DEFAULT_CUSTOMERS);
-          }
+          setCustomers(Array.isArray(data) ? data : []);
         } else {
-          setCustomers(DEFAULT_CUSTOMERS);
+          setCustomers([]);
         }
       } catch {
-        setCustomers(DEFAULT_CUSTOMERS);
+        setCustomers([]);
       } finally {
         setLoading(false);
       }

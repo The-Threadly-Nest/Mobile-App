@@ -8,6 +8,7 @@ import { MapPin, Phone, Edit2, Check, Navigation, X, Ruler } from "lucide-react-
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useOrdersStore } from "@/stores/useOrdersStore";
+import { useAppDataStore } from "@/stores/useAppDataStore";
 import { ProfileAvatarIcon } from "@/shared/components/ProfileAvatarIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
@@ -98,6 +99,8 @@ export default function CustomerProfileScreen() {
   const [avgGiven, setAvgGiven] = useState<string>("0.0");
   const [savedSetsCount, setSavedSetsCount] = useState<number>(0);
   const [measurements, setMeasurements] = useState<any[]>([]);
+  const [totalUnread, setTotalUnread] = useState<number>(0);
+  const setUnreadMessageCount = useAppDataStore((s) => s.setUnreadMessageCount);
   const [isMeasurementsModalVisible, setIsMeasurementsModalVisible] = useState<boolean>(false);
   const [loadingMeasurements, setLoadingMeasurements] = useState<boolean>(false);
 
@@ -153,7 +156,20 @@ export default function CustomerProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchStats();
-    }, [fetchStats])
+      // Fetch unread message count and sync to tab-bar badge store
+      apiFetch<{ unreadCount: number; fashionHouseId: string; fashionHouseName: string; latestMessage: string; latestAt: string | null }[]>(
+        "/api/direct-messages/my-threads",
+        { silent: true }
+      )
+        .then((threads) => {
+          if (Array.isArray(threads)) {
+            const total = threads.reduce((sum, t) => sum + (t.unreadCount || 0), 0);
+            setTotalUnread(total);
+            setUnreadMessageCount(total);
+          }
+        })
+        .catch(() => {});
+    }, [fetchStats, setUnreadMessageCount])
   );
 
   const customerName = storedName?.trim()
@@ -238,8 +254,30 @@ export default function CustomerProfileScreen() {
       >
         {/* Profile Avatar & Name Header */}
         <View className="items-center mb-6">
-          <View className="mb-3">
+          <View className="mb-3" style={{ position: 'relative' }}>
             <ProfileAvatarIcon size={64} name={customerName} />
+            {totalUnread > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -2,
+                  right: -2,
+                  backgroundColor: '#4A080C',
+                  minWidth: 18,
+                  height: 18,
+                  borderRadius: 9,
+                  paddingHorizontal: 4,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 2,
+                  borderColor: '#FBF7EF',
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 9, fontFamily: 'WorkSans_700Bold' }}>
+                  {totalUnread > 99 ? '99+' : totalUnread}
+                </Text>
+              </View>
+            )}
           </View>
           <Text className="font-display font-semibold text-[24px] text-black">
             {customerName}
@@ -395,15 +433,35 @@ export default function CustomerProfileScreen() {
 
           {/* My Messages */}
           <Pressable
-            onPress={() => router.push("/(customer)/messages" as const)}
+            onPress={() => {
+              // Clear badge immediately on navigation
+              setTotalUnread(0);
+              setUnreadMessageCount(0);
+              router.push("/(customer)/messages" as const);
+            }}
             className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]"
           >
             <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
               <MessagesIcon />
             </View>
-            <Text className="font-body text-[14px] text-black flex-1">
-              My Messages
-            </Text>
+            <Text className="font-body text-[14px] text-black flex-1">My Messages</Text>
+            {totalUnread > 0 && (
+              <View
+                style={{
+                  backgroundColor: '#4A080C',
+                  minWidth: 22,
+                  height: 22,
+                  borderRadius: 11,
+                  paddingHorizontal: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ color: '#FFFFFF', fontSize: 11, fontFamily: 'WorkSans_700Bold' }}>
+                  {totalUnread > 99 ? '99+' : totalUnread}
+                </Text>
+              </View>
+            )}
           </Pressable>
 
           {/* My Orders */}

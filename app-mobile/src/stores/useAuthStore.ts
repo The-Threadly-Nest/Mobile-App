@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 
 import { useOrdersStore } from "./useOrdersStore";
 import { useAppDataStore } from "./useAppDataStore";
+import { clearChatCache } from "@/shared/services/chatCache";
 
 type Role = "admin" | "staff" | "customer" | null;
 
@@ -76,6 +77,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           useOrdersStore.getState().setOrders([]);
           useAppDataStore.getState().clearCache();
+          void clearChatCache();
         } catch (e) {
           console.warn("Failed to clear local caches on logout:", e);
         }
