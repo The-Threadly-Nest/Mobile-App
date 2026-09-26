@@ -1,9 +1,14 @@
 export interface ChatTurn {
+  id?: string;
   role: "user" | "model" | "admin" | "staff";
   text: string;
+  senderId?: string;
+  imageUrl?: string;
   audioUrl?: string;
   audioDuration?: number;
   createdAt?: string;
+  deletedForEveryoneAt?: string;
+  deletedForUserIds?: string[];
 }
 
 const RECENT_TURNS_TO_KEEP = 6;

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import * as SecureStore from "expo-secure-store";
+import { sqliteStateStorage } from "@/shared/services/sqliteStateStorage";
 
 interface AppDataState {
   profile: any | null;
@@ -19,27 +19,6 @@ interface AppDataState {
   setUnreadMessageCount: (count: number) => void;
   clearCache: () => void;
 }
-
-const secureStorage = {
-  getItem: async (name: string) => {
-    try {
-      return (await SecureStore.getItemAsync(name)) ?? null;
-    } catch {
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string) => {
-    try {
-      if (value.length > 2000) return; // Prevent Android SecureStore 2048-byte limit warning
-      await SecureStore.setItemAsync(name, value);
-    } catch {}
-  },
-  removeItem: async (name: string) => {
-    try {
-      await SecureStore.deleteItemAsync(name);
-    } catch {}
-  },
-};
 
 export const useAppDataStore = create<AppDataState>()(
   persist(
@@ -69,6 +48,6 @@ export const useAppDataStore = create<AppDataState>()(
           unreadMessageCount: 0,
         }),
     }),
-    { name: "threadly-nest-app-data-cache", storage: createJSONStorage(() => secureStorage) }
+    { name: "threadly-nest-app-data-cache", storage: createJSONStorage(() => sqliteStateStorage) }
   )
 );

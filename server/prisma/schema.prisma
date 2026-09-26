@@ -1,6 +1,5 @@
 // The Threadly Nest — full schema. Auth is fully custom (Express-owned):
-// email + password with bcrypt hashing. No Supabase, no OTP.
-
+// email + password with bcrypt hashing.
 generator client {
   provider      = "prisma-client"
   output        = "../src/generated/prisma"
@@ -116,6 +115,7 @@ model Order {
   customerId     String
   staffId        String?
   bookingId      String?  @unique // links to the Booking that created this order (1:1)
+  idempotencyKey String?
   itemName       String
   price          Int
   status         String   @default("order_placed") // order_placed | in_production | ready | delivered
@@ -129,6 +129,7 @@ model Order {
   invoice      Invoice?
 
   @@index([fashionHouseId])
+  @@unique([fashionHouseId, idempotencyKey])
   @@index([staffId])
   @@index([fashionHouseId, status, createdAt])
   @@map("orders")
@@ -189,6 +190,7 @@ model Booking {
   preferredTime  String
   isFirstTime    Boolean  @default(true)
   status         String   @default("pending_admin_review")
+  idempotencyKey String?
   createdAt      DateTime @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
@@ -196,6 +198,7 @@ model Booking {
   order        Order?       // back-relation: the Order created from this booking
 
   @@index([fashionHouseId, status])
+  @@unique([customerId, idempotencyKey])
   @@index([customerId, preferredDate])
   @@map("bookings")
 }

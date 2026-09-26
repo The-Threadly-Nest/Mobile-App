@@ -134,6 +134,14 @@ export default function StaffDashboard() {
   );
   const [loading, setLoading] = useState<boolean>(formattedCached.length === 0);
 
+  useEffect(() => {
+    if (orders.length === 0 && formattedCached.length > 0) {
+      setOrders(formattedCached);
+      setLoading(false);
+    }
+    if (cachedProfile?.shopName) setLocalShopName(cachedProfile.shopName);
+  }, [cachedOrders, cachedProfile, orders.length]);
+
   const displayName = storeName || "Staff Member";
   const displayShopName = localShopName || storeShopName || "Luxury Fashion House";
 

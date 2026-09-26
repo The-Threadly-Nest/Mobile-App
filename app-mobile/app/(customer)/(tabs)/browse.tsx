@@ -177,6 +177,12 @@ export default function BrowseScreen() {
   const [currentLocation, setCurrentLocation] = useState<string>(savedLocation || "Lagos, Nigeria");
   const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (Array.isArray(cachedCatalog) && cachedCatalog.length > 0) {
+      setTailorsList(cachedCatalog);
+    }
+  }, [cachedCatalog]);
+
   const fetchFashionHouses = useCallback(async () => {
     try {
       const fetched = await apiFetch<TailorItem[]>("/api/fashion-houses", { silent: true }).catch(() => []);

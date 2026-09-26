@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
-  ScrollView,
   TextInput,
   Pressable,
   KeyboardAvoidingView,
@@ -15,6 +14,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocalSearchParams, router } from "expo-router";
 import { ArrowUp, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import BottomAnchoredChatScrollView from "@/shared/components/BottomAnchoredChatScrollView";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import {
@@ -22,6 +22,7 @@ import {
   readChatCache,
   writeChatCache,
 } from "@/shared/services/chatCache";
+import { createIdempotencyKey } from "@/shared/utils/idempotency";
 
 interface Slot {
   id: string;
@@ -90,7 +91,6 @@ export default function BookingChatScreen() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [loadingSession, setLoadingSession] = useState(true);
-  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [selectedSlotLabel, setSelectedSlotLabel] = useState<string | null>(null);
   const [fashionHouseName, setFashionHouseName] = useState(paramFhName || "Fashion House");
@@ -103,10 +103,8 @@ export default function BookingChatScreen() {
   const role = useAuthStore((s) => s.role);
   const email = useAuthStore((s) => s.email);
   const cacheOwner = createChatCacheOwner(role, email);
-  const scrollRef = useRef<ScrollView>(null);
-  const isNearBottomRef = useRef(true);
   const hydratedConversationIdRef = useRef<string | null>(null);
-  const previousHistoryCountRef = useRef(0);
+  const bookingRequestKeyRef = useRef<string | null>(null);
 
   // Load session history and real fashion house name on mount
   useEffect(() => {
@@ -225,22 +223,14 @@ export default function BookingChatScreen() {
     void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, history);
   }, [cacheOwner, fashionHouseId, history, loadingSession]);
 
-  useEffect(() => {
-    const historyIncreased = history.length > previousHistoryCountRef.current;
-    previousHistoryCountRef.current = history.length;
-    if (!initialPositionReady || !historyIncreased || !isNearBottomRef.current) return;
-    const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
-    return () => clearTimeout(timer);
-  }, [history.length, initialPositionReady]);
-
   const handleSend = async (messageText?: string) => {
     const textToSend = (messageText ?? draft).trim();
     if (!textToSend || sending) return;
+    const chatRequestKey = createIdempotencyKey("chat");
 
     if (bookingConfirmed) setBookingConfirmed(false);
 
     const userTurn: Turn = { role: "user", text: textToSend };
-    isNearBottomRef.current = true;
     setHistory((prev) => [...prev, userTurn]);
     setDraft("");
     setSending(true);
@@ -302,8 +292,17 @@ export default function BookingChatScreen() {
       if (token && fashionHouseId) {
         const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ fashionHouseId, message: textToSend, garmentName: activeGarment }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "Idempotency-Key": chatRequestKey,
+          },
+          body: JSON.stringify({
+            fashionHouseId,
+            message: textToSend,
+            garmentName: activeGarment,
+            idempotencyKey: chatRequestKey,
+          }),
         });
         if (res.ok) {
           const body = await res.json();
@@ -355,9 +354,16 @@ export default function BookingChatScreen() {
 
         // Persist real booking to backend only if AI did not already create it and not already confirmed
         if (responseType !== "booking_created" && !bookingConfirmed && token && fashionHouseId) {
+          if (!bookingRequestKeyRef.current) {
+            bookingRequestKeyRef.current = createIdempotencyKey("booking");
+          }
           fetch(`${API_BASE_URL}/api/orders/my-orders`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+              "Idempotency-Key": bookingRequestKeyRef.current,
+            },
             body: JSON.stringify({
               fashionHouseId,
               fashionHouseName,
@@ -579,28 +585,12 @@ export default function BookingChatScreen() {
         keyboardVerticalOffset={Platform.OS === "ios" ? 12 : 0}
         style={{ flex: 1 }}
       >
-        <ScrollView
-          ref={scrollRef}
-          style={{ opacity: !loadingSession && initialPositionReady ? 1 : 0 }}
+        <BottomAnchoredChatScrollView
+          style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          className="flex-1 px-6 pt-2"
-          contentContainerStyle={{ paddingBottom: 20, gap: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 20, gap: 16 }}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={({ nativeEvent }) => {
-            const distanceFromBottom =
-              nativeEvent.contentSize.height -
-              nativeEvent.layoutMeasurement.height -
-              nativeEvent.contentOffset.y;
-            isNearBottomRef.current = distanceFromBottom < 80;
-          }}
-          onContentSizeChange={() => {
-            if (!loadingSession && !initialPositionReady) {
-              scrollRef.current?.scrollToEnd({ animated: false });
-              requestAnimationFrame(() => setInitialPositionReady(true));
-            }
-          }}
         >
           {loadingSession ? (
             <View className="py-8 items-center">
@@ -761,9 +751,9 @@ export default function BookingChatScreen() {
               </View>
             </View>
           )}
-        </ScrollView>
+        </BottomAnchoredChatScrollView>
 
-        {(loadingSession || !initialPositionReady) && (
+        {loadingSession && (
           <View
             pointerEvents="none"
             style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, alignItems: "center", justifyContent: "center" }}
@@ -786,11 +776,6 @@ export default function BookingChatScreen() {
               <TextInput
                 value={draft}
                 onChangeText={setDraft}
-                onFocus={() => {
-                  if (isNearBottomRef.current) {
-                    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
-                  }
-                }}
                 placeholder="Type a message..."
                 placeholderTextColor="rgba(74, 8, 12, 0.7)"
                 className="flex-1 bg-white border border-oxblood rounded-full px-5 py-3 font-body text-[14px] text-oxblood"

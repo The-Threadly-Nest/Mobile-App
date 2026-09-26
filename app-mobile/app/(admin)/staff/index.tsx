@@ -15,7 +15,8 @@ import { Search, Plus, Users } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import Svg, { Rect, Defs, LinearGradient, Stop } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
+import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface StaffMember {
   id: string;
@@ -69,16 +70,21 @@ export default function StaffScreen() {
   const [fetchingStaff, setFetchingStaff] = useState(false);
 
   const token = useAuthStore((s) => s.token);
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createPageCacheOwner(role, email);
 
   const fetchStaff = useCallback(async () => {
     if (!token) return;
     setFetchingStaff(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/staff`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok && Array.isArray(data)) {
+      const cached = await readPageCache<StaffMember[]>(cacheOwner, "admin-staff");
+      if (cached) {
+        setStaffList(cached);
+        setFetchingStaff(false);
+      }
+      const data = await apiFetch<any[]>("/api/staff", { silent: true });
+      if (Array.isArray(data)) {
         const mapped: StaffMember[] = data.map((st: any) => {
           const rawName = st.name ? st.name.trim() : "";
           const emailParts = st.email ? st.email.split("@")[0].split(/[._-]/) : ["Staff"];
@@ -93,14 +99,14 @@ export default function StaffScreen() {
           };
         });
         setStaffList(mapped);
+        void writePageCache(cacheOwner, "admin-staff", mapped);
       }
     } catch (e) {
       console.warn("Failed to fetch staff list", e);
-      setStaffList([]);
     } finally {
       setFetchingStaff(false);
     }
-  }, [token]);
+  }, [cacheOwner, token]);
 
   useFocusEffect(
     useCallback(() => {

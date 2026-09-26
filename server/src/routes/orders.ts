@@ -6,6 +6,7 @@ import { validate } from "../middleware/validate";
 import { createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
 import { parseFittingDate, formatEstimatedReady } from "../utils/dateUtils";
 import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
+import { isUniqueConstraintError, readIdempotencyKey } from "../lib/idempotency";
 
 const STATUS_LABELS: Record<string, { title: string; body: string }> = {
   pending_admin_review:  { title: "Order Received ✅",         body: "Your order is under review by the fashion house." },
@@ -172,6 +173,7 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
 router.post("/my-orders", requireAuth, async (req, res, next) => {
   try {
     const customerId = req.authUserId!;
+    const idempotencyKey = readIdempotencyKey(req);
     const { fashionHouseId, fashionHouseName, garment, fittingDate } = req.body;
 
     let fh = null;
@@ -189,6 +191,13 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
 
     if (!fh) {
       return res.status(404).json({ error: "Fashion house not found." });
+    }
+
+    if (idempotencyKey) {
+      const priorBooking = await prisma.booking.findFirst({
+        where: { customerId, idempotencyKey },
+      });
+      if (priorBooking) return res.status(200).json(priorBooking);
     }
 
     const parsedDate = parseFittingDate(fittingDate);
@@ -211,21 +220,31 @@ router.post("/my-orders", requireAuth, async (req, res, next) => {
           styleNotes: garment || existingPending.styleNotes,
           preferredDate: parsedDate,
           preferredTime: fittingDate || existingPending.preferredTime,
+          idempotencyKey: existingPending.idempotencyKey ?? idempotencyKey,
         },
       });
       return res.status(200).json(updated);
     }
 
-    const booking = await prisma.booking.create({
-      data: {
-        fashionHouseId: fh.id,
-        customerId,
-        styleNotes: garment || "Aso-Ebi",
-        preferredDate: parsedDate,
-        preferredTime: fittingDate || "10:00 AM",
-        status: "pending_admin_review",
-      },
-    });
+    let booking;
+    try {
+      booking = await prisma.booking.create({
+        data: {
+          fashionHouseId: fh.id,
+          customerId,
+          styleNotes: garment || "Aso-Ebi",
+          preferredDate: parsedDate,
+          preferredTime: fittingDate || "10:00 AM",
+          status: "pending_admin_review",
+          idempotencyKey,
+        },
+      });
+    } catch (error) {
+      if (!idempotencyKey || !isUniqueConstraintError(error)) throw error;
+      const existing = await prisma.booking.findFirst({ where: { customerId, idempotencyKey } });
+      if (!existing) throw error;
+      return res.status(200).json(existing);
+    }
 
     // Clear chat session history so subsequent visits start fresh
     await prisma.chatSession.updateMany({
@@ -430,6 +449,7 @@ router.use(requireAuth, requireRole("admin", "staff"));
 router.post("/", async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
+    const idempotencyKey = readIdempotencyKey(req);
     const { customerId, itemName, price, staffId } = req.body;
 
     if (!customerId || !itemName || !price) {
@@ -454,16 +474,32 @@ router.post("/", async (req, res, next) => {
       if (!staff) return res.status(404).json({ error: "Staff member not found." });
     }
 
-    const order = await prisma.order.create({
-      data: {
-        fashionHouseId: fhId,
-        customerId,
-        itemName,
-        price,
-        staffId: assignedStaffId,
-        status: "order_placed",
-      },
-    });
+    if (idempotencyKey) {
+      const priorOrder = await prisma.order.findFirst({
+        where: { fashionHouseId: fhId, idempotencyKey },
+      });
+      if (priorOrder) return res.status(200).json(priorOrder);
+    }
+
+    let order;
+    try {
+      order = await prisma.order.create({
+        data: {
+          fashionHouseId: fhId,
+          customerId,
+          itemName,
+          price,
+          staffId: assignedStaffId,
+          status: "order_placed",
+          idempotencyKey,
+        },
+      });
+    } catch (error) {
+      if (!idempotencyKey || !isUniqueConstraintError(error)) throw error;
+      const existing = await prisma.order.findFirst({ where: { fashionHouseId: fhId, idempotencyKey } });
+      if (!existing) throw error;
+      return res.status(200).json(existing);
+    }
 
     res.status(201).json(order);
   } catch (err) {

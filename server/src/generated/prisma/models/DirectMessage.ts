@@ -275,6 +275,7 @@ export type DirectMessageWhereInput = {
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   sender?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  userDeletions?: Prisma.DirectMessageUserDeletionListRelationFilter
 }
 
 export type DirectMessageOrderByWithRelationInput = {
@@ -293,6 +294,7 @@ export type DirectMessageOrderByWithRelationInput = {
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
   sender?: Prisma.UserOrderByWithRelationInput
   customer?: Prisma.UserOrderByWithRelationInput
+  userDeletions?: Prisma.DirectMessageUserDeletionOrderByRelationAggregateInput
 }
 
 export type DirectMessageWhereUniqueInput = Prisma.AtLeast<{
@@ -314,6 +316,7 @@ export type DirectMessageWhereUniqueInput = Prisma.AtLeast<{
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   sender?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  userDeletions?: Prisma.DirectMessageUserDeletionListRelationFilter
 }, "id">
 
 export type DirectMessageOrderByWithAggregationInput = {
@@ -367,6 +370,7 @@ export type DirectMessageCreateInput = {
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
   sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
   customer: Prisma.UserCreateNestedOneWithoutReceivedDirectMessagesInput
+  userDeletions?: Prisma.DirectMessageUserDeletionCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageUncheckedCreateInput = {
@@ -382,6 +386,7 @@ export type DirectMessageUncheckedCreateInput = {
   readAt?: Date | string | null
   deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageUpdateInput = {
@@ -397,6 +402,7 @@ export type DirectMessageUpdateInput = {
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
   sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput
+  userDeletions?: Prisma.DirectMessageUserDeletionUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateInput = {
@@ -412,6 +418,7 @@ export type DirectMessageUncheckedUpdateInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageCreateManyInput = {
@@ -517,6 +524,11 @@ export type DirectMessageMinOrderByAggregateInput = {
 
 export type DirectMessageSumOrderByAggregateInput = {
   audioDuration?: Prisma.SortOrder
+}
+
+export type DirectMessageScalarRelationFilter = {
+  is?: Prisma.DirectMessageWhereInput
+  isNot?: Prisma.DirectMessageWhereInput
 }
 
 export type DirectMessageCreateNestedManyWithoutSenderInput = {
@@ -645,6 +657,20 @@ export type DirectMessageUncheckedUpdateManyWithoutFashionHouseNestedInput = {
   deleteMany?: Prisma.DirectMessageScalarWhereInput | Prisma.DirectMessageScalarWhereInput[]
 }
 
+export type DirectMessageCreateNestedOneWithoutUserDeletionsInput = {
+  create?: Prisma.XOR<Prisma.DirectMessageCreateWithoutUserDeletionsInput, Prisma.DirectMessageUncheckedCreateWithoutUserDeletionsInput>
+  connectOrCreate?: Prisma.DirectMessageCreateOrConnectWithoutUserDeletionsInput
+  connect?: Prisma.DirectMessageWhereUniqueInput
+}
+
+export type DirectMessageUpdateOneRequiredWithoutUserDeletionsNestedInput = {
+  create?: Prisma.XOR<Prisma.DirectMessageCreateWithoutUserDeletionsInput, Prisma.DirectMessageUncheckedCreateWithoutUserDeletionsInput>
+  connectOrCreate?: Prisma.DirectMessageCreateOrConnectWithoutUserDeletionsInput
+  upsert?: Prisma.DirectMessageUpsertWithoutUserDeletionsInput
+  connect?: Prisma.DirectMessageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DirectMessageUpdateToOneWithWhereWithoutUserDeletionsInput, Prisma.DirectMessageUpdateWithoutUserDeletionsInput>, Prisma.DirectMessageUncheckedUpdateWithoutUserDeletionsInput>
+}
+
 export type DirectMessageCreateWithoutSenderInput = {
   id?: string
   senderRole: string
@@ -657,6 +683,7 @@ export type DirectMessageCreateWithoutSenderInput = {
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
   customer: Prisma.UserCreateNestedOneWithoutReceivedDirectMessagesInput
+  userDeletions?: Prisma.DirectMessageUserDeletionCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageUncheckedCreateWithoutSenderInput = {
@@ -671,6 +698,7 @@ export type DirectMessageUncheckedCreateWithoutSenderInput = {
   readAt?: Date | string | null
   deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageCreateOrConnectWithoutSenderInput = {
@@ -695,6 +723,7 @@ export type DirectMessageCreateWithoutCustomerInput = {
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
   sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
+  userDeletions?: Prisma.DirectMessageUserDeletionCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageUncheckedCreateWithoutCustomerInput = {
@@ -709,6 +738,7 @@ export type DirectMessageUncheckedCreateWithoutCustomerInput = {
   readAt?: Date | string | null
   deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageCreateOrConnectWithoutCustomerInput = {
@@ -783,6 +813,7 @@ export type DirectMessageCreateWithoutFashionHouseInput = {
   createdAt?: Date | string
   sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
   customer: Prisma.UserCreateNestedOneWithoutReceivedDirectMessagesInput
+  userDeletions?: Prisma.DirectMessageUserDeletionCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageUncheckedCreateWithoutFashionHouseInput = {
@@ -797,6 +828,7 @@ export type DirectMessageUncheckedCreateWithoutFashionHouseInput = {
   readAt?: Date | string | null
   deletedForEveryoneAt?: Date | string | null
   createdAt?: Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type DirectMessageCreateOrConnectWithoutFashionHouseInput = {
@@ -823,6 +855,82 @@ export type DirectMessageUpdateWithWhereUniqueWithoutFashionHouseInput = {
 export type DirectMessageUpdateManyWithWhereWithoutFashionHouseInput = {
   where: Prisma.DirectMessageScalarWhereInput
   data: Prisma.XOR<Prisma.DirectMessageUpdateManyMutationInput, Prisma.DirectMessageUncheckedUpdateManyWithoutFashionHouseInput>
+}
+
+export type DirectMessageCreateWithoutUserDeletionsInput = {
+  id?: string
+  senderRole: string
+  text: string
+  imageUrl?: string | null
+  audioUrl?: string | null
+  audioDuration?: number | null
+  readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
+  createdAt?: Date | string
+  fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutDirectMessagesInput
+  sender: Prisma.UserCreateNestedOneWithoutSentDirectMessagesInput
+  customer: Prisma.UserCreateNestedOneWithoutReceivedDirectMessagesInput
+}
+
+export type DirectMessageUncheckedCreateWithoutUserDeletionsInput = {
+  id?: string
+  fashionHouseId: string
+  customerId: string
+  senderRole: string
+  senderId: string
+  text: string
+  imageUrl?: string | null
+  audioUrl?: string | null
+  audioDuration?: number | null
+  readAt?: Date | string | null
+  deletedForEveryoneAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type DirectMessageCreateOrConnectWithoutUserDeletionsInput = {
+  where: Prisma.DirectMessageWhereUniqueInput
+  create: Prisma.XOR<Prisma.DirectMessageCreateWithoutUserDeletionsInput, Prisma.DirectMessageUncheckedCreateWithoutUserDeletionsInput>
+}
+
+export type DirectMessageUpsertWithoutUserDeletionsInput = {
+  update: Prisma.XOR<Prisma.DirectMessageUpdateWithoutUserDeletionsInput, Prisma.DirectMessageUncheckedUpdateWithoutUserDeletionsInput>
+  create: Prisma.XOR<Prisma.DirectMessageCreateWithoutUserDeletionsInput, Prisma.DirectMessageUncheckedCreateWithoutUserDeletionsInput>
+  where?: Prisma.DirectMessageWhereInput
+}
+
+export type DirectMessageUpdateToOneWithWhereWithoutUserDeletionsInput = {
+  where?: Prisma.DirectMessageWhereInput
+  data: Prisma.XOR<Prisma.DirectMessageUpdateWithoutUserDeletionsInput, Prisma.DirectMessageUncheckedUpdateWithoutUserDeletionsInput>
+}
+
+export type DirectMessageUpdateWithoutUserDeletionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  senderRole?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
+  sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
+  customer?: Prisma.UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput
+}
+
+export type DirectMessageUncheckedUpdateWithoutUserDeletionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  senderRole?: Prisma.StringFieldUpdateOperationsInput | string
+  senderId?: Prisma.StringFieldUpdateOperationsInput | string
+  text?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audioDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DirectMessageCreateManySenderInput = {
@@ -865,6 +973,7 @@ export type DirectMessageUpdateWithoutSenderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput
+  userDeletions?: Prisma.DirectMessageUserDeletionUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateWithoutSenderInput = {
@@ -879,6 +988,7 @@ export type DirectMessageUncheckedUpdateWithoutSenderInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateManyWithoutSenderInput = {
@@ -907,6 +1017,7 @@ export type DirectMessageUpdateWithoutCustomerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutDirectMessagesNestedInput
   sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
+  userDeletions?: Prisma.DirectMessageUserDeletionUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateWithoutCustomerInput = {
@@ -921,6 +1032,7 @@ export type DirectMessageUncheckedUpdateWithoutCustomerInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateManyWithoutCustomerInput = {
@@ -963,6 +1075,7 @@ export type DirectMessageUpdateWithoutFashionHouseInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sender?: Prisma.UserUpdateOneRequiredWithoutSentDirectMessagesNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutReceivedDirectMessagesNestedInput
+  userDeletions?: Prisma.DirectMessageUserDeletionUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateWithoutFashionHouseInput = {
@@ -977,6 +1090,7 @@ export type DirectMessageUncheckedUpdateWithoutFashionHouseInput = {
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedForEveryoneAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userDeletions?: Prisma.DirectMessageUserDeletionUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type DirectMessageUncheckedUpdateManyWithoutFashionHouseInput = {
@@ -993,6 +1107,35 @@ export type DirectMessageUncheckedUpdateManyWithoutFashionHouseInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type DirectMessageCountOutputType
+ */
+
+export type DirectMessageCountOutputType = {
+  userDeletions: number
+}
+
+export type DirectMessageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  userDeletions?: boolean | DirectMessageCountOutputTypeCountUserDeletionsArgs
+}
+
+/**
+ * DirectMessageCountOutputType without action
+ */
+export type DirectMessageCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DirectMessageCountOutputType
+   */
+  select?: Prisma.DirectMessageCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * DirectMessageCountOutputType without action
+ */
+export type DirectMessageCountOutputTypeCountUserDeletionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DirectMessageUserDeletionWhereInput
+}
 
 
 export type DirectMessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1011,6 +1154,8 @@ export type DirectMessageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  userDeletions?: boolean | Prisma.DirectMessage$userDeletionsArgs<ExtArgs>
+  _count?: boolean | Prisma.DirectMessageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["directMessage"]>
 
 export type DirectMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1069,6 +1214,8 @@ export type DirectMessageInclude<ExtArgs extends runtime.Types.Extensions.Intern
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  userDeletions?: boolean | Prisma.DirectMessage$userDeletionsArgs<ExtArgs>
+  _count?: boolean | Prisma.DirectMessageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type DirectMessageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -1087,6 +1234,7 @@ export type $DirectMessagePayload<ExtArgs extends runtime.Types.Extensions.Inter
     fashionHouse: Prisma.$FashionHousePayload<ExtArgs>
     sender: Prisma.$UserPayload<ExtArgs>
     customer: Prisma.$UserPayload<ExtArgs>
+    userDeletions: Prisma.$DirectMessageUserDeletionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1498,6 +1646,7 @@ export interface Prisma__DirectMessageClient<T, Null = never, ExtArgs extends ru
   fashionHouse<T extends Prisma.FashionHouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouseDefaultArgs<ExtArgs>>): Prisma.Prisma__FashionHouseClient<runtime.Types.Result.GetResult<Prisma.$FashionHousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sender<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   customer<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  userDeletions<T extends Prisma.DirectMessage$userDeletionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DirectMessage$userDeletionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DirectMessageUserDeletionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1937,6 +2086,30 @@ export type DirectMessageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many DirectMessages to delete.
    */
   limit?: number
+}
+
+/**
+ * DirectMessage.userDeletions
+ */
+export type DirectMessage$userDeletionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DirectMessageUserDeletion
+   */
+  select?: Prisma.DirectMessageUserDeletionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DirectMessageUserDeletion
+   */
+  omit?: Prisma.DirectMessageUserDeletionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DirectMessageUserDeletionInclude<ExtArgs> | null
+  where?: Prisma.DirectMessageUserDeletionWhereInput
+  orderBy?: Prisma.DirectMessageUserDeletionOrderByWithRelationInput | Prisma.DirectMessageUserDeletionOrderByWithRelationInput[]
+  cursor?: Prisma.DirectMessageUserDeletionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DirectMessageUserDeletionScalarFieldEnum | Prisma.DirectMessageUserDeletionScalarFieldEnum[]
 }
 
 /**

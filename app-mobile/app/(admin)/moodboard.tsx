@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   ScrollView,
@@ -21,6 +21,8 @@ import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { apiFetch } from "@/shared/utils/apiClient";
+import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface SketchItem {
   id: string;
@@ -42,9 +44,13 @@ export default function AdminMoodBoardRedesignScreen() {
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
   const token = useAuthStore((s) => s.token);
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createPageCacheOwner(role, email);
 
   const [tailorSections, setTailorSections] = useState<TailorSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasLoadedRef = useRef(false);
 
   // Promote Modal state
   const [selectedSketch, setSelectedSketch] = useState<SketchItem | null>(null);
@@ -53,25 +59,26 @@ export default function AdminMoodBoardRedesignScreen() {
   const [promotingId, setPromotingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  const fetchStaffMoodboards = async () => {
+  const fetchStaffMoodboards = useCallback(async () => {
     if (!token) return;
-    setLoading(true);
+    if (!hasLoadedRef.current) setLoading(true);
     try {
-      const sections: TailorSection[] = [];
+      if (!hasLoadedRef.current) {
+        const cached = await readPageCache<TailorSection[]>(cacheOwner, "admin-moodboards");
+        if (cached) {
+          setTailorSections(cached);
+          setLoading(false);
+        }
+      }
 
-      // 2. Fetch remote staff sketches and merge/append them
-      const staffRes = await fetch(`${API_BASE_URL}/api/staff`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const staffList = await staffRes.json();
-
-      if (staffRes.ok && Array.isArray(staffList) && staffList.length > 0) {
-        for (const st of staffList) {
-          const res = await fetch(`${API_BASE_URL}/api/moodboard/staff/${st.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const remoteSketches = res.ok ? await res.json() : [];
-
+      const [staffList, ownSketches] = await Promise.all([
+        apiFetch<any[]>("/api/staff", { silent: true }),
+        apiFetch<any[]>("/api/moodboard", { silent: true }),
+      ]);
+      const staffSections = await Promise.all(
+        (Array.isArray(staffList) ? staffList : []).map(async (st: any) => {
+          const remoteSketches = await apiFetch<any[]>(`/api/moodboard/staff/${st.id}`, { silent: true })
+            .catch(() => []);
           if (Array.isArray(remoteSketches) && remoteSketches.length > 0) {
             const displayName = st.name || st.email?.split("@")[0] || "Tailor";
             const initial = (st.name || st.email || "T").charAt(0).toUpperCase();
@@ -82,31 +89,12 @@ export default function AdminMoodBoardRedesignScreen() {
               isRemote: true,
               promotedToCatalog: sk.promotedToCatalog,
             }));
-
-            // Check if matching an existing default tailor card
-            const matchIndex = sections.findIndex(
-              (t) => t.name.toLowerCase() === displayName.toLowerCase()
-            );
-
-            if (matchIndex !== -1) {
-              sections[matchIndex].sketches = [...remoteItems, ...sections[matchIndex].sketches];
-            } else {
-              sections.push({
-                id: st.id,
-                name: displayName,
-                initial,
-                sketches: remoteItems,
-              });
-            }
+            return { id: st.id, name: displayName, initial, sketches: remoteItems } as TailorSection;
           }
-        }
-      }
-
-      // 3. Fetch Admin's own drawings (Studio Sketches) and display them BELOW
-      const ownRes = await fetch(`${API_BASE_URL}/api/moodboard`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const ownSketches = ownRes.ok ? await ownRes.json() : [];
+          return null;
+        })
+      );
+      const sections = staffSections.filter((section): section is TailorSection => section !== null);
 
       if (Array.isArray(ownSketches) && ownSketches.length > 0) {
         sections.push({
@@ -124,18 +112,20 @@ export default function AdminMoodBoardRedesignScreen() {
       }
 
       setTailorSections(sections);
+      void writePageCache(cacheOwner, "admin-moodboards", sections);
     } catch (e) {
       console.warn("Using default tailor moodboards", e);
     } finally {
+      hasLoadedRef.current = true;
       setLoading(false);
     }
-  };
+  }, [cacheOwner, token]);
 
   // Re-fetch automatically every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      fetchStaffMoodboards();
-    }, [token])
+      void fetchStaffMoodboards();
+    }, [fetchStaffMoodboards])
   );
 
   const handlePromoteToCatalog = async () => {

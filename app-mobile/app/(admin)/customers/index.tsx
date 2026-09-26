@@ -16,7 +16,8 @@ import { Search, X, Ruler, UserCheck, MessageSquare } from "lucide-react-native"
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
+import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface CustomerRecord {
   id: string;
@@ -31,6 +32,9 @@ export default function CustomersScreen() {
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
   const token = useAuthStore((s) => s.token);
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createPageCacheOwner(role, email);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
@@ -39,29 +43,35 @@ export default function CustomersScreen() {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     async function fetchCustomers() {
       if (!token) {
         setLoading(false);
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/customers`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCustomers(Array.isArray(data) ? data : []);
-        } else {
-          setCustomers([]);
+        const cached = await readPageCache<CustomerRecord[]>(cacheOwner, "admin-customers");
+        if (cancelled) return;
+        if (cached) {
+          setCustomers(cached);
+          setLoading(false);
+        }
+
+        const data = await apiFetch<CustomerRecord[]>("/api/customers", { silent: true });
+        if (cancelled) return;
+        if (Array.isArray(data)) {
+          setCustomers(data);
+          void writePageCache(cacheOwner, "admin-customers", data);
         }
       } catch {
-        setCustomers([]);
+        // Keep the last successful device cache visible while offline.
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
-    fetchCustomers();
-  }, [token]);
+    void fetchCustomers();
+    return () => { cancelled = true; };
+  }, [cacheOwner, token]);
 
   const filteredCustomers = customers.filter(
     (c) =>
@@ -246,9 +256,8 @@ export default function CustomersScreen() {
                   const newStatus = selectedCustomer.status === "inactive" ? "active" : "inactive";
                   if (token && selectedCustomer.id) {
                     try {
-                      await fetch(`${API_BASE_URL}/api/customers/${selectedCustomer.id}/status`, {
+                      await apiFetch(`/api/customers/${selectedCustomer.id}/status`, {
                         method: "PATCH",
-                        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                         body: JSON.stringify({ status: newStatus }),
                       });
                     } catch (e) {

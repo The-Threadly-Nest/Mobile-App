@@ -34,13 +34,14 @@ import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } fr
 import * as ImagePicker from 'expo-image-picker';
 import { apiFetch } from '../../src/shared/utils/apiClient';
 import BackArrowIcon from '@/shared/components/BackArrowIcon';
+import BottomAnchoredChatScrollView from '@/shared/components/BottomAnchoredChatScrollView';
+import MessageDeleteMenu from '@/shared/components/MessageDeleteMenu';
 import { uploadFile } from '@/shared/utils/upload';
 import { useAppAlert } from '@/shared/hooks/useAppAlert';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
 import {
   createChatCacheOwner,
-  deleteCachedConversation,
   readChatCache,
   writeChatCache,
 } from '@/shared/services/chatCache';
@@ -175,7 +176,7 @@ export default function AdminMessagesScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ customerId?: string; customerName?: string; activeTab?: string; staffId?: string }>();
   const insets = useSafeAreaInsets();
-  const { showAlert, showConfirm } = useAppAlert();
+  const { showAlert } = useAppAlert();
   const role = useAuthStore((s) => s.role);
   const email = useAuthStore((s) => s.email);
   const cacheOwner = createChatCacheOwner(role, email);
@@ -193,13 +194,15 @@ export default function AdminMessagesScreen() {
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [deletingChat, setDeletingChat] = useState(false);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
+  const [selectedMessageForDeletion, setSelectedMessageForDeletion] = useState<{
+    message: DirectMessage;
+    isMine: boolean;
+  } | null>(null);
 
   // Audio Recording & Playback
   const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
@@ -210,24 +213,8 @@ export default function AdminMessagesScreen() {
   const timerRef = useRef<any>(null);
   const playerRef = useRef<any>(null);
 
-  const flatListRef = useRef<FlatList>(null);
-  const isNearBottomRef = useRef(true);
   const initialOpenedRef = useRef(false);
   const activeThreadIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    const showSub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => {
-        if (isNearBottomRef.current) {
-          setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-        }
-      }
-    );
-    return () => {
-      showSub.remove();
-    };
-  }, []);
 
   const fetchThreads = async (silent = false) => {
     try {
@@ -294,7 +281,6 @@ export default function AdminMessagesScreen() {
     setSelectedCustomer(thread);
     setMessages([]);
     setTranscript([]);
-    setInitialPositionReady(false);
     // Clear unread count locally so badge updates immediately
     setThreads((prev) =>
       prev.map((t) => (t.customerId === thread.customerId ? { ...t, unreadCount: 0 } : t))
@@ -336,80 +322,53 @@ export default function AdminMessagesScreen() {
     setSelectedCustomer(null);
     setMessages([]);
     setTranscript([]);
-    setInitialPositionReady(false);
   };
 
-  const handleDeleteChat = () => {
-    if (!selectedCustomer || deletingChat) return;
-    const thread = selectedCustomer;
-    showConfirm(
-      'Delete this chat?',
-      `Messages in your chat with ${thread.customerName} will be deleted.`,
-      {
-        confirmLabel: 'Delete chat',
-        cancelLabel: 'Cancel',
-        onConfirm: async () => {
-          activeThreadIdRef.current = null;
-          setDeletingChat(true);
-          try {
-            await apiFetch(`/api/direct-messages/thread/${thread.customerId}`, { method: 'DELETE' });
-            await deleteCachedConversation(cacheOwner, 'admin-customer-direct', thread.customerId);
-            setThreads((current) => current.filter((item) => item.customerId !== thread.customerId));
-            closeThread();
-          } catch (err: any) {
-            activeThreadIdRef.current = thread.customerId;
-            showAlert("Couldn't delete chat", 'Please try again.');
-          } finally {
-            setDeletingChat(false);
-          }
-        },
-      }
-    );
+  const openMessageDeleteMenu = (message: DirectMessage, isMine: boolean) => {
+    if (message.id.startsWith('temp-')) return;
+    setSelectedMessageForDeletion({ message, isMine });
   };
 
-  const handleDeleteMessageForEveryone = (message: DirectMessage, isMine: boolean) => {
-    if (!isMine || message.id.startsWith('temp-') || message.deletedForEveryoneAt) return;
+  const canDeleteSelectedForEveryone = (() => {
+    if (!selectedMessageForDeletion?.isMine) return false;
+    const { message } = selectedMessageForDeletion;
+    if (message.deletedForEveryoneAt) return false;
     const sentAt = new Date(message.createdAt).getTime();
-    if (!Number.isFinite(sentAt) || Date.now() - sentAt > 10 * 60 * 1000) {
-      return;
+    return Number.isFinite(sentAt) && Date.now() - sentAt <= 10 * 60 * 1000;
+  })();
+
+  const handleDeleteSelectedForEveryone = async () => {
+    if (!selectedMessageForDeletion || !canDeleteSelectedForEveryone) return;
+    const { message } = selectedMessageForDeletion;
+    setDeletingMessageId(message.id);
+    try {
+      const deleted = await apiFetch<DirectMessage>(
+        `/api/direct-messages/messages/${message.id}`,
+        { method: 'DELETE' }
+      );
+      setMessages((current) => current.map((item) => (item.id === message.id ? deleted : item)));
+    } catch {
+      showAlert("Couldn't delete message", 'Please try again.');
+    } finally {
+      setDeletingMessageId(null);
+      setSelectedMessageForDeletion(null);
     }
-    showConfirm(
-      'Delete message?',
-      'Delete this message for everyone?',
-      {
-        confirmLabel: 'Delete for everyone',
-        cancelLabel: 'Cancel',
-        onConfirm: async () => {
-          setDeletingMessageId(message.id);
-          try {
-            const deleted = await apiFetch<DirectMessage>(
-              `/api/direct-messages/messages/${message.id}`,
-              { method: 'DELETE' }
-            );
-            setMessages((current) => current.map((item) => (item.id === message.id ? deleted : item)));
-          } catch (err: any) {
-            showAlert("Couldn't delete message", 'Please try again.');
-          } finally {
-            setDeletingMessageId(null);
-          }
-        },
-      }
-    );
   };
 
-  const previousContentCountRef = useRef(0);
-
-  useEffect(() => {
-    const contentCount = messages.length + transcript.length;
-    const contentIncreased = contentCount > previousContentCountRef.current;
-    previousContentCountRef.current = contentCount;
-    if (initialPositionReady && contentIncreased && isNearBottomRef.current && selectedCustomer) {
-      const timer = setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 50);
-      return () => clearTimeout(timer);
+  const handleDeleteSelectedForMe = async () => {
+    if (!selectedMessageForDeletion) return;
+    const { message } = selectedMessageForDeletion;
+    setDeletingMessageId(message.id);
+    try {
+      await apiFetch(`/api/direct-messages/messages/${message.id}/me`, { method: 'DELETE' });
+      setMessages((current) => current.filter((item) => item.id !== message.id));
+    } catch {
+      showAlert("Couldn't delete message", 'Please try again.');
+    } finally {
+      setDeletingMessageId(null);
+      setSelectedMessageForDeletion(null);
     }
-  }, [messages.length, transcript.length, selectedCustomer, initialPositionReady]);
+  };
 
   useEffect(() => {
     if (!selectedCustomer || loadingMessages) return;
@@ -452,7 +411,6 @@ export default function AdminMessagesScreen() {
       createdAt: new Date().toISOString(),
       isRead: true,
     };
-    isNearBottomRef.current = true;
     setMessages((prev) => [...prev, optimisticMsg]);
 
     try {
@@ -770,9 +728,9 @@ export default function AdminMessagesScreen() {
           )}
           {/* Bubble + tail wrapper */}
           <Pressable
-            onLongPress={() => handleDeleteMessageForEveryone(item, isFashionHouse)}
+            onLongPress={() => openMessageDeleteMenu(item, isFashionHouse)}
             delayLongPress={400}
-            disabled={!isFashionHouse || isDeleted || deletingMessageId === item.id}
+            disabled={item.id.startsWith('temp-') || deletingMessageId === item.id}
             style={{ position: 'relative', alignSelf: isFashionHouse ? 'flex-end' : 'flex-start' }}
           >
             <View
@@ -866,27 +824,8 @@ export default function AdminMessagesScreen() {
           <Text style={styles.headerNameText}>
             {selectedCustomer ? selectedCustomer.customerName : 'Chat'}
           </Text>
-          {selectedCustomer && selectedCustomer.customerEmail ? (
-            <Text style={styles.headerSubtitleText}>{selectedCustomer.customerEmail}</Text>
-          ) : null}
         </View>
-        {selectedCustomer ? (
-          <TouchableOpacity
-            style={[styles.headerBtn, deletingChat && { opacity: 0.6 }]}
-            onPress={handleDeleteChat}
-            disabled={deletingChat}
-            accessibilityRole="button"
-            accessibilityLabel="Delete chat"
-          >
-            {deletingChat ? (
-              <ActivityIndicator size="small" color="#4A080C" />
-            ) : (
-              <Trash2 size={19} color="#4A080C" />
-            )}
-          </TouchableOpacity>
-        ) : (
-          <View style={{ width: 40 }} />
-        )}
+        <View style={{ width: 40 }} />
       </View>
 
       {!selectedCustomer && (
@@ -981,36 +920,21 @@ export default function AdminMessagesScreen() {
       ) : (
         <KeyboardAvoidingView
           style={{ flex: 1 }}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           {loadingMessages && messages.length === 0 ? (
             <View style={styles.centerContainer}>
               <ActivityIndicator size="small" color="#4A080C" />
             </View>
           ) : (
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              style={{ opacity: initialPositionReady ? 1 : 0 }}
-              keyExtractor={(item) => item.id}
-              renderItem={renderMessageItem}
-              ListHeaderComponent={renderTranscriptSection}
+            <BottomAnchoredChatScrollView
               contentContainerStyle={styles.scrollContent}
-              onContentSizeChange={() => {
-                if (!initialPositionReady) {
-                  flatListRef.current?.scrollToEnd({ animated: false });
-                  requestAnimationFrame(() => setInitialPositionReady(true));
-                }
-              }}
-              scrollEventThrottle={16}
-              onScroll={({ nativeEvent }) => {
-                const distanceFromBottom =
-                  nativeEvent.contentSize.height -
-                  nativeEvent.layoutMeasurement.height -
-                  nativeEvent.contentOffset.y;
-                isNearBottomRef.current = distanceFromBottom < 80;
-              }}
-            />
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              {renderTranscriptSection()}
+              {messages.map((item, index) => renderMessageItem({ item, index }))}
+            </BottomAnchoredChatScrollView>
           )}
 
           {/* Emoji Picker Bar */}
@@ -1143,6 +1067,14 @@ export default function AdminMessagesScreen() {
           </View>
         </KeyboardAvoidingView>
       )}
+      <MessageDeleteMenu
+        visible={selectedMessageForDeletion !== null}
+        canDeleteForEveryone={canDeleteSelectedForEveryone}
+        busy={deletingMessageId !== null}
+        onDeleteForEveryone={handleDeleteSelectedForEveryone}
+        onDeleteForMe={handleDeleteSelectedForMe}
+        onCancel={() => setSelectedMessageForDeletion(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -1293,6 +1225,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    justifyContent: 'flex-end',
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,

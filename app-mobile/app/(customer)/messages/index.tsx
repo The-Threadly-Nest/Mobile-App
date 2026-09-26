@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { MessageSquare } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface ChatThread {
   fashionHouseId: string;
@@ -54,28 +56,39 @@ function formatThreadTime(dateString: string | null): string {
 }
 
 export default function CustomerMessagesScreen() {
+  const role = useAuthStore((state) => state.role);
+  const email = useAuthStore((state) => state.email);
+  const cacheOwner = createPageCacheOwner(role, email);
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const hasLoadedRef = useRef(false);
 
   const fetchThreads = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+    else if (!hasLoadedRef.current) setLoading(true);
 
     try {
-      const data = await apiFetch<ChatThread[]>("/api/direct-messages/my-threads", {
-        silent: true,
-      }).catch(() => []);
+      if (!isRefresh && !hasLoadedRef.current) {
+        const cached = await readPageCache<ChatThread[]>(cacheOwner, "customer-message-threads");
+        if (cached) {
+          setThreads(cached);
+          setLoading(false);
+        }
+      }
+      const data = await apiFetch<ChatThread[]>("/api/direct-messages/my-threads", { silent: true });
       if (Array.isArray(data)) {
         setThreads(data);
+        void writePageCache(cacheOwner, "customer-message-threads", data);
       }
     } catch {
       // silent catch
     } finally {
+      hasLoadedRef.current = true;
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [cacheOwner]);
 
   useFocusEffect(
     useCallback(() => {
@@ -98,7 +111,10 @@ export default function CustomerMessagesScreen() {
         onPress={() =>
           router.push({
             pathname: `/(customer)/direct-chat/${item.fashionHouseId}`,
-            params: { fashionHouseName: item.fashionHouseName },
+            params: {
+              fashionHouseName: item.fashionHouseName,
+              fashionHouseLogo: item.fashionHouseLogo || undefined,
+            },
           })
         }
         className="flex-row items-center px-4 py-3.5 border-b border-[#F5F1E8] bg-white active:bg-[#F7F4EC]"

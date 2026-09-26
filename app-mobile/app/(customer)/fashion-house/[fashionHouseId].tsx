@@ -16,6 +16,8 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { MOCK_TAILORS } from "../(tabs)/browse";
 import { apiFetch } from "@/shared/utils/apiClient";
 import CachedImage from "@/shared/components/CachedImage";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 const PORTFOLIO_IMAGES: Record<string, ImageSourcePropType[]> = {
   "1": [
@@ -93,6 +95,9 @@ export default function FashionHouseScreen() {
 
   const targetId = fashionHouseId || "1";
   const isMockId = ["1", "2", "3", "4"].includes(targetId);
+  const role = useAuthStore((state) => state.role);
+  const email = useAuthStore((state) => state.email);
+  const cacheOwner = createPageCacheOwner(role, email);
 
   const [fhData, setFhData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -101,9 +106,16 @@ export default function FashionHouseScreen() {
     let mounted = true;
     async function loadDetails() {
       try {
+        const cached = await readPageCache<any>(cacheOwner, `fashion-house:${targetId}`);
+        if (!mounted) return;
+        if (cached) {
+          setFhData(cached);
+          setLoading(false);
+        }
         const fetched = await apiFetch<any>(`/api/fashion-houses/${targetId}`, { silent: true }).catch(() => null);
         if (mounted && fetched && fetched.id) {
           setFhData(fetched);
+          void writePageCache(cacheOwner, `fashion-house:${targetId}`, fetched);
         }
       } catch (e) {
         console.log("Could not load fashion house details:", e);
@@ -115,7 +127,7 @@ export default function FashionHouseScreen() {
     return () => {
       mounted = false;
     };
-  }, [targetId]);
+  }, [cacheOwner, targetId]);
 
   // Only fallback to MOCK_TAILORS if it is explicitly a mock ID (1-4)
   const mockTailor = isMockId ? (MOCK_TAILORS.find((t) => t.id === targetId) || MOCK_TAILORS[0]) : null;

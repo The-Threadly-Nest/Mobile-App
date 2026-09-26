@@ -21,7 +21,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { API_BASE_URL } from "@/api/config";
+import { adminApi } from "@/shared/utils/apiClient";
 
 interface InvoiceDetail {
   id: string;
@@ -106,14 +106,19 @@ export default function InvoiceDetailScreen() {
 
   const authShopName = useAuthStore((s) => s.shopName);
   const authShopLogo = useAuthStore((s) => s.shopLogo);
-  const token = useAuthStore((s) => s.token);
   const storeOrders = useAppDataStore((s) => s.orders);
 
   // Match from store if possible
   const matchedOrder = storeOrders.find((o: any) => o.id === orderId || o.orderNumber === orderId);
 
   const atelierName = authShopName || "Adaeze Couture";
-  const shopLogo = authShopLogo || matchedOrder?.shopLogo || matchedOrder?.fashionHouseLogo;
+  const orderShopLogo =
+    matchedOrder?.shopLogo ||
+    matchedOrder?.fashionHouseLogo ||
+    matchedOrder?.fashionHouse?.brandLogoUrl ||
+    null;
+  const [profileShopLogo, setProfileShopLogo] = useState<string | null>(null);
+  const shopLogo = profileShopLogo || authShopLogo || orderShopLogo;
   const customerName = paramCustomerName || matchedOrder?.customer || (orderId && INVOICE_DATABASE[orderId]?.customerName) || "Customer";
   const orderNumber = paramOrderNumber || matchedOrder?.orderNumber || (orderId && INVOICE_DATABASE[orderId]?.orderNumber) || (orderId ? (orderId.startsWith("#") ? orderId : `#TFH-${orderId.slice(0, 4).toUpperCase()}`) : "#TFH-2291");
   const invoiceNumber = (orderId && INVOICE_DATABASE[orderId]?.invoiceNumber) || orderNumber.replace("#TFH-", "INV-").replace("#", "INV-");
@@ -146,6 +151,23 @@ export default function InvoiceDetailScreen() {
   const [invoice, setInvoice] = useState<InvoiceDetail>(buildInitialInvoice());
   const [isGenerating, setIsGenerating] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    void adminApi
+      .getProfile()
+      .then((profile) => {
+        if (active) {
+          setProfileShopLogo(profile?.fashionHouse?.brandLogoUrl || null);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     setInvoice(buildInitialInvoice());

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import * as SecureStore from "expo-secure-store";
+import { sqliteStateStorage } from "@/shared/services/sqliteStateStorage";
 
 export interface OrderItem {
   id: string;
@@ -22,27 +22,6 @@ interface OrdersState {
   setOrders: (orders: OrderItem[]) => void;
 }
 
-const secureStorage = {
-  getItem: async (name: string) => {
-    try {
-      return (await SecureStore.getItemAsync(name)) ?? null;
-    } catch {
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string) => {
-    try {
-      if (value.length > 2000) return; // Prevent Android SecureStore 2048-byte limit warning
-      await SecureStore.setItemAsync(name, value);
-    } catch {}
-  },
-  removeItem: async (name: string) => {
-    try {
-      await SecureStore.deleteItemAsync(name);
-    } catch {}
-  },
-};
-
 export const useOrdersStore = create<OrdersState>()(
   persist(
     (set) => ({
@@ -57,6 +36,6 @@ export const useOrdersStore = create<OrdersState>()(
         }),
       setOrders: (orders) => set({ orders }),
     }),
-    { name: "threadly-nest-customer-orders", storage: createJSONStorage(() => secureStorage) }
+    { name: "threadly-nest-customer-orders", storage: createJSONStorage(() => sqliteStateStorage) }
   )
 );

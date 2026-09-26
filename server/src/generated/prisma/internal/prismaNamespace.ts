@@ -412,7 +412,8 @@ export const ModelName = {
   MoodBoardSketch: 'MoodBoardSketch',
   ChatSession: 'ChatSession',
   DirectMessage: 'DirectMessage',
-  DirectMessageThreadState: 'DirectMessageThreadState'
+  DirectMessageThreadState: 'DirectMessageThreadState',
+  DirectMessageUserDeletion: 'DirectMessageUserDeletion'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference" | "moodBoardSketch" | "chatSession" | "directMessage" | "directMessageThreadState"
+    modelProps: "user" | "fashionHouse" | "customer" | "measurement" | "order" | "invoice" | "catalogItem" | "availableSlot" | "booking" | "chatEscalation" | "sketch" | "customerPreference" | "moodBoardSketch" | "chatSession" | "directMessage" | "directMessageThreadState" | "directMessageUserDeletion"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1616,6 +1617,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DirectMessageUserDeletion: {
+      payload: Prisma.$DirectMessageUserDeletionPayload<ExtArgs>
+      fields: Prisma.DirectMessageUserDeletionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DirectMessageUserDeletionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DirectMessageUserDeletionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>
+        }
+        findFirst: {
+          args: Prisma.DirectMessageUserDeletionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DirectMessageUserDeletionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>
+        }
+        findMany: {
+          args: Prisma.DirectMessageUserDeletionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>[]
+        }
+        create: {
+          args: Prisma.DirectMessageUserDeletionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>
+        }
+        createMany: {
+          args: Prisma.DirectMessageUserDeletionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DirectMessageUserDeletionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>[]
+        }
+        delete: {
+          args: Prisma.DirectMessageUserDeletionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>
+        }
+        update: {
+          args: Prisma.DirectMessageUserDeletionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DirectMessageUserDeletionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DirectMessageUserDeletionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DirectMessageUserDeletionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DirectMessageUserDeletionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DirectMessageUserDeletionPayload>
+        }
+        aggregate: {
+          args: Prisma.DirectMessageUserDeletionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDirectMessageUserDeletion>
+        }
+        groupBy: {
+          args: Prisma.DirectMessageUserDeletionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DirectMessageUserDeletionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DirectMessageUserDeletionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DirectMessageUserDeletionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1728,6 +1803,7 @@ export const OrderScalarFieldEnum = {
   customerId: 'customerId',
   staffId: 'staffId',
   bookingId: 'bookingId',
+  idempotencyKey: 'idempotencyKey',
   itemName: 'itemName',
   price: 'price',
   status: 'status',
@@ -1788,6 +1864,7 @@ export const BookingScalarFieldEnum = {
   preferredTime: 'preferredTime',
   isFirstTime: 'isFirstTime',
   status: 'status',
+  idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt'
 } as const
 
@@ -1887,6 +1964,16 @@ export const DirectMessageThreadStateScalarFieldEnum = {
 } as const
 
 export type DirectMessageThreadStateScalarFieldEnum = (typeof DirectMessageThreadStateScalarFieldEnum)[keyof typeof DirectMessageThreadStateScalarFieldEnum]
+
+
+export const DirectMessageUserDeletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  messageId: 'messageId',
+  deletedAt: 'deletedAt'
+} as const
+
+export type DirectMessageUserDeletionScalarFieldEnum = (typeof DirectMessageUserDeletionScalarFieldEnum)[keyof typeof DirectMessageUserDeletionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2178,6 +2265,7 @@ export type GlobalOmitConfig = {
   chatSession?: Prisma.ChatSessionOmit
   directMessage?: Prisma.DirectMessageOmit
   directMessageThreadState?: Prisma.DirectMessageThreadStateOmit
+  directMessageUserDeletion?: Prisma.DirectMessageUserDeletionOmit
 }
 
 /* Types for Logging */

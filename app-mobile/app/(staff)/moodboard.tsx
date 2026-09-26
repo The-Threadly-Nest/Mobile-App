@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,8 @@ import { uploadFile } from "@/shared/utils/upload";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
+import { apiFetch } from "@/shared/utils/apiClient";
+import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface Sketch {
   id: string;
@@ -48,24 +50,34 @@ export default function StaffMoodBoardScreen() {
   const [error, setError] = useState("");
 
   const token = useAuthStore((s) => s.token);
+  const role = useAuthStore((s) => s.role);
+  const email = useAuthStore((s) => s.email);
+  const cacheOwner = createPageCacheOwner(role, email);
+  const hasLoadedRef = useRef(false);
 
   const fetchSketches = useCallback(async () => {
     if (!token) return;
-    setLoading(true);
+    if (!hasLoadedRef.current) setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok && Array.isArray(data)) {
+      if (!hasLoadedRef.current) {
+        const cached = await readPageCache<Sketch[]>(cacheOwner, "staff-moodboard");
+        if (cached) {
+          setSketches(cached);
+          setLoading(false);
+        }
+      }
+      const data = await apiFetch<Sketch[]>("/api/moodboard", { silent: true });
+      if (Array.isArray(data)) {
         setSketches(data);
+        void writePageCache(cacheOwner, "staff-moodboard", data);
       }
     } catch (e) {
       console.error("Failed to fetch staff sketches", e);
     } finally {
+      hasLoadedRef.current = true;
       setLoading(false);
     }
-  }, [token]);
+  }, [cacheOwner, token]);
 
   useFocusEffect(
     useCallback(() => {

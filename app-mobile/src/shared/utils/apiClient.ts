@@ -22,6 +22,7 @@ export class ApiError extends Error {
 interface RequestOptions extends RequestInit {
   retryCount?: number;
   silent?: boolean; // If true, don't show the native Alert on error
+  timeoutMs?: number;
 }
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -41,9 +42,17 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     headers.set("Content-Type", "application/json");
   }
 
+  const timeoutController = new AbortController();
+  const timeoutMs = options.timeoutMs ?? 12_000;
+  const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+  const callerSignal = options.signal;
+  const abortFromCaller = () => timeoutController.abort();
+  callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
+
   const fetchOptions: RequestInit = {
     ...options,
     headers,
+    signal: timeoutController.signal,
   };
 
   const maxRetries = 3;
@@ -125,10 +134,13 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       if (!options.silent) {
         console.error("[API Client] Network or parsing crash:", error);
       }
+      const timedOut = error instanceof Error && error.name === "AbortError" && !callerSignal?.aborted;
       const networkErrorDetail: ApiErrorDetail = {
         status: 0,
-        code: "NETWORK_DISCONNECTED",
-        message: "You seem to be offline. Please check your connection and try again.",
+        code: timedOut ? "REQUEST_TIMEOUT" : "NETWORK_DISCONNECTED",
+        message: timedOut
+          ? "The server is taking too long to respond. Please try again."
+          : "You seem to be offline. Please check your connection and try again.",
       };
       if (!options.silent) {
         alertEmitter.emit({ title: "Connection Offline", message: networkErrorDetail.message });
@@ -136,6 +148,9 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       throw new ApiError(networkErrorDetail);
     }
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    callerSignal?.removeEventListener("abort", abortFromCaller);
   }
 }
 
@@ -196,5 +211,4 @@ export const slotsApi = {
   deleteSlot: async (id: string) =>
     apiFetch<any>(`/api/slots/${id}`, { method: "DELETE" }),
 };
-
 

@@ -66,7 +66,8 @@ export const ModelName = {
   MoodBoardSketch: 'MoodBoardSketch',
   ChatSession: 'ChatSession',
   DirectMessage: 'DirectMessage',
-  DirectMessageThreadState: 'DirectMessageThreadState'
+  DirectMessageThreadState: 'DirectMessageThreadState',
+  DirectMessageUserDeletion: 'DirectMessageUserDeletion'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -158,6 +159,7 @@ export const OrderScalarFieldEnum = {
   customerId: 'customerId',
   staffId: 'staffId',
   bookingId: 'bookingId',
+  idempotencyKey: 'idempotencyKey',
   itemName: 'itemName',
   price: 'price',
   status: 'status',
@@ -218,6 +220,7 @@ export const BookingScalarFieldEnum = {
   preferredTime: 'preferredTime',
   isFirstTime: 'isFirstTime',
   status: 'status',
+  idempotencyKey: 'idempotencyKey',
   createdAt: 'createdAt'
 } as const
 
@@ -317,6 +320,16 @@ export const DirectMessageThreadStateScalarFieldEnum = {
 } as const
 
 export type DirectMessageThreadStateScalarFieldEnum = (typeof DirectMessageThreadStateScalarFieldEnum)[keyof typeof DirectMessageThreadStateScalarFieldEnum]
+
+
+export const DirectMessageUserDeletionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  messageId: 'messageId',
+  deletedAt: 'deletedAt'
+} as const
+
+export type DirectMessageUserDeletionScalarFieldEnum = (typeof DirectMessageUserDeletionScalarFieldEnum)[keyof typeof DirectMessageUserDeletionScalarFieldEnum]
 
 
 export const SortOrder = {

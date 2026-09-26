@@ -13,6 +13,7 @@ import { Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { apiFetch } from "@/shared/utils/apiClient";
+import { createIdempotencyKey } from "@/shared/utils/idempotency";
 
 export default function BookingConfirmationScreen() {
   const params = useLocalSearchParams<{
@@ -30,6 +31,7 @@ export default function BookingConfirmationScreen() {
   const [isFavourite, setIsFavourite] = useState(false);
   const addOrder = useOrdersStore((s) => s.addOrder);
   const hasPostedRef = React.useRef(false);
+  const idempotencyKeyRef = React.useRef(createIdempotencyKey("booking"));
 
   useEffect(() => {
     const handleGoHome = () => {
@@ -55,6 +57,7 @@ export default function BookingConfirmationScreen() {
 
       apiFetch("/api/orders/my-orders", {
         method: "POST",
+        headers: { "Idempotency-Key": idempotencyKeyRef.current },
         body: JSON.stringify({ fashionHouseName, garment, fittingDate }),
         silent: true,
       }).catch(() => {});

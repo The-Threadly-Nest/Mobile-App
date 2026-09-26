@@ -37,6 +37,9 @@ import { API_BASE_URL } from "@/api/config";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import BottomAnchoredChatScrollView from "@/shared/components/BottomAnchoredChatScrollView";
+import MessageDeleteMenu from "@/shared/components/MessageDeleteMenu";
+import { apiFetch } from "@/shared/utils/apiClient";
 import {
   createChatCacheOwner,
   readChatCache,
@@ -59,6 +62,8 @@ interface ChatMessage {
   imageUrl?: string;
   audioUrl?: string;
   audioDuration?: number;
+  createdAt?: string;
+  deletedForEveryoneAt?: string;
   time?: string;
   status?: "Sent" | "Delivered" | "Read";
 }
@@ -166,11 +171,11 @@ export default function AdminStaffChatScreen() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [selectedMessageForDeletion, setSelectedMessageForDeletion] = useState<ChatMessage | null>(null);
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
 
   // Audio Recording & Playback state via expo-audio
   const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
@@ -183,24 +188,27 @@ export default function AdminStaffChatScreen() {
 
   const { showAlert } = useAppAlert();
   const insets = useSafeAreaInsets();
-  const scrollRef = useRef<ScrollView>(null);
-  const isNearBottomRef = useRef(true);
   const hydratedStaffIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    const showSub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-      (e) => setKeyboardHeight(e.endCoordinates.height)
-    );
-    const hideSub = Keyboard.addListener(
-      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-      () => setKeyboardHeight(0)
-    );
-    return () => {
-      showSub.remove();
-      hideSub.remove();
+  const mapHistoryTurn = (turn: any, index: number, historyLength: number): ChatMessage => {
+    const isMe = turn.role === "admin" || turn.role === "model";
+    const rawTime = turn.createdAt || turn.timestamp || turn.time;
+    return {
+      id: turn.id || `legacy-${index}`,
+      sender: isMe ? "me" : "staff",
+      senderName: isMe ? undefined : selectedStaff?.name,
+      text: turn.deletedForEveryoneAt ? "This message was deleted" : turn.text,
+      imageUrl: turn.deletedForEveryoneAt ? undefined : turn.imageUrl,
+      audioUrl: turn.deletedForEveryoneAt ? undefined : turn.audioUrl,
+      audioDuration: turn.deletedForEveryoneAt ? undefined : turn.audioDuration,
+      createdAt: turn.createdAt,
+      deletedForEveryoneAt: turn.deletedForEveryoneAt,
+      time: rawTime
+        ? new Date(rawTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "",
+      status: isMe ? (index < historyLength - 1 || turn.read === true ? "Read" : "Delivered") : undefined,
     };
-  }, []);
+  };
 
   // Fetch real staff from API if available
   useEffect(() => {
@@ -246,7 +254,6 @@ export default function AdminStaffChatScreen() {
       if (!token || !selectedStaff) return;
       hydratedStaffIdRef.current = null;
       setLoading(true);
-      setInitialPositionReady(false);
       setMessages([]); // Reset messages immediately to avoid showing old/mock messages during fetch
       try {
         const cached = await readChatCache<ChatMessage[]>(
@@ -269,23 +276,7 @@ export default function AdminStaffChatScreen() {
           const body = await res.json();
           if (cancelled) return;
           if (Array.isArray(body.history) && body.history.length > 0) {
-            const formatted: ChatMessage[] = body.history.map((h: any, idx: number) => {
-              const isMe = h.role === "admin" || h.role === "model";
-              const isRead = idx < body.history.length - 1 || h.read === true;
-              const rawTime = h.timestamp || h.createdAt || h.time;
-              const formattedTime = rawTime
-                ? new Date(rawTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                : new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-              return {
-                id: idx.toString(),
-                sender: isMe ? "me" : "staff",
-                senderName: isMe ? undefined : selectedStaff.name,
-                text: h.text,
-                time: formattedTime,
-                status: isMe ? (isRead ? "Read" : "Delivered") : undefined,
-              };
-            });
+            const formatted: ChatMessage[] = body.history.map(mapHistoryTurn);
             setMessages(formatted);
             hydratedStaffIdRef.current = selectedStaff.id;
             void writeChatCache(cacheOwner, "admin-staff", selectedStaff.id, formatted);
@@ -315,52 +306,46 @@ export default function AdminStaffChatScreen() {
     void writeChatCache(cacheOwner, "admin-staff", selectedStaff.id, messages);
   }, [cacheOwner, loading, messages, selectedStaff]);
 
-  const previousMessageCountRef = useRef(0);
-  useEffect(() => {
-    const messagesIncreased = messages.length > previousMessageCountRef.current;
-    previousMessageCountRef.current = messages.length;
-    if (!initialPositionReady || !messagesIncreased || !isNearBottomRef.current) return;
-    const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
-    return () => clearTimeout(timer);
-  }, [messages.length, initialPositionReady]);
-
   const handleSend = async () => {
     const textToSend = inputText.trim();
     if (!textToSend || sending || !selectedStaff) return;
 
     const newMsg: ChatMessage = {
-      id: Date.now().toString(),
+      id: `temp-${Date.now()}`,
       sender: "me",
       text: textToSend,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       status: "Delivered",
+      createdAt: new Date().toISOString(),
     };
 
     setInputText("");
     setSending(true);
     // Add optimistic message then scroll once — single source of truth for scroll
-    isNearBottomRef.current = true;
     setMessages((prev) => [...prev, newMsg]);
 
     try {
       if (token) {
-        await fetch(`${API_BASE_URL}/api/chat/message`, {
+        const result = await apiFetch<{ turn: any }>("/api/chat/message", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({ fashionHouseId: selectedStaff.id, message: textToSend }),
         });
+        const saved = mapHistoryTurn(result.turn, messages.length, messages.length + 1);
+        setMessages((prev) => prev.map((item) => item.id === newMsg.id ? saved : item));
       }
     } catch (e) {
       console.warn("Failed to send admin message", e);
+      setMessages((prev) => prev.filter((item) => item.id !== newMsg.id));
+      setInputText(textToSend);
+      showAlert("Message not sent", "Please check your connection and try again.");
     } finally {
       setSending(false);
     }
   };
 
   const handlePickImage = async () => {
+    const selectedStaffId = selectedStaff?.id;
+    if (!selectedStaffId) return;
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
@@ -381,15 +366,22 @@ export default function AdminStaffChatScreen() {
 
         try {
           const uploaded = await uploadFile(asset.uri, filename, mimeType);
+          const createdAt = new Date().toISOString();
           const imageMsg: ChatMessage = {
-            id: Date.now().toString(),
+            id: `temp-${Date.now()}`,
             sender: "me",
             imageUrl: uploaded.fileUrl || asset.uri,
-            time: "Just now",
+            createdAt,
+            time: new Date(createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             status: "Delivered",
           };
-          isNearBottomRef.current = true;
           setMessages((prev) => [...prev, imageMsg]);
+          const response = await apiFetch<{ turn: any }>("/api/chat/message", {
+            method: "POST",
+            body: JSON.stringify({ fashionHouseId: selectedStaffId, imageUrl: imageMsg.imageUrl }),
+          });
+          const saved = mapHistoryTurn(response.turn, messages.length, messages.length + 1);
+          setMessages((prev) => prev.map((item) => item.id === imageMsg.id ? saved : item));
         } catch (e: any) {
           showAlert("Upload Error", e.message || "Failed to upload image.");
         } finally {
@@ -471,7 +463,7 @@ export default function AdminStaffChatScreen() {
       const audioUrl = uploaded.fileUrl || uri;
 
       const newMsg: ChatMessage = {
-        id: Date.now().toString(),
+        id: `temp-${Date.now()}`,
         sender: "me",
         audioUrl,
         audioDuration: finalDuration,
@@ -479,16 +471,11 @@ export default function AdminStaffChatScreen() {
         status: "Delivered",
       };
 
-      isNearBottomRef.current = true;
       setMessages((prev) => [...prev, newMsg]);
 
       if (token && selectedStaff) {
-        await fetch(`${API_BASE_URL}/api/chat/message`, {
+        const response = await apiFetch<{ turn: any }>("/api/chat/message", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             fashionHouseId: selectedStaff.id,
             message: "",
@@ -496,11 +483,63 @@ export default function AdminStaffChatScreen() {
             audioDuration: finalDuration,
           }),
         });
+        const saved = mapHistoryTurn(response.turn, messages.length, messages.length + 1);
+        setMessages((prev) => prev.map((item) => item.id === newMsg.id ? saved : item));
       }
     } catch (err: any) {
       showAlert("Error", err.message || "Failed to send voice note.");
     } finally {
       setSending(false);
+    }
+  };
+
+  const canDeleteSelectedForEveryone = (() => {
+    if (!selectedMessageForDeletion || selectedMessageForDeletion.sender !== "me") return false;
+    if (selectedMessageForDeletion.deletedForEveryoneAt || !selectedMessageForDeletion.createdAt) return false;
+    const sentAt = new Date(selectedMessageForDeletion.createdAt).getTime();
+    return Number.isFinite(sentAt) && Date.now() - sentAt <= 10 * 60 * 1000;
+  })();
+
+  const openMessageDeleteMenu = (message: ChatMessage) => {
+    if (message.id.startsWith("temp-") || deletingMessageId) return;
+    setSelectedMessageForDeletion(message);
+  };
+
+  const handleDeleteForEveryone = async () => {
+    if (!selectedMessageForDeletion || !selectedStaff || !canDeleteSelectedForEveryone) return;
+    const messageId = selectedMessageForDeletion.id;
+    setDeletingMessageId(messageId);
+    try {
+      const response = await apiFetch<{ message: any }>(`/api/chat/messages/${messageId}`, {
+        method: "DELETE",
+        body: JSON.stringify({ fashionHouseId: selectedStaff.id }),
+      });
+      setMessages((prev) => prev.map((item) => item.id === messageId
+        ? mapHistoryTurn(response.message, 0, 1)
+        : item));
+      setSelectedMessageForDeletion(null);
+    } catch (error: any) {
+      showAlert("Couldn't delete message", error?.message || "Please try again.");
+    } finally {
+      setDeletingMessageId(null);
+    }
+  };
+
+  const handleDeleteForMe = async () => {
+    if (!selectedMessageForDeletion || !selectedStaff) return;
+    const messageId = selectedMessageForDeletion.id;
+    setDeletingMessageId(messageId);
+    try {
+      await apiFetch(`/api/chat/messages/${messageId}/me`, {
+        method: "DELETE",
+        body: JSON.stringify({ fashionHouseId: selectedStaff.id }),
+      });
+      setMessages((prev) => prev.filter((item) => item.id !== messageId));
+      setSelectedMessageForDeletion(null);
+    } catch (error: any) {
+      showAlert("Couldn't delete message", error?.message || "Please try again.");
+    } finally {
+      setDeletingMessageId(null);
     }
   };
 
@@ -591,26 +630,11 @@ export default function AdminStaffChatScreen() {
 
       {/* Main Chat Area */}
       <View style={{ flex: 1 }}>
-        <ScrollView
-          ref={scrollRef}
-          style={{ opacity: !loading && initialPositionReady ? 1 : 0 }}
+        <BottomAnchoredChatScrollView
+          style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={({ nativeEvent }) => {
-            const distanceFromBottom =
-              nativeEvent.contentSize.height -
-              nativeEvent.layoutMeasurement.height -
-              nativeEvent.contentOffset.y;
-            isNearBottomRef.current = distanceFromBottom < 80;
-          }}
-          onContentSizeChange={() => {
-            if (!loading && !initialPositionReady) {
-              scrollRef.current?.scrollToEnd({ animated: false });
-              requestAnimationFrame(() => setInitialPositionReady(true));
-            }
-          }}
         >
           {loading ? (
             <View style={styles.centerContainer}>
@@ -626,10 +650,13 @@ export default function AdminStaffChatScreen() {
           ) : (
             messages.map((msg, index) => {
               const isMe = msg.sender === "me";
+              const isDeleted = Boolean(msg.deletedForEveryoneAt);
               const isFirstMessage = index === 0;
               const prevMsg = messages[index - 1];
-              const showDateHeader = isFirstMessage || (prevMsg && prevMsg.time !== msg.time);
-              const headerText = formatDateHeader(msg.time);
+              const messageDate = msg.createdAt ? new Date(msg.createdAt).toDateString() : undefined;
+              const previousDate = prevMsg?.createdAt ? new Date(prevMsg.createdAt).toDateString() : undefined;
+              const showDateHeader = isFirstMessage || (messageDate && messageDate !== previousDate);
+              const headerText = formatDateHeader(msg.createdAt || msg.time);
 
               return (
                 <React.Fragment key={msg.id}>
@@ -644,15 +671,20 @@ export default function AdminStaffChatScreen() {
                   )}
 
                   {/* Bubble + tail wrapper */}
-                  <View style={{ position: "relative", alignSelf: isMe ? "flex-end" : "flex-start" }}>
+                  <Pressable
+                    onLongPress={() => openMessageDeleteMenu(msg)}
+                    delayLongPress={400}
+                    disabled={msg.id.startsWith("temp-") || deletingMessageId !== null}
+                    style={{ position: "relative", alignSelf: isMe ? "flex-end" : "flex-start" }}
+                  >
                     <View
                       style={[
                         styles.bubbleBase,
                         isMe ? styles.sentBubble : styles.receivedBubble,
-                        msg.imageUrl ? { padding: 4 } : null,
+                        msg.imageUrl && !isDeleted ? { padding: 4 } : null,
                       ]}
                     >
-                      {msg.imageUrl ? (
+                      {msg.imageUrl && !isDeleted ? (
                         <Image
                           source={{ uri: msg.imageUrl }}
                           style={{
@@ -664,11 +696,11 @@ export default function AdminStaffChatScreen() {
                         />
                       ) : null}
                       {msg.text ? (
-                        <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText]}>
+                        <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: "italic" }]}>
                           {msg.text}
                         </Text>
                       ) : null}
-                      {msg.audioUrl ? (
+                      {msg.audioUrl && !isDeleted ? (
                         <Pressable
                           onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
                           style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 6, minWidth: 180 }}
@@ -699,7 +731,7 @@ export default function AdminStaffChatScreen() {
                       ) : null}
                     </View>
                     {isMe ? <SentTail /> : <ReceivedTail />}
-                  </View>
+                  </Pressable>
 
                   {/* Status & Timestamp Row */}
                   <View style={[styles.statusRow, !isMe && { alignSelf: "flex-start" }]}>
@@ -727,9 +759,9 @@ export default function AdminStaffChatScreen() {
               <ActivityIndicator size="small" color="#4A080C" />
             </View>
           )}
-        </ScrollView>
+        </BottomAnchoredChatScrollView>
 
-        {(loading || !initialPositionReady) && (
+        {loading && (
           <View style={[StyleSheet.absoluteFill, styles.centerContainer]} pointerEvents="none">
             <ActivityIndicator size="small" color="#4A080C" />
           </View>
@@ -737,7 +769,7 @@ export default function AdminStaffChatScreen() {
 
         {/* Emoji Bar Popup */}
         {showEmojiPicker && (
-          <View style={[styles.emojiPickerBar, { bottom: 64 + (keyboardHeight > 0 ? keyboardHeight + 8 : Math.max(insets.bottom, 12)) }]}>
+          <View style={[styles.emojiPickerBar, { bottom: 64 + Math.max(insets.bottom, 12) }]}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
               {EMOJIS.map((emoji) => (
                 <Pressable
@@ -757,8 +789,7 @@ export default function AdminStaffChatScreen() {
           style={[
             styles.inputToolbarContainer,
             {
-              paddingBottom: keyboardHeight > 0 ? 12 : Math.max(insets.bottom, 12),
-              marginBottom: keyboardHeight > 0 ? keyboardHeight + 8 : 0,
+              paddingBottom: Math.max(insets.bottom, 12),
             },
           ]}
         >
@@ -868,6 +899,14 @@ export default function AdminStaffChatScreen() {
           )}
         </View>
       </View>
+      <MessageDeleteMenu
+        visible={selectedMessageForDeletion !== null}
+        canDeleteForEveryone={canDeleteSelectedForEveryone}
+        busy={deletingMessageId !== null}
+        onDeleteForEveryone={handleDeleteForEveryone}
+        onDeleteForMe={handleDeleteForMe}
+        onCancel={() => setSelectedMessageForDeletion(null)}
+      />
     </SafeAreaView>
   );
 }

@@ -10,6 +10,8 @@ import { checkMessageGuardrails } from "../lib/chatGuardrails";
 import rateLimit from "express-rate-limit";
 import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
 import { parseFittingDate } from "../utils/dateUtils";
+import { randomUUID } from "node:crypto";
+import { isUniqueConstraintError, readIdempotencyKey } from "../lib/idempotency";
 
 const router = Router();
 router.use(requireAuth);
@@ -23,6 +25,38 @@ const chatLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "Too many messages. Please wait a moment before continuing." },
 });
+
+type StoredChatTurn = ChatTurn & {
+  id: string;
+  senderId?: string;
+  deletedForEveryoneAt?: string;
+  deletedForUserIds?: string[];
+};
+
+function normalizeStoredHistory(rawHistory: ChatTurn[]) {
+  let changed = false;
+  const history: StoredChatTurn[] = rawHistory.map((turn) => {
+    if (turn.id) return turn as StoredChatTurn;
+    changed = true;
+    return { ...turn, id: randomUUID() };
+  });
+  return { history, changed };
+}
+
+function visibleHistoryForUser(history: StoredChatTurn[], userId: string) {
+  return history
+    .filter((turn) => !turn.deletedForUserIds?.includes(userId))
+    .map(({ deletedForUserIds: _deletedForUserIds, ...turn }) => turn);
+}
+
+function ownsStoredTurn(turn: StoredChatTurn, userId: string, role: string) {
+  if (turn.senderId) return turn.senderId === userId;
+  return (
+    (role === "admin" && turn.role === "admin") ||
+    (role === "staff" && turn.role === "staff") ||
+    (role === "customer" && turn.role === "user")
+  );
+}
 
 
 
@@ -61,16 +95,119 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
       where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
     });
 
-    res.json({ history: (session?.history as unknown as ChatTurn[]) ?? [] });
+    const rawHistory = (session?.history as unknown as ChatTurn[]) ?? [];
+    const { history, changed } = normalizeStoredHistory(rawHistory);
+    if (session && changed) {
+      await prisma.chatSession.update({
+        where: { id: session.id },
+        data: { history: history as unknown as Prisma.InputJsonValue },
+      });
+    }
+
+    res.json({ history: visibleHistoryForUser(history, authUserId) });
   } catch (err) {
     next(err);
   }
 });
 
 // POST /api/chat/message — send a message; history is fully managed server-side
+// Removes the message content for both participants when requested by its sender within ten minutes.
+router.delete("/messages/:messageId", async (req, res, next) => {
+  try {
+    const rawParam = typeof req.body?.fashionHouseId === "string" ? req.body.fashionHouseId : "";
+    if (!rawParam) return res.status(400).json({ error: "Conversation is required." });
+
+    const authUserId = req.authUserId!;
+    const { sessionCustomerId, fashionHouseId, role } = await resolveSessionTarget(
+      rawParam,
+      authUserId
+    );
+    const session = await prisma.chatSession.findUnique({
+      where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
+    });
+    if (!session) return res.status(404).json({ error: "Message not found." });
+
+    const { history } = normalizeStoredHistory(
+      (session.history as unknown as ChatTurn[]) ?? []
+    );
+    const messageIndex = history.findIndex((turn) => turn.id === req.params.messageId);
+    if (messageIndex < 0) return res.status(404).json({ error: "Message not found." });
+
+    const message = history[messageIndex];
+    if (!ownsStoredTurn(message, authUserId, role)) {
+      return res.status(403).json({ error: "You can only delete messages that you sent." });
+    }
+    if (message.deletedForEveryoneAt) {
+      return res.json({ message, history: visibleHistoryForUser(history, authUserId) });
+    }
+
+    const sentAt = message.createdAt ? new Date(message.createdAt).getTime() : Number.NaN;
+    if (!Number.isFinite(sentAt) || Date.now() - sentAt > 10 * 60 * 1000) {
+      return res.status(400).json({ error: "This message can no longer be deleted for everyone." });
+    }
+
+    const deletedMessage: StoredChatTurn = {
+      id: message.id,
+      role: message.role,
+      senderId: message.senderId,
+      text: "This message was deleted",
+      createdAt: message.createdAt,
+      deletedForEveryoneAt: new Date().toISOString(),
+      deletedForUserIds: message.deletedForUserIds,
+    };
+    history[messageIndex] = deletedMessage;
+
+    await prisma.chatSession.update({
+      where: { id: session.id },
+      data: { history: history as unknown as Prisma.InputJsonValue },
+    });
+    res.json({
+      message: deletedMessage,
+      history: visibleHistoryForUser(history, authUserId),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Hides a message only for the signed-in participant.
+router.delete("/messages/:messageId/me", async (req, res, next) => {
+  try {
+    const rawParam = typeof req.body?.fashionHouseId === "string" ? req.body.fashionHouseId : "";
+    if (!rawParam) return res.status(400).json({ error: "Conversation is required." });
+
+    const authUserId = req.authUserId!;
+    const { sessionCustomerId, fashionHouseId } = await resolveSessionTarget(rawParam, authUserId);
+    const session = await prisma.chatSession.findUnique({
+      where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
+    });
+    if (!session) return res.status(404).json({ error: "Message not found." });
+
+    const { history } = normalizeStoredHistory(
+      (session.history as unknown as ChatTurn[]) ?? []
+    );
+    const messageIndex = history.findIndex((turn) => turn.id === req.params.messageId);
+    if (messageIndex < 0) return res.status(404).json({ error: "Message not found." });
+
+    const message = history[messageIndex];
+    message.deletedForUserIds = Array.from(
+      new Set([...(message.deletedForUserIds ?? []), authUserId])
+    );
+
+    await prisma.chatSession.update({
+      where: { id: session.id },
+      data: { history: history as unknown as Prisma.InputJsonValue },
+    });
+    res.json({ success: true, history: visibleHistoryForUser(history, authUserId) });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), async (req, res, next) => {
   try {
-    const { fashionHouseId: rawParam, message, garmentName, audioUrl, audioDuration } = req.body;
+    const { fashionHouseId: rawParam, message, garmentName, imageUrl, audioUrl, audioDuration } = req.body;
+    const idempotencyKey = req.body.idempotencyKey || readIdempotencyKey(req);
     const authUserId = req.authUserId!;
     const { sessionCustomerId, fashionHouseId, role } = await resolveSessionTarget(rawParam, authUserId);
     const customerId = sessionCustomerId;
@@ -81,13 +218,22 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       update: {},
       create: { customerId: sessionCustomerId, fashionHouseId, history: [] },
     });
-    const history = (session.history as unknown as ChatTurn[]) ?? [];
+    const { history } = normalizeStoredHistory(
+      (session.history as unknown as ChatTurn[]) ?? []
+    );
 
     // 1b. If the sender is staff or admin, persist human chat message directly without invoking AI
     if (role === "staff" || role === "admin") {
       const turnRole = role === "admin" ? "admin" : "staff";
-      const turnText = message?.trim() || (audioUrl ? "[Voice Note]" : "");
-      const turn: any = { role: turnRole, text: turnText, createdAt: new Date().toISOString() };
+      const turnText = message?.trim() || (imageUrl ? "[Image]" : audioUrl ? "[Voice Note]" : "");
+      const turn: StoredChatTurn = {
+        id: randomUUID(),
+        role: turnRole,
+        senderId: authUserId,
+        text: turnText,
+        createdAt: new Date().toISOString(),
+      };
+      if (imageUrl) turn.imageUrl = imageUrl;
       if (audioUrl) turn.audioUrl = audioUrl;
       if (audioDuration !== undefined) turn.audioDuration = audioDuration;
       const updatedHistory = [...history, turn];
@@ -116,7 +262,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
         sendNotificationToUser(sessionCustomerId, audioUrl ? `New Voice Note from ${fhName}` : `New Message from ${fhName}`, notifBody);
       }
 
-      return res.json({ success: true, history: updatedHistory });
+      return res.json({ success: true, turn, history: visibleHistoryForUser(updatedHistory, authUserId) });
     }
 
     // 2. Cheap deterministic checks BEFORE spending an API call
@@ -201,17 +347,29 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       if (functionCall?.name === "create_booking") {
         const args = functionCall.args as { styleNotes: string; preferredDate: string; preferredTime: string; isFirstTime?: boolean };
         const parsedDate = parseFittingDate(args.preferredDate || args.preferredTime);
-        const booking = await prisma.booking.create({
-          data: {
-            fashionHouseId,
-            customerId,
-            styleNotes: args.styleNotes,
-            preferredDate: parsedDate,
-            preferredTime: args.preferredTime,
-            isFirstTime: args.isFirstTime ?? true,
-            status: "pending_admin_review",
-          },
-        });
+        let booking = idempotencyKey
+          ? await prisma.booking.findFirst({ where: { customerId, idempotencyKey } })
+          : null;
+        if (!booking) {
+          try {
+            booking = await prisma.booking.create({
+              data: {
+                fashionHouseId,
+                customerId,
+                styleNotes: args.styleNotes,
+                preferredDate: parsedDate,
+                preferredTime: args.preferredTime,
+                isFirstTime: args.isFirstTime ?? true,
+                status: "pending_admin_review",
+                idempotencyKey,
+              },
+            });
+          } catch (error) {
+            if (!idempotencyKey || !isUniqueConstraintError(error)) throw error;
+            booking = await prisma.booking.findFirst({ where: { customerId, idempotencyKey } });
+            if (!booking) throw error;
+          }
+        }
         const confirmReply = `Your fitting request with ${fh.shopName} for ${args.preferredTime} has been received! Our team will confirm shortly.`;
         const updatedHistory: ChatTurn[] = [
           ...history,

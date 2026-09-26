@@ -35,10 +35,10 @@ import { useAppAlert } from '@/shared/hooks/useAppAlert';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { StatusBar } from 'expo-status-bar';
 import MessageDeleteMenu from '@/shared/components/MessageDeleteMenu';
+import BottomAnchoredChatScrollView from '@/shared/components/BottomAnchoredChatScrollView';
 import { mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
 import {
   createChatCacheOwner,
-  deleteCachedConversation,
   readChatCache,
   writeChatCache,
 } from '@/shared/services/chatCache';
@@ -161,7 +161,7 @@ const ReceivedTail = ({ color = 'rgba(74,8,12,0.12)' }: { color?: string }) => (
 
 export default function CustomerDirectChatScreen() {
   const insets = useSafeAreaInsets();
-  const { showAlert, showConfirm } = useAppAlert();
+  const { showAlert } = useAppAlert();
   const role = useAuthStore((s) => s.role);
   const email = useAuthStore((s) => s.email);
   const { fashionHouseId, fashionHouseName, fashionHouseLogo } = useLocalSearchParams<{
@@ -174,11 +174,9 @@ export default function CustomerDirectChatScreen() {
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
-  const [initialPositionReady, setInitialPositionReady] = useState(false);
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [deletingChat, setDeletingChat] = useState(false);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [selectedMessageForDeletion, setSelectedMessageForDeletion] = useState<{
     message: DirectMessage;
@@ -194,26 +192,39 @@ export default function CustomerDirectChatScreen() {
   const timerRef = useRef<any>(null);
   const playerRef = useRef<any>(null);
 
-  const scrollRef = useRef<ScrollView>(null);
-  const isNearBottomRef = useRef(true);
   const activeConversationIdRef = useRef<string | null>(null);
   const hydratedConversationIdRef = useRef<string | null>(null);
   const displayName = fashionHouseName || 'Fashion House';
+  const [resolvedFashionHouseLogo, setResolvedFashionHouseLogo] = useState<string | null>(
+    fashionHouseLogo || null
+  );
   const cacheOwner = createChatCacheOwner(role, email);
 
   useEffect(() => {
-    const showSub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => {
-        if (isNearBottomRef.current) {
-          setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
-        }
-      }
-    );
+    let active = true;
+    if (fashionHouseLogo) {
+      setResolvedFashionHouseLogo(fashionHouseLogo);
+      return () => {
+        active = false;
+      };
+    }
+
+    setResolvedFashionHouseLogo(null);
+    if (fashionHouseId) {
+      void apiFetch<{ brandLogoUrl?: string | null }>(
+        `/api/fashion-houses/${fashionHouseId}`,
+        { silent: true }
+      )
+        .then((fashionHouse) => {
+          if (active) setResolvedFashionHouseLogo(fashionHouse?.brandLogoUrl || null);
+        })
+        .catch(() => undefined);
+    }
+
     return () => {
-      showSub.remove();
+      active = false;
     };
-  }, []);
+  }, [fashionHouseId, fashionHouseLogo]);
 
   const fetchMessages = async (silent = false) => {
     if (!fashionHouseId) return;
@@ -222,7 +233,6 @@ export default function CustomerDirectChatScreen() {
       if (!silent) {
         hydratedConversationIdRef.current = null;
         setLoading(true);
-        setInitialPositionReady(false);
         setMessages([]);
         setTranscript([]);
         const cached = await readChatCache<DirectChatCache>(
@@ -287,48 +297,6 @@ export default function CustomerDirectChatScreen() {
     });
   }, [cacheOwner, fashionHouseId, loading, messages, transcript]);
 
-  const previousContentCountRef = useRef(0);
-
-  // Follow newly appended messages only while the user is already near the bottom.
-  useEffect(() => {
-    const contentCount = messages.length + transcript.length;
-    const contentIncreased = contentCount > previousContentCountRef.current;
-    previousContentCountRef.current = contentCount;
-    if (!initialPositionReady || !contentIncreased || !isNearBottomRef.current) return;
-    const timer =
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
-    return () => clearTimeout(timer);
-  }, [messages.length, transcript.length, initialPositionReady]);
-
-  const handleDeleteChat = () => {
-    if (!fashionHouseId || deletingChat) return;
-    showConfirm(
-      'Delete this chat?',
-      `Messages in your chat with ${displayName} will be deleted.`,
-      {
-        confirmLabel: 'Delete chat',
-        cancelLabel: 'Cancel',
-        onConfirm: async () => {
-          activeConversationIdRef.current = null;
-          setDeletingChat(true);
-          try {
-            await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, { method: 'DELETE' });
-            await deleteCachedConversation(cacheOwner, 'customer-direct', fashionHouseId);
-            setMessages([]);
-            setTranscript([]);
-            if (router.canGoBack()) router.back();
-            else router.replace('/(customer)/messages' as any);
-          } catch (err: any) {
-            activeConversationIdRef.current = fashionHouseId;
-            showAlert("Couldn't delete chat", 'Please try again.');
-          } finally {
-            setDeletingChat(false);
-          }
-        },
-      }
-    );
-  };
-
   const openMessageDeleteMenu = (message: DirectMessage, isMine: boolean) => {
     if (message.id.startsWith('temp-')) return;
     setSelectedMessageForDeletion({ message, isMine });
@@ -390,7 +358,6 @@ export default function CustomerDirectChatScreen() {
       createdAt: new Date().toISOString(),
       isRead: false,
     };
-    isNearBottomRef.current = true;
     setMessages((prev) => [...prev, optimisticMsg]);
 
     try {
@@ -439,7 +406,6 @@ export default function CustomerDirectChatScreen() {
             createdAt: new Date().toISOString(),
             isRead: false,
           };
-          isNearBottomRef.current = true;
           setMessages((prev) => [...prev, tempMsg]);
 
           await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, {
@@ -535,7 +501,6 @@ export default function CustomerDirectChatScreen() {
         createdAt: new Date().toISOString(),
         isRead: false,
       };
-      isNearBottomRef.current = true;
       setMessages((prev) => [...prev, tempMsg]);
 
       await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, {
@@ -666,9 +631,9 @@ export default function CustomerDirectChatScreen() {
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-          {fashionHouseLogo ? (
+          {resolvedFashionHouseLogo ? (
             <Image
-              source={{ uri: fashionHouseLogo }}
+              source={{ uri: resolvedFashionHouseLogo }}
               style={{ width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: 'rgba(74,8,12,0.15)' }}
               resizeMode="cover"
             />
@@ -693,53 +658,25 @@ export default function CustomerDirectChatScreen() {
             <Text style={styles.headerSubtitleText}>Direct Support Chat</Text>
           </View>
         </View>
-        <Pressable
-          onPress={handleDeleteChat}
-          disabled={deletingChat}
-          accessibilityRole="button"
-          accessibilityLabel="Delete chat"
-          style={({ pressed }) => [styles.headerBtn, { opacity: pressed || deletingChat ? 0.6 : 1 }]}
-        >
-          {deletingChat ? (
-            <ActivityIndicator size="small" color="#4A080C" />
-          ) : (
-            <Trash2 size={19} color="#4A080C" />
-          )}
-        </Pressable>
       </View>
 
       {/* Main Chat Area */}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
-        <ScrollView
-          ref={scrollRef}
+        <BottomAnchoredChatScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[styles.scrollContent, { flexGrow: 1, justifyContent: "flex-end" }]}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
-          onScroll={({ nativeEvent }) => {
-            const distanceFromBottom =
-              nativeEvent.contentSize.height -
-              nativeEvent.layoutMeasurement.height -
-              nativeEvent.contentOffset.y;
-            isNearBottomRef.current = distanceFromBottom < 80;
-          }}
-          onContentSizeChange={() => {
-            if (!initialPositionReady && !loading) {
-              scrollRef.current?.scrollToEnd({ animated: false });
-              requestAnimationFrame(() => setInitialPositionReady(true));
-            }
-          }}
         >
           {loading ? (
             <View style={styles.centerContainer}>
               <ActivityIndicator size="small" color="#4A080C" />
             </View>
           ) : (
-            <View style={{ opacity: initialPositionReady ? 1 : 0 }}>
+            <View>
               {renderTranscriptSection()}
               {messages.length === 0 && transcript.length === 0 ? (
                 <View style={styles.centerContainer}>
@@ -869,7 +806,7 @@ export default function CustomerDirectChatScreen() {
               <ActivityIndicator size="small" color="#4A080C" />
             </View>
           )}
-        </ScrollView>
+        </BottomAnchoredChatScrollView>
 
         {/* Emoji Picker Popup */}
         {showEmojiPicker && (

@@ -47,6 +47,18 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(cachedOrders.length === 0 && cachedEscalations.length === 0);
   const [refreshing, setRefreshing] = useState(false);
 
+  React.useEffect(() => {
+    if (orders.length === 0 && cachedOrders.length > 0) {
+      setOrders(cachedOrders);
+      setLoading(false);
+    }
+    if (escalations.length === 0 && cachedEscalations.length > 0) {
+      setEscalations(cachedEscalations);
+      setLoading(false);
+    }
+    if (cachedProfile?.shopName && !shopName) setShopName(cachedProfile.shopName);
+  }, [cachedEscalations, cachedOrders, cachedProfile, escalations.length, orders.length, shopName]);
+
 
 
   const fetchData = async () => {
