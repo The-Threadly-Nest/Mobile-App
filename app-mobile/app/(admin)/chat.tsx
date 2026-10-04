@@ -629,7 +629,11 @@ export default function AdminStaffChatScreen() {
       </View>
 
       {/* Main Chat Area */}
-      <View style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={0}
+        style={{ flex: 1 }}
+      >
         <BottomAnchoredChatScrollView
           style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
@@ -898,7 +902,7 @@ export default function AdminStaffChatScreen() {
             </>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
       <MessageDeleteMenu
         visible={selectedMessageForDeletion !== null}
         canDeleteForEveryone={canDeleteSelectedForEveryone}

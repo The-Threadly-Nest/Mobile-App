@@ -3,8 +3,8 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { inviteStaffSchema } from "../schemas/staff.schema";
-import { hashPassword, generateResetToken, hashResetToken } from "../lib/password";
-import { sendWelcomeEmail, sendStaffActivationEmail, sendStaffInviteEmail } from "../lib/mailer";
+import { generateResetToken, hashResetToken } from "../lib/password";
+import { sendWelcomeEmail, sendStaffActivationEmail } from "../lib/mailer";
 
 const router = Router();
 
@@ -50,7 +50,7 @@ async function getOwnFashionHouse(adminUserId: string) {
 router.post("/invite", validate({ body: inviteStaffSchema }), async (req, res, next) => {
   try {
     const fh = await getOwnFashionHouse(req.authUserId!);
-    const { name, email, password } = req.body;
+    const { name, email } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -69,29 +69,28 @@ router.post("/invite", validate({ body: inviteStaffSchema }), async (req, res, n
       });
     }
 
-    const passwordHash = await hashPassword(password);
+    const activationCode = generateResetToken();
+    const resetTokenHash = hashResetToken(activationCode);
+    const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     const staffUser = await prisma.user.create({
       data: {
         name: name ? name.trim() : null,
         email,
-        passwordHash,
+        passwordHash: null,
         role: "staff",
         fashionHouseId: fh.id,
-        active: true,
+        active: false,
+        resetTokenHash,
+        resetTokenExpiresAt,
       },
     });
 
-    sendStaffInviteEmail({
-      to: email,
-      name: name.trim(),
-      fashionHouseName: fh.shopName,
-      tempPassword: password,
-    }).catch((err) => {
+    sendStaffActivationEmail(email, name.trim(), fh.shopName, activationCode).catch((err) => {
       console.error("Failed to send staff invite email:", err);
     });
 
-    res.status(201).json({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, message: "Staff account created successfully." });
+    res.status(201).json({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, message: "Staff activation invitation sent." });
   } catch (err) {
     next(err);
   }

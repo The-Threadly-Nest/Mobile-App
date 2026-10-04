@@ -36,6 +36,9 @@ interface AuthState {
   setHasSeenSketchpadGuide: (seen: boolean) => void;
   setResendAvailableAt: (timestamp: number | null) => void;
   setCreatedAt: (dateStr: string | null) => void;
+  setSession: (session: Partial<Pick<AuthState,
+    "token" | "email" | "name" | "shopName" | "role" | "createdAt" | "isVerified" | "onboardingCompleted"
+  >>) => void;
   logout: () => void;
 }
 
@@ -74,6 +77,7 @@ export const useAuthStore = create<AuthState>()(
       setHasSeenSketchpadGuide: (hasSeenSketchpadGuide) => set({ hasSeenSketchpadGuide }),
       setResendAvailableAt: (resendAvailableAt) => set({ resendAvailableAt }),
       setCreatedAt: (createdAt) => set({ createdAt }),
+      setSession: (session) => set(session),
       logout: () => {
         try {
           useOrdersStore.getState().setOrders([]);

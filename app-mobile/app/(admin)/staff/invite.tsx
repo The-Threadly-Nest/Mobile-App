@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Eye, EyeOff } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
@@ -26,8 +25,6 @@ export default function InviteStaffScreen() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,10 +40,6 @@ export default function InviteStaffScreen() {
       setError("Please enter a valid email address.");
       return;
     }
-    if (!password || password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      return;
-    }
 
     setLoading(true);
     try {
@@ -59,7 +52,6 @@ export default function InviteStaffScreen() {
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim().toLowerCase(),
-          password,
         }),
       });
 
@@ -71,7 +63,7 @@ export default function InviteStaffScreen() {
         throw new Error(issueMsg || body.error || "Could not invite staff member.");
       }
 
-      showAlert("Invite Sent", `An invite and account credentials have been created for ${name.trim()}.`);
+      showAlert("Invite Sent", `An activation code has been sent to ${email.trim().toLowerCase()}.`);
       setTimeout(() => {
         router.push("/(admin)/staff" as any);
       }, 1200);
@@ -86,7 +78,7 @@ export default function InviteStaffScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
           contentContainerStyle={[
@@ -143,33 +135,6 @@ export default function InviteStaffScreen() {
                 value={email}
                 onChangeText={setEmail}
               />
-            </View>
-
-            {/* Password Input Field */}
-            <View style={styles.fieldWrapper}>
-              <View style={styles.labelContainer}>
-                <Text style={styles.floatingLabel}>Password</Text>
-              </View>
-              <View style={styles.passwordRow}>
-                <TextInput
-                  style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
-                  placeholder="Min. 8 characters"
-                  placeholderTextColor="#A89E90"
-                  secureTextEntry={!showPassword}
-                  value={password}
-                  onChangeText={setPassword}
-                />
-                <Pressable
-                  onPress={() => setShowPassword((prev) => !prev)}
-                  style={{ padding: 6 }}
-                >
-                  {showPassword ? (
-                    <EyeOff size={18} color="#7A7265" />
-                  ) : (
-                    <Eye size={18} color="#7A7265" />
-                  )}
-                </Pressable>
-              </View>
             </View>
 
             {/* Error message */}

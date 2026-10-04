@@ -31,14 +31,7 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const setToken = useAuthStore((s) => s.setToken);
-  const setEmailStore = useAuthStore((s) => s.setEmail);
-  const setNameStore = useAuthStore((s) => s.setName);
-  const setShopNameStore = useAuthStore((s) => s.setShopName);
-  const setRoleStore = useAuthStore((s) => s.setRole);
-  const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
-  const setIsVerified = useAuthStore((s) => s.setIsVerified);
-  const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
+  const setSession = useAuthStore((s) => s.setSession);
 
   const promptAsync = async () => {
     setError("");
@@ -51,7 +44,6 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
-      await GoogleSignin.signOut().catch(() => {});
       const response = await GoogleSignin.signIn();
 
       if (isCancelledResponse(response)) {
@@ -78,14 +70,16 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       const userVerified = data.user.isVerified ?? true;
       const userOnboardingCompleted = data.user.onboardingCompleted ?? false;
 
-      setToken(data.token);
-      setEmailStore(data.user.email);
-      setNameStore(data.user.name ?? "");
-      setShopNameStore(data.user.shopName ?? "");
-      setRoleStore(data.user.role);
-      setCreatedAt(data.user.createdAt ?? new Date().toISOString());
-      setIsVerified(userVerified);
-      setOnboardingCompleted(userOnboardingCompleted);
+      setSession({
+        token: data.token,
+        email: data.user.email,
+        name: data.user.name ?? "",
+        shopName: data.user.shopName ?? "",
+        role: data.user.role,
+        createdAt: data.user.createdAt ?? new Date().toISOString(),
+        isVerified: userVerified,
+        onboardingCompleted: userOnboardingCompleted,
+      });
 
       // Register push token asynchronously after Google Sign-In
       registerPushToken(data.token).catch((err) =>

@@ -23,7 +23,7 @@ export default function VerifyEmailScreen() {
 
   const params = useLocalSearchParams<{ email?: string }>();
   const storeEmail = useAuthStore((s) => s.email);
-  const email = params.email || storeEmail || "janeteb@zmail.com";
+  const email = params.email || storeEmail || "";
   const userRole = useAuthStore((s) => s.role);
   const setIsVerifiedStore = useAuthStore((s) => s.setIsVerified);
   const resendAvailableAt = useAuthStore((s) => s.resendAvailableAt);
@@ -113,6 +113,10 @@ export default function VerifyEmailScreen() {
     if (!canResend) return;
     setError("");
     setSuccessMsg("");
+    if (!email) {
+      setError("Your email address is missing. Return to sign up and try again.");
+      return;
+    }
     try {
       const targetUrl = `${API_BASE_URL}/api/auth/resend-code`;
       console.log(`[Verify] POST to ${targetUrl}`);
@@ -143,6 +147,10 @@ export default function VerifyEmailScreen() {
 
   const handleVerify = async (enteredCode: string) => {
     setError("");
+    if (!email) {
+      setError("Your email address is missing. Return to sign up and try again.");
+      return;
+    }
     try {
       const targetUrl = `${API_BASE_URL}/api/auth/verify-code`;
       console.log(`[Verify] POST to ${targetUrl}`);

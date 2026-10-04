@@ -25,6 +25,7 @@ export async function sendNotificationToUser(userId: string, title: string, body
         sound: "default",
         title,
         body,
+        categoryId: data?.screen === "messages" || data?.screen === "direct-chat" ? "message" : undefined,
         data,
       }),
     });

@@ -20,6 +20,7 @@ interface OrdersState {
   orders: OrderItem[];
   addOrder: (order: OrderItem) => void;
   setOrders: (orders: OrderItem[]) => void;
+  updateOrderStatus: (id: string, status: OrderItem["status"], rawStatus?: string) => void;
 }
 
 export const useOrdersStore = create<OrdersState>()(
@@ -35,6 +36,14 @@ export const useOrdersStore = create<OrdersState>()(
           return { orders: [newOrder, ...state.orders] };
         }),
       setOrders: (orders) => set({ orders }),
+      updateOrderStatus: (id, status, rawStatus = status) =>
+        set((state) => ({
+          orders: state.orders.map((order) =>
+            order.id === id || order.orderId === id || order.bookingId === id
+              ? { ...order, status, rawStatus }
+              : order
+          ),
+        })),
     }),
     { name: "threadly-nest-customer-orders", storage: createJSONStorage(() => sqliteStateStorage) }
   )

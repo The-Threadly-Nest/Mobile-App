@@ -14,7 +14,7 @@ const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false });
 
 function issueToken(userId: string, email: string, role: string, fashionHouseId: string | null | undefined, passwordHash: string | null) {
   if (!JWT_SECRET) throw Object.assign(new Error("Server misconfiguration"), { status: 500 });
@@ -181,9 +181,7 @@ router.post("/reset-password", authLimiter, validate({ body: resetPasswordSchema
       return res.status(400).json({ error: "This code has expired. Request a new one." });
     }
     if (hashResetToken(normalizedToken) !== user.resetTokenHash) {
-      // Burn the token on wrong guess to prevent brute-force
-      await prisma.user.update({ where: { id: user.id }, data: { resetTokenHash: null, resetTokenExpiresAt: null } });
-      return res.status(400).json({ error: "Incorrect code. For your security, this code has been invalidated. Please request a new one." });
+      return res.status(400).json({ error: "Incorrect code. Please check the code and try again." });
     }
 
     const newPasswordHash = await hashPassword(newPassword);

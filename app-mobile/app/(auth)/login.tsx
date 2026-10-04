@@ -117,7 +117,7 @@ export default function LoginScreen() {
     }
   };
 
-  const { promptAsync: triggerGoogleAuth, error: googleError } = useGoogleAuth("customer");
+  const { promptAsync: triggerGoogleAuth, error: googleError, loading: googleLoading } = useGoogleAuth("customer");
 
   const handleGoogleAuth = () => {
     triggerGoogleAuth();
@@ -254,12 +254,17 @@ export default function LoginScreen() {
             {/* Continue with Google Button */}
             <Pressable
               onPress={handleGoogleAuth}
+              disabled={googleLoading}
               style={({ pressed }) => [
                 styles.googleBtn,
                 isLandscape && { height: 48, borderRadius: 24, marginBottom: 14 },
-                { opacity: pressed ? 0.8 : 1 },
+                { opacity: pressed || googleLoading ? 0.8 : 1 },
               ]}
             >
+              {googleLoading ? (
+                <ActivityIndicator color="#4A080C" />
+              ) : (
+                <>
               <Svg width={20} height={20} viewBox="0 0 24 24">
                 <Path
                   fill="#F44336"
@@ -279,6 +284,8 @@ export default function LoginScreen() {
                 />
               </Svg>
               <Text style={styles.googleBtnText}>Continue with Google</Text>
+                </>
+              )}
             </Pressable>
 
             {/* Disclaimer */}

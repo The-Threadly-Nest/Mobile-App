@@ -36,10 +36,19 @@ export default function AppAlert() {
     }).start();
   }, [anim]);
 
-  const close = useCallback((cb?: () => void) => {
+  const closingRef = useRef(false);
+
+  const close = useCallback((cb?: () => void | Promise<void>) => {
+    if (closingRef.current) return;
+    closingRef.current = true;
     Animated.timing(anim, { toValue: 0, duration: 170, useNativeDriver: true }).start(() => {
       setVisible(false);
-      cb?.();
+      closingRef.current = false;
+      if (cb) {
+        Promise.resolve(cb()).catch((error) => {
+          console.error("Alert action failed", error);
+        });
+      }
     });
   }, [anim]);
 
@@ -52,7 +61,12 @@ export default function AppAlert() {
 
   return (
     <Modal transparent animationType="none" visible={visible} onRequestClose={() => close(payload.onCancel)}>
-      <Pressable style={styles.overlay} onPress={() => close(payload.onCancel)}>
+      <View style={styles.overlay}>
+        <Pressable
+          accessibilityLabel="Close dialog"
+          style={StyleSheet.absoluteFill}
+          onPress={() => close(payload.onCancel)}
+        />
         <Animated.View
           style={[
             styles.card,
@@ -97,7 +111,7 @@ export default function AppAlert() {
             </View>
           </View>
         </Animated.View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }

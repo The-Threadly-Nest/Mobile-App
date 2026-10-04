@@ -48,7 +48,7 @@ function sanitizeText(text: string): string {
 function cleanRawSlotText(text: string): string {
   if (!text) return "";
   let cleaned = sanitizeText(text);
-  // Remove trailing or embedded raw date lines like "Sat, 6 Sep · 10:00 AM" so interactive cards handle it
+  // Remove raw date lines so the interactive cards remain the single source of slot details.
   cleaned = cleaned
     .replace(/(?:\r?\n|\r)?(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*\d+\s+[A-Za-z]+(?:\s*[·•-]\s*\d+:\d+\s*[AP]M)?/gi, "")
     .trim();
@@ -72,17 +72,14 @@ export default function BookingChatScreen() {
     garmentPrice?: string;
   }>();
 
+  const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
+
   const initialTurns: Turn[] = garmentName
     ? [
         {
           role: "model",
           text: `Welcome! We are delighted to assist you with your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Please select an available fitting slot below to schedule your measurement session:`,
-          slots: [
-            { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-            { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-            { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-            { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-          ],
+          slots: availableSlots,
         },
       ]
     : DEFAULT_INITIAL_TURNS;
@@ -104,7 +101,6 @@ export default function BookingChatScreen() {
   const email = useAuthStore((s) => s.email);
   const cacheOwner = createChatCacheOwner(role, email);
   const hydratedConversationIdRef = useRef<string | null>(null);
-  const bookingRequestKeyRef = useRef<string | null>(null);
 
   // Load session history and real fashion house name on mount
   useEffect(() => {
@@ -163,6 +159,8 @@ export default function BookingChatScreen() {
             const body = await res.json();
             if (cancelled) return;
             const serverHistory: Turn[] = body.history ?? [];
+            const serverSlots: Slot[] = Array.isArray(body.availableSlots) ? body.availableSlots : [];
+            setAvailableSlots(serverSlots);
             if (serverHistory.length > 0) {
               const formatted = serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) }));
               const lastTurn = formatted[formatted.length - 1];
@@ -174,12 +172,7 @@ export default function BookingChatScreen() {
                   formatted.push({
                     role: "model",
                     text: `Welcome back! We are delighted to assist you with your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Please select an available fitting slot below:`,
-                    slots: [
-                      { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-                      { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-                      { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-                      { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-                    ],
+                    slots: serverSlots,
                   });
                 } else {
                   formatted.push({
@@ -193,9 +186,12 @@ export default function BookingChatScreen() {
               hydratedConversationIdRef.current = fashionHouseId;
               void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, formatted);
             } else {
-              setHistory(initialTurns);
+              const freshInitialTurns = garmentName
+                ? initialTurns.map((turn) => ({ ...turn, slots: serverSlots }))
+                : initialTurns;
+              setHistory(freshInitialTurns);
               hydratedConversationIdRef.current = fashionHouseId;
-              void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, initialTurns);
+              void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, freshInitialTurns);
             }
           }
         }
@@ -288,6 +284,7 @@ export default function BookingChatScreen() {
     try {
       let replyText = "";
       let responseType = "";
+      let responseSlots = availableSlots;
 
       if (token && fashionHouseId) {
         const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
@@ -308,6 +305,10 @@ export default function BookingChatScreen() {
           const body = await res.json();
           replyText = sanitizeText(body.reply);
           responseType = body.type;
+          if (Array.isArray(body.availableSlots)) {
+            responseSlots = body.availableSlots;
+            setAvailableSlots(body.availableSlots);
+          }
           if (body.booking?.styleNotes) {
             activeGarment = body.booking.styleNotes;
             setSelectedGarment(body.booking.styleNotes);
@@ -338,7 +339,7 @@ export default function BookingChatScreen() {
         return;
       }
 
-      if (responseType === "booking_created" || lower.includes("slot") || lower.includes("sep")) {
+      if (responseType === "booking_created") {
         setBookingConfirmed(true);
         const confirmTurn: Turn = {
           role: "model",
@@ -350,28 +351,7 @@ export default function BookingChatScreen() {
         };
         setHistory((prev) => [...prev, confirmTurn, endTurn]);
 
-        const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Sat, 6 Sep · 10:00 AM";
-
-        // Persist real booking to backend only if AI did not already create it and not already confirmed
-        if (responseType !== "booking_created" && !bookingConfirmed && token && fashionHouseId) {
-          if (!bookingRequestKeyRef.current) {
-            bookingRequestKeyRef.current = createIdempotencyKey("booking");
-          }
-          fetch(`${API_BASE_URL}/api/orders/my-orders`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-              "Idempotency-Key": bookingRequestKeyRef.current,
-            },
-            body: JSON.stringify({
-              fashionHouseId,
-              fashionHouseName,
-              garment: activeGarment,
-              fittingDate: targetSlot,
-            }),
-          }).catch(() => {});
-        }
+        const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Confirmed fitting";
 
         setTimeout(() => {
           setHistory(DEFAULT_INITIAL_TURNS);
@@ -445,21 +425,11 @@ export default function BookingChatScreen() {
         // Always present fitting slots directly
         responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName} for your ${selectedGarment}. Please select a convenient time below:`;
         responseTurn.options = undefined;
-        responseTurn.slots = [
-          { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-          { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-          { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-        ];
+        responseTurn.slots = responseSlots;
       } else if (mentionsSlots) {
         responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
         responseTurn.options = undefined;
-        responseTurn.slots = [
-          { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-          { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-          { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-        ];
+        responseTurn.slots = responseSlots;
       } else if (isOccasionChoice) {
         // VENDOR FLOW: Ask for Garment Style
         responseTurn.text = cleanedReply || `Wonderful! We would be honored to craft something exquisite for you. What garment style or silhouette do you have in mind?`;
@@ -472,14 +442,14 @@ export default function BookingChatScreen() {
       } else if (mentionsFabric) {
         responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
         responseTurn.options = undefined;
-        responseTurn.slots = [
-          { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-          { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-          { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-          { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-        ];
+        responseTurn.slots = responseSlots;
       } else {
         responseTurn.options = styleOptions;
+        responseTurn.slots = undefined;
+      }
+
+      if (responseTurn.slots && responseTurn.slots.length === 0) {
+        responseTurn.text = `There are no fitting slots available at ${fashionHouseName} right now. Please use Talk to Admin so the fashion house can assist you.`;
         responseTurn.slots = undefined;
       }
 
@@ -491,16 +461,16 @@ export default function BookingChatScreen() {
           ? houseCategories.slice(0, 4)
           : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
 
-      let responseTurn: Turn = garmentName
+      let responseTurn: Turn = garmentName && availableSlots.length > 0
         ? {
             role: "model",
             text: `Please select an available fitting slot below to complete your order for ${garmentName}:`,
-            slots: [
-              { id: "1", label: "Sat, 6 Sep · 10:00 AM" },
-              { id: "2", label: "Sat, 6 Sep · 2:00 PM" },
-              { id: "3", label: "Mon, 8 Sep · 11:00 AM" },
-              { id: "4", label: "Tue, 9 Sep · 3:00 PM" },
-            ],
+            slots: availableSlots,
+          }
+        : garmentName
+        ? {
+            role: "model",
+            text: `There are no fitting slots available at ${fashionHouseName} right now. Please use Talk to Admin so the fashion house can assist you.`,
           }
         : {
             role: "model",
@@ -581,7 +551,7 @@ export default function BookingChatScreen() {
       </View>
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 12 : 0}
         style={{ flex: 1 }}
       >

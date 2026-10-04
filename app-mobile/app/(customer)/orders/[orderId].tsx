@@ -31,6 +31,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { alertEmitter } from "@/shared/utils/alertEmitter";
+import { apiFetch } from "@/shared/utils/apiClient";
+import { useOrdersStore } from "@/stores/useOrdersStore";
 
 const STAGES = [
   { key: "booked", label: "Appointment Booked", desc: "Fitting session scheduled" },
@@ -58,6 +60,7 @@ const STAGE_INDEX_MAP: Record<string, number> = {
 export default function CustomerOrderDetailScreen() {
   const { width, height } = useWindowDimensions();
   const token = useAuthStore((s) => s.token);
+  const updateOrderStatus = useOrdersStore((s) => s.updateOrderStatus);
 
   const params = useLocalSearchParams<{
     orderId: string;
@@ -83,24 +86,19 @@ export default function CustomerOrderDetailScreen() {
       confirmLabel: "Yes, Cancel",
       cancelLabel: "Keep Order",
       onConfirm: async () => {
+        if (cancelling) return;
         setCancelling(true);
         try {
-          const res = await fetch(`${API_BASE_URL}/api/orders/track/${params.orderId}/cancel`, {
+          const orderId = Array.isArray(params.orderId) ? params.orderId[0] : params.orderId;
+          if (!orderId) throw new Error("This order could not be identified. Please reopen it and try again.");
+          await apiFetch(`/api/orders/track/${encodeURIComponent(orderId)}/cancel`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
           });
-          const data = await res.json();
-          if (!res.ok) {
-            alertEmitter.emit({ title: "Cancellation Error", message: data.error || "Failed to cancel order." });
-          } else {
-            setOrderData((prev: any) => ({ ...(prev || {}), status: "cancelled" }));
-            alertEmitter.emit({ title: "Order Cancelled", message: "Your order has been successfully cancelled." });
-          }
+          setOrderData((prev: any) => ({ ...(prev || {}), status: "cancelled" }));
+          updateOrderStatus(orderId, "cancelled");
+          alertEmitter.emit({ title: "Order Cancelled", message: "Your order has been successfully cancelled." });
         } catch (err: any) {
-          alertEmitter.emit({ title: "Error", message: err.message || "An unexpected error occurred." });
+          alertEmitter.emit({ title: "Cancellation Error", message: err?.message || "Failed to cancel order. Please try again." });
         } finally {
           setCancelling(false);
         }
@@ -489,4 +487,3 @@ const styles = StyleSheet.create({
     color: "#4A080C",
   },
 });
-

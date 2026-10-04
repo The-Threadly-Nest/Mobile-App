@@ -2,8 +2,45 @@ import { Platform } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import { API_BASE_URL } from "@/api/config";
 import { alertEmitter } from "./alertEmitter";
+import { router } from "expo-router";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 let notificationListener: any = null;
+let notificationResponseListener: any = null;
+
+async function handleMessageAction(response: any) {
+  const actionId = response.actionIdentifier;
+  const content = response.notification.request.content;
+  const data = content.data ?? {};
+  const threadId = data.customerId || data.fashionHouseId;
+  const token = useAuthStore.getState().token;
+  if (!threadId || !token) return;
+
+  const threadUrl = `${API_BASE_URL}/api/direct-messages/thread/${encodeURIComponent(String(threadId))}`;
+  if (actionId === "REPLY") {
+    const replyText = response.userText?.trim();
+    if (!replyText) return;
+    await fetch(threadUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ text: replyText }),
+    });
+    return;
+  }
+  if (actionId === "MARK_READ") {
+    await fetch(`${threadUrl}/read`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return;
+  }
+
+  if (data.screen === "messages") {
+    router.push({ pathname: "/(admin)/messages", params: { customerId: String(data.customerId ?? "") } } as any);
+  } else if (data.screen === "direct-chat" && data.fashionHouseId) {
+    router.push(`/(customer)/direct-chat/${data.fashionHouseId}` as any);
+  }
+}
 
 /**
  * Configure Expo Notifications foreground presentation, Android channels, and listeners.
@@ -35,6 +72,20 @@ export async function initNotifications() {
       });
     }
 
+    await Notifications.setNotificationCategoryAsync("message", [
+      {
+        identifier: "REPLY",
+        buttonTitle: "Reply",
+        options: { opensAppToForeground: false },
+        textInput: { submitButtonTitle: "Send", placeholder: "Message" },
+      },
+      {
+        identifier: "MARK_READ",
+        buttonTitle: "Mark as read",
+        options: { opensAppToForeground: false },
+      },
+    ]);
+
     // 3. Listen for foreground notifications and trigger branded alert modal
     if (!notificationListener) {
       notificationListener = Notifications.addNotificationReceivedListener((notification: any) => {
@@ -46,6 +97,16 @@ export async function initNotifications() {
           });
         }
       });
+    }
+    if (!notificationResponseListener) {
+      notificationResponseListener = Notifications.addNotificationResponseReceivedListener((response: any) => {
+        handleMessageAction(response).catch((error) => {
+          console.warn("[notification] Message action failed:", error);
+        });
+      });
+
+      const lastResponse = await Notifications.getLastNotificationResponseAsync();
+      if (lastResponse) void handleMessageAction(lastResponse);
     }
   } catch (e) {
     console.warn("[initNotifications] Failed to initialize notification handlers:", e);

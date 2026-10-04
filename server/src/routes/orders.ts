@@ -399,6 +399,7 @@ router.post("/track/:id/cancel", requireAuth, async (req, res, next) => {
           id,
           ...bookingAccessWhere(req),
         },
+        include: { order: { select: { id: true } } },
       }),
       prisma.order.findFirst({
         where: { id, ...orderAccessWhere(req) },
@@ -432,6 +433,11 @@ router.post("/track/:id/cancel", requireAuth, async (req, res, next) => {
       if (order) {
         await tx.order.update({
           where: { id: order.id },
+          data: { status: "cancelled" },
+        });
+      } else if (booking?.order) {
+        await tx.order.update({
+          where: { id: booking.order.id },
           data: { status: "cancelled" },
         });
       }

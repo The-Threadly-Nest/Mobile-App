@@ -15,8 +15,8 @@ export type AlertPayload = {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  onConfirm?: () => void;
-  onCancel?: () => void;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
 };
 
 type Listener = (payload: AlertPayload) => void;

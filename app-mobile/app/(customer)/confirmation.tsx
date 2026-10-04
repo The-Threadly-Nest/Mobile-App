@@ -25,7 +25,7 @@ export default function BookingConfirmationScreen() {
 
   const fashionHouseName = params.fashionHouseName || "Fashion House";
   const garment = params.garment || "Bespoke Fitting Session";
-  const fittingDate = params.fittingDate || "Sat, 6 Sep · 10:00 AM";
+  const fittingDate = params.fittingDate || "Fitting time to be confirmed";
   const estimate = params.estimate || "Finalized at fitting";
 
   const [isFavourite, setIsFavourite] = useState(false);

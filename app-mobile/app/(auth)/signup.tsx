@@ -303,11 +303,16 @@ export default function SignupScreen() {
             {/* Continue with Google Button */}
             <Pressable
               onPress={handleGoogleAuth}
+              disabled={googleLoading}
               style={({ pressed }) => [
                 styles.googleBtn,
-                { opacity: pressed ? 0.8 : 1 },
+                { opacity: pressed || googleLoading ? 0.8 : 1 },
               ]}
             >
+              {googleLoading ? (
+                <ActivityIndicator color="#4A080C" />
+              ) : (
+                <>
               <Svg width={20} height={20} viewBox="0 0 24 24">
                 <Path
                   fill="#F44336"
@@ -327,6 +332,8 @@ export default function SignupScreen() {
                 />
               </Svg>
               <Text style={styles.googleBtnText}>Continue with Google</Text>
+                </>
+              )}
             </Pressable>
 
             {/* Disclaimer */}

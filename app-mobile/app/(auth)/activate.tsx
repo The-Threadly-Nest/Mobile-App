@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -18,21 +18,19 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 
 export default function ActivateAccountScreen() {
-  const { token, email } = useLocalSearchParams<{ token: string; email: string }>();
-  const [inputEmail, setInputEmail] = useState(email || "janeteb@zmail.com");
-  const [code, setCode] = useState<string[]>(token ? token.slice(0, 4).split("") : ["", "", "", ""]);
+  const params = useLocalSearchParams<{ token?: string | string[]; email?: string | string[] }>();
+  const routeToken = Array.isArray(params.token) ? params.token[0] : params.token;
+  const routeEmail = Array.isArray(params.email) ? params.email[0] : params.email;
+  const initialCode = (routeToken ?? "").replace(/[^a-z0-9]/gi, "").toUpperCase().slice(0, 4);
+  const [inputEmail] = useState((routeEmail ?? "").trim().toLowerCase());
+  const [code, setCode] = useState<string[]>([0, 1, 2, 3].map((index) => initialCode[index] ?? ""));
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [timer, setTimer] = useState<number>(36);
-  const [canResend, setCanResend] = useState<boolean>(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const setToken = useAuthStore((s) => s.setToken);
-  const setEmailStore = useAuthStore((s) => s.setEmail);
-  const setRoleStore = useAuthStore((s) => s.setRole);
-  const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
+  const setSession = useAuthStore((s) => s.setSession);
 
   const inputRefs = [
     useRef<TextInput>(null),
@@ -41,28 +39,13 @@ export default function ActivateAccountScreen() {
     useRef<TextInput>(null),
   ];
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (timer > 0) {
-      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-    } else {
-      setCanResend(true);
-    }
-    return () => clearInterval(interval);
-  }, [timer]);
-
-  const formatTimer = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  };
-
   const handleCodeChange = (text: string, index: number) => {
     setError("");
     const newCode = [...code];
+    const normalized = text.replace(/[^a-z0-9]/gi, "").toUpperCase();
 
-    if (text.length > 1) {
-      const pasted = text.slice(0, 4).split("");
+    if (normalized.length > 1) {
+      const pasted = normalized.slice(0, 4).split("");
       pasted.forEach((char, i) => {
         if (i < 4) newCode[i] = char;
       });
@@ -73,10 +56,10 @@ export default function ActivateAccountScreen() {
       return;
     }
 
-    newCode[index] = text;
+    newCode[index] = normalized;
     setCode(newCode);
 
-    if (text && index < 3) {
+    if (normalized && index < 3) {
       inputRefs[index + 1].current?.focus();
     }
   };
@@ -87,13 +70,6 @@ export default function ActivateAccountScreen() {
     }
   };
 
-  const handleResend = () => {
-    if (!canResend) return;
-    setTimer(36);
-    setCanResend(false);
-    setError("");
-  };
-
   const handleActivate = async () => {
     setError("");
     const fullCode = code.join("");
@@ -101,41 +77,42 @@ export default function ActivateAccountScreen() {
       setError("Please enter the 4-digit verification code.");
       return;
     }
+    if (!inputEmail) {
+      setError("This activation link is missing the email address. Ask your Admin to resend the invitation.");
+      return;
+    }
+    if (password.length < 8 || !/\d/.test(password)) {
+      setError("Password must be at least 8 characters and include a number.");
+      return;
+    }
 
     setLoading(true);
     try {
-      if (password) {
-        const res = await fetch(`${API_BASE_URL}/api/auth/activate-account`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: inputEmail.trim(),
-            token: fullCode.trim(),
-            password,
-          }),
-        });
-        const body = await res.json();
-        if (!res.ok) {
-          const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-            ? body.issues.map((i: any) => i.message).join(". ")
-            : null;
-          throw new Error(issueMsg || body.error || "Could not activate account.");
-        }
-
-        setToken(body.token);
-        setEmailStore(body.user.email);
-        setRoleStore(body.user.role);
+      const res = await fetch(`${API_BASE_URL}/api/auth/activate-account`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inputEmail, token: fullCode, password }),
+      });
+      const rawText = await res.text();
+      let body: any = {};
+      try { body = JSON.parse(rawText); } catch {}
+      if (!res.ok) {
+        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
+          ? body.issues.map((issue: any) => issue.message).join(". ")
+          : null;
+        throw new Error(issueMsg || body.error || "Could not activate account.");
       }
+
+      setSession({ token: body.token, email: body.user.email, role: body.user.role, isVerified: true });
       setIsVerified(true);
     } catch (e: any) {
-      setIsVerified(true); // Proceed in demo mode
+      setError(e?.message || "Could not activate account. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleContinueExperience = () => {
-    setOnboardingCompleted(true);
     router.replace("/(staff)/dashboard");
   };
 
@@ -177,7 +154,7 @@ export default function ActivateAccountScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -221,7 +198,8 @@ export default function ActivateAccountScreen() {
                   value={digit}
                   onChangeText={(text) => handleCodeChange(text, idx)}
                   onKeyPress={(e) => handleKeyPress(e, idx)}
-                  keyboardType="number-pad"
+                  keyboardType="default"
+                  autoCapitalize="characters"
                   maxLength={1}
                   selectTextOnFocus
                 />
@@ -229,23 +207,29 @@ export default function ActivateAccountScreen() {
             })}
           </View>
 
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              value={password}
+              onChangeText={(value) => {
+                setPassword(value);
+                if (error) setError("");
+              }}
+              placeholder="Create password"
+              placeholderTextColor="#8A7550"
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <Pressable onPress={() => setShowPassword((visible) => !visible)} style={styles.passwordToggle}>
+              {showPassword ? <EyeOff size={20} color="#4A080C" /> : <Eye size={20} color="#4A080C" />}
+            </Pressable>
+          </View>
+          <Text style={styles.passwordHint}>At least 8 characters and one number.</Text>
+
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          {/* Resend Code Row */}
-          <View style={styles.resendRow}>
-            <Text style={styles.resendLabel}>Didn't get it? </Text>
-            <Pressable onPress={handleResend} disabled={!canResend}>
-              <Text
-                style={[
-                  styles.resendAction,
-                  !canResend && styles.resendDisabled,
-                ]}
-              >
-                Resend code
-              </Text>
-            </Pressable>
-            <Text style={styles.resendTimer}> · {formatTimer(timer)}</Text>
-          </View>
+          <Text style={styles.resendHelp}>Didn't get a code? Ask your Admin to resend the staff invitation.</Text>
 
           {/* Change Email Address */}
           <Pressable style={styles.changeEmailBtn} onPress={() => router.back()}>
@@ -257,12 +241,12 @@ export default function ActivateAccountScreen() {
             <Pressable
               style={[
                 styles.submitBtn,
-                (code.join("").length < 4 || loading) && styles.submitBtnDisabled,
+                (code.join("").length < 4 || !password || loading) && styles.submitBtnDisabled,
               ]}
               onPress={handleActivate}
-              disabled={code.join("").length < 4 || loading}
+              disabled={code.join("").length < 4 || !password || loading}
             >
-              <Text style={styles.submitBtnText}>Verify Code</Text>
+              <Text style={styles.submitBtnText}>{loading ? "Activating..." : "Activate Account"}</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -341,6 +325,31 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#4A080C",
   },
+  passwordContainer: {
+    height: 56,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E4D5B7",
+    borderRadius: 14,
+    backgroundColor: "#FFFFFF",
+    marginBottom: 8,
+  },
+  passwordInput: {
+    flex: 1,
+    height: "100%",
+    paddingHorizontal: 16,
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 15,
+    color: "#3A2E1A",
+  },
+  passwordToggle: { padding: 16 },
+  passwordHint: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 12,
+    color: "#8A7550",
+    marginBottom: 20,
+  },
   errorText: {
     fontFamily: "WorkSans_400Regular",
     fontSize: 13,
@@ -371,6 +380,14 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_400Regular",
     fontSize: 14,
     color: "#404040",
+  },
+  resendHelp: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    lineHeight: 19,
+    color: "#8A7550",
+    textAlign: "center",
+    marginBottom: 20,
   },
   changeEmailBtn: {
     alignItems: "center",

@@ -91,9 +91,17 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
     const authUserId = req.authUserId!;
     const { sessionCustomerId, fashionHouseId } = await resolveSessionTarget(rawParam, authUserId);
 
-    const session = await prisma.chatSession.findUnique({
-      where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
-    });
+    const [session, availableSlots] = await Promise.all([
+      prisma.chatSession.findUnique({
+        where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
+      }),
+      prisma.availableSlot.findMany({
+        where: { fashionHouseId, booked: false },
+        orderBy: { date: "asc" },
+        take: 10,
+        select: { id: true, date: true, time: true },
+      }),
+    ]);
 
     const rawHistory = (session?.history as unknown as ChatTurn[]) ?? [];
     const { history, changed } = normalizeStoredHistory(rawHistory);
@@ -104,7 +112,13 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
       });
     }
 
-    res.json({ history: visibleHistoryForUser(history, authUserId) });
+    res.json({
+      history: visibleHistoryForUser(history, authUserId),
+      availableSlots: availableSlots.map((slot) => ({
+        id: slot.id,
+        label: `${slot.date} · ${slot.time}`,
+      })),
+    });
   } catch (err) {
     next(err);
   }
@@ -306,13 +320,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
             .join("; ")
         : "Custom Bespoke Tailoring & Couture upon request";
 
-    const dbSlots = fh.availableSlots.map((s: any) => `${s.date} ${s.time}`);
-    const availableSlots = dbSlots.length > 0 ? dbSlots : [
-      "Sat, 6 Sep · 10:00 AM",
-      "Sat, 6 Sep · 2:00 PM",
-      "Mon, 8 Sep · 11:00 AM",
-      "Tue, 9 Sep · 3:00 PM",
-    ];
+    const availableSlots = fh.availableSlots.map((s: any) => `${s.date} · ${s.time}`);
 
     const systemPrompt = buildSystemPrompt({
       fashionHouseName: fh.shopName,
@@ -427,7 +435,14 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       { screen: "messages", customerId }
     );
 
-    res.json({ type: "message", reply: modelReply });
+    res.json({
+      type: "message",
+      reply: modelReply,
+      availableSlots: fh.availableSlots.map((slot: any) => ({
+        id: slot.id,
+        label: `${slot.date} · ${slot.time}`,
+      })),
+    });
   } catch (err) {
     next(err);
   }

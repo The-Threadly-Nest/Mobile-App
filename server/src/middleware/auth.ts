@@ -37,13 +37,16 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
     const user = await prisma.user.findUnique({
       where: { id: decoded.sub },
-      select: { id: true, email: true, role: true, active: true, passwordHash: true,
+      select: { id: true, email: true, role: true, active: true, passwordHash: true, resetTokenHash: true,
         fashionHouseId: true, fashionHouseOwned: { select: { id: true } } },
     });
     if (!user?.active || !["admin", "staff", "customer"].includes(user.role) ||
         decoded.role !== user.role ||
         decoded.credentialVersion !== credentialVersion(user.id, user.passwordHash, secret)) {
       return res.status(401).json({ error: "Please log in again." });
+    }
+    if (user.role === "admin" && user.resetTokenHash) {
+      return res.status(403).json({ error: "Verify your email before continuing.", code: "EMAIL_NOT_VERIFIED" });
     }
     req.authUserId = user.id;
     req.authEmail = user.email;
