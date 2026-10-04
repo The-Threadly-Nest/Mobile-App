@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { sendChatMessageSchema } from "../schemas/chat.schema";

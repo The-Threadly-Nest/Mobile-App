@@ -35,6 +35,9 @@ jobs:
       - name: Validate Prisma schema
         run: npx prisma validate
         working-directory: server
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: server
       - name: Run security regression tests
         run: npm test
         working-directory: server
