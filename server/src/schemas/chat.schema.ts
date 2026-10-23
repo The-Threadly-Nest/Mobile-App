@@ -7,7 +7,14 @@ export const sendChatMessageSchema = z.object({
   imageUrl: z.string().url().optional(),
   audioUrl: z.string().url().optional(),
   audioDuration: z.number().int().nonnegative().optional(),
+  availableSlotId: z.string().uuid().optional(),
   idempotencyKey: z.string().max(128).regex(/^[A-Za-z0-9:_-]+$/).optional(),
 }).refine((data) => data.message?.trim() || data.imageUrl || data.audioUrl, {
   message: "A message, image, or voice note is required.",
+});
+
+export const manualChatEscalationSchema = z.object({
+  fashionHouseId: z.string().min(1),
+  reason: z.string().trim().min(1).max(200).optional(),
+  summary: z.string().trim().min(1).max(2000).optional(),
 });

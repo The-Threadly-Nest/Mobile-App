@@ -3,11 +3,8 @@ import {
   View,
   Text,
   TextInput,
-  ScrollView,
   FlatList,
   Pressable,
-  Image,
-  ImageSourcePropType,
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
@@ -19,7 +16,7 @@ import { MapPin, Search, Star, ShoppingBag, Store } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { apiFetch } from "@/shared/utils/apiClient";
+import { apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import CachedImage from "@/shared/components/CachedImage";
 
 export interface TailorItem {
@@ -32,7 +29,7 @@ export interface TailorItem {
   badge: string;
   turnaround: string;
   categoryTag?: string;
-  image: ImageSourcePropType | { uri: string };
+  image?: string | null;
   category: string;
   bio?: string;
   phone?: string;
@@ -50,105 +47,9 @@ export interface MarketplaceItem {
   fashionHouseId?: string;
 }
 
-export const MOCK_TAILORS: TailorItem[] = [
-  {
-    id: "1",
-    name: "Adaeze Couture",
-    location: "Lagos",
-    price: "₦ 1,200,000",
-    rating: 4.9,
-    reviewsCount: "2k+",
-    badge: "BRIDAL · ASO-EBI",
-    turnaround: "4-week turnaround",
-    categoryTag: "Bridal",
-    image: require("../../../assets/tailor-1.png"),
-    category: "Aso-ebi",
-  },
-  {
-    id: "2",
-    name: "The Gele Room",
-    location: "Akure",
-    price: "₦ 10,000",
-    rating: 4.6,
-    reviewsCount: "324",
-    badge: "GELE · ACCESSORIES",
-    turnaround: "1-week turnaround",
-    categoryTag: "Accessories",
-    image: require("../../../assets/tailor-2.png"),
-    category: "Gele & Accessories",
-  },
-  {
-    id: "3",
-    name: "Iyanuade Atelier",
-    location: "Abuja",
-    price: "₦ 500,000",
-    rating: 4.8,
-    reviewsCount: "1.6k+",
-    badge: "AGBADA · SENATOR",
-    turnaround: "4-week turnaround",
-    categoryTag: "Agbada",
-    image: require("../../../assets/tailor-3.png"),
-    category: "Agbada",
-  },
-  {
-    id: "4",
-    name: "Kaftan & Co",
-    location: "Abuja",
-    price: "₦ 300,000",
-    rating: 4.7,
-    reviewsCount: "1k+",
-    badge: "NATIVE WEAR",
-    turnaround: "2-week turnaround",
-    categoryTag: "Kaftans",
-    image: require("../../../assets/tailor-4.png"),
-    category: "Kaftan",
-  },
-];
-
-export const MOCK_MARKETPLACE: MarketplaceItem[] = [
-  {
-    id: "m1",
-    name: "Aso-Ebi Velvet Corset Gown",
-    priceFrom: "₦ 1,200,000",
-    imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&q=80",
-    vendorName: "Adaeze Couture",
-    location: "Lagos",
-    categoryTag: "Bridal",
-    badge: "BRIDAL · ASO-EBI",
-  },
-  {
-    id: "m2",
-    name: "Autogele & Accessories Set",
-    priceFrom: "₦ 10,000",
-    imageUrl: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80",
-    vendorName: "The Gele Room",
-    location: "Akure",
-    categoryTag: "Accessories",
-    badge: "GELE · ACCESSORIES",
-  },
-  {
-    id: "m3",
-    name: "Royal Ceremonial Agbada Set",
-    priceFrom: "₦ 500,000",
-    imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80",
-    vendorName: "Iyanuade Atelier",
-    location: "Abuja",
-    categoryTag: "Agbada",
-    badge: "LUXURY MENSWEAR",
-  },
-  {
-    id: "m4",
-    name: "Handwoven Silk Kaftan",
-    priceFrom: "₦ 300,000",
-    imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80",
-    vendorName: "Kaftan & Co",
-    location: "Abuja",
-    categoryTag: "Kaftan",
-    badge: "NATIVE WEAR",
-  },
-];
-
 const CATEGORIES = ["Aso-ebi", "Agbada", "Kaftan", "Gele & Accessories"];
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const hasRealId = (item: { id?: string }) => Boolean(item.id && UUID_PATTERN.test(item.id));
 
 export default function BrowseScreen() {
   const { width, height } = useWindowDimensions();
@@ -161,15 +62,18 @@ export default function BrowseScreen() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const initialTailors = Array.isArray(cachedCatalog) && cachedCatalog.length > 0
-    ? cachedCatalog
-    : MOCK_TAILORS;
+  const initialTailors = Array.isArray(cachedCatalog) ? cachedCatalog.filter(hasRealId) : [];
 
   const [tailorsList, setTailorsList] = useState<TailorItem[]>(initialTailors);
   const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>([]);
   const [loadingMarketplace, setLoadingMarketplace] = useState<boolean>(true);
+  const [nextVendorsPage, setNextVendorsPage] = useState<number | null>(null);
+  const [nextMarketplacePage, setNextMarketplacePage] = useState<number | null>(null);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [vendorsError, setVendorsError] = useState<string | null>(null);
+  const [marketplaceError, setMarketplaceError] = useState<string | null>(null);
 
   const savedLocation = useAuthStore((s) => s.location);
   const setStoreLocation = useAuthStore((s) => s.setLocation);
@@ -178,59 +82,91 @@ export default function BrowseScreen() {
   const [isFetchingLocation, setIsFetchingLocation] = useState<boolean>(false);
 
   useEffect(() => {
-    if (Array.isArray(cachedCatalog) && cachedCatalog.length > 0) {
-      setTailorsList(cachedCatalog);
+    if (Array.isArray(cachedCatalog)) {
+      setTailorsList(cachedCatalog.filter(hasRealId));
     }
   }, [cachedCatalog]);
 
-  const fetchFashionHouses = useCallback(async () => {
+  const fetchFashionHouses = useCallback(async (page = 1) => {
     try {
-      const fetched = await apiFetch<TailorItem[]>("/api/fashion-houses", { silent: true }).catch(() => []);
+      if (page === 1) setVendorsError(null);
+      const result = await apiFetchCollectionPage<TailorItem>(
+        `/api/fashion-houses?page=${page}&limit=50`,
+        { silent: true }
+      );
+      const fetched = result.items.filter(hasRealId);
       if (Array.isArray(fetched) && fetched.length > 0) {
-        setCachedCatalog(fetched);
-        const map = new Map<string, TailorItem>();
-        fetched.forEach((item) => map.set(item.id, item));
-        MOCK_TAILORS.forEach((item) => {
-          if (!map.has(item.id)) map.set(item.id, item);
+        setTailorsList((current) => {
+          const map = new Map<string, TailorItem>();
+          (page === 1 ? [] : current).forEach((item) => map.set(item.id, item));
+          fetched.forEach((item) => map.set(item.id, item));
+          const merged = Array.from(map.values());
+          setCachedCatalog(merged);
+          return merged;
         });
-        setTailorsList(Array.from(map.values()));
-      } else {
-        setTailorsList(MOCK_TAILORS);
+        setNextVendorsPage(result.nextPage);
+      } else if (page === 1) {
+        setTailorsList([]);
+        setCachedCatalog([]);
+        setNextVendorsPage(null);
       }
     } catch (err) {
       console.log("Could not fetch real fashion houses:", err);
-      setTailorsList(MOCK_TAILORS);
+      if (page === 1) setVendorsError("Could not load fashion houses. Check your connection and try again.");
     }
   }, [setCachedCatalog]);
 
-  const fetchMarketplace = useCallback(async () => {
+  const fetchMarketplace = useCallback(async (page = 1) => {
     try {
-      setLoadingMarketplace(true);
-      const fetched = await apiFetch<any[]>("/api/catalog/marketplace", { silent: true }).catch(() => []);
+      if (page === 1) setLoadingMarketplace(true);
+      if (page === 1) setMarketplaceError(null);
+      const result = await apiFetchCollectionPage<any>(
+        `/api/catalog/marketplace?page=${page}&limit=50`,
+        { silent: true }
+      );
+      const fetched = result.items.filter(hasRealId);
       if (Array.isArray(fetched) && fetched.length > 0) {
-        const formatted: MarketplaceItem[] = fetched.map((c: any, idx: number) => ({
+        const formatted: MarketplaceItem[] = fetched.map((c: any) => ({
           id: c.id,
           name: c.name,
           priceFrom: typeof c.priceFrom === "number" ? `₦ ${c.priceFrom.toLocaleString()}` : (c.priceFrom ? String(c.priceFrom) : "Price on request"),
-          imageUrl: c.imageUrl || MOCK_MARKETPLACE[idx % MOCK_MARKETPLACE.length].imageUrl,
+          imageUrl: c.imageUrl || "",
           fashionHouseId: c.fashionHouseId,
           vendorName: c.fashionHouse?.shopName || "Luxury Fashion House",
           location: c.fashionHouse?.city || "Lagos",
           categoryTag: "Catalog",
           badge: "CATALOG ITEM",
         }));
-        setMarketplaceList(formatted);
-      } else {
-        setMarketplaceList(MOCK_MARKETPLACE);
+        setMarketplaceList((current) => {
+          const byId = new Map((page === 1 ? [] : current).map((item) => [item.id, item]));
+          formatted.forEach((item) => byId.set(item.id, item));
+          return Array.from(byId.values());
+        });
+        setNextMarketplacePage(result.nextPage);
+      } else if (page === 1) {
+        setMarketplaceList([]);
+        setNextMarketplacePage(null);
       }
     } catch (err) {
       console.log("Could not fetch marketplace items:", err);
-      setMarketplaceList(MOCK_MARKETPLACE);
+      if (page === 1) setMarketplaceError("Could not load the marketplace. Check your connection and try again.");
     } finally {
       setLoading(false);
       setLoadingMarketplace(false);
     }
   }, []);
+
+  const loadMore = async () => {
+    const nextPage = mode === "vendors" ? nextVendorsPage : nextMarketplacePage;
+    if (!nextPage || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      if (mode === "vendors") await fetchFashionHouses(nextPage);
+      else await fetchMarketplace(nextPage);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -314,7 +250,7 @@ export default function BrowseScreen() {
     return matchesCategory && matchesSearch;
   });
 
-  const displayTailors = filteredTailors.length > 0 ? filteredTailors : tailorsList;
+  const displayTailors = (searchQuery || selectedCategory) ? filteredTailors : tailorsList;
   const displayMarketplace = (searchQuery || selectedCategory) ? filteredMarketplace : marketplaceList;
 
   const renderStarRating = (rating: number, starSize = 13) => {
@@ -351,7 +287,7 @@ export default function BrowseScreen() {
         </Pressable>
 
         {/* Brand Title */}
-        <Text style={styles.brandTitle}>The Threadly Nest</Text>
+        <Text style={styles.brandTitle}>Òwújà</Text>
 
         {/* Vendors vs Marketplace Segmented Control Switch */}
         <View style={styles.segmentedContainer}>
@@ -404,6 +340,15 @@ export default function BrowseScreen() {
             isLandscape && { maxWidth: 900, alignSelf: "center", width: "100%", paddingHorizontal: 16, paddingTop: 2, paddingBottom: 64 },
           ]}
           showsVerticalScrollIndicator={false}
+          onEndReached={() => void loadMore()}
+          onEndReachedThreshold={0.4}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyTitle}>{vendorsError ? "Unable to load vendors" : "No fashion houses found"}</Text>
+              <Text style={styles.emptyBody}>{vendorsError || "Registered fashion houses will appear here."}</Text>
+            </View>
+          }
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
           renderItem={({ item }) => (
             <Pressable
@@ -479,6 +424,15 @@ export default function BrowseScreen() {
             { paddingHorizontal: 12, paddingTop: 2, paddingBottom: 64, gap: 0 },
           ]}
           showsVerticalScrollIndicator={false}
+          onEndReached={() => void loadMore()}
+          onEndReachedThreshold={0.4}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyTitle}>{marketplaceError ? "Unable to load marketplace" : "No styles available"}</Text>
+              <Text style={styles.emptyBody}>{marketplaceError || "Uploaded catalog styles will appear here."}</Text>
+            </View>
+          }
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
           renderItem={({ item }) => {
             const cardHeight = isLandscape ? 220 : 255;
@@ -508,7 +462,7 @@ export default function BrowseScreen() {
                       initialImage: item.imageUrl,
                       initialVendorName: item.vendorName,
                       initialLocation: item.location,
-                      initialFashionHouseId: item.fashionHouseId || "1",
+                      initialFashionHouseId: item.fashionHouseId,
                       badge: item.badge,
                       categoryTag: item.categoryTag,
                     },
@@ -561,7 +515,8 @@ export default function BrowseScreen() {
                   <Pressable
                     style={[styles.orderBtn, { paddingVertical: 6, borderRadius: 16, alignItems: "center", justifyContent: "center" }]}
                     onPress={() => {
-                      const targetFhId = item.fashionHouseId || "1";
+                      if (!item.fashionHouseId || !UUID_PATTERN.test(item.fashionHouseId)) return;
+                      const targetFhId = item.fashionHouseId;
                       const numericPrice = item.priceFrom ? parseFloat(item.priceFrom.replace(/[^0-9.]/g, '')) || 0 : 0;
                       router.push({
                         pathname: `/(customer)/catalog/details`,
@@ -594,6 +549,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FBF7EF",
+  },
+  emptyState: {
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 56,
+  },
+  emptyTitle: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 16,
+    color: "#3A2E1A",
+    marginBottom: 6,
+  },
+  emptyBody: {
+    fontFamily: "WorkSans_400Regular",
+    fontSize: 13,
+    color: "#646464",
+    textAlign: "center",
   },
   header: {
     paddingHorizontal: 16,

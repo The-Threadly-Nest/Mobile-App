@@ -43,6 +43,9 @@ export default function AdminProfileEditScreen() {
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
   const [turnaround, setTurnaround] = useState("2-3 week turnaround");
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountName, setAccountName] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -80,6 +83,9 @@ export default function AdminProfileEditScreen() {
           setShopName(house.shopName || house.name || "");
           setLocation(house.location || "");
           setPhone(house.phone || "");
+          setBankName(house.bankName || "");
+          setAccountNumber(house.accountNumber || "");
+          setAccountName(house.accountName || "");
           if (house.bio) {
             if (house.bio.includes(" • ")) {
               const [savedBio, savedTurnaround] = house.bio.split(" • ");
@@ -178,6 +184,11 @@ export default function AdminProfileEditScreen() {
       showAlert("Required Field", "Please enter your business or shop name.");
       return;
     }
+    const hasSomePaymentDetails = bankName.trim() || accountNumber.trim() || accountName.trim();
+    if (hasSomePaymentDetails && (!bankName.trim() || !/^\d{10}$/.test(accountNumber.trim()) || !accountName.trim())) {
+      showAlert("Payment Details", "Enter a bank name, a 10-digit account number, and the account name.");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -192,6 +203,10 @@ export default function AdminProfileEditScreen() {
         bio: combinedBio,
         categories: selectedCategories,
         brandLogoUrl: brandLogoUrl || undefined,
+        bankName: bankName.trim() || undefined,
+        accountNumber: accountNumber.trim() || undefined,
+        accountName: accountName.trim() || undefined,
+        availableSlots: slotsList.map(({ date, time }) => ({ date, time })),
       };
 
       await adminApi.completeOnboarding(payload);
@@ -374,6 +389,47 @@ export default function AdminProfileEditScreen() {
               value={phone}
               onChangePhone={setPhone}
             />
+
+            <View
+              style={{
+                backgroundColor: "#FFFFFF",
+                borderRadius: 20,
+                padding: 18,
+                borderWidth: 1,
+                borderColor: "rgba(74, 8, 12, 0.12)",
+                marginBottom: 20,
+              }}
+            >
+              <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 16, color: "#3B0508", marginBottom: 4 }}>
+                Invoice Payment Details
+              </Text>
+              <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#8A7550", marginBottom: 14 }}>
+                These details appear only on invoices created for your fashion house.
+              </Text>
+              <TextInput
+                value={bankName}
+                onChangeText={setBankName}
+                placeholder="Bank name"
+                placeholderTextColor="#B0966C"
+                style={{ backgroundColor: "#FBF7EF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
+              />
+              <TextInput
+                value={accountNumber}
+                onChangeText={(value) => setAccountNumber(value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="10-digit account number"
+                placeholderTextColor="#B0966C"
+                keyboardType="number-pad"
+                maxLength={10}
+                style={{ backgroundColor: "#FBF7EF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
+              />
+              <TextInput
+                value={accountName}
+                onChangeText={setAccountName}
+                placeholder="Account holder name"
+                placeholderTextColor="#B0966C"
+                style={{ backgroundColor: "#FBF7EF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508" }}
+              />
+            </View>
 
             {/* Standard Turnaround Time */}
             <Text

@@ -101,6 +101,7 @@ export default function BookingChatScreen() {
   const email = useAuthStore((s) => s.email);
   const cacheOwner = createChatCacheOwner(role, email);
   const hydratedConversationIdRef = useRef<string | null>(null);
+  const slotRequestKeysRef = useRef<Record<string, string>>({});
 
   // Load session history and real fashion house name on mount
   useEffect(() => {
@@ -160,13 +161,17 @@ export default function BookingChatScreen() {
             if (cancelled) return;
             const serverHistory: Turn[] = body.history ?? [];
             const serverSlots: Slot[] = Array.isArray(body.availableSlots) ? body.availableSlots : [];
+            const humanHandoffActive = body.conversationState && body.conversationState !== "automated";
+            setEscalatedToHuman(Boolean(humanHandoffActive));
             setAvailableSlots(serverSlots);
             if (serverHistory.length > 0) {
               const formatted = serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) }));
               const lastTurn = formatted[formatted.length - 1];
               if (
-                lastTurn.text.includes("--- Chat Session Ended ---") ||
-                lastTurn.text.toLowerCase().includes("session ended")
+                !humanHandoffActive && (
+                  lastTurn.text.includes("--- Chat Session Ended ---") ||
+                  lastTurn.text.toLowerCase().includes("session ended")
+                )
               ) {
                 if (garmentName) {
                   formatted.push({
@@ -219,10 +224,19 @@ export default function BookingChatScreen() {
     void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, history);
   }, [cacheOwner, fashionHouseId, history, loadingSession]);
 
-  const handleSend = async (messageText?: string) => {
+  const handleSend = async (messageText?: string, availableSlotId?: string) => {
     const textToSend = (messageText ?? draft).trim();
     if (!textToSend || sending) return;
-    const chatRequestKey = createIdempotencyKey("chat");
+    if (escalatedToHuman) {
+      router.push({
+        pathname: `/(customer)/direct-chat/${fashionHouseId}`,
+        params: { fashionHouseName },
+      });
+      return;
+    }
+    const chatRequestKey = availableSlotId
+      ? (slotRequestKeysRef.current[availableSlotId] ??= createIdempotencyKey("booking"))
+      : createIdempotencyKey("chat");
 
     if (bookingConfirmed) setBookingConfirmed(false);
 
@@ -230,23 +244,6 @@ export default function BookingChatScreen() {
     setHistory((prev) => [...prev, userTurn]);
     setDraft("");
     setSending(true);
-
-    if (escalatedToHuman) {
-      try {
-        if (token && fashionHouseId) {
-          await fetch(`${API_BASE_URL}/api/chat/message`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ fashionHouseId, message: textToSend }),
-          });
-        }
-      } catch (err) {
-        console.warn("Escalated message error:", err);
-      } finally {
-        setSending(false);
-      }
-      return;
-    }
 
     const lower = textToSend.toLowerCase();
 
@@ -285,6 +282,15 @@ export default function BookingChatScreen() {
       let replyText = "";
       let responseType = "";
       let responseSlots = availableSlots;
+      let createdBooking: {
+        id: string;
+        styleNotes?: string | null;
+        preferredTime?: string | null;
+        availableSlot?: {
+          date: string;
+          time: string;
+        } | null;
+      } | null = null;
 
       if (token && fashionHouseId) {
         const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
@@ -298,20 +304,43 @@ export default function BookingChatScreen() {
             fashionHouseId,
             message: textToSend,
             garmentName: activeGarment,
+            availableSlotId,
             idempotencyKey: chatRequestKey,
           }),
         });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          if (body.code === "SLOT_REQUIRED" || body.code === "SLOT_UNAVAILABLE") {
+            const freshSlots: Slot[] = Array.isArray(body.availableSlots) ? body.availableSlots : [];
+            setSelectedSlotLabel(null);
+            setAvailableSlots(freshSlots);
+            setHistory((prev) => [
+              ...prev,
+              {
+                role: "model",
+                text: typeof body.error === "string"
+                  ? body.error
+                  : "That fitting slot is no longer available. Please choose another time.",
+                slots: freshSlots.length > 0 ? freshSlots : undefined,
+              },
+            ]);
+            return;
+          }
+          throw new Error(typeof body.error === "string" ? body.error : "Unable to send your message.");
+        }
         if (res.ok) {
-          const body = await res.json();
           replyText = sanitizeText(body.reply);
           responseType = body.type;
           if (Array.isArray(body.availableSlots)) {
             responseSlots = body.availableSlots;
             setAvailableSlots(body.availableSlots);
           }
-          if (body.booking?.styleNotes) {
-            activeGarment = body.booking.styleNotes;
-            setSelectedGarment(body.booking.styleNotes);
+          if (body.booking && typeof body.booking.id === "string") {
+            createdBooking = body.booking;
+            if (body.booking.styleNotes) {
+              activeGarment = body.booking.styleNotes;
+              setSelectedGarment(body.booking.styleNotes);
+            }
           }
         }
       }
@@ -319,6 +348,7 @@ export default function BookingChatScreen() {
       const lowerReply = replyText.toLowerCase();
       const isEscalation =
         responseType === "escalated" ||
+        responseType === "human_active" ||
         lowerReply.includes("flagged") ||
         lowerReply.includes("follow up with you directly") ||
         lowerReply.includes("team member will join");
@@ -340,6 +370,11 @@ export default function BookingChatScreen() {
       }
 
       if (responseType === "booking_created") {
+        if (!createdBooking) {
+          throw new Error("The server did not return the saved booking request.");
+        }
+        const confirmedBooking = createdBooking;
+        if (availableSlotId) delete slotRequestKeysRef.current[availableSlotId];
         setBookingConfirmed(true);
         const confirmTurn: Turn = {
           role: "model",
@@ -351,7 +386,14 @@ export default function BookingChatScreen() {
         };
         setHistory((prev) => [...prev, confirmTurn, endTurn]);
 
-        const targetSlot = textToSend.replace(/^Book slot:\s*/i, "") || selectedSlotLabel || "Confirmed fitting";
+        const requestedSlot =
+          (confirmedBooking.availableSlot
+            ? `${confirmedBooking.availableSlot.date} · ${confirmedBooking.availableSlot.time}`
+            : null) ||
+          confirmedBooking.preferredTime ||
+          textToSend.replace(/^Book slot:\s*/i, "") ||
+          selectedSlotLabel ||
+          "Fitting time to be confirmed";
 
         setTimeout(() => {
           setHistory(DEFAULT_INITIAL_TURNS);
@@ -359,9 +401,10 @@ export default function BookingChatScreen() {
           router.push({
             pathname: "/(customer)/confirmation",
             params: {
+              bookingId: confirmedBooking.id,
               fashionHouseName,
               garment: activeGarment,
-              fittingDate: targetSlot,
+              fittingDate: requestedSlot,
               estimate: selectedEstimate,
             },
           });
@@ -455,6 +498,7 @@ export default function BookingChatScreen() {
 
       setHistory((prev) => [...prev, responseTurn]);
     } catch {
+      if (availableSlotId) setSelectedSlotLabel(null);
       // Fallback interactive response
       const styleOptions =
         houseCategories.length > 0
@@ -486,20 +530,27 @@ export default function BookingChatScreen() {
 
   const [isFirstTimeCustomer, setIsFirstTimeCustomer] = useState(true);
   const [escalatedToHuman, setEscalatedToHuman] = useState(false);
+  const [requestingHuman, setRequestingHuman] = useState(false);
 
   const handleManualEscalation = async () => {
+    if (requestingHuman || escalatedToHuman) return;
+    setRequestingHuman(true);
     try {
       if (token && fashionHouseId) {
-        await fetch(`${API_BASE_URL}/api/chat/escalate`, {
+        const response = await fetch(`${API_BASE_URL}/api/chat/escalate`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ fashionHouseId, reason: "Customer initiated manual escalation" }),
         });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(typeof body.error === "string" ? body.error : "Could not request human assistance.");
+        }
       }
       setEscalatedToHuman(true);
       const escalationTurn: Turn = {
         role: "model",
-        text: `I've flagged your session for ${fashionHouseName} administrators. A team member will join this chat shortly.`,
+        text: `I've passed your request to ${fashionHouseName}. Continue in Human Chat for direct assistance.`,
         options: undefined,
         slots: undefined,
       };
@@ -510,6 +561,12 @@ export default function BookingChatScreen() {
       setHistory((prev) => [...prev, escalationTurn, endTurn]);
     } catch (err) {
       console.warn("Escalation error:", err);
+      setHistory((prev) => [
+        ...prev,
+        { role: "model", text: "Human assistance could not be requested right now. Please try again." },
+      ]);
+    } finally {
+      setRequestingHuman(false);
     }
   };
 
@@ -543,9 +600,13 @@ export default function BookingChatScreen() {
         {!escalatedToHuman && (
           <Pressable
             onPress={handleManualEscalation}
+            disabled={requestingHuman}
             className="px-3 py-1.5 rounded-full bg-[#EBE0D3] border border-oxblood"
+            style={{ opacity: requestingHuman ? 0.5 : 1 }}
           >
-            <Text className="font-body-medium text-[11px] text-oxblood">Talk to Admin</Text>
+            <Text className="font-body-medium text-[11px] text-oxblood">
+              {requestingHuman ? "Requesting..." : "Talk to Admin"}
+            </Text>
           </Pressable>
         )}
       </View>
@@ -678,7 +739,7 @@ export default function BookingChatScreen() {
                                 onPress={() => {
                                   if (!selectedSlotLabel && !sending) {
                                     setSelectedSlotLabel(slot.label);
-                                    handleSend(`Book slot: ${slot.label}`);
+                                    handleSend(`Book slot: ${slot.label}`, slot.id);
                                   }
                                 }}
                                 className={`px-4 py-2 rounded-full items-center justify-center ${
@@ -742,6 +803,17 @@ export default function BookingChatScreen() {
               backgroundColor: "#FBF7EF",
             }}
           >
+            {escalatedToHuman ? (
+              <Pressable
+                onPress={() => router.push({
+                  pathname: `/(customer)/direct-chat/${fashionHouseId}`,
+                  params: { fashionHouseName },
+                })}
+                className="bg-oxblood rounded-full items-center justify-center py-4 px-6"
+              >
+                <Text className="font-body-semibold text-[14px] text-white">Open Human Chat</Text>
+              </Pressable>
+            ) : (
             <View className="flex-row items-center gap-3">
               <TextInput
                 value={draft}
@@ -763,6 +835,7 @@ export default function BookingChatScreen() {
                 <ArrowUp size={20} color="#FFFFFF" />
               </Pressable>
             </View>
+            )}
           </View>
         )}
       </KeyboardAvoidingView>

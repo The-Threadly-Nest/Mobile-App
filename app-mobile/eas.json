@@ -5,11 +5,19 @@
   "build": {
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://tth-server.vercel.app",
+        "EXPO_PUBLIC_DATA_MODE": "real"
+      },
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://tth-server.vercel.app",
+        "EXPO_PUBLIC_DATA_MODE": "real"
+      },
       "android": {
         "buildType": "apk"
       }

@@ -43,3 +43,8 @@ FIGMA_MOCK_DATA.md
 
 #docs
 docs/
+
+# Local audit artifacts
+AUDIT_REPORT.md
+server/scripts/audit-load.mjs
+server/scripts/send-test-emails.mjs

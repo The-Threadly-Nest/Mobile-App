@@ -11,6 +11,22 @@ const generateInvoiceSchema = z.object({
 const router = Router();
 router.use(requireAuth, requireRole("admin", "staff"));
 
+const invoiceInclude = {
+  order: {
+    include: {
+      customer: true,
+      fashionHouse: {
+        select: {
+          shopName: true,
+          brandLogoUrl: true,
+          location: true,
+          phone: true,
+        },
+      },
+    },
+  },
+} as const;
+
 // Generate Invoice from Order
 router.post("/", validate({ body: generateInvoiceSchema }), async (req, res, next) => {
   try {
@@ -20,17 +36,49 @@ router.post("/", validate({ body: generateInvoiceSchema }), async (req, res, nex
     // Tenant Isolation: Verify order exists and belongs to this tenant
     const order = await prisma.order.findFirst({
       where: { id: orderId, fashionHouseId: fhId },
+      include: { fashionHouse: true },
     });
     if (!order) {
       return res.status(404).json({ error: "Order not found." });
     }
 
-    // Check if invoice already exists
+    const { bankName, accountNumber, accountName } = order.fashionHouse;
+
+    // Existing invoices keep their original payment snapshot. Legacy invoices
+    // without a snapshot may be completed once from the current tenant profile.
     const existing = await prisma.invoice.findFirst({
       where: { orderId, order: { fashionHouseId: fhId } },
+      include: invoiceInclude,
     });
     if (existing) {
-      return res.status(400).json({ error: "An invoice has already been generated for this order." });
+      if (existing.bankName && existing.accountNumber && existing.accountName) {
+        return res.json(existing);
+      }
+      if (!bankName || !accountNumber || !accountName) {
+        return res.status(409).json({
+          code: "PAYMENT_DETAILS_REQUIRED",
+          error: "Add the fashion house payment details before generating an invoice.",
+        });
+      }
+
+      const completedLegacyInvoice = await prisma.invoice.update({
+        where: { id: existing.id },
+        data: {
+          currency: order.fashionHouse.currency,
+          bankName,
+          accountNumber,
+          accountName,
+        },
+        include: invoiceInclude,
+      });
+      return res.json(completedLegacyInvoice);
+    }
+
+    if (!bankName || !accountNumber || !accountName) {
+      return res.status(409).json({
+        code: "PAYMENT_DETAILS_REQUIRED",
+        error: "Add the fashion house payment details before generating an invoice.",
+      });
     }
 
     // Server-Side Recalculation: Calculate Subtotal, 7.5% VAT, and Grand Total
@@ -46,7 +94,13 @@ router.post("/", validate({ body: generateInvoiceSchema }), async (req, res, nex
         taxRate,
         taxAmount,
         total,
+        currency: order.fashionHouse.currency,
+        paymentStatus: "unpaid",
+        bankName,
+        accountNumber,
+        accountName,
       },
+      include: invoiceInclude,
     });
 
     res.status(201).json(invoice);
@@ -61,24 +115,7 @@ router.get("/order/:orderId", async (req, res, next) => {
     const fhId = getOwnFashionHouseId(req);
     const invoice = await prisma.invoice.findFirst({
       where: { orderId: req.params.orderId, order: { fashionHouseId: fhId } },
-      include: {
-        order: {
-          include: {
-            customer: true,
-            fashionHouse: {
-              select: {
-                shopName: true,
-                brandLogoUrl: true,
-                bankName: true,
-                accountNumber: true,
-                accountName: true,
-                location: true,
-                phone: true,
-              },
-            },
-          },
-        },
-      },
+      include: invoiceInclude,
     });
 
     if (!invoice || invoice.order.fashionHouseId !== fhId) {

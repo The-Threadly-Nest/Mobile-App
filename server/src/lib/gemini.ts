@@ -54,7 +54,7 @@ export function buildSystemPrompt(ctx: PromptContext): string {
   const slotAvailabilityRule = ctx.availableSlots.length > 0
     ? `Only offer slots strictly from this list: ${ctx.availableSlots.join(", ")}`
     : "There are currently no available fitting slots. Do not create a booking. Apologize briefly and offer to connect the client with the fashion house.";
-  return `You are the booking concierge for ${ctx.fashionHouseName} on The Threadly Nest — a warm, sophisticated lead stylist voice representing this specific fashion house, not a generic chatbot.
+  return `You are the booking concierge for ${ctx.fashionHouseName} on Òwújà — a warm, sophisticated lead stylist voice representing this specific fashion house, not a generic chatbot.
 
 FASHION HOUSE IDENTITY & REAL PROFILE
 - Brand Name: ${ctx.fashionHouseName}

@@ -6,61 +6,16 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
-  ImageSourcePropType,
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Star, Calendar, Store } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { MOCK_TAILORS } from "../(tabs)/browse";
 import { apiFetch } from "@/shared/utils/apiClient";
 import CachedImage from "@/shared/components/CachedImage";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
-
-const PORTFOLIO_IMAGES: Record<string, ImageSourcePropType[]> = {
-  "1": [
-    require("../../../assets/tailor-1.png"),
-    require("../../../assets/tailor-2.png"),
-    require("../../../assets/tailor-3.png"),
-    require("../../../assets/tailor-4.png"),
-  ],
-  "2": [
-    require("../../../assets/tailor-2.png"),
-    require("../../../assets/tailor-1.png"),
-    require("../../../assets/tailor-4.png"),
-    require("../../../assets/tailor-3.png"),
-  ],
-  "3": [
-    require("../../../assets/tailor-3.png"),
-    require("../../../assets/tailor-4.png"),
-    require("../../../assets/tailor-1.png"),
-    require("../../../assets/tailor-2.png"),
-  ],
-  "4": [
-    require("../../../assets/tailor-4.png"),
-    require("../../../assets/tailor-3.png"),
-    require("../../../assets/tailor-2.png"),
-    require("../../../assets/tailor-1.png"),
-  ],
-};
-
-const MOCK_REVIEWS: Record<string, { name: string; text: string; rating: number }[]> = {
-  "1": [
-    { name: "Folake A.", text: "Made my traditional wedding outfit in 10 days flat. Fitting was 100% on point.", rating: 5 },
-    { name: "Kemi O.", text: "Beautiful beading work! Highly attentive to customer details.", rating: 5 },
-  ],
-  "2": [
-    { name: "Tolu B.", text: "Best gele styling in Akure hands down. Stayed in place all through the event.", rating: 5 },
-  ],
-  "3": [
-    { name: "Chuka E.", text: "The senator suit cut was crisp. Fits better than off-the-rack luxury brands.", rating: 4 },
-  ],
-  "4": [
-    { name: "Segun M.", text: "Lightweight fabric, perfect stitching. Got so many compliments at the event.", rating: 5 },
-  ],
-};
 
 function renderStars(rating: number) {
   return Array.from({ length: 5 }).map((_, i) => (
@@ -93,18 +48,23 @@ export default function FashionHouseScreen() {
     initialBio?: string;
   }>();
 
-  const targetId = fashionHouseId || "1";
-  const isMockId = ["1", "2", "3", "4"].includes(targetId);
+  const targetId = fashionHouseId || "";
   const role = useAuthStore((state) => state.role);
   const email = useAuthStore((state) => state.email);
   const cacheOwner = createPageCacheOwner(role, email);
 
   const [fhData, setFhData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
     async function loadDetails() {
+      if (!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(targetId)) {
+        setLoadError("This fashion house link is invalid.");
+        setLoading(false);
+        return;
+      }
       try {
         const cached = await readPageCache<any>(cacheOwner, `fashion-house:${targetId}`);
         if (!mounted) return;
@@ -112,13 +72,14 @@ export default function FashionHouseScreen() {
           setFhData(cached);
           setLoading(false);
         }
-        const fetched = await apiFetch<any>(`/api/fashion-houses/${targetId}`, { silent: true }).catch(() => null);
+        const fetched = await apiFetch<any>(`/api/fashion-houses/${targetId}`, { silent: true });
         if (mounted && fetched && fetched.id) {
           setFhData(fetched);
           void writePageCache(cacheOwner, `fashion-house:${targetId}`, fetched);
         }
       } catch (e) {
         console.log("Could not load fashion house details:", e);
+        if (mounted && !fhData) setLoadError("Could not load this fashion house. Please try again.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -129,37 +90,22 @@ export default function FashionHouseScreen() {
     };
   }, [cacheOwner, targetId]);
 
-  // Only fallback to MOCK_TAILORS if it is explicitly a mock ID (1-4)
-  const mockTailor = isMockId ? (MOCK_TAILORS.find((t) => t.id === targetId) || MOCK_TAILORS[0]) : null;
-
-  const displayName = fhData?.shopName || initialName || mockTailor?.name || "Fashion House";
-  const displayLocation = fhData?.location || initialLocation || mockTailor?.location || "Nigeria";
+  const displayName = fhData?.shopName || initialName || "Fashion House";
+  const displayLocation = fhData?.location || initialLocation || "Location not provided";
   const displayBio =
     fhData?.bio ||
-    initialBio ||
-    (mockTailor ? `Welcome to ${displayName}. Known for handcrafted bespoke attire, precision fittings, and elegant designs.` : "");
+    initialBio || "No description has been provided yet.";
 
   const coverImage =
     fhData?.brandLogoUrl ||
     (fhData?.catalogItems && fhData.catalogItems.length > 0 ? fhData.catalogItems[0].imageUrl : null) ||
-    initialImage ||
-    (typeof mockTailor?.image === "string" ? mockTailor.image : null);
+    initialImage;
 
-  const mockPortfolio = isMockId ? (PORTFOLIO_IMAGES[targetId] || PORTFOLIO_IMAGES["1"]) : [];
   const catalogItems = fhData?.catalogItems || [];
-
-  const defaultMockReviews = [
-    {
-      name: "Chiamaka O.",
-      text: "My bridal aso-ebi fit perfectly at the first try-on. Worth every naira.",
-      rating: 5,
-    },
-    {
-      name: "Blessing A.",
-      text: "Delivered three days ahead of my wedding. Very calm communication throughout.",
-      rating: 5,
-    },
-  ];
+  const catalogPrices = catalogItems
+    .map((item: any) => Number(item.priceFrom))
+    .filter((price: number) => Number.isFinite(price) && price > 0);
+  const minimumPrice = catalogPrices.length > 0 ? Math.min(...catalogPrices) : null;
 
   const reviews =
     Array.isArray(fhData?.reviews) && fhData.reviews.length > 0
@@ -168,11 +114,9 @@ export default function FashionHouseScreen() {
           text: r.comment || r.text || "",
           rating: r.rating || 5,
         }))
-      : isMockId && MOCK_REVIEWS[targetId]
-      ? MOCK_REVIEWS[targetId]
-      : defaultMockReviews;
+      : [];
 
-  const rawOrdersCount = fhData?.ordersCount ?? fhData?._count?.orders ?? (isMockId ? 2100 : 0);
+  const rawOrdersCount = fhData?.ordersCount ?? fhData?._count?.orders ?? 0;
 
   const formatOrdersText = (count: number) => {
     if (count >= 1000) {
@@ -182,13 +126,24 @@ export default function FashionHouseScreen() {
     if (count > 0) {
       return `${count}+`;
     }
-    return "2k+";
+    return "0";
   };
 
-  if (loading && !fhData && !initialName && !mockTailor) {
+  if (loading && !fhData && !initialName) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]} edges={["top"]}>
         <ActivityIndicator size="large" color="#4A080C" />
+      </SafeAreaView>
+    );
+  }
+
+  if (loadError && !fhData && !initialName) {
+    return (
+      <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center", padding: 24 }]} edges={["top"]}>
+        <Text style={styles.emptyCatalogTitle}>{loadError}</Text>
+        <Pressable style={[styles.bookingBtn, { marginTop: 20 }]} onPress={() => router.back()}>
+          <Text style={styles.bookingBtnText}>Go back</Text>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -204,7 +159,7 @@ export default function FashionHouseScreen() {
           {coverImage ? (
             <CachedImage source={{ uri: coverImage }} style={styles.heroImage} />
           ) : (
-            <CachedImage source={require("../../../assets/tailor-1.png")} style={styles.heroImage} />
+            <View style={[styles.heroImage, { backgroundColor: "#D8CDBD" }]} />
           )}
 
           {/* Dark Overlay for crisp text readability */}
@@ -219,8 +174,7 @@ export default function FashionHouseScreen() {
           <View style={styles.heroTitle}>
             <Text style={[styles.heroName, isLandscape && { fontSize: 20 }]}>{displayName}</Text>
             <View style={styles.heroRatingRow}>
-              {renderStars(4.9)}
-              <Text style={styles.heroRatingText}>4.9 ({formatOrdersText(rawOrdersCount)})</Text>
+              <Text style={styles.heroRatingText}>{formatOrdersText(rawOrdersCount)} completed orders</Text>
             </View>
           </View>
         </View>
@@ -228,12 +182,12 @@ export default function FashionHouseScreen() {
         {/* Stats Row - Moved down below hero photo */}
         <View style={[styles.statsCard, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>3 wks</Text>
+            <Text style={styles.statValue}>Contact house</Text>
             <Text style={styles.statLabel}>TURNAROUND</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>₦1.2M</Text>
+            <Text style={styles.statValue}>{minimumPrice ? `From ₦${minimumPrice.toLocaleString()}` : "On request"}</Text>
             <Text style={styles.statLabel}>PRICE RANGE</Text>
           </View>
           <View style={styles.statDivider} />
@@ -299,14 +253,6 @@ export default function FashionHouseScreen() {
                 You can still book a fitting appointment directly with {displayName}!
               </Text>
             </View>
-          ) : mockPortfolio.length > 0 ? (
-            <View style={styles.portfolioGrid}>
-              {mockPortfolio.map((img, i) => (
-                <View key={i} style={styles.portfolioItemCard}>
-                  <CachedImage source={img} style={styles.portfolioImage} />
-                </View>
-              ))}
-            </View>
           ) : (
             <View style={{ paddingVertical: 20, alignItems: "center" }}>
               <ActivityIndicator size="small" color="#4A080C" />
@@ -318,6 +264,7 @@ export default function FashionHouseScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>REVIEWS</Text>
           <View style={styles.reviewsCard}>
+            {reviews.length === 0 ? <Text style={styles.reviewText}>No customer reviews yet.</Text> : null}
             {reviews.map((review: any, i: number) => (
               <View key={i}>
                 <View style={styles.reviewItem}>

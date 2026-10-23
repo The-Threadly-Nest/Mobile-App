@@ -110,6 +110,8 @@ export default function AdminOrdersScreen() {
   const [items, setItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextPage, setNextPage] = useState<number | null>(null);
   const [selectedFilter, setSelectedFilter] = useState("All");
 
   const fetchOrders = useCallback(async () => {
@@ -119,7 +121,7 @@ export default function AdminOrdersScreen() {
     }
     try {
       const [ordersRes, escRes] = await Promise.allSettled([
-        fetch(`${API_BASE_URL}/api/orders`, {
+        fetch(`${API_BASE_URL}/api/orders?page=1&limit=50`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${API_BASE_URL}/api/escalations`, {
@@ -131,6 +133,8 @@ export default function AdminOrdersScreen() {
 
       // 1. Process database Orders
       if (ordersRes.status === "fulfilled" && ordersRes.value.ok) {
+        const nextPageHeader = ordersRes.value.headers.get("X-Next-Page");
+        setNextPage(nextPageHeader ? Number(nextPageHeader) : null);
         const data = await ordersRes.value.json();
         if (Array.isArray(data)) {
           data.forEach((o: any) => {
@@ -184,11 +188,43 @@ export default function AdminOrdersScreen() {
     }
   }, [token]);
 
+  const loadMoreOrders = async () => {
+    if (!token || !nextPage || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/orders?page=${nextPage}&limit=50`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        const incoming: OrderItem[] = data.map((order: any) => ({
+          id: order.id,
+          orderNumber: generateOrderNumber(order.bookingId || order.id),
+          customer: order.customer?.name || "Customer",
+          item: order.itemName || "Bespoke Fitting",
+          price: order.price || 0,
+          status: order.status || "in_production",
+          assignedStaff: order.staff?.name ? `Assigned to ${order.staff.name}` : "Unassigned",
+        }));
+        setItems((current) => {
+          const byId = new Map(current.map((item) => [item.id, item]));
+          incoming.forEach((item) => byId.set(item.id, item));
+          return Array.from(byId.values());
+        });
+      }
+      const nextPageHeader = response.headers.get("X-Next-Page");
+      setNextPage(nextPageHeader ? Number(nextPageHeader) : null);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
-      if (items.length === 0) setLoading(true);
-      fetchOrders();
-    }, [fetchOrders, items.length])
+      setLoading(true);
+      void fetchOrders();
+    }, [fetchOrders])
   );
 
   const onRefresh = () => {
@@ -253,6 +289,9 @@ export default function AdminOrdersScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          onEndReached={() => void loadMoreOrders()}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

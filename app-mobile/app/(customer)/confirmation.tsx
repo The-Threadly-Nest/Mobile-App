@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,12 +11,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { useOrdersStore } from "@/stores/useOrdersStore";
-import { apiFetch } from "@/shared/utils/apiClient";
-import { createIdempotencyKey } from "@/shared/utils/idempotency";
 
 export default function BookingConfirmationScreen() {
   const params = useLocalSearchParams<{
+    bookingId?: string;
     fashionHouseName?: string;
     garment?: string;
     fittingDate?: string;
@@ -27,11 +25,9 @@ export default function BookingConfirmationScreen() {
   const garment = params.garment || "Bespoke Fitting Session";
   const fittingDate = params.fittingDate || "Fitting time to be confirmed";
   const estimate = params.estimate || "Finalized at fitting";
+  const hasSavedBooking = Boolean(params.bookingId?.trim());
 
   const [isFavourite, setIsFavourite] = useState(false);
-  const addOrder = useOrdersStore((s) => s.addOrder);
-  const hasPostedRef = React.useRef(false);
-  const idempotencyKeyRef = React.useRef(createIdempotencyKey("booking"));
 
   useEffect(() => {
     const handleGoHome = () => {
@@ -41,30 +37,43 @@ export default function BookingConfirmationScreen() {
 
     const backHandler = BackHandler.addEventListener("hardwareBackPress", handleGoHome);
 
-    if (fashionHouseName && garment && !hasPostedRef.current) {
-      hasPostedRef.current = true;
-      const randomId = Math.floor(2300 + Math.random() * 900);
-      addOrder({
-        id: `booking-${Date.now()}`,
-        atelierName: fashionHouseName,
-        garmentType: garment,
-        orderNumber: `#TFH-${randomId}`,
-        estimatedReady: fittingDate ? `Fitting: ${fittingDate}` : "In 2 weeks",
-        progressPercent: 16,
-        imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=300&q=80",
-        status: "active",
-      });
-
-      apiFetch("/api/orders/my-orders", {
-        method: "POST",
-        headers: { "Idempotency-Key": idempotencyKeyRef.current },
-        body: JSON.stringify({ fashionHouseName, garment, fittingDate }),
-        silent: true,
-      }).catch(() => {});
-    }
-
     return () => backHandler.remove();
-  }, [fashionHouseName, garment, fittingDate, addOrder]);
+  }, []);
+
+  if (!hasSavedBooking) {
+    return (
+      <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top", "bottom"]}>
+        <View className="flex-row items-center px-6 py-3 bg-[#FBF7EF]">
+          <Pressable
+            onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
+            className="w-10 h-10 rounded-full border border-[#E4D5B7] bg-white items-center justify-center mr-4"
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+          >
+            <BackArrowIcon size={18} color="#4A080C" />
+          </Pressable>
+          <Text className="font-display text-[20px] font-bold text-[#4A080C]">
+            Booking Request
+          </Text>
+        </View>
+
+        <View className="flex-1 px-6 items-center justify-center">
+          <Text className="font-display text-[24px] font-semibold text-[#4A080C] mb-3 text-center">
+            We could not verify this request
+          </Text>
+          <Text className="font-body text-[14px] text-[#8A7550] text-center mb-8">
+            No saved booking reference was found. Please return to the fashion house and try again.
+          </Text>
+          <Pressable
+            onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
+            className="w-full max-w-[376px] h-[56px] bg-[#4A080C] rounded-full items-center justify-center"
+            style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
+          >
+            <Text className="font-body-semibold text-[16px] text-white">Return to Browse</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top", "bottom"]}>
@@ -93,10 +102,10 @@ export default function BookingConfirmationScreen() {
             <Check size={30} color="#C4A763" strokeWidth={3} />
           </View>
           <Text className="font-display text-[24px] font-semibold text-[#4A080C] mb-1.5 text-center">
-            Booking Confirmed!
+            Booking Request Received
           </Text>
           <Text className="font-body text-[14px] font-normal text-[#646464] text-center">
-            Your fitting is reserved at {fashionHouseName}.
+            Your selected fitting time is held while {fashionHouseName} reviews your request.
           </Text>
         </View>
 
@@ -146,7 +155,7 @@ export default function BookingConfirmationScreen() {
               <Text className="font-body-bold text-[14px] text-[#4A080C]">1</Text>
             </View>
             <Text className="font-body text-[14px] text-ink flex-1 leading-[20px] pt-1">
-              Your measurements will be taken at the fitting.
+              The fashion house will review your request and confirm the fitting time.
             </Text>
           </View>
 
@@ -189,7 +198,7 @@ export default function BookingConfirmationScreen() {
           style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
         >
           <Text className="font-body-semibold text-[16px] text-white">
-            View My Orders
+            View My Requests
           </Text>
         </Pressable>
       </ScrollView>

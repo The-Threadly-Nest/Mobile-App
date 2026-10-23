@@ -21,7 +21,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { adminApi } from "@/shared/utils/apiClient";
+import { invoicesApi } from "@/shared/utils/apiClient";
 
 interface InvoiceDetail {
   id: string;
@@ -32,53 +32,26 @@ interface InvoiceDetail {
   orderNumber: string;
   status: "Pending" | "Paid";
   items: Array<{ name: string; amount: number }>;
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
   total: number;
+  currency: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
 }
 
-const INVOICE_DATABASE: Record<string, InvoiceDetail> = {
-  "inv-1": {
-    id: "inv-1",
-    invoiceNumber: "INV-1042",
-    atelierName: "Adaeze Couture",
-    date: "Sep 6, 2026",
-    customerName: "Chiamaka O.",
-    orderNumber: "#TFH-2291",
-    status: "Pending",
-    items: [
-      { name: "Bridal Aso-Ebi (2 pieces)", amount: 816000 },
-      { name: "Beadwork & finishing", amount: 200000 },
-    ],
-    total: 1016000,
-  },
-  "inv-2": {
-    id: "inv-2",
-    invoiceNumber: "INV-1041",
-    atelierName: "Adaeze Couture",
-    date: "Aug 30, 2026",
-    customerName: "Blessing A.",
-    orderNumber: "#TFH-2285",
-    status: "Paid",
-    items: [
-      { name: "Custom Velvet Agbada Set", amount: 320000 },
-      { name: "Gold Thread Monogramming", amount: 58000 },
-    ],
-    total: 378000,
-  },
-  "inv-3": {
-    id: "inv-3",
-    invoiceNumber: "INV-1040",
-    atelierName: "Adaeze Couture",
-    date: "Jul 14, 2026",
-    customerName: "Ifeoma N.",
-    orderNumber: "#TFH-2270",
-    status: "Paid",
-    items: [
-      { name: "Silk Corset Evening Gown", amount: 310000 },
-      { name: "Express Bespoke Fitting", amount: 68000 },
-    ],
-    total: 378000,
-  },
-};
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+const formatMoney = (amount: number, currency: string) =>
+  `${currency === "NGN" ? "₦" : `${currency} `}${amount.toLocaleString()}`;
 
 export default function InvoiceDetailScreen() {
   const {
@@ -111,7 +84,7 @@ export default function InvoiceDetailScreen() {
   // Match from store if possible
   const matchedOrder = storeOrders.find((o: any) => o.id === orderId || o.orderNumber === orderId);
 
-  const atelierName = authShopName || "Adaeze Couture";
+  const atelierName = authShopName || "Fashion House";
   const orderShopLogo =
     matchedOrder?.shopLogo ||
     matchedOrder?.fashionHouseLogo ||
@@ -119,61 +92,90 @@ export default function InvoiceDetailScreen() {
     null;
   const [profileShopLogo, setProfileShopLogo] = useState<string | null>(null);
   const shopLogo = profileShopLogo || authShopLogo || orderShopLogo;
-  const customerName = paramCustomerName || matchedOrder?.customer || (orderId && INVOICE_DATABASE[orderId]?.customerName) || "Customer";
-  const orderNumber = paramOrderNumber || matchedOrder?.orderNumber || (orderId && INVOICE_DATABASE[orderId]?.orderNumber) || (orderId ? (orderId.startsWith("#") ? orderId : `#TFH-${orderId.slice(0, 4).toUpperCase()}`) : "#TFH-2291");
-  const invoiceNumber = (orderId && INVOICE_DATABASE[orderId]?.invoiceNumber) || orderNumber.replace("#TFH-", "INV-").replace("#", "INV-");
-  const numericPrice = paramPrice ? parseFloat(paramPrice) : (matchedOrder?.price || (orderId && INVOICE_DATABASE[orderId]?.total) || 350000);
-  const garmentName = paramGarment || matchedOrder?.item || (orderId && INVOICE_DATABASE[orderId]?.items[0]?.name) || "Bespoke Fitting & Tailoring";
-  const isStatusPaid = paramStatus === "completed" || paramStatus === "delivered" || paramStatus === "Paid" || matchedOrder?.status === "completed" || matchedOrder?.status === "delivered" || (orderId && INVOICE_DATABASE[orderId]?.status === "Paid");
+  const customerName = paramCustomerName || matchedOrder?.customer || "Customer";
+  const orderNumber = paramOrderNumber || matchedOrder?.orderNumber || (orderId ? `#TFH-${orderId.slice(0, 8).toUpperCase()}` : "Order");
+  const invoiceNumber = orderNumber.replace("#TFH-", "INV-").replace("#", "INV-");
+  const numericPrice = paramPrice ? parseFloat(paramPrice) : (matchedOrder?.price || 0);
+  const garmentName = paramGarment || matchedOrder?.item || "Bespoke Fitting & Tailoring";
 
   const buildInitialInvoice = (): InvoiceDetail => {
-    if (orderId && INVOICE_DATABASE[orderId]) {
-      return {
-        ...INVOICE_DATABASE[orderId],
-        atelierName,
-      };
-    }
     return {
-      id: orderId || "inv-1",
+      id: orderId || "",
       invoiceNumber,
       atelierName,
       date: paramDate || new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
       customerName,
       orderNumber,
-      status: isStatusPaid ? "Paid" : "Pending",
+      status: "Pending",
       items: [
         { name: garmentName, amount: numericPrice },
       ],
+      subtotal: numericPrice,
+      taxRate: 0.075,
+      taxAmount: 0,
       total: numericPrice,
+      currency: "NGN",
+      bankName: "",
+      accountNumber: "",
+      accountName: "",
     };
   };
 
   const [invoice, setInvoice] = useState<InvoiceDetail>(buildInitialInvoice());
   const [isGenerating, setIsGenerating] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [invoiceLoaded, setInvoiceLoaded] = useState(false);
+  const [invoiceError, setInvoiceError] = useState("");
 
   useEffect(() => {
     let active = true;
 
-    void adminApi
-      .getProfile()
-      .then((profile) => {
-        if (active) {
-          setProfileShopLogo(profile?.fashionHouse?.brandLogoUrl || null);
-        }
+    if (!orderId) {
+      setInvoiceError("A valid order is required to create an invoice.");
+      return;
+    }
+
+    setInvoiceLoaded(false);
+    setInvoiceError("");
+    void invoicesApi
+      .generateForOrder(orderId)
+      .then((savedInvoice) => {
+        if (!active) return;
+        const order = savedInvoice.order;
+        const house = order.fashionHouse;
+        setProfileShopLogo(house.brandLogoUrl || null);
+        setInvoice({
+          id: savedInvoice.id,
+          invoiceNumber: `INV-${savedInvoice.id.slice(0, 8).toUpperCase()}`,
+          atelierName: house.shopName,
+          date: new Date(savedInvoice.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          customerName: order.customer.name,
+          orderNumber: `#TFH-${order.id.slice(0, 8).toUpperCase()}`,
+          status: savedInvoice.paymentStatus === "paid" ? "Paid" : "Pending",
+          items: [{ name: order.itemName, amount: savedInvoice.subtotal }],
+          subtotal: savedInvoice.subtotal,
+          taxRate: savedInvoice.taxRate,
+          taxAmount: savedInvoice.taxAmount,
+          total: savedInvoice.total,
+          currency: savedInvoice.currency,
+          bankName: savedInvoice.bankName,
+          accountNumber: savedInvoice.accountNumber,
+          accountName: savedInvoice.accountName,
+        });
+        setInvoiceLoaded(true);
       })
-      .catch(() => undefined);
+      .catch((err: any) => {
+        if (active) setInvoiceError(err?.message || "The invoice could not be loaded.");
+      });
 
     return () => {
       active = false;
     };
-  }, []);
-
-  useEffect(() => {
-    setInvoice(buildInitialInvoice());
-  }, [orderId, paramCustomerName, paramOrderNumber, paramGarment, paramPrice, paramStatus, authShopName]);
+  }, [orderId]);
 
   const isPaid = invoice.status === "Paid";
+  const canExport =
+    invoiceLoaded && Boolean(invoice.bankName && invoice.accountNumber && invoice.accountName);
 
   const handleMarkAsPaid = async () => {
     showAlert(
@@ -183,10 +185,18 @@ export default function InvoiceDetailScreen() {
   };
 
   const getHTMLContent = () => {
-    const subtotal = invoice.total;
-    const vat = Math.round(subtotal * 0.075);
-    const grandTotal = subtotal + vat;
+    if (!canExport) {
+      throw new Error("A verified server invoice with payment details is required before export.");
+    }
+    const subtotal = invoice.subtotal;
+    const vat = invoice.taxAmount;
+    const grandTotal = invoice.total;
     const initial = invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A";
+    const safeAtelierName = escapeHtml(invoice.atelierName);
+    const safeCustomerName = escapeHtml(invoice.customerName);
+    const safeAccountName = escapeHtml(invoice.accountName);
+    const safeBankName = escapeHtml(invoice.bankName);
+    const htmlCurrency = invoice.currency === "NGN" ? "&#8358;" : `${escapeHtml(invoice.currency)} `;
 
     return `
       <!DOCTYPE html>
@@ -376,7 +386,7 @@ export default function InvoiceDetailScreen() {
       </head>
       <body>
         <div class="page-container">
-          <div class="watermark">THE THREADLY NEST<br/>OFFICIAL INVOICE</div>
+          <div class="watermark">ÒWÚJÀ<br/>OFFICIAL INVOICE</div>
           <div class="card">
             <div>
               <div class="atelier-row">
@@ -386,8 +396,8 @@ export default function InvoiceDetailScreen() {
                     : `<div class="logo-badge">${initial}</div>`
                   }
                   <div>
-                    <div class="atelier-name">${invoice.atelierName}</div>
-                    <div class="app-tag">The Threadly Nest • ${invoice.invoiceNumber}</div>
+                    <div class="atelier-name">${safeAtelierName}</div>
+                    <div class="app-tag">Òwújà • ${invoice.invoiceNumber}</div>
                   </div>
                 </div>
                 <div class="status-pill">${invoice.status}</div>
@@ -398,7 +408,7 @@ export default function InvoiceDetailScreen() {
               <div class="info-row">
                 <div>
                   <div class="field-label">BILLED TO</div>
-                  <div class="field-value">${invoice.customerName}</div>
+                  <div class="field-value">${safeCustomerName}</div>
                 </div>
                 <div style="text-align: right;">
                   <div class="field-label">ORDER & DATE</div>
@@ -419,8 +429,8 @@ export default function InvoiceDetailScreen() {
                   .map(
                     (item) => `
                     <div class="item-row">
-                      <div class="item-name">${item.name}</div>
-                      <div class="item-price">&#8358;${item.amount.toLocaleString()}</div>
+                      <div class="item-name">${escapeHtml(item.name)}</div>
+                      <div class="item-price">${htmlCurrency}${item.amount.toLocaleString()}</div>
                     </div>
                   `
                   )
@@ -429,16 +439,16 @@ export default function InvoiceDetailScreen() {
 
               <div class="summary-row">
                 <div>Subtotal</div>
-                <div style="font-weight: 600; color: #3A2E1A;">&#8358;${subtotal.toLocaleString()}</div>
+                <div style="font-weight: 600; color: #3A2E1A;">${htmlCurrency}${subtotal.toLocaleString()}</div>
               </div>
               <div class="summary-row">
-                <div>VAT / Tax (7.5%)</div>
-                <div style="font-weight: 600; color: #3A2E1A;">&#8358;${vat.toLocaleString()}</div>
+                <div>VAT / Tax (${(invoice.taxRate * 100).toLocaleString()}%)</div>
+                <div style="font-weight: 600; color: #3A2E1A;">${htmlCurrency}${vat.toLocaleString()}</div>
               </div>
 
               <div class="total-row">
                 <div class="total-label">Total Due</div>
-                <div class="total-amount">&#8358;${grandTotal.toLocaleString()}</div>
+                <div class="total-amount">${htmlCurrency}${grandTotal.toLocaleString()}</div>
               </div>
             </div>
 
@@ -448,21 +458,21 @@ export default function InvoiceDetailScreen() {
                 <div class="payment-grid">
                   <div>
                     <div class="payment-col-label">BANK</div>
-                    <div class="payment-col-val">Access Bank</div>
+                    <div class="payment-col-val">${safeBankName}</div>
                   </div>
                   <div>
                     <div class="payment-col-label">ACCOUNT NO.</div>
-                    <div class="payment-col-val">0123456789</div>
+                    <div class="payment-col-val">${invoice.accountNumber}</div>
                   </div>
                   <div>
                     <div class="payment-col-label">BENEFICIARY</div>
-                    <div class="payment-col-val">${invoice.atelierName}</div>
+                    <div class="payment-col-val">${safeAccountName}</div>
                   </div>
                 </div>
               </div>
 
               <div class="footer-note">
-                <strong>The Threadly Nest</strong>
+                <strong>Òwújà</strong>
               </div>
             </div>
           </div>
@@ -611,6 +621,16 @@ export default function InvoiceDetailScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
+          {!invoiceLoaded && !invoiceError ? (
+            <ActivityIndicator color="#4A080C" style={{ marginBottom: 16 }} />
+          ) : null}
+          {invoiceError ? (
+            <View style={{ backgroundColor: "#FDECEC", borderRadius: 12, padding: 12, marginBottom: 16 }}>
+              <Text style={{ fontFamily: "WorkSans_500Medium", color: "#9B1C1C", textAlign: "center" }}>
+                {invoiceError}
+              </Text>
+            </View>
+          ) : null}
           {/* Capturable White Card Container */}
           <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1.0 }}>
             <View style={styles.card}>
@@ -635,7 +655,7 @@ export default function InvoiceDetailScreen() {
                     textAlign: "center",
                   }}
                 >
-                  THE THREADLY NEST{"\n"}OFFICIAL INVOICE
+                  ÒWÚJÀ{"\n"}OFFICIAL INVOICE
                 </Text>
               </View>
 
@@ -675,7 +695,7 @@ export default function InvoiceDetailScreen() {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.atelierName}>{invoice.atelierName}</Text>
                     <Text style={styles.invoiceSubtitle}>
-                      The Threadly Nest • {invoice.invoiceNumber}
+                      Òwújà • {invoice.invoiceNumber}
                     </Text>
                   </View>
                 </View>
@@ -729,7 +749,7 @@ export default function InvoiceDetailScreen() {
                 {invoice.items.map((item, idx) => (
                   <View key={idx} style={styles.itemRow}>
                     <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemPrice}>₦{item.amount.toLocaleString()}</Text>
+                    <Text style={styles.itemPrice}>{formatMoney(item.amount, invoice.currency)}</Text>
                   </View>
                 ))}
               </View>
@@ -738,18 +758,18 @@ export default function InvoiceDetailScreen() {
               <View style={{ marginTop: 14, marginBottom: 12, zIndex: 1 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
                   <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>Subtotal</Text>
-                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>₦{invoice.total.toLocaleString()}</Text>
+                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>VAT / Tax (7.5%)</Text>
-                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>₦{Math.round(invoice.total * 0.075).toLocaleString()}</Text>
+                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
+                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
                 </View>
               </View>
 
               {/* Grand Total Row */}
               <View style={[styles.totalRow, { zIndex: 1 }]}>
                 <Text style={styles.totalLabel}>Total Due</Text>
-                <Text style={styles.totalAmount}>₦{Math.round(invoice.total * 1.075).toLocaleString()}</Text>
+                <Text style={styles.totalAmount}>{formatMoney(invoice.total, invoice.currency)}</Text>
               </View>
 
               {/* Payment Information Card Box */}
@@ -779,15 +799,15 @@ export default function InvoiceDetailScreen() {
                 <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
                   <View>
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BANK</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>Access Bank</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.bankName || "Not configured"}</Text>
                   </View>
                   <View>
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>ACCOUNT NO.</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>0123456789</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.accountNumber || "—"}</Text>
                   </View>
                   <View>
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BENEFICIARY</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.atelierName}</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.accountName || "—"}</Text>
                   </View>
                 </View>
               </View>
@@ -795,7 +815,7 @@ export default function InvoiceDetailScreen() {
               {/* Footer Tag */}
               <View style={{ marginTop: 16, alignItems: "center", zIndex: 1 }}>
                 <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#4A080C", textAlign: "center" }}>
-                  The Threadly Nest
+                  Òwújà
                 </Text>
               </View>
             </View>
@@ -807,10 +827,10 @@ export default function InvoiceDetailScreen() {
               {/* Share Pill */}
               <Pressable
                 onPress={() => setShareModalVisible(true)}
-                disabled={isGenerating}
+                disabled={isGenerating || !canExport}
                 style={({ pressed }) => [
                   styles.outlineBtn,
-                  { opacity: pressed || isGenerating ? 0.85 : 1 },
+                  { opacity: pressed || isGenerating ? 0.85 : !canExport ? 0.45 : 1 },
                 ]}
               >
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
@@ -828,7 +848,7 @@ export default function InvoiceDetailScreen() {
                   { opacity: pressed ? 0.75 : isPaid ? 0.5 : 1 },
                 ]}
               >
-                <Text style={styles.primaryBtnText}>{isPaid ? "Paid" : "Mark as Paid"}</Text>
+                <Text style={styles.primaryBtnText}>{isPaid ? "Paid" : "Payment Pending"}</Text>
               </Pressable>
             </View>
           </View>

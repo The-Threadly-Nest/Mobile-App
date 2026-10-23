@@ -207,7 +207,7 @@ export default function SplashScreen() {
               style={{ width: "100%", textAlign: "center" }}
               className="font-display-regular text-[24px] text-white"
             >
-              The Threadly Nest
+              Òwújà
             </Text>
             {/* Tagline */}
             <Text

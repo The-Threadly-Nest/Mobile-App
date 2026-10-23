@@ -27,6 +27,14 @@ export function bookingAccessWhere(req: Request): Prisma.BookingWhereInput {
     : { fashionHouseId: houseIdentity(req) };
 }
 
+export function availableSlotClaimWhere(slotId: string, fashionHouseId: string) {
+  return {
+    id: slotId,
+    fashionHouseId,
+    booked: false,
+  } as const;
+}
+
 export function moodboardAccessWhere(req: Request): Prisma.MoodBoardSketchWhereInput {
   const houseId = houseIdentity(req);
   return { staff: { OR: [

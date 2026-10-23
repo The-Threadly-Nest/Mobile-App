@@ -36,6 +36,7 @@ export type DirectMessageSumAggregateOutputType = {
 
 export type DirectMessageMinAggregateOutputType = {
   id: string | null
+  clientMessageId: string | null
   fashionHouseId: string | null
   customerId: string | null
   senderRole: string | null
@@ -51,6 +52,7 @@ export type DirectMessageMinAggregateOutputType = {
 
 export type DirectMessageMaxAggregateOutputType = {
   id: string | null
+  clientMessageId: string | null
   fashionHouseId: string | null
   customerId: string | null
   senderRole: string | null
@@ -66,6 +68,7 @@ export type DirectMessageMaxAggregateOutputType = {
 
 export type DirectMessageCountAggregateOutputType = {
   id: number
+  clientMessageId: number
   fashionHouseId: number
   customerId: number
   senderRole: number
@@ -91,6 +94,7 @@ export type DirectMessageSumAggregateInputType = {
 
 export type DirectMessageMinAggregateInputType = {
   id?: true
+  clientMessageId?: true
   fashionHouseId?: true
   customerId?: true
   senderRole?: true
@@ -106,6 +110,7 @@ export type DirectMessageMinAggregateInputType = {
 
 export type DirectMessageMaxAggregateInputType = {
   id?: true
+  clientMessageId?: true
   fashionHouseId?: true
   customerId?: true
   senderRole?: true
@@ -121,6 +126,7 @@ export type DirectMessageMaxAggregateInputType = {
 
 export type DirectMessageCountAggregateInputType = {
   id?: true
+  clientMessageId?: true
   fashionHouseId?: true
   customerId?: true
   senderRole?: true
@@ -223,6 +229,7 @@ export type DirectMessageGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 
 export type DirectMessageGroupByOutputType = {
   id: string
+  clientMessageId: string | null
   fashionHouseId: string
   customerId: string
   senderRole: string
@@ -261,6 +268,7 @@ export type DirectMessageWhereInput = {
   OR?: Prisma.DirectMessageWhereInput[]
   NOT?: Prisma.DirectMessageWhereInput | Prisma.DirectMessageWhereInput[]
   id?: Prisma.StringFilter<"DirectMessage"> | string
+  clientMessageId?: Prisma.StringNullableFilter<"DirectMessage"> | string | null
   fashionHouseId?: Prisma.StringFilter<"DirectMessage"> | string
   customerId?: Prisma.StringFilter<"DirectMessage"> | string
   senderRole?: Prisma.StringFilter<"DirectMessage"> | string
@@ -280,6 +288,7 @@ export type DirectMessageWhereInput = {
 
 export type DirectMessageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  clientMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   senderRole?: Prisma.SortOrder
@@ -299,9 +308,11 @@ export type DirectMessageOrderByWithRelationInput = {
 
 export type DirectMessageWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  senderId_clientMessageId?: Prisma.DirectMessageSenderIdClientMessageIdCompoundUniqueInput
   AND?: Prisma.DirectMessageWhereInput | Prisma.DirectMessageWhereInput[]
   OR?: Prisma.DirectMessageWhereInput[]
   NOT?: Prisma.DirectMessageWhereInput | Prisma.DirectMessageWhereInput[]
+  clientMessageId?: Prisma.StringNullableFilter<"DirectMessage"> | string | null
   fashionHouseId?: Prisma.StringFilter<"DirectMessage"> | string
   customerId?: Prisma.StringFilter<"DirectMessage"> | string
   senderRole?: Prisma.StringFilter<"DirectMessage"> | string
@@ -317,10 +328,11 @@ export type DirectMessageWhereUniqueInput = Prisma.AtLeast<{
   sender?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   userDeletions?: Prisma.DirectMessageUserDeletionListRelationFilter
-}, "id">
+}, "id" | "senderId_clientMessageId">
 
 export type DirectMessageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  clientMessageId?: Prisma.SortOrderInput | Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   senderRole?: Prisma.SortOrder
@@ -344,6 +356,7 @@ export type DirectMessageScalarWhereWithAggregatesInput = {
   OR?: Prisma.DirectMessageScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DirectMessageScalarWhereWithAggregatesInput | Prisma.DirectMessageScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"DirectMessage"> | string
+  clientMessageId?: Prisma.StringNullableWithAggregatesFilter<"DirectMessage"> | string | null
   fashionHouseId?: Prisma.StringWithAggregatesFilter<"DirectMessage"> | string
   customerId?: Prisma.StringWithAggregatesFilter<"DirectMessage"> | string
   senderRole?: Prisma.StringWithAggregatesFilter<"DirectMessage"> | string
@@ -359,6 +372,7 @@ export type DirectMessageScalarWhereWithAggregatesInput = {
 
 export type DirectMessageCreateInput = {
   id?: string
+  clientMessageId?: string | null
   senderRole: string
   text: string
   imageUrl?: string | null
@@ -375,6 +389,7 @@ export type DirectMessageCreateInput = {
 
 export type DirectMessageUncheckedCreateInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   customerId: string
   senderRole: string
@@ -391,6 +406,7 @@ export type DirectMessageUncheckedCreateInput = {
 
 export type DirectMessageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -407,6 +423,7 @@ export type DirectMessageUpdateInput = {
 
 export type DirectMessageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
@@ -423,6 +440,7 @@ export type DirectMessageUncheckedUpdateInput = {
 
 export type DirectMessageCreateManyInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   customerId: string
   senderRole: string
@@ -438,6 +456,7 @@ export type DirectMessageCreateManyInput = {
 
 export type DirectMessageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -450,6 +469,7 @@ export type DirectMessageUpdateManyMutationInput = {
 
 export type DirectMessageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
@@ -473,8 +493,14 @@ export type DirectMessageOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type DirectMessageSenderIdClientMessageIdCompoundUniqueInput = {
+  senderId: string
+  clientMessageId: string
+}
+
 export type DirectMessageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  clientMessageId?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   senderRole?: Prisma.SortOrder
@@ -494,6 +520,7 @@ export type DirectMessageAvgOrderByAggregateInput = {
 
 export type DirectMessageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  clientMessageId?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   senderRole?: Prisma.SortOrder
@@ -509,6 +536,7 @@ export type DirectMessageMaxOrderByAggregateInput = {
 
 export type DirectMessageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  clientMessageId?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
   senderRole?: Prisma.SortOrder
@@ -673,6 +701,7 @@ export type DirectMessageUpdateOneRequiredWithoutUserDeletionsNestedInput = {
 
 export type DirectMessageCreateWithoutSenderInput = {
   id?: string
+  clientMessageId?: string | null
   senderRole: string
   text: string
   imageUrl?: string | null
@@ -688,6 +717,7 @@ export type DirectMessageCreateWithoutSenderInput = {
 
 export type DirectMessageUncheckedCreateWithoutSenderInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   customerId: string
   senderRole: string
@@ -713,6 +743,7 @@ export type DirectMessageCreateManySenderInputEnvelope = {
 
 export type DirectMessageCreateWithoutCustomerInput = {
   id?: string
+  clientMessageId?: string | null
   senderRole: string
   text: string
   imageUrl?: string | null
@@ -728,6 +759,7 @@ export type DirectMessageCreateWithoutCustomerInput = {
 
 export type DirectMessageUncheckedCreateWithoutCustomerInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   senderRole: string
   senderId: string
@@ -772,6 +804,7 @@ export type DirectMessageScalarWhereInput = {
   OR?: Prisma.DirectMessageScalarWhereInput[]
   NOT?: Prisma.DirectMessageScalarWhereInput | Prisma.DirectMessageScalarWhereInput[]
   id?: Prisma.StringFilter<"DirectMessage"> | string
+  clientMessageId?: Prisma.StringNullableFilter<"DirectMessage"> | string | null
   fashionHouseId?: Prisma.StringFilter<"DirectMessage"> | string
   customerId?: Prisma.StringFilter<"DirectMessage"> | string
   senderRole?: Prisma.StringFilter<"DirectMessage"> | string
@@ -803,6 +836,7 @@ export type DirectMessageUpdateManyWithWhereWithoutCustomerInput = {
 
 export type DirectMessageCreateWithoutFashionHouseInput = {
   id?: string
+  clientMessageId?: string | null
   senderRole: string
   text: string
   imageUrl?: string | null
@@ -818,6 +852,7 @@ export type DirectMessageCreateWithoutFashionHouseInput = {
 
 export type DirectMessageUncheckedCreateWithoutFashionHouseInput = {
   id?: string
+  clientMessageId?: string | null
   customerId: string
   senderRole: string
   senderId: string
@@ -859,6 +894,7 @@ export type DirectMessageUpdateManyWithWhereWithoutFashionHouseInput = {
 
 export type DirectMessageCreateWithoutUserDeletionsInput = {
   id?: string
+  clientMessageId?: string | null
   senderRole: string
   text: string
   imageUrl?: string | null
@@ -874,6 +910,7 @@ export type DirectMessageCreateWithoutUserDeletionsInput = {
 
 export type DirectMessageUncheckedCreateWithoutUserDeletionsInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   customerId: string
   senderRole: string
@@ -905,6 +942,7 @@ export type DirectMessageUpdateToOneWithWhereWithoutUserDeletionsInput = {
 
 export type DirectMessageUpdateWithoutUserDeletionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -920,6 +958,7 @@ export type DirectMessageUpdateWithoutUserDeletionsInput = {
 
 export type DirectMessageUncheckedUpdateWithoutUserDeletionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
@@ -935,6 +974,7 @@ export type DirectMessageUncheckedUpdateWithoutUserDeletionsInput = {
 
 export type DirectMessageCreateManySenderInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   customerId: string
   senderRole: string
@@ -949,6 +989,7 @@ export type DirectMessageCreateManySenderInput = {
 
 export type DirectMessageCreateManyCustomerInput = {
   id?: string
+  clientMessageId?: string | null
   fashionHouseId: string
   senderRole: string
   senderId: string
@@ -963,6 +1004,7 @@ export type DirectMessageCreateManyCustomerInput = {
 
 export type DirectMessageUpdateWithoutSenderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -978,6 +1020,7 @@ export type DirectMessageUpdateWithoutSenderInput = {
 
 export type DirectMessageUncheckedUpdateWithoutSenderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
@@ -993,6 +1036,7 @@ export type DirectMessageUncheckedUpdateWithoutSenderInput = {
 
 export type DirectMessageUncheckedUpdateManyWithoutSenderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1007,6 +1051,7 @@ export type DirectMessageUncheckedUpdateManyWithoutSenderInput = {
 
 export type DirectMessageUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1022,6 +1067,7 @@ export type DirectMessageUpdateWithoutCustomerInput = {
 
 export type DirectMessageUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   senderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1037,6 +1083,7 @@ export type DirectMessageUncheckedUpdateWithoutCustomerInput = {
 
 export type DirectMessageUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   senderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1051,6 +1098,7 @@ export type DirectMessageUncheckedUpdateManyWithoutCustomerInput = {
 
 export type DirectMessageCreateManyFashionHouseInput = {
   id?: string
+  clientMessageId?: string | null
   customerId: string
   senderRole: string
   senderId: string
@@ -1065,6 +1113,7 @@ export type DirectMessageCreateManyFashionHouseInput = {
 
 export type DirectMessageUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   text?: Prisma.StringFieldUpdateOperationsInput | string
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1080,6 +1129,7 @@ export type DirectMessageUpdateWithoutFashionHouseInput = {
 
 export type DirectMessageUncheckedUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   senderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1095,6 +1145,7 @@ export type DirectMessageUncheckedUpdateWithoutFashionHouseInput = {
 
 export type DirectMessageUncheckedUpdateManyWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientMessageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   senderRole?: Prisma.StringFieldUpdateOperationsInput | string
   senderId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1140,6 +1191,7 @@ export type DirectMessageCountOutputTypeCountUserDeletionsArgs<ExtArgs extends r
 
 export type DirectMessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  clientMessageId?: boolean
   fashionHouseId?: boolean
   customerId?: boolean
   senderRole?: boolean
@@ -1160,6 +1212,7 @@ export type DirectMessageSelect<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type DirectMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  clientMessageId?: boolean
   fashionHouseId?: boolean
   customerId?: boolean
   senderRole?: boolean
@@ -1178,6 +1231,7 @@ export type DirectMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types
 
 export type DirectMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  clientMessageId?: boolean
   fashionHouseId?: boolean
   customerId?: boolean
   senderRole?: boolean
@@ -1196,6 +1250,7 @@ export type DirectMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
 
 export type DirectMessageSelectScalar = {
   id?: boolean
+  clientMessageId?: boolean
   fashionHouseId?: boolean
   customerId?: boolean
   senderRole?: boolean
@@ -1209,7 +1264,7 @@ export type DirectMessageSelectScalar = {
   createdAt?: boolean
 }
 
-export type DirectMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "senderRole" | "senderId" | "text" | "imageUrl" | "audioUrl" | "audioDuration" | "readAt" | "deletedForEveryoneAt" | "createdAt", ExtArgs["result"]["directMessage"]>
+export type DirectMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientMessageId" | "fashionHouseId" | "customerId" | "senderRole" | "senderId" | "text" | "imageUrl" | "audioUrl" | "audioDuration" | "readAt" | "deletedForEveryoneAt" | "createdAt", ExtArgs["result"]["directMessage"]>
 export type DirectMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   sender?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1238,6 +1293,7 @@ export type $DirectMessagePayload<ExtArgs extends runtime.Types.Extensions.Inter
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    clientMessageId: string | null
     fashionHouseId: string
     customerId: string
     senderRole: string
@@ -1677,6 +1733,7 @@ export interface Prisma__DirectMessageClient<T, Null = never, ExtArgs extends ru
  */
 export interface DirectMessageFieldRefs {
   readonly id: Prisma.FieldRef<"DirectMessage", 'String'>
+  readonly clientMessageId: Prisma.FieldRef<"DirectMessage", 'String'>
   readonly fashionHouseId: Prisma.FieldRef<"DirectMessage", 'String'>
   readonly customerId: Prisma.FieldRef<"DirectMessage", 'String'>
   readonly senderRole: Prisma.FieldRef<"DirectMessage", 'String'>

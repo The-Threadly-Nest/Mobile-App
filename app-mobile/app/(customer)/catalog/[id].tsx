@@ -90,10 +90,9 @@ export default function CatalogItemDetailScreen() {
 
   const imageUrl =
     garmentData?.imageUrl ||
-    initialImage ||
-    "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=800&q=80";
+    initialImage || "";
   const fashionHouseId =
-    garmentData?.fashionHouseId || garmentData?.fashionHouse?.id || initialFashionHouseId || "1";
+    garmentData?.fashionHouseId || garmentData?.fashionHouse?.id || initialFashionHouseId || "";
   const vendorName =
     garmentData?.fashionHouse?.shopName || initialVendorName || "Luxury Fashion House";
   const vendorLocation =

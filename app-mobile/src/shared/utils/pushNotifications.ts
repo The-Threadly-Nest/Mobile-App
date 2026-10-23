@@ -4,6 +4,7 @@ import { API_BASE_URL } from "@/api/config";
 import { alertEmitter } from "./alertEmitter";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { createIdempotencyKey } from "./idempotency";
 
 let notificationListener: any = null;
 let notificationResponseListener: any = null;
@@ -23,7 +24,7 @@ async function handleMessageAction(response: any) {
     await fetch(threadUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ text: replyText }),
+      body: JSON.stringify({ text: replyText, clientMessageId: createIdempotencyKey("dm-notification") }),
     });
     return;
   }
@@ -64,7 +65,7 @@ export async function initNotifications() {
     // 2. Setup Android high-priority channel with custom brand colors & vibration
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
-        name: "Threadly Nest Notifications",
+        name: "Òwújà Notifications",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: "#D97706",

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { validate } from "../middleware/validate";
-import { adminOnboardingSchema } from "../schemas/admin.schema";
+import { adminOnboardingSchema, paymentDetailsSchema } from "../schemas/admin.schema";
 
 const router = Router();
 router.use(requireAuth, requireRole("admin"));
@@ -18,6 +18,9 @@ router.get("/profile", async (req, res, next) => {
     const fashionHouse = await prisma.fashionHouse.findUnique({
       where: { adminId: req.authUserId! },
       include: {
+        availableSlots: {
+          orderBy: [{ date: "asc" }, { time: "asc" }],
+        },
         admin: {
           select: { id: true, email: true, name: true, role: true },
         },
@@ -37,29 +40,79 @@ router.get("/profile", async (req, res, next) => {
 // PUT /api/admin/onboarding - Complete or update Admin onboarding setup
 router.put("/onboarding", validate({ body: adminOnboardingSchema }), async (req, res, next) => {
   try {
-    const updatedHouse = await prisma.fashionHouse.upsert({
-      where: { adminId: req.authUserId! },
-      create: {
-        adminId: req.authUserId!,
-        shopName: req.body.shopName || "My Fashion House",
-        location: req.body.location,
-        phone: req.body.phone,
-        bio: req.body.bio,
-        brandLogoUrl: req.body.brandLogoUrl,
-        categories: req.body.categories || [],
-        currency: req.body.currency || "NGN",
-        onboardingCompleted: true,
-      },
-      update: {
-        ...req.body,
-        onboardingCompleted: true,
-      },
+    const { availableSlots, ...profile } = req.body;
+
+    const updatedHouse = await prisma.$transaction(async (tx) => {
+      const fashionHouse = await tx.fashionHouse.upsert({
+        where: { adminId: req.authUserId! },
+        create: {
+          adminId: req.authUserId!,
+          ...profile,
+          onboardingCompleted: true,
+        },
+        update: {
+          ...profile,
+          onboardingCompleted: true,
+        },
+      });
+
+      // Onboarding owns the house's unbooked schedule. Existing booked slots
+      // stay intact so an established appointment can never be erased here.
+      await tx.availableSlot.deleteMany({
+        where: {
+          fashionHouseId: fashionHouse.id,
+          booked: false,
+        },
+      });
+
+      await tx.availableSlot.createMany({
+        data: availableSlots.map((slot: { date: string; time: string }) => ({
+          fashionHouseId: fashionHouse.id,
+          date: slot.date,
+          time: slot.time,
+          booked: false,
+        })),
+        skipDuplicates: true,
+      });
+
+      return tx.fashionHouse.findUniqueOrThrow({
+        where: { id: fashionHouse.id },
+        include: {
+          availableSlots: {
+            orderBy: [{ date: "asc" }, { time: "asc" }],
+          },
+        },
+      });
     });
 
     res.json({
       message: "Admin profile and onboarding saved successfully.",
       fashionHouse: updatedHouse,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /api/admin/payment-details - Update this tenant's invoice account.
+router.patch("/payment-details", validate({ body: paymentDetailsSchema }), async (req, res, next) => {
+  try {
+    const fashionHouse = await prisma.fashionHouse.update({
+      where: { adminId: req.authUserId! },
+      data: {
+        bankName: req.body.bankName,
+        accountNumber: req.body.accountNumber,
+        accountName: req.body.accountName,
+      },
+      select: {
+        id: true,
+        bankName: true,
+        accountNumber: true,
+        accountName: true,
+      },
+    });
+
+    res.json({ message: "Payment details saved.", fashionHouse });
   } catch (err) {
     next(err);
   }

@@ -21,7 +21,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
 import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
-import * as FileSystem from "expo-file-system/legacy";
+import { captureRef } from "react-native-view-shot";
 
 interface PathData {
   color: string;
@@ -85,6 +85,7 @@ function getDrawingBounds(paths: PathData[]) {
 }
 
 export default function StaffDrawScreen() {
+  const canvasCaptureRef = useRef<View>(null);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isLandscape = width > height;
@@ -262,31 +263,13 @@ export default function StaffDrawScreen() {
     setError("");
 
     try {
-      const pathElements = paths
-        .map(
-          (p) =>
-            `<path d="${p.d}" stroke="${p.color}" stroke-width="${(p.strokeWidth / 360) * VIRTUAL_CANVAS_HEIGHT}" fill="none" stroke-linecap="round" stroke-linejoin="round" />`
-        )
-        .join("\n");
-
-      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${virtualWidth.toFixed(0)}" height="${virtualHeight.toFixed(0)}" viewBox="${virtualViewBoxX.toFixed(1)} ${virtualViewBoxY.toFixed(1)} ${virtualWidth.toFixed(1)} ${virtualHeight.toFixed(1)}">
-<rect x="${virtualViewBoxX.toFixed(1)}" y="${virtualViewBoxY.toFixed(1)}" width="${virtualWidth.toFixed(1)}" height="${virtualHeight.toFixed(1)}" fill="#FBF7EF" />
-${pathElements}
-</svg>`;
-
-      const filename = `sketch-${Date.now()}.svg`;
-      const tempFileUri = `${FileSystem.cacheDirectory}${filename}`;
-
-      await FileSystem.writeAsStringAsync(tempFileUri, svgString, {
-        encoding: FileSystem.EncodingType.UTF8,
+      const filename = `sketch-${Date.now()}.png`;
+      const tempFileUri = await captureRef(canvasCaptureRef, {
+        format: "png",
+        quality: 1,
+        result: "tmpfile",
       });
-
-      let uploadResult;
-      try {
-        uploadResult = await uploadFile(tempFileUri, filename, "image/svg+xml");
-      } finally {
-        FileSystem.deleteAsync(tempFileUri, { idempotent: true }).catch(() => {});
-      }
+      const uploadResult = await uploadFile(tempFileUri, filename, "image/png");
 
       const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
         method: "POST",
@@ -318,6 +301,8 @@ ${pathElements}
 
   const canvasJSX = (
     <View
+      ref={canvasCaptureRef}
+      collapsable={false}
       style={[
         styles.canvasContainer,
         { width: canvasWidth, height: canvasHeight },

@@ -23,6 +23,14 @@ interface RequestOptions extends RequestInit {
   retryCount?: number;
   silent?: boolean; // If true, don't show the native Alert on error
   timeoutMs?: number;
+  onResponse?: (response: Response) => void;
+}
+
+export interface CollectionPage<T> {
+  items: T[];
+  page: number;
+  hasMore: boolean;
+  nextPage: number | null;
 }
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -32,6 +40,7 @@ let lastLogoutAlertTimestamp = 0;
 export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token, logout } = useAuthStore.getState();
   const url = `${API_BASE_URL}${endpoint}`;
+  const { retryCount: _retryCount, silent: _silent, timeoutMs: _timeoutMs, onResponse, ...requestInit } = options;
 
   // Configure headers
   const headers = new Headers(options.headers || {});
@@ -50,7 +59,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
   callerSignal?.addEventListener("abort", abortFromCaller, { once: true });
 
   const fetchOptions: RequestInit = {
-    ...options,
+    ...requestInit,
     headers,
     signal: timeoutController.signal,
   };
@@ -60,6 +69,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
 
   try {
     const response = await fetch(url, fetchOptions);
+    onResponse?.(response);
 
     if (response.ok) {
       return (await response.json()) as T;
@@ -101,10 +111,17 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
       };
     }
 
-    // 1. Silent Retry with Exponential Backoff (for transient server errors: 429, 503, 504)
+    // Only safe, read-only requests may be repeated automatically. A mutation
+    // may already have committed before its response was lost.
     const transientStatuses = [429, 503, 504];
-    if (transientStatuses.includes(errorDetail.status) && currentRetry < maxRetries) {
-      const backoffMs = Math.pow(2, currentRetry) * 1000 + Math.random() * 500;
+    const method = (options.method || "GET").toUpperCase();
+    const canRetryAutomatically = method === "GET" || method === "HEAD";
+    if (canRetryAutomatically && transientStatuses.includes(errorDetail.status) && currentRetry < maxRetries) {
+      const retryAfter = response.headers.get("Retry-After");
+      const retryAfterSeconds = retryAfter && /^\d+$/.test(retryAfter) ? Number(retryAfter) : 0;
+      const backoffMs = retryAfterSeconds > 0
+        ? Math.min(retryAfterSeconds * 1000, 30_000)
+        : Math.pow(2, currentRetry) * 1000 + Math.random() * 500;
       console.warn(`[API Client] Transient error ${errorDetail.status}. Retrying in ${backoffMs}ms...`);
       await delay(backoffMs);
       return apiFetch<T>(endpoint, { ...options, retryCount: currentRetry + 1 });
@@ -154,6 +171,27 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
   }
 }
 
+export async function apiFetchCollectionPage<T>(
+  endpoint: string,
+  options: RequestOptions = {}
+): Promise<CollectionPage<T>> {
+  let page = 1;
+  let hasMore = false;
+  let nextPage: number | null = null;
+  const callerOnResponse = options.onResponse;
+  const items = await apiFetch<T[]>(endpoint, {
+    ...options,
+    onResponse: (response) => {
+      callerOnResponse?.(response);
+      page = Number(response.headers.get("X-Page") || 1);
+      hasMore = response.headers.get("X-Has-More") === "true";
+      const nextPageHeader = response.headers.get("X-Next-Page");
+      nextPage = nextPageHeader ? Number(nextPageHeader) : null;
+    },
+  });
+  return { items, page, hasMore, nextPage };
+}
+
 export interface AdminOnboardingPayload {
   shopName: string;
   location: string;
@@ -162,6 +200,13 @@ export interface AdminOnboardingPayload {
   categories: string[];
   brandLogoUrl?: string;
   currency?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
+  availableSlots: Array<{
+    date: string;
+    time: string;
+  }>;
 }
 
 export const adminApi = {
@@ -174,6 +219,22 @@ export const adminApi = {
       body: JSON.stringify(data),
     });
   },
+  updatePaymentDetails: async (data: { bankName: string; accountNumber: string; accountName: string }) => {
+    return apiFetch<{ message: string; fashionHouse: any }>("/api/admin/payment-details", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  },
+};
+
+export const invoicesApi = {
+  getByOrderId: async (orderId: string) =>
+    apiFetch<any>(`/api/invoices/order/${orderId}`, { silent: true }),
+  generateForOrder: async (orderId: string) =>
+    apiFetch<any>("/api/invoices", {
+      method: "POST",
+      body: JSON.stringify({ orderId }),
+    }),
 };
 
 export const ordersApi = {
@@ -211,4 +272,3 @@ export const slotsApi = {
   deleteSlot: async (id: string) =>
     apiFetch<any>(`/api/slots/${id}`, { method: "DELETE" }),
 };
-

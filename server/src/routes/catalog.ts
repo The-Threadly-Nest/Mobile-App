@@ -3,19 +3,24 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { createCatalogItemSchema, updateCatalogItemSchema } from "../schemas/catalog.schema";
+import { collectionPaginationSchema, type CollectionPagination } from "../schemas/pagination.schema";
+import { collectionWindow, sendCollectionPage } from "../lib/pagination";
+import { fashionHouseIdParamSchema, idParamSchema } from "../schemas/params.schema";
 
 const router = Router();
 router.use(requireAuth);
 
 // List Catalog Items (All authenticated roles)
-router.get("/", async (req, res, next) => {
+router.get("/", validate({ query: collectionPaginationSchema }), async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
+    const { page, limit } = req.query as unknown as CollectionPagination;
     const catalog = await prisma.catalogItem.findMany({
       where: { fashionHouseId: fhId },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      ...collectionWindow(page, limit),
     });
-    res.json(catalog);
+    sendCollectionPage(res, catalog, page, limit);
   } catch (err) {
     next(err);
   }
@@ -47,7 +52,7 @@ router.post("/", requireRole("admin", "staff"), validate({ body: createCatalogIt
 });
 
 // Update Catalog Item (Admin/Staff only)
-router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatalogItemSchema }), async (req, res, next) => {
+router.patch("/:id", requireRole("admin", "staff"), validate({ params: idParamSchema, body: updateCatalogItemSchema }), async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
 
@@ -80,7 +85,7 @@ router.patch("/:id", requireRole("admin", "staff"), validate({ body: updateCatal
 });
 
 // Delete Catalog Item (Admin/Staff only)
-router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
+router.delete("/:id", requireRole("admin", "staff"), validate({ params: idParamSchema }), async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
 
@@ -102,37 +107,41 @@ router.delete("/:id", requireRole("admin", "staff"), async (req, res, next) => {
 });
 
 // Public/Customer GET all marketplace catalog items across fashion houses
-router.get("/marketplace", async (req, res, next) => {
+router.get("/marketplace", validate({ query: collectionPaginationSchema }), async (req, res, next) => {
   try {
+    const { page, limit } = req.query as unknown as CollectionPagination;
     const items = await prisma.catalogItem.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      ...collectionWindow(page, limit),
       include: {
         fashionHouse: {
           select: { id: true, shopName: true, location: true, brandLogoUrl: true },
         },
       },
     });
-    res.json(items);
+    sendCollectionPage(res, items, page, limit);
   } catch (err) {
     next(err);
   }
 });
 
 // Public GET catalog items for a fashion house
-router.get("/fashion-house/:fashionHouseId", async (req, res, next) => {
+router.get("/fashion-house/:fashionHouseId", validate({ params: fashionHouseIdParamSchema, query: collectionPaginationSchema }), async (req, res, next) => {
   try {
+    const { page, limit } = req.query as unknown as CollectionPagination;
     const catalog = await prisma.catalogItem.findMany({
       where: { fashionHouseId: req.params.fashionHouseId },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      ...collectionWindow(page, limit),
     });
-    res.json(catalog);
+    sendCollectionPage(res, catalog, page, limit);
   } catch (err) {
     next(err);
   }
 });
 
 // Public GET single catalog item by ID with fashion house details
-router.get("/item/:id", async (req, res, next) => {
+router.get("/item/:id", validate({ params: idParamSchema }), async (req, res, next) => {
   try {
     const item = await prisma.catalogItem.findUnique({
       where: { id: req.params.id },

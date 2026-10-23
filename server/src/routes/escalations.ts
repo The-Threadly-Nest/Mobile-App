@@ -84,6 +84,7 @@ router.get("/", async (req, res, next) => {
       reason: e.reason,
       summary: e.summary,
       resolved: e.resolved,
+      status: e.status,
       createdAt: e.createdAt.toISOString(),
       customer: e.customer,
     }));
@@ -146,7 +147,10 @@ router.patch("/:escalationId/resolve", validate({ params: escalationIdParamSchem
       if (!staff) return res.status(404).json({ error: "Staff member not found in this fashion house" });
     }
 
-    const updated = await prisma.chatEscalation.update({ where: { id: escalation.id, fashionHouseId: fh.id }, data: { resolved: true } });
+    const updated = await prisma.chatEscalation.update({
+      where: { id: escalation.id, fashionHouseId: fh.id },
+      data: { resolved: true, status: "resolved", activeKey: null },
+    });
     res.json(updated);
   } catch (err) {
     next(err);
@@ -160,20 +164,36 @@ router.patch("/:escalationId/decline", async (req, res, next) => {
     const fh = await getAdminFashionHouseOrThrow(req.authUserId!);
     const { escalationId } = req.params;
 
-    // 1. Try to decline a Booking (has a proper "declined" status value)
-    const bookingResult = await prisma.booking.updateMany({
+    // 1. Try to decline a Booking and release its tenant-owned fitting slot.
+    const booking = await prisma.booking.findFirst({
       where: { id: escalationId, fashionHouseId: fh.id },
-      data: { status: "declined" },
+      select: { id: true, availableSlotId: true },
     });
 
-    if (bookingResult.count > 0) {
+    if (booking) {
+      await prisma.$transaction(async (transaction) => {
+        await transaction.booking.update({
+          where: { id: booking.id },
+          data: { status: "declined", availableSlotId: null },
+        });
+        if (booking.availableSlotId) {
+          await transaction.availableSlot.updateMany({
+            where: {
+              id: booking.availableSlotId,
+              fashionHouseId: fh.id,
+              booked: true,
+            },
+            data: { booked: false },
+          });
+        }
+      });
       return res.json({ success: true, type: "booking" });
     }
 
     // 2. Fall back to resolving a ChatEscalation (no dedicated declined state in schema)
     const escalationResult = await prisma.chatEscalation.updateMany({
       where: { id: escalationId, fashionHouseId: fh.id },
-      data: { resolved: true },
+      data: { resolved: true, status: "resolved", activeKey: null },
     });
 
     if (escalationResult.count > 0) {
@@ -338,7 +358,7 @@ router.post("/assign", async (req, res, next) => {
 
       await prisma.chatEscalation.updateMany({
         where: { id: bookingId, fashionHouseId: fh.id },
-        data: { resolved: true },
+        data: { resolved: true, status: "resolved", activeKey: null },
       }).catch(() => {});
     }
 

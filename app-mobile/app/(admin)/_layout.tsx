@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { View, Text } from "react-native";
+import { AppState, View, Text } from "react-native";
 import { Tabs, usePathname } from "expo-router";
 import * as NavigationBar from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -181,6 +181,7 @@ export default function AdminLayout() {
   const [unreadCount, setUnreadCount] = useState(0);
   const prevCountRef = useRef(0);
   const pathnameRef = useRef(pathname);
+  const appIsActiveRef = useRef(AppState.currentState === "active");
 
   useEffect(() => {
     pathnameRef.current = pathname;
@@ -207,6 +208,7 @@ export default function AdminLayout() {
     if (!token) return;
 
     const fetchCustomerUnread = async () => {
+      if (!appIsActiveRef.current || pathnameRef.current.includes("messages")) return;
       try {
         // 1. Fetch customer direct message threads
         const threadsRes = await fetch(`${API_BASE_URL}/api/direct-messages/threads`, {
@@ -262,9 +264,17 @@ export default function AdminLayout() {
       }
     };
 
-    fetchCustomerUnread();
-    const interval = setInterval(fetchCustomerUnread, 15_000);
-    return () => clearInterval(interval);
+    void fetchCustomerUnread();
+    const appStateSubscription = AppState.addEventListener("change", (nextState) => {
+      const becameActive = nextState === "active" && !appIsActiveRef.current;
+      appIsActiveRef.current = nextState === "active";
+      if (becameActive) void fetchCustomerUnread();
+    });
+    const interval = setInterval(() => void fetchCustomerUnread(), 30_000);
+    return () => {
+      clearInterval(interval);
+      appStateSubscription.remove();
+    };
   }, [token]);
 
   return (

@@ -34,6 +34,7 @@ export type BookingMinAggregateOutputType = {
   isFirstTime: boolean | null
   status: string | null
   idempotencyKey: string | null
+  availableSlotId: string | null
   createdAt: Date | null
 }
 
@@ -47,6 +48,7 @@ export type BookingMaxAggregateOutputType = {
   isFirstTime: boolean | null
   status: string | null
   idempotencyKey: string | null
+  availableSlotId: string | null
   createdAt: Date | null
 }
 
@@ -60,6 +62,7 @@ export type BookingCountAggregateOutputType = {
   isFirstTime: number
   status: number
   idempotencyKey: number
+  availableSlotId: number
   createdAt: number
   _all: number
 }
@@ -75,6 +78,7 @@ export type BookingMinAggregateInputType = {
   isFirstTime?: true
   status?: true
   idempotencyKey?: true
+  availableSlotId?: true
   createdAt?: true
 }
 
@@ -88,6 +92,7 @@ export type BookingMaxAggregateInputType = {
   isFirstTime?: true
   status?: true
   idempotencyKey?: true
+  availableSlotId?: true
   createdAt?: true
 }
 
@@ -101,6 +106,7 @@ export type BookingCountAggregateInputType = {
   isFirstTime?: true
   status?: true
   idempotencyKey?: true
+  availableSlotId?: true
   createdAt?: true
   _all?: true
 }
@@ -187,6 +193,7 @@ export type BookingGroupByOutputType = {
   isFirstTime: boolean
   status: string
   idempotencyKey: string | null
+  availableSlotId: string | null
   createdAt: Date
   _count: BookingCountAggregateOutputType | null
   _min: BookingMinAggregateOutputType | null
@@ -221,9 +228,11 @@ export type BookingWhereInput = {
   isFirstTime?: Prisma.BoolFilter<"Booking"> | boolean
   status?: Prisma.StringFilter<"Booking"> | string
   idempotencyKey?: Prisma.StringNullableFilter<"Booking"> | string | null
+  availableSlotId?: Prisma.StringNullableFilter<"Booking"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  availableSlot?: Prisma.XOR<Prisma.AvailableSlotNullableScalarRelationFilter, Prisma.AvailableSlotWhereInput> | null
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
 }
 
@@ -237,14 +246,17 @@ export type BookingOrderByWithRelationInput = {
   isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  availableSlotId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
   customer?: Prisma.UserOrderByWithRelationInput
+  availableSlot?: Prisma.AvailableSlotOrderByWithRelationInput
   order?: Prisma.OrderOrderByWithRelationInput
 }
 
 export type BookingWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  availableSlotId?: string
   customerId_idempotencyKey?: Prisma.BookingCustomerIdIdempotencyKeyCompoundUniqueInput
   AND?: Prisma.BookingWhereInput | Prisma.BookingWhereInput[]
   OR?: Prisma.BookingWhereInput[]
@@ -260,8 +272,9 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  availableSlot?: Prisma.XOR<Prisma.AvailableSlotNullableScalarRelationFilter, Prisma.AvailableSlotWhereInput> | null
   order?: Prisma.XOR<Prisma.OrderNullableScalarRelationFilter, Prisma.OrderWhereInput> | null
-}, "id" | "customerId_idempotencyKey">
+}, "id" | "availableSlotId" | "customerId_idempotencyKey">
 
 export type BookingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -273,6 +286,7 @@ export type BookingOrderByWithAggregationInput = {
   isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  availableSlotId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
   _max?: Prisma.BookingMaxOrderByAggregateInput
@@ -292,6 +306,7 @@ export type BookingScalarWhereWithAggregatesInput = {
   isFirstTime?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   status?: Prisma.StringWithAggregatesFilter<"Booking"> | string
   idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
+  availableSlotId?: Prisma.StringNullableWithAggregatesFilter<"Booking"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
 
@@ -306,6 +321,7 @@ export type BookingCreateInput = {
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
   customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+  availableSlot?: Prisma.AvailableSlotCreateNestedOneWithoutBookingInput
   order?: Prisma.OrderCreateNestedOneWithoutBookingInput
 }
 
@@ -319,6 +335,7 @@ export type BookingUncheckedCreateInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
 }
@@ -334,6 +351,7 @@ export type BookingUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+  availableSlot?: Prisma.AvailableSlotUpdateOneWithoutBookingNestedInput
   order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
 }
 
@@ -347,6 +365,7 @@ export type BookingUncheckedUpdateInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
@@ -361,6 +380,7 @@ export type BookingCreateManyInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
 }
 
@@ -385,6 +405,7 @@ export type BookingUncheckedUpdateManyInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -418,6 +439,7 @@ export type BookingCountOrderByAggregateInput = {
   isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  availableSlotId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -431,6 +453,7 @@ export type BookingMaxOrderByAggregateInput = {
   isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  availableSlotId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -444,6 +467,7 @@ export type BookingMinOrderByAggregateInput = {
   isFirstTime?: Prisma.SortOrder
   status?: Prisma.SortOrder
   idempotencyKey?: Prisma.SortOrder
+  availableSlotId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -547,6 +571,38 @@ export type BookingUpdateOneWithoutOrderNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutOrderInput, Prisma.BookingUpdateWithoutOrderInput>, Prisma.BookingUncheckedUpdateWithoutOrderInput>
 }
 
+export type BookingCreateNestedOneWithoutAvailableSlotInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutAvailableSlotInput, Prisma.BookingUncheckedCreateWithoutAvailableSlotInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutAvailableSlotInput
+  connect?: Prisma.BookingWhereUniqueInput
+}
+
+export type BookingUncheckedCreateNestedOneWithoutAvailableSlotInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutAvailableSlotInput, Prisma.BookingUncheckedCreateWithoutAvailableSlotInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutAvailableSlotInput
+  connect?: Prisma.BookingWhereUniqueInput
+}
+
+export type BookingUpdateOneWithoutAvailableSlotNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutAvailableSlotInput, Prisma.BookingUncheckedCreateWithoutAvailableSlotInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutAvailableSlotInput
+  upsert?: Prisma.BookingUpsertWithoutAvailableSlotInput
+  disconnect?: Prisma.BookingWhereInput | boolean
+  delete?: Prisma.BookingWhereInput | boolean
+  connect?: Prisma.BookingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutAvailableSlotInput, Prisma.BookingUpdateWithoutAvailableSlotInput>, Prisma.BookingUncheckedUpdateWithoutAvailableSlotInput>
+}
+
+export type BookingUncheckedUpdateOneWithoutAvailableSlotNestedInput = {
+  create?: Prisma.XOR<Prisma.BookingCreateWithoutAvailableSlotInput, Prisma.BookingUncheckedCreateWithoutAvailableSlotInput>
+  connectOrCreate?: Prisma.BookingCreateOrConnectWithoutAvailableSlotInput
+  upsert?: Prisma.BookingUpsertWithoutAvailableSlotInput
+  disconnect?: Prisma.BookingWhereInput | boolean
+  delete?: Prisma.BookingWhereInput | boolean
+  connect?: Prisma.BookingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BookingUpdateToOneWithWhereWithoutAvailableSlotInput, Prisma.BookingUpdateWithoutAvailableSlotInput>, Prisma.BookingUncheckedUpdateWithoutAvailableSlotInput>
+}
+
 export type BookingCreateWithoutCustomerInput = {
   id?: string
   styleNotes?: string | null
@@ -557,6 +613,7 @@ export type BookingCreateWithoutCustomerInput = {
   idempotencyKey?: string | null
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
+  availableSlot?: Prisma.AvailableSlotCreateNestedOneWithoutBookingInput
   order?: Prisma.OrderCreateNestedOneWithoutBookingInput
 }
 
@@ -569,6 +626,7 @@ export type BookingUncheckedCreateWithoutCustomerInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
 }
@@ -612,6 +670,7 @@ export type BookingScalarWhereInput = {
   isFirstTime?: Prisma.BoolFilter<"Booking"> | boolean
   status?: Prisma.StringFilter<"Booking"> | string
   idempotencyKey?: Prisma.StringNullableFilter<"Booking"> | string | null
+  availableSlotId?: Prisma.StringNullableFilter<"Booking"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
 }
 
@@ -625,6 +684,7 @@ export type BookingCreateWithoutFashionHouseInput = {
   idempotencyKey?: string | null
   createdAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+  availableSlot?: Prisma.AvailableSlotCreateNestedOneWithoutBookingInput
   order?: Prisma.OrderCreateNestedOneWithoutBookingInput
 }
 
@@ -637,6 +697,7 @@ export type BookingUncheckedCreateWithoutFashionHouseInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
   order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
 }
@@ -678,6 +739,7 @@ export type BookingCreateWithoutOrderInput = {
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
   customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+  availableSlot?: Prisma.AvailableSlotCreateNestedOneWithoutBookingInput
 }
 
 export type BookingUncheckedCreateWithoutOrderInput = {
@@ -690,6 +752,7 @@ export type BookingUncheckedCreateWithoutOrderInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
 }
 
@@ -720,6 +783,7 @@ export type BookingUpdateWithoutOrderInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+  availableSlot?: Prisma.AvailableSlotUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingUncheckedUpdateWithoutOrderInput = {
@@ -732,7 +796,80 @@ export type BookingUncheckedUpdateWithoutOrderInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BookingCreateWithoutAvailableSlotInput = {
+  id?: string
+  styleNotes?: string | null
+  preferredDate: Date | string
+  preferredTime: string
+  isFirstTime?: boolean
+  status?: string
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutBookingsInput
+  customer: Prisma.UserCreateNestedOneWithoutBookingsInput
+  order?: Prisma.OrderCreateNestedOneWithoutBookingInput
+}
+
+export type BookingUncheckedCreateWithoutAvailableSlotInput = {
+  id?: string
+  fashionHouseId: string
+  customerId: string
+  styleNotes?: string | null
+  preferredDate: Date | string
+  preferredTime: string
+  isFirstTime?: boolean
+  status?: string
+  idempotencyKey?: string | null
+  createdAt?: Date | string
+  order?: Prisma.OrderUncheckedCreateNestedOneWithoutBookingInput
+}
+
+export type BookingCreateOrConnectWithoutAvailableSlotInput = {
+  where: Prisma.BookingWhereUniqueInput
+  create: Prisma.XOR<Prisma.BookingCreateWithoutAvailableSlotInput, Prisma.BookingUncheckedCreateWithoutAvailableSlotInput>
+}
+
+export type BookingUpsertWithoutAvailableSlotInput = {
+  update: Prisma.XOR<Prisma.BookingUpdateWithoutAvailableSlotInput, Prisma.BookingUncheckedUpdateWithoutAvailableSlotInput>
+  create: Prisma.XOR<Prisma.BookingCreateWithoutAvailableSlotInput, Prisma.BookingUncheckedCreateWithoutAvailableSlotInput>
+  where?: Prisma.BookingWhereInput
+}
+
+export type BookingUpdateToOneWithWhereWithoutAvailableSlotInput = {
+  where?: Prisma.BookingWhereInput
+  data: Prisma.XOR<Prisma.BookingUpdateWithoutAvailableSlotInput, Prisma.BookingUncheckedUpdateWithoutAvailableSlotInput>
+}
+
+export type BookingUpdateWithoutAvailableSlotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
+  customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+  order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
+}
+
+export type BookingUncheckedUpdateWithoutAvailableSlotInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  styleNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredTime?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
 
 export type BookingCreateManyCustomerInput = {
@@ -744,6 +881,7 @@ export type BookingCreateManyCustomerInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
 }
 
@@ -757,6 +895,7 @@ export type BookingUpdateWithoutCustomerInput = {
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutBookingsNestedInput
+  availableSlot?: Prisma.AvailableSlotUpdateOneWithoutBookingNestedInput
   order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
 }
 
@@ -769,6 +908,7 @@ export type BookingUncheckedUpdateWithoutCustomerInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
@@ -782,6 +922,7 @@ export type BookingUncheckedUpdateManyWithoutCustomerInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -794,6 +935,7 @@ export type BookingCreateManyFashionHouseInput = {
   isFirstTime?: boolean
   status?: string
   idempotencyKey?: string | null
+  availableSlotId?: string | null
   createdAt?: Date | string
 }
 
@@ -807,6 +949,7 @@ export type BookingUpdateWithoutFashionHouseInput = {
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutBookingsNestedInput
+  availableSlot?: Prisma.AvailableSlotUpdateOneWithoutBookingNestedInput
   order?: Prisma.OrderUpdateOneWithoutBookingNestedInput
 }
 
@@ -819,6 +962,7 @@ export type BookingUncheckedUpdateWithoutFashionHouseInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUncheckedUpdateOneWithoutBookingNestedInput
 }
@@ -832,6 +976,7 @@ export type BookingUncheckedUpdateManyWithoutFashionHouseInput = {
   isFirstTime?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.StringFieldUpdateOperationsInput | string
   idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  availableSlotId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -847,9 +992,11 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   isFirstTime?: boolean
   status?: boolean
   idempotencyKey?: boolean
+  availableSlotId?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  availableSlot?: boolean | Prisma.Booking$availableSlotArgs<ExtArgs>
   order?: boolean | Prisma.Booking$orderArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
@@ -863,9 +1010,11 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   isFirstTime?: boolean
   status?: boolean
   idempotencyKey?: boolean
+  availableSlotId?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  availableSlot?: boolean | Prisma.Booking$availableSlotArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
 export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -878,9 +1027,11 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   isFirstTime?: boolean
   status?: boolean
   idempotencyKey?: boolean
+  availableSlotId?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  availableSlot?: boolean | Prisma.Booking$availableSlotArgs<ExtArgs>
 }, ExtArgs["result"]["booking"]>
 
 export type BookingSelectScalar = {
@@ -893,22 +1044,26 @@ export type BookingSelectScalar = {
   isFirstTime?: boolean
   status?: boolean
   idempotencyKey?: boolean
+  availableSlotId?: boolean
   createdAt?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "styleNotes" | "preferredDate" | "preferredTime" | "isFirstTime" | "status" | "idempotencyKey" | "createdAt", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "styleNotes" | "preferredDate" | "preferredTime" | "isFirstTime" | "status" | "idempotencyKey" | "availableSlotId" | "createdAt", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  availableSlot?: boolean | Prisma.Booking$availableSlotArgs<ExtArgs>
   order?: boolean | Prisma.Booking$orderArgs<ExtArgs>
 }
 export type BookingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  availableSlot?: boolean | Prisma.Booking$availableSlotArgs<ExtArgs>
 }
 export type BookingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  availableSlot?: boolean | Prisma.Booking$availableSlotArgs<ExtArgs>
 }
 
 export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -916,6 +1071,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     fashionHouse: Prisma.$FashionHousePayload<ExtArgs>
     customer: Prisma.$UserPayload<ExtArgs>
+    availableSlot: Prisma.$AvailableSlotPayload<ExtArgs> | null
     order: Prisma.$OrderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -928,6 +1084,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     isFirstTime: boolean
     status: string
     idempotencyKey: string | null
+    availableSlotId: string | null
     createdAt: Date
   }, ExtArgs["result"]["booking"]>
   composites: {}
@@ -1325,6 +1482,7 @@ export interface Prisma__BookingClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   fashionHouse<T extends Prisma.FashionHouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouseDefaultArgs<ExtArgs>>): Prisma.Prisma__FashionHouseClient<runtime.Types.Result.GetResult<Prisma.$FashionHousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   customer<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  availableSlot<T extends Prisma.Booking$availableSlotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$availableSlotArgs<ExtArgs>>): Prisma.Prisma__AvailableSlotClient<runtime.Types.Result.GetResult<Prisma.$AvailableSlotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   order<T extends Prisma.Booking$orderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Booking$orderArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1364,6 +1522,7 @@ export interface BookingFieldRefs {
   readonly isFirstTime: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly status: Prisma.FieldRef<"Booking", 'String'>
   readonly idempotencyKey: Prisma.FieldRef<"Booking", 'String'>
+  readonly availableSlotId: Prisma.FieldRef<"Booking", 'String'>
   readonly createdAt: Prisma.FieldRef<"Booking", 'DateTime'>
 }
     
@@ -1763,6 +1922,25 @@ export type BookingDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Bookings to delete.
    */
   limit?: number
+}
+
+/**
+ * Booking.availableSlot
+ */
+export type Booking$availableSlotArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AvailableSlot
+   */
+  select?: Prisma.AvailableSlotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AvailableSlot
+   */
+  omit?: Prisma.AvailableSlotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AvailableSlotInclude<ExtArgs> | null
+  where?: Prisma.AvailableSlotWhereInput
 }
 
 /**

@@ -108,12 +108,12 @@ export default function StaffMoodBoardScreen() {
     }
   };
 
-  const handleSaveDrawing = async (svgDataUri: string, drawingTitle: string) => {
+  const handleSaveDrawing = async (imageUri: string, drawingTitle: string) => {
     try {
-      const filename = `drawing-${Date.now()}.svg`;
-      const contentType = "image/svg+xml";
+      const filename = `drawing-${Date.now()}.png`;
+      const contentType = "image/png";
 
-      const uploadResult = await uploadFile(svgDataUri, filename, contentType);
+      const uploadResult = await uploadFile(imageUri, filename, contentType);
 
       const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
         method: "POST",

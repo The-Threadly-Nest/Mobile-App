@@ -64,3 +64,17 @@ export const mergeDirectMessages = <T extends MergeableDirectMessage>(
     (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
   );
 };
+
+/** Adds a cursor page or delta response without discarding messages already on screen. */
+export const appendDirectMessages = <T extends MergeableDirectMessage>(
+  currentMessages: T[],
+  incomingMessages: T[]
+) => {
+  const persistedById = new Map<string, T>();
+  currentMessages
+    .filter((message) => !message.id.startsWith(OPTIMISTIC_ID_PREFIX))
+    .forEach((message) => persistedById.set(message.id, message));
+  incomingMessages.forEach((message) => persistedById.set(message.id, message));
+
+  return mergeDirectMessages(currentMessages, Array.from(persistedById.values()));
+};

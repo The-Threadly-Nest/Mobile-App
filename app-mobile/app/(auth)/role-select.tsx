@@ -42,7 +42,7 @@ export default function RoleSelectScreen() {
             Choose your account type
           </Text>
           <Text style={[styles.subtitle, isLandscape && { fontSize: 13, lineHeight: 17 }]}>
-            Select how you plan to use The Threadly Nest so we can tailor your experience.
+            Select how you plan to use Òwújà so we can tailor your experience.
           </Text>
         </View>
 

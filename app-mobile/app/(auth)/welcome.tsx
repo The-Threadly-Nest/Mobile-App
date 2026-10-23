@@ -39,7 +39,7 @@ export default function WelcomeScreen() {
           {/* Text Section */}
           <View style={[styles.textSection, isLandscape && { marginVertical: 4 }]}>
             <Text style={[styles.title, isLandscape && { fontSize: 22, lineHeight: 28, marginBottom: 6 }]}>
-              Welcome to The Threadly Nest
+              Welcome to Òwújà
             </Text>
             <Text style={[styles.subtitle, isLandscape && { fontSize: 13, lineHeight: 18 }]}>
               Create an account to book, track, and save your measurements across

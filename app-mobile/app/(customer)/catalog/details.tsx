@@ -83,11 +83,11 @@ export default function ProductDetailsScreen() {
 
   const addItemToCart = useCartStore((state) => state.addItem);
 
-  const name = item?.name || params.initialName || 'Aso-Ebi';
-  const rawPrice = item?.price ?? (params.initialPrice ? parseFloat(params.initialPrice) : 380000);
-  const price = rawPrice > 0 ? rawPrice : 380000;
-  const image = item?.image || params.initialImage || 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800';
-  const vendorName = item?.fashionHouse?.name || params.initialVendorName || 'The Threadly Nest';
+  const name = item?.name || params.initialName || 'Catalog item';
+  const rawPrice = item?.price ?? (params.initialPrice ? parseFloat(params.initialPrice) : 0);
+  const price = rawPrice > 0 ? rawPrice : 0;
+  const image = item?.image || params.initialImage || '';
+  const vendorName = item?.fashionHouse?.name || params.initialVendorName || 'Fashion House';
   const fashionHouseId = item?.fashionHouse?.id || params.initialFashionHouseId || '';
 
   useEffect(() => {
@@ -186,7 +186,7 @@ export default function ProductDetailsScreen() {
 
         {/* Main Product Image Container */}
         <View style={styles.imageCard}>
-          <Image source={{ uri: image }} style={styles.productImage} resizeMode="cover" />
+          {image ? <Image source={{ uri: image }} style={styles.productImage} resizeMode="cover" /> : <View style={[styles.productImage, { backgroundColor: '#D8CDBD' }]} />}
         </View>
 
         {/* Carousel Dots Indicator Below Image */}

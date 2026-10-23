@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Check, Store, MapPin, Sparkles, Camera, UploadCloud, ArrowLeft, Calendar, Clock, Trash2, Plus } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { adminApi, slotsApi } from "@/shared/utils/apiClient";
+import { adminApi } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
 
@@ -30,6 +30,26 @@ const SPECIALIZATION_CATEGORIES = [
   "Corporate Tailoring",
   "Alterations & Fitting",
 ];
+
+type OnboardingSlot = {
+  id: string;
+  date: string;
+  time: string;
+  booked: boolean;
+};
+
+const formatLocalDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const getUpcomingDate = (daysAhead: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + daysAhead);
+  return formatLocalDate(date);
+};
 
 export default function AdminOnboardingScreen() {
   const { width, height } = useWindowDimensions();
@@ -49,26 +69,12 @@ export default function AdminOnboardingScreen() {
   const [error, setError] = useState<string>("");
 
   // Fitting slots state
-  const [slotsList, setSlotsList] = useState<any[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState<boolean>(false);
+  const [slotsList, setSlotsList] = useState<OnboardingSlot[]>([]);
   const [newSlotDate, setNewSlotDate] = useState<string>("");
   const [newSlotTime, setNewSlotTime] = useState<string>("");
-  const [addingSlot, setAddingSlot] = useState<boolean>(false);
 
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
   const setStoredShopName = useAuthStore((s) => s.setShopName);
-
-  const fetchSlots = async () => {
-    setLoadingSlots(true);
-    try {
-      const data = await slotsApi.getSlots();
-      if (Array.isArray(data)) setSlotsList(data);
-    } catch (err) {
-      console.warn("Could not fetch slots during onboarding", err);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -82,6 +88,9 @@ export default function AdminOnboardingScreen() {
           if (data.fashionHouse.brandLogoUrl) setBrandLogoUrl(data.fashionHouse.brandLogoUrl);
           if (data.fashionHouse.categories?.length) setSelectedCategories(data.fashionHouse.categories);
           if (data.fashionHouse.currency) setCurrency(data.fashionHouse.currency);
+          if (Array.isArray(data.fashionHouse.availableSlots)) {
+            setSlotsList(data.fashionHouse.availableSlots);
+          }
         }
       } catch (err) {
         console.warn("Could not pre-fill profile data:", err);
@@ -89,10 +98,9 @@ export default function AdminOnboardingScreen() {
     };
 
     loadProfile();
-    fetchSlots();
   }, []);
 
-  const handleAddSlot = async (dateStr?: string, timeStr?: string) => {
+  const handleAddSlot = (dateStr?: string, timeStr?: string) => {
     const dateToUse = dateStr || newSlotDate.trim();
     const timeToUse = timeStr || newSlotTime.trim();
 
@@ -100,27 +108,26 @@ export default function AdminOnboardingScreen() {
       setError("Please enter both slot date and time.");
       return;
     }
-    setError("");
-    setAddingSlot(true);
-    try {
-      const created = await slotsApi.createSlot(dateToUse, timeToUse);
-      setSlotsList((prev) => [...prev, created]);
-      if (!dateStr) setNewSlotDate("");
-      if (!timeStr) setNewSlotTime("");
-    } catch (err: any) {
-      setError(err?.message || "Failed to add fitting slot.");
-    } finally {
-      setAddingSlot(false);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateToUse) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeToUse)) {
+      setError("Use YYYY-MM-DD for the date and HH:MM (24-hour time) for the time.");
+      return;
     }
+    if (slotsList.some((slot) => slot.date === dateToUse && slot.time === timeToUse)) {
+      setError("That fitting slot has already been added.");
+      return;
+    }
+
+    setError("");
+    setSlotsList((prev) => [
+      ...prev,
+      { id: `new-${Date.now()}-${prev.length}`, date: dateToUse, time: timeToUse, booked: false },
+    ]);
+    if (!dateStr) setNewSlotDate("");
+    if (!timeStr) setNewSlotTime("");
   };
 
-  const handleDeleteSlot = async (slotId: string) => {
-    try {
-      await slotsApi.deleteSlot(slotId);
-      setSlotsList((prev) => prev.filter((s) => s.id !== slotId));
-    } catch (err: any) {
-      setError(err?.message || "Could not delete slot.");
-    }
+  const handleDeleteSlot = (slotId: string) => {
+    setSlotsList((prev) => prev.filter((slot) => slot.id !== slotId));
   };
 
   const toggleCategory = (cat: string) => {
@@ -186,6 +193,10 @@ export default function AdminOnboardingScreen() {
 
   const handleSubmitOnboarding = async () => {
     setError("");
+    if (slotsList.length === 0) {
+      setError("Please add at least one fitting slot.");
+      return;
+    }
     setLoading(true);
     try {
       await adminApi.completeOnboarding({
@@ -196,6 +207,7 @@ export default function AdminOnboardingScreen() {
         brandLogoUrl: brandLogoUrl || undefined,
         categories: selectedCategories,
         currency,
+        availableSlots: slotsList.map(({ date, time }) => ({ date, time })),
       });
 
       setOnboardingCompleted(true);
@@ -417,15 +429,14 @@ export default function AdminOnboardingScreen() {
               <Text style={[styles.label, { fontSize: 13, marginBottom: 8 }]}>Quick Preset Slots</Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
                 {[
-                  { date: "Sat, 12 Sep", time: "10:00 AM" },
-                  { date: "Sat, 12 Sep", time: "02:00 PM" },
-                  { date: "Mon, 14 Sep", time: "11:00 AM" },
-                  { date: "Wed, 16 Sep", time: "03:00 PM" },
+                  { date: getUpcomingDate(1), time: "10:00" },
+                  { date: getUpcomingDate(2), time: "14:00" },
+                  { date: getUpcomingDate(3), time: "11:00" },
+                  { date: getUpcomingDate(4), time: "15:00" },
                 ].map((preset, idx) => (
                   <Pressable
                     key={idx}
                     onPress={() => handleAddSlot(preset.date, preset.time)}
-                    disabled={addingSlot}
                     style={({ pressed }) => [
                       {
                         backgroundColor: "#FFFFFF",
@@ -469,7 +480,7 @@ export default function AdminOnboardingScreen() {
                   <TextInput
                     disableFullscreenUI={true}
                     style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="Date (e.g. Sat, 19 Sep)"
+                    placeholder="Date (YYYY-MM-DD)"
                     placeholderTextColor="#8A7550"
                     value={newSlotDate}
                     onChangeText={setNewSlotDate}
@@ -492,7 +503,7 @@ export default function AdminOnboardingScreen() {
                   <TextInput
                     disableFullscreenUI={true}
                     style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="Time (e.g. 10:00 AM)"
+                    placeholder="Time (HH:MM)"
                     placeholderTextColor="#8A7550"
                     value={newSlotTime}
                     onChangeText={setNewSlotTime}
@@ -502,7 +513,6 @@ export default function AdminOnboardingScreen() {
 
               <Pressable
                 onPress={() => handleAddSlot()}
-                disabled={addingSlot}
                 style={({ pressed }) => [
                   {
                     backgroundColor: "#4A080C",
@@ -513,26 +523,18 @@ export default function AdminOnboardingScreen() {
                     justifyContent: "center",
                     gap: 6,
                     marginBottom: 16,
-                    opacity: pressed || addingSlot ? 0.85 : 1,
+                    opacity: pressed ? 0.85 : 1,
                   },
                 ]}
               >
-                {addingSlot ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Plus size={16} color="#FFFFFF" />
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 14, color: "#FFFFFF" }}>
-                      Add Slot
-                    </Text>
-                  </>
-                )}
+                <Plus size={16} color="#FFFFFF" />
+                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 14, color: "#FFFFFF" }}>
+                  Add Slot
+                </Text>
               </Pressable>
 
               {/* Active Slots list */}
-              {loadingSlots ? (
-                <ActivityIndicator color="#4A080C" style={{ marginVertical: 12 }} />
-              ) : slotsList.length > 0 ? (
+              {slotsList.length > 0 ? (
                 <View style={{ marginTop: 4 }}>
                   <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C", marginBottom: 8 }}>
                     Configured Fitting Slots ({slotsList.length})
@@ -561,9 +563,16 @@ export default function AdminOnboardingScreen() {
                       </View>
                       <Pressable
                         onPress={() => handleDeleteSlot(slot.id)}
+                        disabled={slot.booked}
                         style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, padding: 4 }]}
                       >
-                        <Trash2 size={16} color="#D32F2F" />
+                        {slot.booked ? (
+                          <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: "#8A7550" }}>
+                            Booked
+                          </Text>
+                        ) : (
+                          <Trash2 size={16} color="#D32F2F" />
+                        )}
                       </Pressable>
                     </View>
                   ))}

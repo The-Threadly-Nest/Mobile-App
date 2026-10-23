@@ -15,6 +15,7 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import FlowMessageCard from "./FlowMessageCard";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { captureRef } from "react-native-view-shot";
 
 interface PathData {
   color: string;
@@ -25,7 +26,7 @@ interface PathData {
 interface DrawingCanvasModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (svgDataUri: string, title: string) => Promise<void>;
+  onSave: (imageUri: string, title: string) => Promise<void>;
 }
 
 const COLORS = [
@@ -77,6 +78,7 @@ export default function DrawingCanvasModal({
   onClose,
   onSave,
 }: DrawingCanvasModalProps) {
+  const canvasCaptureRef = useRef<View>(null);
   const [paths, setPaths] = useState<PathData[]>([]);
   const [currentPath, setCurrentPath] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("#4A080C");
@@ -156,25 +158,12 @@ export default function DrawingCanvasModal({
     setError("");
 
     try {
-      // Build SVG String
-      const width = 340;
-      const height = 340;
-      const pathElements = paths
-        .map(
-          (p) =>
-            `<path d="${p.d}" stroke="${p.color}" stroke-width="${p.strokeWidth}" fill="none" stroke-linecap="round" stroke-linejoin="round" />`
-        )
-        .join("\n");
-
-      const svgString = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-<rect width="100%" height="100%" fill="#FBF7EF" />
-${pathElements}
-</svg>`;
-
-      const encodedSvg = encodeURIComponent(svgString);
-      const dataUri = `data:image/svg+xml;utf8,${encodedSvg}`;
-
-      await onSave(dataUri, title.trim());
+      const imageUri = await captureRef(canvasCaptureRef, {
+        format: "png",
+        quality: 1,
+        result: "tmpfile",
+      });
+      await onSave(imageUri, title.trim());
       handleClear();
       setTitle("");
       onClose();
@@ -277,7 +266,7 @@ ${pathElements}
           )}
 
           {/* Canvas Area */}
-          <View style={styles.canvasContainer} {...panResponder.panHandlers}>
+          <View ref={canvasCaptureRef} collapsable={false} style={styles.canvasContainer} {...panResponder.panHandlers}>
             <Svg width={340} height={340} viewBox="0 0 340 340">
               <Rect width="100%" height="100%" fill="#FBF7EF" />
 

@@ -1,9 +1,9 @@
 export const swaggerSpec = {
   openapi: "3.0.0",
   info: {
-    title: "The Threadly Nest API Documentation",
+    title: "Òwújà API Documentation",
     version: "1.0.0",
-    description: "Interactive Swagger UI for testing The Threadly Nest API endpoints.",
+    description: "Interactive Swagger UI for testing Òwújà API endpoints.",
   },
   servers: [
     {

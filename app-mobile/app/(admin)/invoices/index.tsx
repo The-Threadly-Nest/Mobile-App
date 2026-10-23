@@ -77,8 +77,8 @@ export default function InvoicesListScreen() {
           customerName: o.customer?.name || o.customer || "Customer",
           garment: o.itemName || o.item || "Bespoke Fitting & Tailoring",
           date: o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Date unavailable",
-          amount: typeof o.price === "number" ? o.price : 0,
-          status: o.invoice?.status === "Paid" ? "Paid" : "Pending",
+          amount: typeof o.invoice?.total === "number" ? o.invoice.total : (typeof o.price === "number" ? o.price : 0),
+          status: o.invoice?.paymentStatus === "paid" ? "Paid" : "Pending",
         };
       });
     }

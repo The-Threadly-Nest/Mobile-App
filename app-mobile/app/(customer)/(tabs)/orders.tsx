@@ -3,28 +3,12 @@ import { View, ScrollView, Text, Pressable, ActivityIndicator, useWindowDimensio
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
-import { apiFetch } from "@/shared/utils/apiClient";
+import { apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import CachedImage from "@/shared/components/CachedImage";
 
 function getRealGarmentImage(order: OrderItem): string {
-  if (order.imageUrl && !order.imageUrl.includes("unsplash.com/photo-1566174053879-31528523f8ae")) {
-    return order.imageUrl;
-  }
-  const type = (order.garmentType || "").toLowerCase();
-  if (type.includes("vintage") || type.includes("shirt")) {
-    return "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
-  }
-  if (type.includes("adire")) {
-    return "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
-  }
-  if (type.includes("2piece") || type.includes("2 piece") || type.includes("suit") || type.includes("agbada")) {
-    return "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
-  }
-  if (type.includes("kaftan")) {
-    return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
-  }
-  return order.imageUrl || "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&q=80";
+  return order.imageUrl || "";
 }
 
 export default function CustomerOrdersScreen() {
@@ -32,6 +16,8 @@ export default function CustomerOrdersScreen() {
   const isLandscape = width > height;
 
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextPage, setNextPage] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "completed" | "declined">("active");
   const storeOrders = useOrdersStore((s) => s.orders);
   const setStoreOrders = useOrdersStore((s) => s.setOrders);
@@ -40,9 +26,13 @@ export default function CustomerOrdersScreen() {
     let mounted = true;
     async function fetchCustomerOrders() {
       try {
-        const fetched = await apiFetch<OrderItem[]>("/api/orders/my-orders", { silent: true }).catch(() => null);
-        if (mounted && Array.isArray(fetched)) {
-          setStoreOrders(fetched);
+        const result = await apiFetchCollectionPage<OrderItem>(
+          "/api/orders/my-orders?page=1&limit=50",
+          { silent: true }
+        ).catch(() => null);
+        if (mounted && result) {
+          setStoreOrders(result.items);
+          setNextPage(result.nextPage);
         }
       } catch (err) {
         console.log("Could not fetch server orders:", err);
@@ -57,9 +47,26 @@ export default function CustomerOrdersScreen() {
     };
   }, []);
 
+  const loadMoreOrders = async () => {
+    if (!nextPage || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const result = await apiFetchCollectionPage<OrderItem>(
+        `/api/orders/my-orders?page=${nextPage}&limit=50`,
+        { silent: true }
+      );
+      const byId = new Map(storeOrders.map((order) => [order.id, order]));
+      result.items.forEach((order) => byId.set(order.id, order));
+      setStoreOrders(Array.from(byId.values()));
+      setNextPage(result.nextPage);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   // Filter out mock data when real server data exists or while loading
   const realOrders = storeOrders.filter((o) => !o.id.startsWith("mock-"));
-  const effectiveOrders = realOrders.length > 0 ? realOrders : (loading ? [] : storeOrders);
+  const effectiveOrders = realOrders;
 
   const activeOrders = effectiveOrders.filter((o) => o.status === "active");
   const completedOrders = effectiveOrders.filter((o) => o.status === "completed");
@@ -253,6 +260,19 @@ export default function CustomerOrdersScreen() {
                 </Pressable>
               );
             })}
+            {nextPage ? (
+              <Pressable
+                onPress={() => void loadMoreOrders()}
+                disabled={loadingMore}
+                style={{ alignSelf: "center", paddingVertical: 12, paddingHorizontal: 20 }}
+              >
+                {loadingMore ? (
+                  <ActivityIndicator size="small" color="#4A080C" />
+                ) : (
+                  <Text style={{ color: "#4A080C", fontFamily: "WorkSans_600SemiBold" }}>Load more orders</Text>
+                )}
+              </Pressable>
+            ) : null}
           </View>
         )}
       </ScrollView>

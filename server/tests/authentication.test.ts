@@ -3,6 +3,7 @@ import test from "node:test";
 import { resolveDataMode } from "../../app-mobile/src/config/dataMode";
 import { credentialVersion } from "../src/lib/session";
 import { changePasswordSchema } from "../src/schemas/auth.schema";
+import { sendChatMessageSchema } from "../src/schemas/chat.schema";
 
 test("password change accepts only current and policy-compliant new passwords", () => {
   const parsed = changePasswordSchema.parse({
@@ -46,4 +47,20 @@ test("production accepts real data mode and rejects mock or demo modes", () => {
     () => resolveDataMode("demo", false),
     /Production builds require/
   );
+});
+
+test("chat booking accepts only a valid selected slot id", () => {
+  const valid = sendChatMessageSchema.safeParse({
+    fashionHouseId: "house-a",
+    message: "Book this slot",
+    availableSlotId: "9d181de7-b80f-42e7-bdc3-4969251933d6",
+  });
+  const invalid = sendChatMessageSchema.safeParse({
+    fashionHouseId: "house-a",
+    message: "Book this slot",
+    availableSlotId: "slot-from-another-screen",
+  });
+
+  assert.equal(valid.success, true);
+  assert.equal(invalid.success, false);
 });

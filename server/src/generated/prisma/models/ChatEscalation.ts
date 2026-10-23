@@ -32,7 +32,10 @@ export type ChatEscalationMinAggregateOutputType = {
   summary: string | null
   transcript: string | null
   resolved: boolean | null
+  status: string | null
+  activeKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ChatEscalationMaxAggregateOutputType = {
@@ -43,7 +46,10 @@ export type ChatEscalationMaxAggregateOutputType = {
   summary: string | null
   transcript: string | null
   resolved: boolean | null
+  status: string | null
+  activeKey: string | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type ChatEscalationCountAggregateOutputType = {
@@ -54,7 +60,10 @@ export type ChatEscalationCountAggregateOutputType = {
   summary: number
   transcript: number
   resolved: number
+  status: number
+  activeKey: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -67,7 +76,10 @@ export type ChatEscalationMinAggregateInputType = {
   summary?: true
   transcript?: true
   resolved?: true
+  status?: true
+  activeKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ChatEscalationMaxAggregateInputType = {
@@ -78,7 +90,10 @@ export type ChatEscalationMaxAggregateInputType = {
   summary?: true
   transcript?: true
   resolved?: true
+  status?: true
+  activeKey?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type ChatEscalationCountAggregateInputType = {
@@ -89,7 +104,10 @@ export type ChatEscalationCountAggregateInputType = {
   summary?: true
   transcript?: true
   resolved?: true
+  status?: true
+  activeKey?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -173,7 +191,10 @@ export type ChatEscalationGroupByOutputType = {
   summary: string
   transcript: string
   resolved: boolean
+  status: string
+  activeKey: string | null
   createdAt: Date
+  updatedAt: Date
   _count: ChatEscalationCountAggregateOutputType | null
   _min: ChatEscalationMinAggregateOutputType | null
   _max: ChatEscalationMaxAggregateOutputType | null
@@ -205,7 +226,10 @@ export type ChatEscalationWhereInput = {
   summary?: Prisma.StringFilter<"ChatEscalation"> | string
   transcript?: Prisma.StringFilter<"ChatEscalation"> | string
   resolved?: Prisma.BoolFilter<"ChatEscalation"> | boolean
+  status?: Prisma.StringFilter<"ChatEscalation"> | string
+  activeKey?: Prisma.StringNullableFilter<"ChatEscalation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ChatEscalation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ChatEscalation"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -218,13 +242,17 @@ export type ChatEscalationOrderByWithRelationInput = {
   summary?: Prisma.SortOrder
   transcript?: Prisma.SortOrder
   resolved?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
   customer?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ChatEscalationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  activeKey?: string
   AND?: Prisma.ChatEscalationWhereInput | Prisma.ChatEscalationWhereInput[]
   OR?: Prisma.ChatEscalationWhereInput[]
   NOT?: Prisma.ChatEscalationWhereInput | Prisma.ChatEscalationWhereInput[]
@@ -234,10 +262,12 @@ export type ChatEscalationWhereUniqueInput = Prisma.AtLeast<{
   summary?: Prisma.StringFilter<"ChatEscalation"> | string
   transcript?: Prisma.StringFilter<"ChatEscalation"> | string
   resolved?: Prisma.BoolFilter<"ChatEscalation"> | boolean
+  status?: Prisma.StringFilter<"ChatEscalation"> | string
   createdAt?: Prisma.DateTimeFilter<"ChatEscalation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ChatEscalation"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   customer?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id">
+}, "id" | "activeKey">
 
 export type ChatEscalationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -247,7 +277,10 @@ export type ChatEscalationOrderByWithAggregationInput = {
   summary?: Prisma.SortOrder
   transcript?: Prisma.SortOrder
   resolved?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.ChatEscalationCountOrderByAggregateInput
   _max?: Prisma.ChatEscalationMaxOrderByAggregateInput
   _min?: Prisma.ChatEscalationMinOrderByAggregateInput
@@ -264,7 +297,10 @@ export type ChatEscalationScalarWhereWithAggregatesInput = {
   summary?: Prisma.StringWithAggregatesFilter<"ChatEscalation"> | string
   transcript?: Prisma.StringWithAggregatesFilter<"ChatEscalation"> | string
   resolved?: Prisma.BoolWithAggregatesFilter<"ChatEscalation"> | boolean
+  status?: Prisma.StringWithAggregatesFilter<"ChatEscalation"> | string
+  activeKey?: Prisma.StringNullableWithAggregatesFilter<"ChatEscalation"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ChatEscalation"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ChatEscalation"> | Date | string
 }
 
 export type ChatEscalationCreateInput = {
@@ -273,7 +309,10 @@ export type ChatEscalationCreateInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutChatEscalationsInput
   customer: Prisma.UserCreateNestedOneWithoutChatEscalationsInput
 }
@@ -286,7 +325,10 @@ export type ChatEscalationUncheckedCreateInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ChatEscalationUpdateInput = {
@@ -295,7 +337,10 @@ export type ChatEscalationUpdateInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutChatEscalationsNestedInput
   customer?: Prisma.UserUpdateOneRequiredWithoutChatEscalationsNestedInput
 }
@@ -308,7 +353,10 @@ export type ChatEscalationUncheckedUpdateInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatEscalationCreateManyInput = {
@@ -319,7 +367,10 @@ export type ChatEscalationCreateManyInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ChatEscalationUpdateManyMutationInput = {
@@ -328,7 +379,10 @@ export type ChatEscalationUpdateManyMutationInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatEscalationUncheckedUpdateManyInput = {
@@ -339,7 +393,10 @@ export type ChatEscalationUncheckedUpdateManyInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatEscalationListRelationFilter = {
@@ -360,7 +417,10 @@ export type ChatEscalationCountOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   transcript?: Prisma.SortOrder
   resolved?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ChatEscalationMaxOrderByAggregateInput = {
@@ -371,7 +431,10 @@ export type ChatEscalationMaxOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   transcript?: Prisma.SortOrder
   resolved?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ChatEscalationMinOrderByAggregateInput = {
@@ -382,7 +445,10 @@ export type ChatEscalationMinOrderByAggregateInput = {
   summary?: Prisma.SortOrder
   transcript?: Prisma.SortOrder
   resolved?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  activeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type ChatEscalationCreateNestedManyWithoutCustomerInput = {
@@ -475,7 +541,10 @@ export type ChatEscalationCreateWithoutCustomerInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutChatEscalationsInput
 }
 
@@ -486,7 +555,10 @@ export type ChatEscalationUncheckedCreateWithoutCustomerInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ChatEscalationCreateOrConnectWithoutCustomerInput = {
@@ -526,7 +598,10 @@ export type ChatEscalationScalarWhereInput = {
   summary?: Prisma.StringFilter<"ChatEscalation"> | string
   transcript?: Prisma.StringFilter<"ChatEscalation"> | string
   resolved?: Prisma.BoolFilter<"ChatEscalation"> | boolean
+  status?: Prisma.StringFilter<"ChatEscalation"> | string
+  activeKey?: Prisma.StringNullableFilter<"ChatEscalation"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ChatEscalation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ChatEscalation"> | Date | string
 }
 
 export type ChatEscalationCreateWithoutFashionHouseInput = {
@@ -535,7 +610,10 @@ export type ChatEscalationCreateWithoutFashionHouseInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
   customer: Prisma.UserCreateNestedOneWithoutChatEscalationsInput
 }
 
@@ -546,7 +624,10 @@ export type ChatEscalationUncheckedCreateWithoutFashionHouseInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ChatEscalationCreateOrConnectWithoutFashionHouseInput = {
@@ -582,7 +663,10 @@ export type ChatEscalationCreateManyCustomerInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ChatEscalationUpdateWithoutCustomerInput = {
@@ -591,7 +675,10 @@ export type ChatEscalationUpdateWithoutCustomerInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutChatEscalationsNestedInput
 }
 
@@ -602,7 +689,10 @@ export type ChatEscalationUncheckedUpdateWithoutCustomerInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatEscalationUncheckedUpdateManyWithoutCustomerInput = {
@@ -612,7 +702,10 @@ export type ChatEscalationUncheckedUpdateManyWithoutCustomerInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatEscalationCreateManyFashionHouseInput = {
@@ -622,7 +715,10 @@ export type ChatEscalationCreateManyFashionHouseInput = {
   summary: string
   transcript: string
   resolved?: boolean
+  status?: string
+  activeKey?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type ChatEscalationUpdateWithoutFashionHouseInput = {
@@ -631,7 +727,10 @@ export type ChatEscalationUpdateWithoutFashionHouseInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.UserUpdateOneRequiredWithoutChatEscalationsNestedInput
 }
 
@@ -642,7 +741,10 @@ export type ChatEscalationUncheckedUpdateWithoutFashionHouseInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ChatEscalationUncheckedUpdateManyWithoutFashionHouseInput = {
@@ -652,7 +754,10 @@ export type ChatEscalationUncheckedUpdateManyWithoutFashionHouseInput = {
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   transcript?: Prisma.StringFieldUpdateOperationsInput | string
   resolved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  activeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -665,7 +770,10 @@ export type ChatEscalationSelect<ExtArgs extends runtime.Types.Extensions.Intern
   summary?: boolean
   transcript?: boolean
   resolved?: boolean
+  status?: boolean
+  activeKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["chatEscalation"]>
@@ -678,7 +786,10 @@ export type ChatEscalationSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   summary?: boolean
   transcript?: boolean
   resolved?: boolean
+  status?: boolean
+  activeKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["chatEscalation"]>
@@ -691,7 +802,10 @@ export type ChatEscalationSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   summary?: boolean
   transcript?: boolean
   resolved?: boolean
+  status?: boolean
+  activeKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["chatEscalation"]>
@@ -704,10 +818,13 @@ export type ChatEscalationSelectScalar = {
   summary?: boolean
   transcript?: boolean
   resolved?: boolean
+  status?: boolean
+  activeKey?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type ChatEscalationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "reason" | "summary" | "transcript" | "resolved" | "createdAt", ExtArgs["result"]["chatEscalation"]>
+export type ChatEscalationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "customerId" | "reason" | "summary" | "transcript" | "resolved" | "status" | "activeKey" | "createdAt" | "updatedAt", ExtArgs["result"]["chatEscalation"]>
 export type ChatEscalationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -735,7 +852,10 @@ export type $ChatEscalationPayload<ExtArgs extends runtime.Types.Extensions.Inte
     summary: string
     transcript: string
     resolved: boolean
+    status: string
+    activeKey: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["chatEscalation"]>
   composites: {}
 }
@@ -1168,7 +1288,10 @@ export interface ChatEscalationFieldRefs {
   readonly summary: Prisma.FieldRef<"ChatEscalation", 'String'>
   readonly transcript: Prisma.FieldRef<"ChatEscalation", 'String'>
   readonly resolved: Prisma.FieldRef<"ChatEscalation", 'Boolean'>
+  readonly status: Prisma.FieldRef<"ChatEscalation", 'String'>
+  readonly activeKey: Prisma.FieldRef<"ChatEscalation", 'String'>
   readonly createdAt: Prisma.FieldRef<"ChatEscalation", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"ChatEscalation", 'DateTime'>
 }
     
 

@@ -44,13 +44,16 @@ app.use((req, res, next) => {
 });
 
 app.use(helmet());
-app.use(cors({ origin: process.env.ALLOWED_ORIGIN ?? "*" }));
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN ?? "*",
+  exposedHeaders: ["X-Page", "X-Has-More", "X-Next-Page"],
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false }));
 
 app.get("/", (_req, res) =>
   res.json({
-    name: "The Threadly Nest API",
+    name: "Òwújà API",
     status: "ok",
     health: "/health",
     docs: "/api-docs",

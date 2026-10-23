@@ -3,15 +3,15 @@ import { prisma } from "../lib/prisma";
 import { Prisma } from "../generated/prisma/client";
 import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
-import { sendChatMessageSchema } from "../schemas/chat.schema";
+import { manualChatEscalationSchema, sendChatMessageSchema } from "../schemas/chat.schema";
 import { getModel, buildSystemPrompt } from "../lib/gemini";
 import { buildTruncatedHistory, shouldForceEscalate, ChatTurn } from "../lib/chatHistory";
 import { checkMessageGuardrails } from "../lib/chatGuardrails";
 import rateLimit from "express-rate-limit";
 import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
-import { parseFittingDate } from "../utils/dateUtils";
 import { randomUUID } from "node:crypto";
 import { isUniqueConstraintError, readIdempotencyKey } from "../lib/idempotency";
+import { availableSlotClaimWhere } from "../lib/authorization";
 
 const router = Router();
 router.use(requireAuth);
@@ -32,6 +32,13 @@ type StoredChatTurn = ChatTurn & {
   deletedForEveryoneAt?: string;
   deletedForUserIds?: string[];
 };
+
+class SlotUnavailableError extends Error {
+  constructor() {
+    super("This fitting slot is no longer available.");
+    this.name = "SlotUnavailableError";
+  }
+}
 
 function normalizeStoredHistory(rawHistory: ChatTurn[]) {
   let changed = false;
@@ -91,7 +98,7 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
     const authUserId = req.authUserId!;
     const { sessionCustomerId, fashionHouseId } = await resolveSessionTarget(rawParam, authUserId);
 
-    const [session, availableSlots] = await Promise.all([
+    const [session, availableSlots, activeEscalation] = await Promise.all([
       prisma.chatSession.findUnique({
         where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
       }),
@@ -100,6 +107,10 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
         orderBy: { date: "asc" },
         take: 10,
         select: { id: true, date: true, time: true },
+      }),
+      prisma.chatEscalation.findUnique({
+        where: { activeKey: `${fashionHouseId}:${sessionCustomerId}` },
+        select: { id: true, status: true },
       }),
     ]);
 
@@ -118,6 +129,8 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
         id: slot.id,
         label: `${slot.date} · ${slot.time}`,
       })),
+      conversationState: activeEscalation?.status ?? "automated",
+      escalationId: activeEscalation?.id ?? null,
     });
   } catch (err) {
     next(err);
@@ -220,7 +233,7 @@ router.delete("/messages/:messageId/me", async (req, res, next) => {
 
 router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), async (req, res, next) => {
   try {
-    const { fashionHouseId: rawParam, message, garmentName, imageUrl, audioUrl, audioDuration } = req.body;
+    const { fashionHouseId: rawParam, message, garmentName, imageUrl, audioUrl, audioDuration, availableSlotId } = req.body;
     const idempotencyKey = req.body.idempotencyKey || readIdempotencyKey(req);
     const authUserId = req.authUserId!;
     const { sessionCustomerId, fashionHouseId, role } = await resolveSessionTarget(rawParam, authUserId);
@@ -235,6 +248,12 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
     const { history } = normalizeStoredHistory(
       (session.history as unknown as ChatTurn[]) ?? []
     );
+
+    const fashionHouseExists = await prisma.fashionHouse.findUnique({
+      where: { id: fashionHouseId },
+      select: { id: true },
+    });
+    if (!fashionHouseExists) return res.status(404).json({ error: "Fashion house not found" });
 
     // 1b. If the sender is staff or admin, persist human chat message directly without invoking AI
     if (role === "staff" || role === "admin") {
@@ -279,18 +298,50 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       return res.json({ success: true, turn, history: visibleHistoryForUser(updatedHistory, authUserId) });
     }
 
+    const activeEscalation = await prisma.chatEscalation.findUnique({
+      where: { activeKey: `${fashionHouseId}:${customerId}` },
+      select: { id: true, status: true },
+    });
+    if (activeEscalation) {
+      return res.json({
+        type: "human_active",
+        conversationState: activeEscalation.status,
+        escalationId: activeEscalation.id,
+        reply: "Your request is already with the fashion house team. Continue in Human Chat for direct assistance.",
+      });
+    }
+
     // 2. Cheap deterministic checks BEFORE spending an API call
     const guardrail = checkMessageGuardrails(message);
     if (guardrail.blocked) {
-      return res.json({ type: "escalated", reason: guardrail.reason, reply: "I'll pass this along to the team directly — they'll follow up with you shortly." });
+      const reply = "I've passed this to the fashion house team. Continue in Human Chat for direct assistance.";
+      const escalation = await activateHumanHandoff({
+        sessionId: session.id,
+        fashionHouseId,
+        customerId,
+        history,
+        triggerMessage: message,
+        reason: guardrail.reason,
+        summary: "The automated assistant's safety rules required a human response.",
+        reply,
+      });
+      return res.json({ type: "escalated", conversationState: escalation.status, escalationId: escalation.id, reason: guardrail.reason, reply });
     }
 
     // 3. Server-enforced turn cap
     if (shouldForceEscalate(history)) {
-      await createEscalation(fashionHouseId, customerId, history, "max_turns_exceeded");
-      // Clear session after escalation so customer can start fresh
-      await prisma.chatSession.update({ where: { id: session.id }, data: { history: [] as unknown as Prisma.InputJsonValue } });
-      return res.json({ type: "escalated", reason: "max_turns_exceeded", reply: "Let me get someone from the team to help you directly with this." });
+      const reply = "I've passed this conversation to the fashion house team. Continue in Human Chat for direct assistance.";
+      const escalation = await activateHumanHandoff({
+        sessionId: session.id,
+        fashionHouseId,
+        customerId,
+        history,
+        triggerMessage: message,
+        reason: "max_turns_exceeded",
+        summary: "Conversation exceeded automated handling limits.",
+        reply,
+      });
+      return res.json({ type: "escalated", conversationState: escalation.status, escalationId: escalation.id, reason: "max_turns_exceeded", reply });
     }
 
     // 4. Real context — never let the model invent catalog items or slots
@@ -354,31 +405,99 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
 
       if (functionCall?.name === "create_booking") {
         const args = functionCall.args as { styleNotes: string; preferredDate: string; preferredTime: string; isFirstTime?: boolean };
-        const parsedDate = parseFittingDate(args.preferredDate || args.preferredTime);
         let booking = idempotencyKey
-          ? await prisma.booking.findFirst({ where: { customerId, idempotencyKey } })
+          ? await prisma.booking.findFirst({
+              where: { customerId, idempotencyKey },
+              include: { availableSlot: true },
+            })
           : null;
+        let bookingWasCreated = false;
         if (!booking) {
-          try {
-            booking = await prisma.booking.create({
-              data: {
-                fashionHouseId,
-                customerId,
-                styleNotes: args.styleNotes,
-                preferredDate: parsedDate,
-                preferredTime: args.preferredTime,
-                isFirstTime: args.isFirstTime ?? true,
-                status: "pending_admin_review",
-                idempotencyKey,
-              },
+          if (!idempotencyKey) {
+            return res.status(400).json({
+              code: "IDEMPOTENCY_KEY_REQUIRED",
+              error: "Please try selecting the fitting slot again.",
             });
+          }
+          if (!availableSlotId) {
+            return res.status(400).json({
+              code: "SLOT_REQUIRED",
+              error: "Please select one of the available fitting slots.",
+              availableSlots: fh.availableSlots.map((slot: any) => ({
+                id: slot.id,
+                label: `${slot.date} · ${slot.time}`,
+              })),
+            });
+          }
+
+          try {
+            booking = await prisma.$transaction(async (transaction) => {
+              const claimWhere = availableSlotClaimWhere(availableSlotId, fashionHouseId);
+              const slot = await transaction.availableSlot.findFirst({ where: claimWhere });
+              if (!slot) throw new SlotUnavailableError();
+
+              const claimed = await transaction.availableSlot.updateMany({
+                where: claimWhere,
+                data: { booked: true },
+              });
+              if (claimed.count !== 1) throw new SlotUnavailableError();
+
+              const preferredDate = new Date(`${slot.date}T00:00:00.000Z`);
+              if (Number.isNaN(preferredDate.getTime())) {
+                throw new Error("The selected fitting slot has an invalid date.");
+              }
+
+              return transaction.booking.create({
+                data: {
+                  fashionHouseId,
+                  customerId,
+                  availableSlotId: slot.id,
+                  styleNotes: args.styleNotes,
+                  preferredDate,
+                  preferredTime: slot.time,
+                  isFirstTime: args.isFirstTime ?? true,
+                  status: "pending_admin_review",
+                  idempotencyKey,
+                },
+                include: { availableSlot: true },
+              });
+            });
+            bookingWasCreated = true;
           } catch (error) {
-            if (!idempotencyKey || !isUniqueConstraintError(error)) throw error;
-            booking = await prisma.booking.findFirst({ where: { customerId, idempotencyKey } });
+            booking = await prisma.booking.findFirst({
+              where: { customerId, idempotencyKey },
+              include: { availableSlot: true },
+            });
+            if (!booking && error instanceof SlotUnavailableError) {
+              const freshSlots = await prisma.availableSlot.findMany({
+                where: { fashionHouseId, booked: false },
+                take: 10,
+                orderBy: [{ date: "asc" }, { time: "asc" }],
+              });
+              return res.status(409).json({
+                code: "SLOT_UNAVAILABLE",
+                error: "That fitting slot was just taken. Please choose another available time.",
+                availableSlots: freshSlots.map((slot) => ({
+                  id: slot.id,
+                  label: `${slot.date} · ${slot.time}`,
+                })),
+              });
+            }
             if (!booking) throw error;
           }
         }
-        const confirmReply = `Your fitting request with ${fh.shopName} for ${args.preferredTime} has been received! Our team will confirm shortly.`;
+        if (bookingWasCreated) {
+          sendNotificationToAdmin(
+            fashionHouseId,
+            "New Booking Request",
+            "A customer has requested a fitting appointment.",
+            { bookingId: booking.id }
+          );
+        }
+        const reservedSlotLabel = booking.availableSlot
+          ? `${booking.availableSlot.date} at ${booking.availableSlot.time}`
+          : args.preferredTime;
+        const confirmReply = `Your fitting request with ${fh.shopName} for ${reservedSlotLabel} has been received! Our team will confirm shortly.`;
         const updatedHistory: ChatTurn[] = [
           ...history,
           { role: "user", text: message },
@@ -395,16 +514,18 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
 
       if (functionCall?.name === "escalate_to_admin") {
         const args = functionCall.args as { reason: string; conversationSummary: string };
-        await createEscalation(fashionHouseId, customerId, history, args.reason, args.conversationSummary);
-        const escReply = "I've flagged this for the team, and someone will follow up with you directly.";
-        const updatedHistory: ChatTurn[] = [
-          ...history,
-          { role: "user", text: message },
-          { role: "model", text: escReply },
-          { role: "model", text: "--- Chat Session Ended ---" },
-        ];
-        await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory as unknown as Prisma.InputJsonValue } });
-        return res.json({ type: "escalated", reason: args.reason, reply: escReply });
+        const escReply = "I've passed this to the fashion house team. Continue in Human Chat for direct assistance.";
+        const escalation = await activateHumanHandoff({
+          sessionId: session.id,
+          fashionHouseId,
+          customerId,
+          history,
+          triggerMessage: message,
+          reason: args.reason,
+          summary: args.conversationSummary,
+          reply: escReply,
+        });
+        return res.json({ type: "escalated", conversationState: escalation.status, escalationId: escalation.id, reason: args.reason, reply: escReply });
       }
 
       replyText = response.text() || "";
@@ -449,50 +570,100 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
 });
 
 // POST /api/chat/escalate — Direct customer-initiated chat escalation to Admin
-router.post("/escalate", async (req, res, next) => {
+router.post("/escalate", validate({ body: manualChatEscalationSchema }), async (req, res, next) => {
   try {
     const { fashionHouseId: rawParam, reason, summary } = req.body;
     const authUserId = req.authUserId!;
-    const { sessionCustomerId, fashionHouseId } = await resolveSessionTarget(rawParam || "default", authUserId);
+    const { sessionCustomerId, fashionHouseId, role } = await resolveSessionTarget(rawParam || "default", authUserId);
+    if (role !== "customer") {
+      return res.status(403).json({ error: "Only customers can request a human handoff." });
+    }
+    const fashionHouseExists = await prisma.fashionHouse.findUnique({
+      where: { id: fashionHouseId },
+      select: { id: true },
+    });
+    if (!fashionHouseExists) return res.status(404).json({ error: "Fashion house not found" });
 
-    const session = await prisma.chatSession.findUnique({
+    const session = await prisma.chatSession.upsert({
       where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
+      update: {},
+      create: { customerId: sessionCustomerId, fashionHouseId, history: [] },
     });
     const history = (session?.history as unknown as ChatTurn[]) ?? [];
-
-    const escalation = await prisma.chatEscalation.create({
-      data: {
-        fashionHouseId,
-        customerId: sessionCustomerId,
-        reason: reason || "Customer requested human assistant",
-        summary: summary || "Manual customer chat escalation",
-        transcript: JSON.stringify(history),
-      },
+    const reply = "I've passed your request to the fashion house team. Continue in Human Chat for direct assistance.";
+    const escalation = await activateHumanHandoff({
+      sessionId: session.id,
+      fashionHouseId,
+      customerId: sessionCustomerId,
+      history,
+      reason: reason || "Customer requested human assistant",
+      summary: summary || "Manual customer chat escalation",
+      reply,
     });
 
-    if (session) {
-      const updatedHistory: ChatTurn[] = [
-        ...history,
-        { role: "model", text: "I've flagged your session for administrators. A team member will join this chat shortly." },
-        { role: "model", text: "--- Chat Session Ended ---" },
-      ];
-      await prisma.chatSession.update({
-        where: { id: session.id },
-        data: { history: updatedHistory as unknown as Prisma.InputJsonValue },
-      });
-    }
-
-    sendNotificationToAdmin(fashionHouseId, "Customer Escalation Request", "A customer requested direct admin assistance.");
-    res.status(201).json({ success: true, escalation });
+    res.json({ success: true, type: "escalated", conversationState: escalation.status, escalationId: escalation.id, reply, escalation });
   } catch (err) {
     next(err);
   }
 });
 
-async function createEscalation(fashionHouseId: string, customerId: string, history: ChatTurn[], reason: string, summary?: string) {
-  await prisma.chatEscalation.create({
-    data: { fashionHouseId, customerId, reason, summary: summary ?? "Conversation exceeded automated handling limits.", transcript: JSON.stringify(history) },
-  });
+type ActivateHumanHandoffInput = {
+  sessionId: string;
+  fashionHouseId: string;
+  customerId: string;
+  history: ChatTurn[];
+  triggerMessage?: string;
+  reason: string;
+  summary: string;
+  reply: string;
+};
+
+async function activateHumanHandoff(input: ActivateHumanHandoffInput) {
+  const activeKey = `${input.fashionHouseId}:${input.customerId}`;
+  const transcript = input.triggerMessage
+    ? [...input.history, { role: "user" as const, text: input.triggerMessage }]
+    : input.history;
+  const existing = await prisma.chatEscalation.findUnique({ where: { activeKey } });
+  if (existing) return existing;
+
+  let escalation;
+  try {
+    escalation = await prisma.$transaction(async (transaction) => {
+      const created = await transaction.chatEscalation.create({
+        data: {
+          fashionHouseId: input.fashionHouseId,
+          customerId: input.customerId,
+          reason: input.reason,
+          summary: input.summary,
+          transcript: JSON.stringify(transcript),
+          status: "pending",
+          activeKey,
+        },
+      });
+      const updatedHistory: ChatTurn[] = [
+        ...transcript,
+        { role: "model", text: input.reply },
+        { role: "model", text: "--- Chat Session Ended ---" },
+      ];
+      await transaction.chatSession.update({
+        where: { id: input.sessionId },
+        data: { history: updatedHistory as unknown as Prisma.InputJsonValue },
+      });
+      return created;
+    });
+  } catch (error) {
+    if (!isUniqueConstraintError(error)) throw error;
+    const racedEscalation = await prisma.chatEscalation.findUnique({ where: { activeKey } });
+    if (!racedEscalation) throw error;
+    return racedEscalation;
+  }
+
+  sendNotificationToAdmin(
+    input.fashionHouseId,
+    "Customer Escalation Request",
+    "A customer requested direct assistance."
+  );
+  return escalation;
 }
 
 export default router;

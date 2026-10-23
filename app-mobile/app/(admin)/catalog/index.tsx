@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Plus, Trash2, Tag } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { apiFetch } from "@/shared/utils/apiClient";
+import { apiFetch, apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
 
@@ -30,14 +30,15 @@ export default function AdminCatalogListScreen() {
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextPage, setNextPage] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchCatalog = useCallback(async () => {
     try {
-      const data = await apiFetch<CatalogItem[]>("/api/catalog", { silent: true }).catch(() => []);
-      if (Array.isArray(data)) {
-        setItems(data);
-      }
+      const result = await apiFetchCollectionPage<CatalogItem>("/api/catalog?page=1&limit=50", { silent: true });
+      setItems(result.items);
+      setNextPage(result.nextPage);
     } catch (err) {
       console.log("Error loading catalog items:", err);
     } finally {
@@ -45,6 +46,25 @@ export default function AdminCatalogListScreen() {
       setRefreshing(false);
     }
   }, []);
+
+  const loadMoreCatalog = async () => {
+    if (!nextPage || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const result = await apiFetchCollectionPage<CatalogItem>(
+        `/api/catalog?page=${nextPage}&limit=50`,
+        { silent: true }
+      );
+      setItems((current) => {
+        const byId = new Map(current.map((item) => [item.id, item]));
+        result.items.forEach((item) => byId.set(item.id, item));
+        return Array.from(byId.values());
+      });
+      setNextPage(result.nextPage);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -181,6 +201,15 @@ export default function AdminCatalogListScreen() {
                 </Pressable>
               </Pressable>
             ))}
+            {nextPage ? (
+              <Pressable onPress={() => void loadMoreCatalog()} disabled={loadingMore} style={styles.emptyActionBtn}>
+                {loadingMore ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.emptyActionBtnText}>Load more</Text>
+                )}
+              </Pressable>
+            ) : null}
           </View>
         )}
       </ScrollView>

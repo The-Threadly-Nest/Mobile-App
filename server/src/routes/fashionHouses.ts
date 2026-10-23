@@ -1,15 +1,22 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
+import { validate } from "../middleware/validate";
+import { collectionPaginationSchema, type CollectionPagination } from "../schemas/pagination.schema";
+import { collectionWindow, sendCollectionPage } from "../lib/pagination";
+import { idParamSchema } from "../schemas/params.schema";
 
 const router = Router();
 
 // GET /api/fashion-houses — Public/Customer list of all onboarded fashion houses
-router.get("/", async (req, res, next) => {
+router.get("/", validate({ query: collectionPaginationSchema }), async (req, res, next) => {
   try {
+    const { page, limit } = req.query as unknown as CollectionPagination;
     const houses = await prisma.fashionHouse.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      ...collectionWindow(page, limit),
       include: {
         admin: { select: { email: true } },
+        _count: { select: { catalogItems: true } },
         catalogItems: {
           orderBy: { priceFrom: "asc" },
           take: 1, // Only the cheapest item is used for priceDisplay and coverImage
@@ -33,13 +40,10 @@ router.get("/", async (req, res, next) => {
       }
 
 
-      // Cover image: Use brand logo if available, else first uploaded catalog garment image, else default placeholder
+      // Only return media uploaded by this fashion house.
       let coverImage = fh.brandLogoUrl;
       if (!coverImage && fh.catalogItems && fh.catalogItems.length > 0) {
         coverImage = fh.catalogItems[0].imageUrl;
-      }
-      if (!coverImage) {
-        coverImage = "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&q=80";
       }
 
       return {
@@ -47,10 +51,10 @@ router.get("/", async (req, res, next) => {
         name: fh.shopName || "Luxury Atelier",
         location: fh.location || "Nigeria",
         price: priceDisplay,
-        rating: 5.0,
-        reviewsCount: fh.catalogItems?.length,
+        rating: 0,
+        reviewsCount: 0,
         badge: categoriesList.length > 0 ? categoriesList.slice(0, 2).join(" · ").toUpperCase() : "BESPOKE TAILORING",
-        turnaround: "2-3 week turnaround",
+        turnaround: "Contact for timeline",
         categoryTag: primaryCategory,
         image: coverImage,
         category: primaryCategory,
@@ -59,20 +63,21 @@ router.get("/", async (req, res, next) => {
       };
     });
 
-    res.json(formatted);
+    sendCollectionPage(res, formatted, page, limit);
   } catch (err) {
     next(err);
   }
 });
 
 // GET /api/fashion-houses/:id — Get single fashion house details
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", validate({ params: idParamSchema }), async (req, res, next) => {
   try {
     const fh = await prisma.fashionHouse.findUnique({
       where: { id: req.params.id },
       include: {
         catalogItems: {
           orderBy: { createdAt: "desc" },
+          take: 50,
         },
         _count: {
           select: { orders: true },

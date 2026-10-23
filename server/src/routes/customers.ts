@@ -1,86 +1,95 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
+import { validate } from "../middleware/validate";
+import { collectionPaginationSchema, type CollectionPagination } from "../schemas/pagination.schema";
+import { collectionWindow, sendCollectionPage } from "../lib/pagination";
 
 const router = Router();
 router.use(requireAuth, requireRole("admin", "staff"));
 
 // GET /api/customers — List all unique customers for this fashion house with aggregated order counts
-router.get("/", async (req, res, next) => {
+router.get("/", validate({ query: collectionPaginationSchema }), async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
+    const { page, limit } = req.query as unknown as CollectionPagination;
+    const { skip, take } = collectionWindow(page, limit);
+    const rows = await prisma.$queryRaw<Array<{
+      id: string;
+      name: string;
+      phone: string | null;
+      email: string | null;
+      status: string;
+      ordersCount: bigint | number;
+    }>>`
+      WITH "crmCustomers" AS (
+        SELECT
+          customer."id",
+          customer."userId",
+          customer."name",
+          customer."phone",
+          account."email",
+          customer."status",
+          COUNT(orders."id") AS "ordersCount",
+          0 AS "sourcePriority"
+        FROM "customers" customer
+        LEFT JOIN "users" account ON account."id" = customer."userId"
+        LEFT JOIN "orders" orders ON orders."customerId" = customer."id"
+        WHERE customer."fashionHouseId" = ${fhId}
+        GROUP BY customer."id", account."email"
+      ),
+      "associatedAccounts" AS (
+        SELECT
+          account."id",
+          account."id" AS "userId",
+          COALESCE(NULLIF(TRIM(account."name"), ''), SPLIT_PART(account."email", '@', 1), 'Customer') AS "name",
+          NULL::TEXT AS "phone",
+          account."email",
+          'active'::TEXT AS "status",
+          0::BIGINT AS "ordersCount",
+          1 AS "sourcePriority"
+        FROM "users" account
+        WHERE account."role" = 'customer'
+          AND (
+            EXISTS (SELECT 1 FROM "bookings" booking WHERE booking."customerId" = account."id" AND booking."fashionHouseId" = ${fhId})
+            OR EXISTS (SELECT 1 FROM "chat_escalations" escalation WHERE escalation."customerId" = account."id" AND escalation."fashionHouseId" = ${fhId})
+            OR EXISTS (SELECT 1 FROM "direct_messages" message WHERE message."customerId" = account."id" AND message."fashionHouseId" = ${fhId})
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM "customers" customer
+            WHERE customer."fashionHouseId" = ${fhId} AND customer."userId" = account."id"
+          )
+      ),
+      "rankedCustomers" AS (
+        SELECT combined.*,
+          ROW_NUMBER() OVER (
+            PARTITION BY LOWER(TRIM(combined."name"))
+            ORDER BY combined."sourcePriority", combined."id"
+          ) AS "rowNumber"
+        FROM (
+          SELECT * FROM "crmCustomers"
+          UNION ALL
+          SELECT * FROM "associatedAccounts"
+        ) combined
+      )
+      SELECT "id", "name", "phone", "email", "status", "ordersCount"
+      FROM "rankedCustomers"
+      WHERE "rowNumber" = 1
+      ORDER BY LOWER("name") ASC, "id" ASC
+      LIMIT ${take} OFFSET ${skip}
+    `;
 
-    const [dbCustomers, orders, bookings, escalations, directMessages] = await Promise.all([
-      prisma.customer.findMany({
-        where: { fashionHouseId: fhId },
-        include: { orders: { select: { id: true } } },
-        orderBy: { name: "asc" },
-      }),
-      prisma.order.findMany({
-        where: { fashionHouseId: fhId },
-        include: { customer: { select: { id: true, name: true, phone: true } } },
-      }),
-      prisma.booking.findMany({
-        where: { fashionHouseId: fhId },
-        include: { customer: { select: { id: true, name: true, email: true } } },
-      }),
-      prisma.chatEscalation.findMany({
-        where: { fashionHouseId: fhId },
-        include: { customer: { select: { id: true, name: true, email: true } } },
-      }),
-      prisma.directMessage.findMany({
-        where: { fashionHouseId: fhId },
-        distinct: ["customerId"],
-        include: { customer: { select: { id: true, name: true, email: true } } },
-      }),
-    ]);
-
-    const customerMap = new Map<string, { id: string; name: string; phone: string; email?: string; status: string; ordersCount: number }>();
-    const orderCountMap = new Map<string, number>();
-
-    // 1. Accumulate total order counts per customer name and ID
-    for (const ord of orders) {
-      if (ord.customer) {
-        const normKey = (ord.customer.name || "").trim().toLowerCase();
-        if (normKey) orderCountMap.set(normKey, (orderCountMap.get(normKey) || 0) + 1);
-        if (ord.customer.id) orderCountMap.set(ord.customer.id, (orderCountMap.get(ord.customer.id) || 0) + 1);
-      }
-    }
-
-    const addOrUpdateCustomer = (id: string, rawName?: string | null, phone?: string | null, email?: string | null, status = "active") => {
-      const name = (rawName || "Customer").trim();
-      const normKey = name.toLowerCase();
-
-      if (!customerMap.has(normKey)) {
-        const count = orderCountMap.get(normKey) || orderCountMap.get(id) || 0;
-        customerMap.set(normKey, {
-          id,
-          name,
-          phone: phone || "",
-          email: email || undefined,
-          status,
-          ordersCount: count,
-        });
-      }
-    };
-
-    // 2. Add customers from Customer table
-    for (const c of dbCustomers) {
-      const normKey = (c.name || "Customer").trim().toLowerCase();
-      const orderCount = Math.max(c.orders.length, orderCountMap.get(normKey) || 0);
-      addOrUpdateCustomer(c.id, c.name, c.phone, (c as any).email, (c as any).status || "active");
-      if (customerMap.has(normKey)) {
-        customerMap.get(normKey)!.ordersCount = orderCount;
-      }
-    }
-
-    // 3. Add customers from Orders, Bookings, Escalations, and Direct Messages
-    for (const ord of orders) if (ord.customer) addOrUpdateCustomer(ord.customer.id, ord.customer.name, ord.customer.phone);
-    for (const b of bookings) if (b.customer) addOrUpdateCustomer(b.customer.id, b.customer.name, null, b.customer.email);
-    for (const e of escalations) if (e.customer) addOrUpdateCustomer(e.customer.id, e.customer.name || e.customer.email.split("@")[0], null, e.customer.email);
-    for (const dm of directMessages) if (dm.customer) addOrUpdateCustomer(dm.customer.id, dm.customer.name || dm.customer.email.split("@")[0], null, dm.customer.email);
-
-    res.json(Array.from(customerMap.values()));
+    sendCollectionPage(
+      res,
+      rows.map((row) => ({
+        ...row,
+        phone: row.phone || "",
+        email: row.email || undefined,
+        ordersCount: Number(row.ordersCount),
+      })),
+      page,
+      limit
+    );
   } catch (err) {
     next(err);
   }

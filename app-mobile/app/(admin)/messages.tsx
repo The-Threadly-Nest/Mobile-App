@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Image,
   ScrollView,
+  AppState,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -33,13 +34,14 @@ import {
 import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import { apiFetch } from '../../src/shared/utils/apiClient';
+import { createIdempotencyKey } from '@/shared/utils/idempotency';
 import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import BottomAnchoredChatScrollView from '@/shared/components/BottomAnchoredChatScrollView';
 import MessageDeleteMenu from '@/shared/components/MessageDeleteMenu';
 import { uploadFile } from '@/shared/utils/upload';
 import { useAppAlert } from '@/shared/hooks/useAppAlert';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
+import { appendDirectMessages } from '@/shared/utils/mergeDirectMessages';
 import {
   createChatCacheOwner,
   readChatCache,
@@ -81,6 +83,20 @@ interface TranscriptTurn {
 interface DirectChatCache {
   messages: DirectMessage[];
   transcript: TranscriptTurn[];
+}
+
+interface DirectMessagePageInfo {
+  hasMoreOlder: boolean;
+  hasMoreNewer: boolean;
+  olderCursor: string | null;
+  latestCursor: string | null;
+  syncCursor: string;
+}
+
+interface DirectMessagePage {
+  messages: DirectMessage[];
+  transcript: TranscriptTurn[];
+  pageInfo: DirectMessagePageInfo;
 }
 
 const EMOJIS = ['😊', '👍', '✂️', '👗', '✨', '🪡', '🧵', '❤️', '🙌', '🔥', '👌', '👏'];
@@ -194,6 +210,8 @@ export default function AdminMessagesScreen() {
   const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadingEarlier, setLoadingEarlier] = useState(false);
+  const [hasMoreEarlier, setHasMoreEarlier] = useState(false);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -215,6 +233,12 @@ export default function AdminMessagesScreen() {
 
   const initialOpenedRef = useRef(false);
   const activeThreadIdRef = useRef<string | null>(null);
+  const olderCursorRef = useRef<string | null>(null);
+  const latestCursorRef = useRef<string | null>(null);
+  const syncCursorRef = useRef<string | null>(null);
+  const messageRequestInFlightRef = useRef(false);
+  const appIsActiveRef = useRef(AppState.currentState === 'active');
+  const failedTextSendRef = useRef<{ text: string; clientMessageId: string } | null>(null);
 
   const fetchThreads = async (silent = false) => {
     try {
@@ -247,13 +271,21 @@ export default function AdminMessagesScreen() {
   };
 
   useEffect(() => {
-    fetchThreads();
+    void fetchThreads();
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      const becameActive = nextState === 'active' && !appIsActiveRef.current;
+      appIsActiveRef.current = nextState === 'active';
+      if (becameActive && !selectedCustomer) void fetchThreads(true);
+    });
     const interval = setInterval(() => {
-      if (!selectedCustomer) {
-        fetchThreads(true);
+      if (appIsActiveRef.current && !selectedCustomer) {
+        void fetchThreads(true);
       }
-    }, 6000);
-    return () => clearInterval(interval);
+    }, 20000);
+    return () => {
+      clearInterval(interval);
+      appStateSubscription.remove();
+    };
   }, [selectedCustomer]);
 
   const fetchStaffList = async () => {
@@ -278,14 +310,19 @@ export default function AdminMessagesScreen() {
 
   const openThread = async (thread: ThreadSummary) => {
     activeThreadIdRef.current = thread.customerId;
+    olderCursorRef.current = null;
+    latestCursorRef.current = null;
+    syncCursorRef.current = null;
     setSelectedCustomer(thread);
     setMessages([]);
     setTranscript([]);
+    setHasMoreEarlier(false);
     // Clear unread count locally so badge updates immediately
     setThreads((prev) =>
       prev.map((t) => (t.customerId === thread.customerId ? { ...t, unreadCount: 0 } : t))
     );
     setLoadingMessages(true);
+    messageRequestInFlightRef.current = true;
     try {
       const cached = await readChatCache<DirectChatCache>(
         cacheOwner,
@@ -299,10 +336,17 @@ export default function AdminMessagesScreen() {
         setLoadingMessages(false);
       }
 
-      apiFetch(`/api/direct-messages/thread/${thread.customerId}/read`, { method: 'PATCH' }).catch(() => { });
-      const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${thread.customerId}`);
+      const data = await apiFetch<DirectMessagePage>(
+        `/api/direct-messages/thread/${thread.customerId}?limit=50`
+      );
       if (activeThreadIdRef.current !== thread.customerId) return;
       setMessages(data && Array.isArray(data.messages) ? data.messages : []);
+      olderCursorRef.current = data?.pageInfo?.olderCursor ?? data?.messages?.[0]?.id ?? null;
+      latestCursorRef.current = data?.pageInfo?.latestCursor
+        ?? data?.messages?.[data.messages.length - 1]?.id
+        ?? null;
+      syncCursorRef.current = data?.pageInfo?.syncCursor ?? null;
+      setHasMoreEarlier(Boolean(data?.pageInfo?.hasMoreOlder));
       setTranscript(
         data && Array.isArray(data.transcript)
           ? data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---'))
@@ -311,6 +355,7 @@ export default function AdminMessagesScreen() {
     } catch (err) {
       console.error('Error fetching thread messages:', err);
     } finally {
+      messageRequestInFlightRef.current = false;
       if (activeThreadIdRef.current === thread.customerId) {
         setLoadingMessages(false);
       }
@@ -322,6 +367,10 @@ export default function AdminMessagesScreen() {
     setSelectedCustomer(null);
     setMessages([]);
     setTranscript([]);
+    olderCursorRef.current = null;
+    latestCursorRef.current = null;
+    syncCursorRef.current = null;
+    setHasMoreEarlier(false);
   };
 
   const openMessageDeleteMenu = (message: DirectMessage, isMine: boolean) => {
@@ -383,18 +432,57 @@ export default function AdminMessagesScreen() {
   useEffect(() => {
     if (!selectedCustomer) return;
     const interval = setInterval(async () => {
+      if (!appIsActiveRef.current || messageRequestInFlightRef.current) return;
+      const after = latestCursorRef.current;
+      messageRequestInFlightRef.current = true;
       try {
-        const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${selectedCustomer.customerId}`);
+        const since = syncCursorRef.current;
+        const query = after
+          ? `?limit=100&after=${encodeURIComponent(after)}${since ? `&since=${encodeURIComponent(since)}` : ''}`
+          : '?limit=50';
+        const data = await apiFetch<DirectMessagePage>(
+          `/api/direct-messages/thread/${selectedCustomer.customerId}${query}`,
+          { silent: true }
+        );
+        if (activeThreadIdRef.current !== selectedCustomer.customerId) return;
         if (data && Array.isArray(data.messages)) {
-          setMessages((current) => mergeDirectMessages(current, data.messages));
-        }
-        if (data && Array.isArray(data.transcript)) {
-          setTranscript(data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---')));
+          setMessages((current) => appendDirectMessages(current, data.messages));
+          latestCursorRef.current = data?.pageInfo?.latestCursor
+            ?? data.messages[data.messages.length - 1]?.id
+            ?? after
+            ?? null;
+          syncCursorRef.current = data?.pageInfo?.syncCursor ?? syncCursorRef.current;
         }
       } catch (err) { }
-    }, 4000);
+      finally {
+        messageRequestInFlightRef.current = false;
+      }
+    }, 10000);
     return () => clearInterval(interval);
   }, [selectedCustomer]);
+
+  const loadEarlierMessages = async () => {
+    const cursor = olderCursorRef.current;
+    if (!selectedCustomer || !cursor || loadingEarlier || messageRequestInFlightRef.current) return;
+    messageRequestInFlightRef.current = true;
+    setLoadingEarlier(true);
+    try {
+      const data = await apiFetch<DirectMessagePage>(
+        `/api/direct-messages/thread/${selectedCustomer.customerId}?limit=50&cursor=${encodeURIComponent(cursor)}`,
+        { silent: true }
+      );
+      if (activeThreadIdRef.current !== selectedCustomer.customerId) return;
+      const earlierMessages = Array.isArray(data?.messages) ? data.messages : [];
+      setMessages((current) => appendDirectMessages(current, earlierMessages));
+      olderCursorRef.current = data?.pageInfo?.olderCursor ?? earlierMessages[0]?.id ?? cursor;
+      setHasMoreEarlier(Boolean(data?.pageInfo?.hasMoreOlder));
+    } catch (err) {
+      console.error('Error loading earlier direct messages:', err);
+    } finally {
+      messageRequestInFlightRef.current = false;
+      setLoadingEarlier(false);
+    }
+  };
 
   const handleSend = async () => {
     const textToSend = inputText.trim();
@@ -402,7 +490,12 @@ export default function AdminMessagesScreen() {
     setInputText('');
     setSending(true);
 
-    const tempId = `temp-${Date.now()}`;
+    const retryAttempt = failedTextSendRef.current?.text === textToSend
+      ? failedTextSendRef.current
+      : null;
+    const clientMessageId = retryAttempt?.clientMessageId || createIdempotencyKey('dm');
+    failedTextSendRef.current = null;
+    const tempId = `temp-${clientMessageId}`;
     const optimisticMsg: DirectMessage = {
       id: tempId,
       senderType: 'FASHION_HOUSE',
@@ -416,12 +509,13 @@ export default function AdminMessagesScreen() {
     try {
       const result = await apiFetch<DirectMessage>(`/api/direct-messages/thread/${selectedCustomer.customerId}`, {
         method: 'POST',
-        body: JSON.stringify({ text: textToSend, content: textToSend }),
+        body: JSON.stringify({ text: textToSend, clientMessageId }),
       });
       if (result && result.id) {
         setMessages((prev) => prev.map((m) => (m.id === tempId ? result : m)));
       }
     } catch (err) {
+      failedTextSendRef.current = { text: textToSend, clientMessageId };
       console.error('Failed to send admin message:', err);
       setMessages((current) => current.filter((message) => message.id !== tempId));
       setInputText((current) => current || textToSend);
@@ -453,12 +547,11 @@ export default function AdminMessagesScreen() {
 
         try {
           const uploaded = await uploadFile(asset.uri, filename, contentType);
-          await apiFetch(`/api/direct-messages/thread/${selectedCustomer.customerId}`, {
+          const sentMessage = await apiFetch<DirectMessage>(`/api/direct-messages/thread/${selectedCustomer.customerId}`, {
             method: 'POST',
-            body: JSON.stringify({ imageUrl: uploaded.fileUrl }),
+            body: JSON.stringify({ imageUrl: uploaded.fileUrl, clientMessageId: createIdempotencyKey('dm-image') }),
           });
-          const data = await apiFetch<{ messages: DirectMessage[] }>(`/api/direct-messages/thread/${selectedCustomer.customerId}`);
-          if (data && Array.isArray(data.messages)) setMessages(data.messages);
+          setMessages((current) => appendDirectMessages(current, [sentMessage]));
         } catch (err: any) {
           showAlert('Upload Error', err.message || 'Failed to upload image.');
         } finally {
@@ -539,12 +632,11 @@ export default function AdminMessagesScreen() {
       const uploaded = await uploadFile(uri, `voice_${Date.now()}.m4a`, 'audio/m4a');
       const finalAudioUrl = uploaded.fileUrl || uri;
 
-      await apiFetch(`/api/direct-messages/thread/${selectedCustomer.customerId}`, {
+      const sentMessage = await apiFetch<DirectMessage>(`/api/direct-messages/thread/${selectedCustomer.customerId}`, {
         method: 'POST',
-        body: JSON.stringify({ audioUrl: finalAudioUrl, audioDuration: finalDuration }),
+        body: JSON.stringify({ audioUrl: finalAudioUrl, audioDuration: finalDuration, clientMessageId: createIdempotencyKey('dm-audio') }),
       });
-      const data = await apiFetch<{ messages: DirectMessage[] }>(`/api/direct-messages/thread/${selectedCustomer.customerId}`);
-      if (data && Array.isArray(data.messages)) setMessages(data.messages);
+      setMessages((current) => appendDirectMessages(current, [sentMessage]));
     } catch (err: any) {
       showAlert('Error', err.message || 'Failed to send voice note.');
     } finally {
@@ -933,6 +1025,19 @@ export default function AdminMessagesScreen() {
               showsVerticalScrollIndicator={false}
             >
               {renderTranscriptSection()}
+              {hasMoreEarlier ? (
+                <Pressable
+                  onPress={() => void loadEarlierMessages()}
+                  disabled={loadingEarlier}
+                  style={styles.loadEarlierButton}
+                >
+                  {loadingEarlier ? (
+                    <ActivityIndicator size="small" color="#4A080C" />
+                  ) : (
+                    <Text style={styles.loadEarlierText}>Load earlier messages</Text>
+                  )}
+                </Pressable>
+              ) : null}
               {messages.map((item, index) => renderMessageItem({ item, index }))}
             </BottomAnchoredChatScrollView>
           )}
@@ -1229,6 +1334,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
+  },
+  loadEarlierButton: {
+    alignSelf: 'center',
+    minHeight: 36,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  loadEarlierText: {
+    color: '#4A080C',
+    fontFamily: 'WorkSans_600SemiBold',
+    fontSize: 13,
   },
   dividerRow: {
     flexDirection: 'row',

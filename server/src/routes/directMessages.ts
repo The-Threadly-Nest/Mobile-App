@@ -1,35 +1,124 @@
 import { Router } from "express";
+import type { Request } from "express";
+import type { Prisma } from "../generated/prisma/client";
 import { prisma } from "../lib/prisma";
 import { requireAuth } from "../middleware/auth";
+import { validate } from "../middleware/validate";
 import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
+import { isUniqueConstraintError } from "../lib/idempotency";
+import {
+  directMessageIdParamSchema,
+  directMessageThreadParamSchema,
+  directMessageThreadQuerySchema,
+  sendDirectMessageSchema,
+} from "../schemas/directMessages.schema";
 
 const router = Router();
 router.use(requireAuth);
 
 // Helper: resolve the fashionHouseId and customerId for a thread
-async function resolveThread(authUserId: string, paramFhId: string) {
-  const user = await prisma.user.findUnique({ where: { id: authUserId } });
-  if (!user) throw Object.assign(new Error("User not found"), { status: 401 });
+type ResolvedThread = {
+  fashionHouseId: string;
+  customerId: string;
+  senderRole: "admin" | "customer";
+  senderId: string;
+};
 
-  if (user.role === "admin") {
-    // Admin's own fashion house
-    const fh = await prisma.fashionHouse.findUnique({ where: { adminId: user.id } });
-    if (!fh) throw Object.assign(new Error("Fashion house not found for admin"), { status: 404 });
-    // Admin views a specific customer thread by customerId passed in paramFhId? No —
-    // For admin-initiated, paramFhId is the customerId they want to chat with.
-    return { fashionHouseId: fh.id, customerId: paramFhId, senderRole: "admin" as const, senderId: user.id };
+function httpError(message: string, status: number) {
+  return Object.assign(new Error(message), { status });
+}
+
+function canAccessMessage(
+  req: Request,
+  message: { fashionHouseId: string; customerId: string }
+) {
+  return (
+    (req.authRole === "customer" && message.customerId === req.authUserId) ||
+    (req.authRole === "admin" && message.fashionHouseId === req.authFashionHouseId)
+  );
+}
+
+async function assertAdminCustomerRelationship(fashionHouseId: string, customerId: string) {
+  const [customer, crmCustomer] = await Promise.all([
+    prisma.user.findFirst({
+      where: {
+        id: customerId,
+        role: "customer",
+        active: true,
+        OR: [
+          { receivedDirectMessages: { some: { fashionHouseId } } },
+          { bookings: { some: { fashionHouseId } } },
+          { chatSessions: { some: { fashionHouseId } } },
+          { chatEscalations: { some: { fashionHouseId } } },
+        ],
+      },
+      select: { id: true },
+    }),
+    prisma.customer.findFirst({
+      where: { fashionHouseId, userId: customerId },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!customer && !crmCustomer) {
+    throw httpError("This customer is not associated with your fashion house.", 403);
   }
 
-  // Customer
-  return { fashionHouseId: paramFhId, customerId: user.id, senderRole: "customer" as const, senderId: user.id };
+  // A CRM record is tenant evidence, but the message target must still be a live customer account.
+  if (!customer) {
+    const customerAccount = await prisma.user.findFirst({
+      where: { id: customerId, role: "customer", active: true },
+      select: { id: true },
+    });
+    if (!customerAccount) throw httpError("Customer account not found.", 404);
+  }
+}
+
+// Customers address a fashion house. Admins address a customer in their own house.
+async function resolveThread(req: Request, targetId: string): Promise<ResolvedThread> {
+  const senderId = req.authUserId;
+  if (!senderId || !req.authRole) throw httpError("Unauthorized access.", 401);
+
+  if (req.authRole === "admin") {
+    const fashionHouseId = req.authFashionHouseId;
+    if (!fashionHouseId) throw httpError("Fashion house not found for admin.", 404);
+    await assertAdminCustomerRelationship(fashionHouseId, targetId);
+    return { fashionHouseId, customerId: targetId, senderRole: "admin", senderId };
+  }
+
+  if (req.authRole === "customer") {
+    const fashionHouse = await prisma.fashionHouse.findUnique({
+      where: { id: targetId },
+      select: { id: true },
+    });
+    if (!fashionHouse) throw httpError("Fashion house not found.", 404);
+    return {
+      fashionHouseId: fashionHouse.id,
+      customerId: senderId,
+      senderRole: "customer",
+      senderId,
+    };
+  }
+
+  throw httpError("Staff accounts cannot access customer direct messages.", 403);
 }
 
 // GET /api/direct-messages/thread/:fashionHouseId
 // Customer: loads their thread with that fashion house
 // Admin: paramFhId is treated as the customerId — loads that customer's thread
-router.get("/thread/:fashionHouseId", async (req, res, next) => {
-  try {
-    const { fashionHouseId, customerId } = await resolveThread(req.authUserId!, req.params.fashionHouseId);
+router.get(
+  "/thread/:fashionHouseId",
+  validate({ params: directMessageThreadParamSchema, query: directMessageThreadQuerySchema }),
+  async (req, res, next) => {
+    try {
+    const { fashionHouseId, customerId } = await resolveThread(req, req.params.fashionHouseId);
+    const syncStartedAt = new Date();
+    const { limit, cursor, after, since } = req.query as unknown as {
+      limit: number;
+      cursor?: string;
+      after?: string;
+      since?: string;
+    };
 
     const threadState = await prisma.directMessageThreadState.findUnique({
       where: {
@@ -41,34 +130,95 @@ router.get("/thread/:fashionHouseId", async (req, res, next) => {
       },
     });
 
-    const messages = await prisma.directMessage.findMany({
-      where: {
-        fashionHouseId,
-        customerId,
-        ...(threadState ? { createdAt: { gt: threadState.clearedAt } } : {}),
-        userDeletions: { none: { userId: req.authUserId! } },
-      },
-      orderBy: { createdAt: "asc" },
+    const visibleMessageWhere: Prisma.DirectMessageWhereInput = {
+      fashionHouseId,
+      customerId,
+      ...(threadState ? { createdAt: { gt: threadState.clearedAt } } : {}),
+      userDeletions: { none: { userId: req.authUserId! } },
+    };
+
+    const anchorId = after ?? cursor;
+    const anchor = anchorId
+      ? await prisma.directMessage.findFirst({
+          where: { id: anchorId, fashionHouseId, customerId },
+          select: { id: true, createdAt: true },
+        })
+      : null;
+    if (anchorId && !anchor) throw httpError("Message cursor is no longer available.", 400);
+
+    const pageDirection = after ? "newer" : "older";
+    const changeSince = since ? new Date(since) : anchor?.createdAt;
+    const cursorFilter: Prisma.DirectMessageWhereInput = !anchor
+      ? {}
+      : pageDirection === "newer"
+      ? {
+          OR: [
+            { createdAt: { gt: anchor.createdAt } },
+            { createdAt: anchor.createdAt, id: { gt: anchor.id } },
+            { deletedForEveryoneAt: { gt: changeSince! } },
+            { readAt: { gt: changeSince! } },
+          ],
+        }
+      : {
+          OR: [
+            { createdAt: { lt: anchor.createdAt } },
+            { createdAt: anchor.createdAt, id: { lt: anchor.id } },
+          ],
+        };
+
+    const fetchedMessages = await prisma.directMessage.findMany({
+      where: { AND: [visibleMessageWhere, cursorFilter] },
+      orderBy: [
+        { createdAt: pageDirection === "newer" ? "asc" : "desc" },
+        { id: pageDirection === "newer" ? "asc" : "desc" },
+      ],
+      take: limit + 1,
       include: {
         sender: { select: { id: true, name: true, role: true } },
       },
     });
 
+    const hasMore = fetchedMessages.length > limit;
+    const page = fetchedMessages.slice(0, limit);
+    const orderedMessages = pageDirection === "older" ? page.reverse() : page;
+    const messages = orderedMessages.map((message) => ({
+      ...message,
+      isRead: Boolean(message.readAt),
+    }));
+    const newestCreatedMessage = pageDirection === "newer" && anchor
+      ? [...messages].reverse().find((message) =>
+          message.createdAt.getTime() > anchor.createdAt.getTime() ||
+          (message.createdAt.getTime() === anchor.createdAt.getTime() && message.id > anchor.id)
+        )
+      : messages[messages.length - 1];
+
     // Mark unread messages sent to this user as read
-    await prisma.directMessage.updateMany({
-      where: {
-        fashionHouseId,
-        customerId,
-        senderId: { not: req.authUserId! },
-        readAt: null,
-      },
-      data: { readAt: new Date() },
-    });
+    if (!cursor && !after) {
+      await prisma.directMessage.updateMany({
+        where: {
+          fashionHouseId,
+          customerId,
+          senderId: { not: req.authUserId! },
+          readAt: null,
+        },
+        data: { readAt: new Date() },
+      });
+    } else if (messages.length > 0) {
+      await prisma.directMessage.updateMany({
+        where: {
+          id: { in: messages.map((message) => message.id) },
+          senderId: { not: req.authUserId! },
+          readAt: null,
+        },
+        data: { readAt: new Date() },
+      });
+    }
 
     // Attach the AI chat transcript from the latest escalation or chatSession for this thread
     // so both customer and admin can see the prior AI conversation history
     let transcript: unknown[] = [];
-    try {
+    if (!cursor && !after) {
+      try {
       const escalation = await prisma.chatEscalation.findFirst({
         where: { fashionHouseId, customerId },
         orderBy: { createdAt: "desc" },
@@ -91,24 +241,33 @@ router.get("/thread/:fashionHouseId", async (req, res, next) => {
           transcript = session.history as unknown[];
         }
       }
-    } catch {
+      } catch {
       // If parsing fails, transcript stays empty — non-fatal
+      }
     }
 
-    res.json({ messages, transcript });
-  } catch (err) {
-    next(err);
+    res.json({
+      messages,
+      transcript,
+      pageInfo: {
+        hasMoreOlder: pageDirection === "older" && hasMore,
+        hasMoreNewer: pageDirection === "newer" && hasMore,
+        olderCursor: messages[0]?.id ?? cursor ?? null,
+        latestCursor: newestCreatedMessage?.id ?? after ?? null,
+        syncCursor: syncStartedAt.toISOString(),
+      },
+    });
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 // DELETE /api/direct-messages/thread/:fashionHouseId
 // Removes the conversation for the signed-in user without erasing the other participant's copy.
-router.delete("/thread/:fashionHouseId", async (req, res, next) => {
+router.delete("/thread/:fashionHouseId", validate({ params: directMessageThreadParamSchema }), async (req, res, next) => {
   try {
-    const { fashionHouseId, customerId } = await resolveThread(
-      req.authUserId!,
-      req.params.fashionHouseId
-    );
+    const { fashionHouseId, customerId } = await resolveThread(req, req.params.fashionHouseId);
 
     await prisma.directMessageThreadState.upsert({
       where: {
@@ -135,12 +294,15 @@ router.delete("/thread/:fashionHouseId", async (req, res, next) => {
 
 // DELETE /api/direct-messages/messages/:messageId
 // "Delete for everyone": sender-only and available for ten minutes.
-router.delete("/messages/:messageId", async (req, res, next) => {
+router.delete("/messages/:messageId", validate({ params: directMessageIdParamSchema }), async (req, res, next) => {
   try {
     const message = await prisma.directMessage.findUnique({
       where: { id: req.params.messageId },
     });
     if (!message) return res.status(404).json({ error: "Message not found." });
+    if (!canAccessMessage(req, message)) {
+      return res.status(403).json({ error: "You do not have access to this message." });
+    }
     if (message.senderId !== req.authUserId) {
       return res.status(403).json({ error: "You can only delete messages that you sent." });
     }
@@ -172,19 +334,14 @@ router.delete("/messages/:messageId", async (req, res, next) => {
 
 // DELETE /api/direct-messages/messages/:messageId/me
 // Removes one message only from the signed-in participant's view.
-router.delete("/messages/:messageId/me", async (req, res, next) => {
+router.delete("/messages/:messageId/me", validate({ params: directMessageIdParamSchema }), async (req, res, next) => {
   try {
     const message = await prisma.directMessage.findUnique({
       where: { id: req.params.messageId },
     });
     if (!message) return res.status(404).json({ error: "Message not found." });
 
-    const isCustomer = message.customerId === req.authUserId;
-    const isFashionHouseAdmin = await prisma.fashionHouse.findFirst({
-      where: { id: message.fashionHouseId, adminId: req.authUserId! },
-      select: { id: true },
-    });
-    if (!isCustomer && !isFashionHouseAdmin) {
+    if (!canAccessMessage(req, message)) {
       return res.status(403).json({ error: "You do not have access to this message." });
     }
 
@@ -207,35 +364,94 @@ router.delete("/messages/:messageId/me", async (req, res, next) => {
 
 // POST /api/direct-messages/thread/:fashionHouseId
 // Customer sends to fashion house; admin sends to customer
-router.post("/thread/:fashionHouseId", async (req, res, next) => {
-  try {
-    const { fashionHouseId, customerId, senderRole, senderId } = await resolveThread(req.authUserId!, req.params.fashionHouseId);
-    const { text, imageUrl, audioUrl, audioDuration } = req.body as {
-      text?: string;
-      imageUrl?: string;
-      audioUrl?: string;
-      audioDuration?: number;
-    };
+router.post(
+  "/thread/:fashionHouseId",
+  validate({ params: directMessageThreadParamSchema, body: sendDirectMessageSchema }),
+  async (req, res, next) => {
+    try {
+      const { fashionHouseId, customerId, senderRole, senderId } = await resolveThread(req, req.params.fashionHouseId);
+      const { text, imageUrl, audioUrl, audioDuration, clientMessageId } = req.body as {
+        text?: string;
+        imageUrl?: string;
+        audioUrl?: string;
+        audioDuration?: number;
+        clientMessageId: string;
+      };
 
-    if (!text?.trim() && !imageUrl && !audioUrl) {
-      return res.status(400).json({ error: "Message text, image, or audio is required." });
+    const normalizedText = text ?? "";
+    const normalizedImageUrl = imageUrl ?? null;
+    const normalizedAudioUrl = audioUrl ?? null;
+    const parsedAudioDuration = audioDuration == null ? null : Math.round(audioDuration);
+
+    const isSameRequest = (candidate: {
+      fashionHouseId: string;
+      customerId: string;
+      text: string;
+      imageUrl: string | null;
+      audioUrl: string | null;
+      audioDuration: number | null;
+    }) =>
+      candidate.fashionHouseId === fashionHouseId &&
+      candidate.customerId === customerId &&
+      candidate.text === normalizedText &&
+      candidate.imageUrl === normalizedImageUrl &&
+      candidate.audioUrl === normalizedAudioUrl &&
+      candidate.audioDuration === parsedAudioDuration;
+
+    const existingMessage = await prisma.directMessage.findUnique({
+      where: { senderId_clientMessageId: { senderId, clientMessageId } },
+      include: { sender: { select: { id: true, name: true, role: true } } },
+    });
+    if (existingMessage) {
+      if (!isSameRequest(existingMessage)) {
+        return res.status(409).json({
+          code: "IDEMPOTENCY_KEY_REUSED",
+          error: "This message key was already used for a different message.",
+        });
+      }
+      return res.json(existingMessage);
     }
 
-    const message = await prisma.directMessage.create({
-      data: {
-        fashionHouseId,
-        customerId,
-        senderRole,
-        senderId,
-        text: text?.trim() ?? "",
-        imageUrl: imageUrl ?? null,
-        audioUrl: audioUrl ?? null,
-        audioDuration: audioDuration ? Math.round(Number(audioDuration)) : null,
-      },
-      include: {
-        sender: { select: { id: true, name: true, role: true } },
-      },
-    });
+    let message;
+    try {
+      message = await prisma.directMessage.create({
+        data: {
+          fashionHouseId,
+          customerId,
+          senderRole,
+          senderId,
+          clientMessageId,
+          text: normalizedText,
+          imageUrl: normalizedImageUrl,
+          audioUrl: normalizedAudioUrl,
+          audioDuration: parsedAudioDuration,
+        },
+        include: {
+          sender: { select: { id: true, name: true, role: true } },
+        },
+      });
+    } catch (error) {
+      if (!isUniqueConstraintError(error)) throw error;
+      const racedMessage = await prisma.directMessage.findUnique({
+        where: { senderId_clientMessageId: { senderId, clientMessageId } },
+        include: { sender: { select: { id: true, name: true, role: true } } },
+      });
+      if (!racedMessage) throw error;
+      if (!isSameRequest(racedMessage)) {
+        return res.status(409).json({
+          code: "IDEMPOTENCY_KEY_REUSED",
+          error: "This message key was already used for a different message.",
+        });
+      }
+      return res.json(racedMessage);
+    }
+
+    if (senderRole === "admin") {
+      await prisma.chatEscalation.updateMany({
+        where: { fashionHouseId, customerId, resolved: false },
+        data: { status: "human_active" },
+      });
+    }
 
     // Push notifications — WhatsApp-style: always notify the other party
     const notifBody = audioUrl
@@ -266,16 +482,17 @@ router.post("/thread/:fashionHouseId", async (req, res, next) => {
       );
     }
 
-    res.status(201).json(message);
-  } catch (err) {
-    next(err);
+      res.status(201).json(message);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 // PATCH /api/direct-messages/thread/:fashionHouseId/read
-router.patch("/thread/:fashionHouseId/read", async (req, res, next) => {
+router.patch("/thread/:fashionHouseId/read", validate({ params: directMessageThreadParamSchema }), async (req, res, next) => {
   try {
-    const { fashionHouseId, customerId } = await resolveThread(req.authUserId!, req.params.fashionHouseId);
+    const { fashionHouseId, customerId } = await resolveThread(req, req.params.fashionHouseId);
 
     await prisma.directMessage.updateMany({
       where: {
@@ -297,81 +514,71 @@ router.patch("/thread/:fashionHouseId/read", async (req, res, next) => {
 router.get("/my-threads", async (req, res, next) => {
   try {
     const customerId = req.authUserId;
-    if (!customerId) {
-      return res.status(401).json({ error: "Unauthorized access." });
+    if (!customerId || req.authRole !== "customer") {
+      return res.status(403).json({ error: "Customer access required." });
     }
 
-    // Find all distinct fashion houses where this customer has direct messages
-    const distinctThreads = await prisma.directMessage.findMany({
-      where: {
-        customerId,
-        userDeletions: { none: { userId: customerId } },
-      },
-      distinct: ["fashionHouseId"],
-      orderBy: { createdAt: "desc" },
-      include: {
-        fashionHouse: {
-          select: { id: true, shopName: true, brandLogoUrl: true },
-        },
-      },
-    });
+    const rows = await prisma.$queryRaw<Array<{
+      fashionHouseId: string;
+      fashionHouseName: string;
+      fashionHouseLogo: string | null;
+      text: string;
+      imageUrl: string | null;
+      audioUrl: string | null;
+      deletedForEveryoneAt: Date | null;
+      latestAt: Date;
+      unreadCount: bigint | number;
+    }>>`
+      WITH "visibleMessages" AS (
+        SELECT
+          dm.*,
+          ROW_NUMBER() OVER (
+            PARTITION BY dm."fashionHouseId"
+            ORDER BY dm."createdAt" DESC, dm."id" DESC
+          ) AS "rowNumber",
+          COUNT(*) FILTER (
+            WHERE dm."senderRole" <> 'customer' AND dm."readAt" IS NULL
+          ) OVER (PARTITION BY dm."fashionHouseId") AS "unreadCount"
+        FROM "direct_messages" dm
+        LEFT JOIN "direct_message_thread_states" state
+          ON state."userId" = ${customerId}
+          AND state."fashionHouseId" = dm."fashionHouseId"
+          AND state."customerId" = dm."customerId"
+        WHERE dm."customerId" = ${customerId}
+          AND (state."clearedAt" IS NULL OR dm."createdAt" > state."clearedAt")
+          AND NOT EXISTS (
+            SELECT 1
+            FROM "direct_message_user_deletions" deletion
+            WHERE deletion."userId" = ${customerId}
+              AND deletion."messageId" = dm."id"
+          )
+      )
+      SELECT
+        message."fashionHouseId",
+        house."shopName" AS "fashionHouseName",
+        house."brandLogoUrl" AS "fashionHouseLogo",
+        message."text",
+        message."imageUrl",
+        message."audioUrl",
+        message."deletedForEveryoneAt",
+        message."createdAt" AS "latestAt",
+        message."unreadCount"
+      FROM "visibleMessages" message
+      INNER JOIN "fashion_houses" house ON house."id" = message."fashionHouseId"
+      WHERE message."rowNumber" = 1
+      ORDER BY message."createdAt" DESC, message."id" DESC
+    `;
 
-    const threads = await Promise.all(
-      distinctThreads.map(async (dm) => {
-        const threadState = await prisma.directMessageThreadState.findUnique({
-          where: {
-            userId_fashionHouseId_customerId: {
-              userId: customerId,
-              fashionHouseId: dm.fashionHouseId,
-              customerId,
-            },
-          },
-        });
-        const visibleAfter = threadState?.clearedAt;
-        const [latestMessage, unreadCount] = await Promise.all([
-          prisma.directMessage.findFirst({
-            where: {
-              customerId,
-              fashionHouseId: dm.fashionHouseId,
-              ...(visibleAfter ? { createdAt: { gt: visibleAfter } } : {}),
-              userDeletions: { none: { userId: customerId } },
-            },
-            orderBy: { createdAt: "desc" },
-          }),
-          prisma.directMessage.count({
-            where: {
-              customerId,
-              fashionHouseId: dm.fashionHouseId,
-              senderRole: { not: "customer" },
-              readAt: null,
-              ...(visibleAfter ? { createdAt: { gt: visibleAfter } } : {}),
-              userDeletions: { none: { userId: customerId } },
-            },
-          }),
-        ]);
-
-        if (!latestMessage) return null;
-
-        let snippet = latestMessage.deletedForEveryoneAt
-          ? "This message was deleted"
-          : latestMessage.text || "";
-        if (!snippet) {
-          if (latestMessage?.imageUrl) snippet = "📷 Photo";
-          else snippet = "Voice message";
-        }
-
-        return {
-          fashionHouseId: dm.fashionHouseId,
-          fashionHouseName: dm.fashionHouse?.shopName || "Fashion House",
-          fashionHouseLogo: dm.fashionHouse?.brandLogoUrl || null,
-          latestMessage: snippet,
-          latestAt: latestMessage?.createdAt || null,
-          unreadCount,
-        };
-      })
-    );
-
-    res.json(threads.filter((thread): thread is NonNullable<typeof thread> => thread !== null));
+    res.json(rows.map((row) => ({
+      fashionHouseId: row.fashionHouseId,
+      fashionHouseName: row.fashionHouseName || "Fashion House",
+      fashionHouseLogo: row.fashionHouseLogo,
+      latestMessage: row.deletedForEveryoneAt
+        ? "This message was deleted"
+        : row.text || (row.imageUrl ? "Photo" : row.audioUrl ? "Voice message" : "No messages yet"),
+      latestAt: row.latestAt,
+      unreadCount: Number(row.unreadCount),
+    })));
   } catch (err) {
     next(err);
   }
@@ -380,95 +587,74 @@ router.get("/my-threads", async (req, res, next) => {
 // GET /api/direct-messages/threads — admin only, lists all customer threads with unread count
 router.get("/threads", async (req, res, next) => {
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.authUserId! } });
-    if (!user || user.role !== "admin") {
+    const adminId = req.authUserId;
+    const fashionHouseId = req.authFashionHouseId;
+    if (!adminId || req.authRole !== "admin") {
       return res.status(403).json({ error: "Admin access required." });
     }
+    if (!fashionHouseId) return res.status(404).json({ error: "Fashion house not found." });
 
-    const fh = await prisma.fashionHouse.findUnique({ where: { adminId: user.id } });
-    if (!fh) return res.status(404).json({ error: "Fashion house not found." });
+    const rows = await prisma.$queryRaw<Array<{
+      customerId: string;
+      customerName: string | null;
+      customerEmail: string;
+      text: string;
+      imageUrl: string | null;
+      audioUrl: string | null;
+      deletedForEveryoneAt: Date | null;
+      latestAt: Date;
+      unreadCount: bigint | number;
+    }>>`
+      WITH "visibleMessages" AS (
+        SELECT
+          dm.*,
+          ROW_NUMBER() OVER (
+            PARTITION BY dm."customerId"
+            ORDER BY dm."createdAt" DESC, dm."id" DESC
+          ) AS "rowNumber",
+          COUNT(*) FILTER (
+            WHERE dm."senderRole" = 'customer' AND dm."readAt" IS NULL
+          ) OVER (PARTITION BY dm."customerId") AS "unreadCount"
+        FROM "direct_messages" dm
+        LEFT JOIN "direct_message_thread_states" state
+          ON state."userId" = ${adminId}
+          AND state."fashionHouseId" = dm."fashionHouseId"
+          AND state."customerId" = dm."customerId"
+        WHERE dm."fashionHouseId" = ${fashionHouseId}
+          AND (state."clearedAt" IS NULL OR dm."createdAt" > state."clearedAt")
+          AND NOT EXISTS (
+            SELECT 1
+            FROM "direct_message_user_deletions" deletion
+            WHERE deletion."userId" = ${adminId}
+              AND deletion."messageId" = dm."id"
+          )
+      )
+      SELECT
+        message."customerId",
+        customer."name" AS "customerName",
+        customer."email" AS "customerEmail",
+        message."text",
+        message."imageUrl",
+        message."audioUrl",
+        message."deletedForEveryoneAt",
+        message."createdAt" AS "latestAt",
+        message."unreadCount"
+      FROM "visibleMessages" message
+      INNER JOIN "users" customer ON customer."id" = message."customerId"
+      WHERE message."rowNumber" = 1
+      ORDER BY message."createdAt" DESC, message."id" DESC
+    `;
 
-    // Find all distinct customers who have messages in this fashion house
-    const distinctCustomers = await prisma.directMessage.findMany({
-      where: {
-        fashionHouseId: fh.id,
-        userDeletions: { none: { userId: user.id } },
-      },
-      distinct: ["customerId"],
-      orderBy: { createdAt: "desc" },
-      include: {
-        customer: { select: { id: true, name: true, email: true } },
-      },
-    });
-
-    // For each customer, get latest message + unread count (messages sent by customer, not read yet)
-    const threads = await Promise.all(
-      distinctCustomers.map(async (dm: { customerId: string; customer: { id: string; name: string | null; email: string } }) => {
-        const threadState = await prisma.directMessageThreadState.findUnique({
-          where: {
-            userId_fashionHouseId_customerId: {
-              userId: user.id,
-              fashionHouseId: fh.id,
-              customerId: dm.customerId,
-            },
-          },
-        });
-        const visibleAfter = threadState?.clearedAt;
-        const [latestMessage, unreadCount] = await Promise.all([
-          prisma.directMessage.findFirst({
-            where: {
-              fashionHouseId: fh.id,
-              customerId: dm.customerId,
-              ...(visibleAfter ? { createdAt: { gt: visibleAfter } } : {}),
-              userDeletions: { none: { userId: user.id } },
-            },
-            orderBy: { createdAt: "desc" },
-          }),
-          prisma.directMessage.count({
-            where: {
-              fashionHouseId: fh.id,
-              customerId: dm.customerId,
-              senderRole: "customer",
-              readAt: null,
-              ...(visibleAfter ? { createdAt: { gt: visibleAfter } } : {}),
-              userDeletions: { none: { userId: user.id } },
-            },
-          }),
-        ]);
-
-        if (!latestMessage) return null;
-
-        let snippet = latestMessage.deletedForEveryoneAt
-          ? "This message was deleted"
-          : latestMessage.text || "";
-        if (!snippet) {
-          if (latestMessage?.imageUrl) snippet = "📷 Photo";
-          else if (latestMessage?.audioUrl) snippet = "🎙️ Voice message";
-          else snippet = "No messages yet";
-        }
-
-        return {
-          customerId: dm.customerId,
-          customerName: dm.customer.name || dm.customer.email || "Customer",
-          customerEmail: dm.customer.email,
-          latestMessage: snippet,
-          latestAt: latestMessage?.createdAt ?? null,
-          unreadCount,
-        };
-      })
-    );
-
-    // Sort threads by latest message timestamp descending
-    const visibleThreads = threads.filter(
-      (thread): thread is NonNullable<typeof thread> => thread !== null
-    );
-    visibleThreads.sort((a, b) => {
-      const timeA = a.latestAt ? new Date(a.latestAt).getTime() : 0;
-      const timeB = b.latestAt ? new Date(b.latestAt).getTime() : 0;
-      return timeB - timeA;
-    });
-
-    res.json(visibleThreads);
+    res.json(rows.map((row) => ({
+      customerId: row.customerId,
+      customerName: row.customerName || row.customerEmail || "Customer",
+      customerEmail: row.customerEmail,
+      latestMessage: row.deletedForEveryoneAt
+        ? "This message was deleted"
+        : row.text || (row.imageUrl ? "Photo" : row.audioUrl ? "Voice message" : "No messages yet"),
+      latestAt: row.latestAt,
+      unreadCount: Number(row.unreadCount),
+    })));
   } catch (err) {
     next(err);
   }

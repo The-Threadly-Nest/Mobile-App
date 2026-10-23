@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   Image,
+  AppState,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -30,13 +31,14 @@ import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } fr
 import * as ImagePicker from 'expo-image-picker';
 import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import { apiFetch } from '../../../src/shared/utils/apiClient';
+import { createIdempotencyKey } from '@/shared/utils/idempotency';
 import { uploadFile } from '@/shared/utils/upload';
 import { useAppAlert } from '@/shared/hooks/useAppAlert';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { StatusBar } from 'expo-status-bar';
 import MessageDeleteMenu from '@/shared/components/MessageDeleteMenu';
 import BottomAnchoredChatScrollView from '@/shared/components/BottomAnchoredChatScrollView';
-import { mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
+import { appendDirectMessages, mergeDirectMessages } from '@/shared/utils/mergeDirectMessages';
 import {
   createChatCacheOwner,
   readChatCache,
@@ -68,6 +70,20 @@ interface TranscriptTurn {
 interface DirectChatCache {
   messages: DirectMessage[];
   transcript: TranscriptTurn[];
+}
+
+interface DirectMessagePageInfo {
+  hasMoreOlder: boolean;
+  hasMoreNewer: boolean;
+  olderCursor: string | null;
+  latestCursor: string | null;
+  syncCursor: string;
+}
+
+interface DirectMessagePage {
+  messages: DirectMessage[];
+  transcript: TranscriptTurn[];
+  pageInfo: DirectMessagePageInfo;
 }
 
 const EMOJIS = ['😊', '👍', '✂️', '👗', '✨', '🪡', '🧵', '❤️', '🙌', '🔥', '👌', '👏'];
@@ -177,6 +193,8 @@ export default function CustomerDirectChatScreen() {
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [loadingEarlier, setLoadingEarlier] = useState(false);
+  const [hasMoreEarlier, setHasMoreEarlier] = useState(false);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [selectedMessageForDeletion, setSelectedMessageForDeletion] = useState<{
     message: DirectMessage;
@@ -194,6 +212,12 @@ export default function CustomerDirectChatScreen() {
 
   const activeConversationIdRef = useRef<string | null>(null);
   const hydratedConversationIdRef = useRef<string | null>(null);
+  const olderCursorRef = useRef<string | null>(null);
+  const latestCursorRef = useRef<string | null>(null);
+  const syncCursorRef = useRef<string | null>(null);
+  const requestInFlightRef = useRef(false);
+  const appIsActiveRef = useRef(AppState.currentState === 'active');
+  const failedTextSendRef = useRef<{ text: string; clientMessageId: string } | null>(null);
   const displayName = fashionHouseName || 'Fashion House';
   const [resolvedFashionHouseLogo, setResolvedFashionHouseLogo] = useState<string | null>(
     fashionHouseLogo || null
@@ -227,11 +251,15 @@ export default function CustomerDirectChatScreen() {
   }, [fashionHouseId, fashionHouseLogo]);
 
   const fetchMessages = async (silent = false) => {
-    if (!fashionHouseId) return;
+    if (!fashionHouseId || requestInFlightRef.current) return;
     const conversationId = fashionHouseId;
+    requestInFlightRef.current = true;
     try {
       if (!silent) {
         hydratedConversationIdRef.current = null;
+        olderCursorRef.current = null;
+        latestCursorRef.current = null;
+        syncCursorRef.current = null;
         setLoading(true);
         setMessages([]);
         setTranscript([]);
@@ -248,22 +276,37 @@ export default function CustomerDirectChatScreen() {
           setLoading(false);
         }
       }
-      const data = await apiFetch<{ messages: DirectMessage[]; transcript: TranscriptTurn[] }>(`/api/direct-messages/thread/${conversationId}`);
+      const after = silent ? latestCursorRef.current : null;
+      const since = syncCursorRef.current;
+      const query = after
+        ? `?limit=100&after=${encodeURIComponent(after)}${since ? `&since=${encodeURIComponent(since)}` : ''}`
+        : '?limit=50';
+      const data = await apiFetch<DirectMessagePage>(
+        `/api/direct-messages/thread/${conversationId}${query}`,
+        { silent }
+      );
       if (activeConversationIdRef.current !== conversationId) return;
       const nextMessages = data && Array.isArray(data.messages) ? data.messages : [];
-      const nextTranscript = data && Array.isArray(data.transcript)
-        ? data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---'))
-        : [];
-      setMessages((current) => mergeDirectMessages(current, nextMessages));
-      setTranscript(nextTranscript);
+      if (after) {
+        setMessages((current) => appendDirectMessages(current, nextMessages));
+      } else {
+        setMessages((current) => mergeDirectMessages(current, nextMessages));
+        const nextTranscript = data && Array.isArray(data.transcript)
+          ? data.transcript.filter((t) => t.text && !t.text.includes('--- Chat Session Ended ---'))
+          : [];
+        setTranscript(nextTranscript);
+        olderCursorRef.current = data?.pageInfo?.olderCursor ?? nextMessages[0]?.id ?? null;
+        setHasMoreEarlier(Boolean(data?.pageInfo?.hasMoreOlder));
+      }
+      latestCursorRef.current = data?.pageInfo?.latestCursor
+        ?? nextMessages[nextMessages.length - 1]?.id
+        ?? latestCursorRef.current;
+      syncCursorRef.current = data?.pageInfo?.syncCursor ?? syncCursorRef.current;
       hydratedConversationIdRef.current = conversationId;
-      void writeChatCache<DirectChatCache>(cacheOwner, 'customer-direct', conversationId, {
-        messages: nextMessages,
-        transcript: nextTranscript,
-      });
     } catch (err) {
       console.error('Error loading direct messages:', err);
     } finally {
+      requestInFlightRef.current = false;
       if (!silent && activeConversationIdRef.current === conversationId) {
         hydratedConversationIdRef.current = conversationId;
         setLoading(false);
@@ -273,17 +316,46 @@ export default function CustomerDirectChatScreen() {
 
   useEffect(() => {
     activeConversationIdRef.current = fashionHouseId;
-    fetchMessages();
+    void fetchMessages();
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      const becameActive = nextState === 'active' && !appIsActiveRef.current;
+      appIsActiveRef.current = nextState === 'active';
+      if (becameActive) void fetchMessages(true);
+    });
     const interval = setInterval(() => {
-      fetchMessages(true);
-    }, 5000);
+      if (appIsActiveRef.current) void fetchMessages(true);
+    }, 12000);
     return () => {
       clearInterval(interval);
+      appStateSubscription.remove();
       if (activeConversationIdRef.current === fashionHouseId) {
         activeConversationIdRef.current = null;
       }
     };
   }, [fashionHouseId, cacheOwner]);
+
+  const loadEarlierMessages = async () => {
+    const cursor = olderCursorRef.current;
+    if (!fashionHouseId || !cursor || loadingEarlier || requestInFlightRef.current) return;
+    requestInFlightRef.current = true;
+    setLoadingEarlier(true);
+    try {
+      const data = await apiFetch<DirectMessagePage>(
+        `/api/direct-messages/thread/${fashionHouseId}?limit=50&cursor=${encodeURIComponent(cursor)}`,
+        { silent: true }
+      );
+      if (activeConversationIdRef.current !== fashionHouseId) return;
+      const earlierMessages = Array.isArray(data?.messages) ? data.messages : [];
+      setMessages((current) => appendDirectMessages(current, earlierMessages));
+      olderCursorRef.current = data?.pageInfo?.olderCursor ?? earlierMessages[0]?.id ?? cursor;
+      setHasMoreEarlier(Boolean(data?.pageInfo?.hasMoreOlder));
+    } catch (err) {
+      console.error('Error loading earlier direct messages:', err);
+    } finally {
+      requestInFlightRef.current = false;
+      setLoadingEarlier(false);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -349,7 +421,12 @@ export default function CustomerDirectChatScreen() {
     setInputText('');
     setSending(true);
 
-    const tempId = `temp-${Date.now()}`;
+    const retryAttempt = failedTextSendRef.current?.text === textToSend
+      ? failedTextSendRef.current
+      : null;
+    const clientMessageId = retryAttempt?.clientMessageId || createIdempotencyKey('dm');
+    failedTextSendRef.current = null;
+    const tempId = `temp-${clientMessageId}`;
     const optimisticMsg: DirectMessage = {
       id: tempId,
       senderType: 'CUSTOMER',
@@ -363,12 +440,13 @@ export default function CustomerDirectChatScreen() {
     try {
       const result = await apiFetch<DirectMessage>(`/api/direct-messages/thread/${fashionHouseId}`, {
         method: 'POST',
-        body: JSON.stringify({ text: textToSend, content: textToSend }),
+        body: JSON.stringify({ text: textToSend, clientMessageId }),
       });
       if (result && result.id) {
         setMessages((prev) => prev.map((m) => (m.id === tempId ? result : m)));
       }
     } catch (err) {
+      failedTextSendRef.current = { text: textToSend, clientMessageId };
       console.error('Failed to send message:', err);
       setMessages((current) => current.filter((message) => message.id !== tempId));
       setInputText((current) => current || textToSend);
@@ -410,7 +488,7 @@ export default function CustomerDirectChatScreen() {
 
           await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, {
             method: 'POST',
-            body: JSON.stringify({ imageUrl: uploaded.fileUrl }),
+            body: JSON.stringify({ imageUrl: uploaded.fileUrl, clientMessageId: createIdempotencyKey('dm-image') }),
           });
           fetchMessages(true);
         } catch (err: any) {
@@ -505,7 +583,7 @@ export default function CustomerDirectChatScreen() {
 
       await apiFetch(`/api/direct-messages/thread/${fashionHouseId}`, {
         method: 'POST',
-        body: JSON.stringify({ audioUrl: finalAudioUrl, audioDuration: finalDuration }),
+        body: JSON.stringify({ audioUrl: finalAudioUrl, audioDuration: finalDuration, clientMessageId: createIdempotencyKey('dm-audio') }),
       });
       fetchMessages(true);
     } catch (err: any) {
@@ -678,6 +756,19 @@ export default function CustomerDirectChatScreen() {
           ) : (
             <View>
               {renderTranscriptSection()}
+              {hasMoreEarlier ? (
+                <Pressable
+                  onPress={() => void loadEarlierMessages()}
+                  disabled={loadingEarlier}
+                  style={styles.loadEarlierButton}
+                >
+                  {loadingEarlier ? (
+                    <ActivityIndicator size="small" color="#4A080C" />
+                  ) : (
+                    <Text style={styles.loadEarlierText}>Load earlier messages</Text>
+                  )}
+                </Pressable>
+              ) : null}
               {messages.length === 0 && transcript.length === 0 ? (
                 <View style={styles.centerContainer}>
                   <View style={styles.emptyIconCircle}>
@@ -1005,6 +1096,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
+  },
+  loadEarlierButton: {
+    alignSelf: 'center',
+    minHeight: 36,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  loadEarlierText: {
+    color: '#4A080C',
+    fontFamily: 'WorkSans_600SemiBold',
+    fontSize: 13,
   },
   centerContainer: {
     flex: 1,

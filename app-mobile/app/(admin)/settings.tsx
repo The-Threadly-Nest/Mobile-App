@@ -152,7 +152,7 @@ export default function AdminSettingsScreen() {
   const displayTitle = businessName || fallbackName;
 
   const handleLogout = () => {
-    showConfirm("Log Out", "Are you sure you want to log out of your Threadly Nest account?", {
+    showConfirm("Log Out", "Are you sure you want to log out of your Òwújà account?", {
       confirmLabel: "Log Out",
       cancelLabel: "Cancel",
       onConfirm: () => {
@@ -240,7 +240,7 @@ export default function AdminSettingsScreen() {
       title: "Support",
       subtitle: "Concierge & help",
       icon: HelpCircle,
-      onPress: () => showAlert("Support", "Need assistance? Contact our concierge team at concierge@threadlynest.com"),
+      onPress: () => showAlert("Support", "Need assistance? Contact us at support@owuja.com"),
     },
     {
       id: "privacy",
@@ -285,7 +285,7 @@ export default function AdminSettingsScreen() {
               {displayTitle}
             </Text>
             <Text style={styles.accountEmail} numberOfLines={1}>
-              {email || "admin@threadlynest.com"}
+              {email || "admin@owuja.com"}
             </Text>
           </View>
           <ChevronRight size={18} color="#8A7550" />

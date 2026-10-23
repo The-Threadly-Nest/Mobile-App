@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { Request } from "express";
 import {
+  availableSlotClaimWhere,
   bookingAccessWhere,
   moodboardAccessWhere,
   orderAccessWhere,
@@ -36,6 +37,14 @@ test("customer order and booking access is restricted to their identity", () => 
   });
   assert.deepEqual(bookingAccessWhere(customer), {
     customerId: "customer-a",
+  });
+});
+
+test("slot claims are restricted to the selected fashion house and unbooked rows", () => {
+  assert.deepEqual(availableSlotClaimWhere("slot-a", "house-a"), {
+    id: "slot-a",
+    fashionHouseId: "house-a",
+    booked: false,
   });
 });
 

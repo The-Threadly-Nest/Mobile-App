@@ -177,6 +177,11 @@ export const InvoiceScalarFieldEnum = {
   taxRate: 'taxRate',
   taxAmount: 'taxAmount',
   total: 'total',
+  currency: 'currency',
+  paymentStatus: 'paymentStatus',
+  bankName: 'bankName',
+  accountNumber: 'accountNumber',
+  accountName: 'accountName',
   createdAt: 'createdAt'
 } as const
 
@@ -221,6 +226,7 @@ export const BookingScalarFieldEnum = {
   isFirstTime: 'isFirstTime',
   status: 'status',
   idempotencyKey: 'idempotencyKey',
+  availableSlotId: 'availableSlotId',
   createdAt: 'createdAt'
 } as const
 
@@ -235,7 +241,10 @@ export const ChatEscalationScalarFieldEnum = {
   summary: 'summary',
   transcript: 'transcript',
   resolved: 'resolved',
-  createdAt: 'createdAt'
+  status: 'status',
+  activeKey: 'activeKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type ChatEscalationScalarFieldEnum = (typeof ChatEscalationScalarFieldEnum)[keyof typeof ChatEscalationScalarFieldEnum]
@@ -294,6 +303,7 @@ export type ChatSessionScalarFieldEnum = (typeof ChatSessionScalarFieldEnum)[key
 
 export const DirectMessageScalarFieldEnum = {
   id: 'id',
+  clientMessageId: 'clientMessageId',
   fashionHouseId: 'fashionHouseId',
   customerId: 'customerId',
   senderRole: 'senderRole',

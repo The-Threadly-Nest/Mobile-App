@@ -155,23 +155,7 @@ export default function CustomerOrderDetailScreen() {
   const isCancelled = currentStatus === "cancelled" || params.rawStatus === "cancelled";
   const isEnded = isDeclined || isCancelled;
   const activeStageIdx = STAGE_INDEX_MAP[currentStatus] ?? 0;
-  let coverImage =
-    orderData?.imageUrl ||
-    params.imageUrl ||
-    "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80";
-
-  if (!coverImage || coverImage.includes("unsplash.com/photo-1566174053879-31528523f8ae")) {
-    const type = (garmentTitle || "").toLowerCase();
-    if (type.includes("vintage") || type.includes("shirt")) {
-      coverImage = "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
-    } else if (type.includes("adire")) {
-      coverImage = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
-    } else if (type.includes("2piece") || type.includes("2 piece") || type.includes("suit") || type.includes("agbada")) {
-      coverImage = "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
-    } else if (type.includes("kaftan")) {
-      coverImage = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
-    }
-  }
+  const coverImage = orderData?.imageUrl || params.imageUrl || "";
 
   const fashionHouseId = orderData?.fashionHouseId || params.fashionHouseId;
 

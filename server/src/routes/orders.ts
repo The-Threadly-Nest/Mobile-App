@@ -4,9 +4,11 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
-import { parseFittingDate, formatEstimatedReady } from "../utils/dateUtils";
-import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifications";
+import { formatEstimatedReady } from "../utils/dateUtils";
+import { sendNotificationToUser } from "../lib/notifications";
 import { isUniqueConstraintError, readIdempotencyKey } from "../lib/idempotency";
+import { collectionPaginationSchema, type CollectionPagination } from "../schemas/pagination.schema";
+import { collectionWindow, sendCollectionPage } from "../lib/pagination";
 
 const STATUS_LABELS: Record<string, { title: string; body: string }> = {
   pending_admin_review:  { title: "Order Received ✅",         body: "Your order is under review by the fashion house." },
@@ -70,34 +72,29 @@ function resolveGarmentImageUrl(garmentTitle?: string, fashionHouse?: any): stri
     if (fashionHouse.catalogItems[0]?.imageUrl) return fashionHouse.catalogItems[0].imageUrl;
   }
 
-  if (lowerTitle.includes("vintage") || lowerTitle.includes("shirt")) {
-    return "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
-  } else if (lowerTitle.includes("adire")) {
-    return "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
-  } else if (lowerTitle.includes("2piece") || lowerTitle.includes("2 piece") || lowerTitle.includes("suit") || lowerTitle.includes("agbada")) {
-    return "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
-  } else if (lowerTitle.includes("kaftan")) {
-    return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
-  }
-
   if (fashionHouse?.brandLogoUrl) return fashionHouse.brandLogoUrl;
-
-  return "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&q=80";
+  return "";
 }
 
 // GET /api/orders/my-orders — Customer list own bookings & orders
-router.get("/my-orders", requireAuth, async (req, res, next) => {
+router.get("/my-orders", requireAuth, validate({ query: collectionPaginationSchema }), async (req, res, next) => {
   try {
     const userId = req.authUserId!;
+    const { page, limit } = req.query as unknown as CollectionPagination;
     const bookings = await prisma.booking.findMany({
       where: { customerId: userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      ...collectionWindow(page, limit),
       include: {
         fashionHouse: {
           select: {
             id: true,
             shopName: true,
-            catalogItems: { select: { id: true, name: true, imageUrl: true } },
+            catalogItems: {
+              select: { id: true, name: true, imageUrl: true },
+              orderBy: { createdAt: "desc" },
+              take: 25,
+            },
           },
         },
         order: { select: { id: true, status: true } },
@@ -129,25 +126,6 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
         }
       }
 
-      if (!realImage) {
-        if (lowerNotes.includes("vintage") || lowerNotes.includes("shirt")) {
-          realImage = "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&q=80";
-        } else if (lowerNotes.includes("adire")) {
-          realImage = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=500&q=80";
-        } else if (
-          lowerNotes.includes("2piece") ||
-          lowerNotes.includes("2 piece") ||
-          lowerNotes.includes("suit") ||
-          lowerNotes.includes("agbada")
-        ) {
-          realImage = "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=500&q=80";
-        } else if (lowerNotes.includes("kaftan")) {
-          realImage = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80";
-        } else {
-          realImage = "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&q=80";
-        }
-      }
-
       return {
         id: b.id,
         orderId: b.order?.id,
@@ -163,107 +141,19 @@ router.get("/my-orders", requireAuth, async (req, res, next) => {
       };
     });
 
-    res.json(formatted);
+    sendCollectionPage(res, formatted, page, limit);
   } catch (err) {
     next(err);
   }
 });
 
-// POST /api/orders/my-orders — Customer create booking in database
-router.post("/my-orders", requireAuth, async (req, res, next) => {
-  try {
-    const customerId = req.authUserId!;
-    const idempotencyKey = readIdempotencyKey(req);
-    const { fashionHouseId, fashionHouseName, garment, fittingDate } = req.body;
-
-    let fh = null;
-    if (fashionHouseId) {
-      fh = await prisma.fashionHouse.findUnique({ where: { id: fashionHouseId } });
-    }
-    if (!fh && fashionHouseName) {
-      fh = await prisma.fashionHouse.findFirst({
-        where: { shopName: { contains: fashionHouseName, mode: "insensitive" } },
-      });
-    }
-    if (!fh) {
-      fh = await prisma.fashionHouse.findFirst();
-    }
-
-    if (!fh) {
-      return res.status(404).json({ error: "Fashion house not found." });
-    }
-
-    if (idempotencyKey) {
-      const priorBooking = await prisma.booking.findFirst({
-        where: { customerId, idempotencyKey },
-      });
-      if (priorBooking) return res.status(200).json(priorBooking);
-    }
-
-    const parsedDate = parseFittingDate(fittingDate);
-
-    // Deduplication check: if a booking was created in the last 2 minutes for this customer & fashion house, update it instead of creating a duplicate
-    const recentCutoff = new Date(Date.now() - 2 * 60 * 1000);
-    const existingPending = await prisma.booking.findFirst({
-      where: {
-        customerId,
-        fashionHouseId: fh.id,
-        status: "pending_admin_review",
-        createdAt: { gte: recentCutoff },
-      },
-    });
-
-    if (existingPending) {
-      const updated = await prisma.booking.update({
-        where: { id: existingPending.id },
-        data: {
-          styleNotes: garment || existingPending.styleNotes,
-          preferredDate: parsedDate,
-          preferredTime: fittingDate || existingPending.preferredTime,
-          idempotencyKey: existingPending.idempotencyKey ?? idempotencyKey,
-        },
-      });
-      return res.status(200).json(updated);
-    }
-
-    let booking;
-    try {
-      booking = await prisma.booking.create({
-        data: {
-          fashionHouseId: fh.id,
-          customerId,
-          styleNotes: garment || "Aso-Ebi",
-          preferredDate: parsedDate,
-          preferredTime: fittingDate || "10:00 AM",
-          status: "pending_admin_review",
-          idempotencyKey,
-        },
-      });
-    } catch (error) {
-      if (!idempotencyKey || !isUniqueConstraintError(error)) throw error;
-      const existing = await prisma.booking.findFirst({ where: { customerId, idempotencyKey } });
-      if (!existing) throw error;
-      return res.status(200).json(existing);
-    }
-
-    // Clear chat session history so subsequent visits start fresh
-    await prisma.chatSession.updateMany({
-      where: { customerId, fashionHouseId: fh.id },
-      data: { history: [] },
-    }).catch(() => {});
-
-    // Notify admin of new booking (non-blocking)
-    sendNotificationToAdmin(
-      fh.id,
-      "New Booking Request 📋",
-      `A customer has requested a fitting appointment.`,
-      { bookingId: booking.id }
-    );
-
-    res.status(201).json(booking);
-  } catch (err) {
-    next(err);
-  }
+// Legacy clients created free-form bookings here without reserving a
+// tenant-owned slot. Booking now requires selecting a fashion-house slot.
+router.post("/my-orders", requireAuth, (_req, res) => {
+  return res.status(410).json({
+    code: "BOOKING_FLOW_UPDATED",
+    error: "Please update the app and select an available fitting slot from the fashion house.",
+  });
 });
 
 // GET /api/orders/track/:id — Customer or Staff fetch booking/order tracking details
@@ -403,7 +293,10 @@ router.post("/track/:id/cancel", requireAuth, async (req, res, next) => {
       }),
       prisma.order.findFirst({
         where: { id, ...orderAccessWhere(req) },
-        include: { customer: { select: { userId: true } } },
+        include: {
+          customer: { select: { userId: true } },
+          booking: { select: { id: true, availableSlotId: true } },
+        },
       }),
     ]);
 
@@ -424,11 +317,22 @@ router.post("/track/:id/cancel", requireAuth, async (req, res, next) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      if (booking) {
+      const bookingToCancel = booking ?? order?.booking;
+      if (bookingToCancel) {
         await tx.booking.update({
-          where: { id: booking.id },
-          data: { status: "cancelled" },
+          where: { id: bookingToCancel.id },
+          data: { status: "cancelled", availableSlotId: null },
         });
+        if (bookingToCancel.availableSlotId) {
+          await tx.availableSlot.updateMany({
+            where: {
+              id: bookingToCancel.availableSlotId,
+              fashionHouseId: booking?.fashionHouseId ?? order?.fashionHouseId,
+              booked: true,
+            },
+            data: { booked: false },
+          });
+        }
       }
       if (order) {
         await tx.order.update({
@@ -514,9 +418,10 @@ router.post("/", async (req, res, next) => {
 });
 
 // List Orders
-router.get("/", async (req, res, next) => {
+router.get("/", validate({ query: collectionPaginationSchema }), async (req, res, next) => {
   try {
     const fhId = getOwnFashionHouseId(req);
+    const { page, limit } = req.query as unknown as CollectionPagination;
     const whereClause: any = { fashionHouseId: fhId };
 
     if (req.authRole === "staff") {
@@ -528,14 +433,24 @@ router.get("/", async (req, res, next) => {
 
     const orders = await prisma.order.findMany({
       where: whereClause,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      ...collectionWindow(page, limit),
       include: {
         customer: { select: { id: true, name: true, phone: true } },
         staff: { select: { id: true, name: true, email: true } },
+        invoice: {
+          select: {
+            id: true,
+            total: true,
+            currency: true,
+            paymentStatus: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
-    res.json(orders);
+    sendCollectionPage(res, orders, page, limit);
   } catch (err) {
     next(err);
   }

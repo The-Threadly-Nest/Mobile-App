@@ -1,21 +1,32 @@
-import { Platform } from "react-native";
-import Constants from "expo-constants";
+import { resolveDataMode } from "@/config/dataMode";
 
-const getDevServerIp = () => {
-  // Dynamically extract the computer's Wi-Fi IP address from Expo Go host URI
-  const hostUri = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.debuggerHost;
-  if (hostUri) {
-    const ip = hostUri.split(":")[0];
-    if (ip && ip !== "localhost" && ip !== "127.0.0.1") {
-      return `http://${ip}:4000`;
-    }
+const resolveApiBaseUrl = () => {
+  const configuredUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+
+  if (!configuredUrl) {
+    throw new Error(
+      "EXPO_PUBLIC_API_BASE_URL is required. Set it to the backend URL in app-mobile/.env or the EAS build environment.",
+    );
   }
-  // Fallback to computer's local Wi-Fi IP
-  return "http://192.168.0.178:4000";
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(configuredUrl);
+  } catch {
+    throw new Error("EXPO_PUBLIC_API_BASE_URL must be a valid absolute URL.");
+  }
+
+  if (parsedUrl.protocol !== "https:" && !__DEV__) {
+    throw new Error("Production builds require an HTTPS API URL.");
+  }
+
+  if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+    throw new Error("EXPO_PUBLIC_API_BASE_URL must use HTTP or HTTPS.");
+  }
+
+  return configuredUrl.replace(/\/+$/, "");
 };
 
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL || getDevServerIp();
-import { resolveDataMode } from "@/config/dataMode";
+export const API_BASE_URL = resolveApiBaseUrl();
 
 export const DATA_MODE = resolveDataMode(process.env.EXPO_PUBLIC_DATA_MODE, __DEV__);

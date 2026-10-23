@@ -72,6 +72,7 @@ model FashionHouse {
   sketches        Sketch[]
   directMessages  DirectMessage[]
 
+  @@index([createdAt])
   @@map("fashion_houses")
 }
 
@@ -90,7 +91,7 @@ model Customer {
   measurements Measurement[]
   orders       Order[]
 
-  @@index([fashionHouseId])
+  @@index([fashionHouseId, name])
   @@index([userId])
   @@map("customers")
 }
@@ -129,6 +130,7 @@ model Order {
   invoice      Invoice?
 
   @@index([fashionHouseId])
+  @@index([fashionHouseId, createdAt])
   @@unique([fashionHouseId, idempotencyKey])
   @@index([staffId])
   @@index([fashionHouseId, status, createdAt])
@@ -136,13 +138,18 @@ model Order {
 }
 
 model Invoice {
-  id        String   @id @default(uuid())
-  orderId   String   @unique
-  subtotal  Int      @default(0)
-  taxRate   Float    @default(0.075)
-  taxAmount Int      @default(0)
-  total     Int
-  createdAt DateTime @default(now())
+  id            String   @id @default(uuid())
+  orderId       String   @unique
+  subtotal      Int      @default(0)
+  taxRate       Float    @default(0.075)
+  taxAmount     Int      @default(0)
+  total         Int
+  currency      String   @default("NGN")
+  paymentStatus String   @default("unpaid")
+  bankName      String?
+  accountNumber String?
+  accountName   String?
+  createdAt     DateTime @default(now())
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -163,7 +170,8 @@ model CatalogItem {
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
 
-  @@index([fashionHouseId])
+  @@index([fashionHouseId, createdAt])
+  @@index([createdAt])
   @@map("catalog_items")
 }
 
@@ -176,8 +184,10 @@ model AvailableSlot {
   createdAt      DateTime @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  booking      Booking?
 
   @@index([fashionHouseId, booked])
+  @@unique([fashionHouseId, date, time])
   @@map("available_slots")
 }
 
@@ -191,15 +201,18 @@ model Booking {
   isFirstTime    Boolean  @default(true)
   status         String   @default("pending_admin_review")
   idempotencyKey String?
+  availableSlotId String? @unique
   createdAt      DateTime @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  availableSlot AvailableSlot? @relation(fields: [availableSlotId], references: [id], onDelete: SetNull)
   order        Order?       // back-relation: the Order created from this booking
 
   @@index([fashionHouseId, status])
   @@unique([customerId, idempotencyKey])
   @@index([customerId, preferredDate])
+  @@index([customerId, createdAt])
   @@map("bookings")
 }
 
@@ -211,7 +224,10 @@ model ChatEscalation {
   summary        String
   transcript     String   @db.Text
   resolved       Boolean  @default(false)
+  status         String   @default("pending")
+  activeKey      String?  @unique
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -282,6 +298,7 @@ model ChatSession {
 
 model DirectMessage {
   id             String    @id @default(uuid())
+  clientMessageId String?
   fashionHouseId String
   customerId     String    // User.id of the customer in the thread
   senderRole     String    // "customer" | "admin"
@@ -300,6 +317,8 @@ model DirectMessage {
   userDeletions DirectMessageUserDeletion[]
 
   @@index([fashionHouseId, customerId, createdAt])
+  @@index([customerId, createdAt])
+  @@unique([senderId, clientMessageId])
   @@map("direct_messages")
 }
 

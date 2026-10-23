@@ -16,7 +16,7 @@ import { Search, X, Ruler, UserCheck, MessageSquare } from "lucide-react-native"
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { apiFetch } from "@/shared/utils/apiClient";
+import { apiFetch, apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface CustomerRecord {
@@ -39,6 +39,8 @@ export default function CustomersScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [customers, setCustomers] = useState<CustomerRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [nextPage, setNextPage] = useState<number | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRecord | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -57,11 +59,12 @@ export default function CustomersScreen() {
           setLoading(false);
         }
 
-        const data = await apiFetch<CustomerRecord[]>("/api/customers", { silent: true });
+        const result = await apiFetchCollectionPage<CustomerRecord>("/api/customers?page=1&limit=50", { silent: true });
         if (cancelled) return;
-        if (Array.isArray(data)) {
-          setCustomers(data);
-          void writePageCache(cacheOwner, "admin-customers", data);
+        if (Array.isArray(result.items)) {
+          setCustomers(result.items);
+          setNextPage(result.nextPage);
+          void writePageCache(cacheOwner, "admin-customers", result.items);
         }
       } catch {
         // Keep the last successful device cache visible while offline.
@@ -72,6 +75,27 @@ export default function CustomersScreen() {
     void fetchCustomers();
     return () => { cancelled = true; };
   }, [cacheOwner, token]);
+
+  const loadMoreCustomers = async () => {
+    if (!nextPage || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const result = await apiFetchCollectionPage<CustomerRecord>(
+        `/api/customers?page=${nextPage}&limit=50`,
+        { silent: true }
+      );
+      setCustomers((current) => {
+        const byId = new Map(current.map((customer) => [customer.id, customer]));
+        result.items.forEach((customer) => byId.set(customer.id, customer));
+        const merged = Array.from(byId.values());
+        void writePageCache(cacheOwner, "admin-customers", merged);
+        return merged;
+      });
+      setNextPage(result.nextPage);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const filteredCustomers = customers.filter(
     (c) =>
@@ -130,6 +154,9 @@ export default function CustomersScreen() {
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
+            onEndReached={() => void loadMoreCustomers()}
+            onEndReachedThreshold={0.4}
+            ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
           renderItem={({ item }) => {
             const initial = (item.name || "C").charAt(0).toUpperCase();
 
