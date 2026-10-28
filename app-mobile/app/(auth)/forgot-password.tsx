@@ -6,7 +6,7 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function ForgotPasswordScreen() {
   const { width, height } = useWindowDimensions();
@@ -21,9 +21,8 @@ export default function ForgotPasswordScreen() {
     setLoading(true);
     setError("");
     try {
-      await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      await apiFetch("/api/auth/forgot-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
       // Navigate to reset password screen where the user enters the PIN & new password
@@ -47,7 +46,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream">
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -58,7 +57,7 @@ export default function ForgotPasswordScreen() {
         ]}
       >
         <Pressable onPress={handleBack} style={{ marginBottom: 24, width: 40, height: 40, justifyContent: "center" }}>
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
 
         <Headline className="text-2xl mb-2">Reset your password</Headline>

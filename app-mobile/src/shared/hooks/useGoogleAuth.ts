@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NativeModules } from "react-native";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { router } from "expo-router";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
@@ -57,15 +57,10 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       const idToken = response.data?.idToken;
       if (!idToken) throw new Error("Google Sign-In failed. No token received.");
 
-      const res = await fetch(`${API_BASE_URL}/api/auth/google`, {
+      const data = await apiFetch<any>("/api/auth/google", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idToken, role: selectedRole }),
       });
-      const rawText = await res.text();
-      let data: any = {};
-      try { data = JSON.parse(rawText); } catch {}
-      if (!res.ok) throw new Error(data.error ?? "Google authentication failed.");
 
       const userVerified = data.user.isVerified ?? true;
       const userOnboardingCompleted = data.user.onboardingCompleted ?? false;

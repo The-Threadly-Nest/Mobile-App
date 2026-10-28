@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { formatChatDate } from '@/shared/utils/formatters';
 import {
   View,
   Text,
@@ -17,6 +18,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   Paperclip,
+  Camera,
   Smile,
   Send,
   MessageSquare,
@@ -152,7 +154,7 @@ const SentTail = () => (
       width: 0,
       height: 0,
       borderTopWidth: 9,
-      borderTopColor: '#4A080C',
+      borderTopColor: '#453332',
       borderLeftWidth: 9,
       borderLeftColor: 'transparent',
     }}
@@ -456,18 +458,30 @@ export default function CustomerDirectChatScreen() {
     }
   };
 
-  const handlePickImage = async () => {
+  const handlePickImage = async (source: 'library' | 'camera' = 'library') => {
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permission = source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        showAlert('Permission Required', 'Please allow access to your photos to attach images.');
+        showAlert(
+          'Permission Required',
+          source === 'camera'
+            ? 'Please allow camera access to take a photo.'
+            : 'Please allow access to your photos to attach an image.'
+        );
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await (source === 'camera'
+        ? ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+          })
+        : ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.8,
-      });
+          }));
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
@@ -644,21 +658,28 @@ export default function CustomerDirectChatScreen() {
     } else if (msgDate.getTime() === yesterday.getTime()) {
       return `Yesterday, ${timeStr}`;
     } else {
-      const formattedDate = date.toLocaleDateString([], { day: 'numeric', month: 'short' });
+      const formattedDate = formatChatDate(date);
       return `${formattedDate}, ${timeStr}`;
     }
   };
 
   const renderTranscriptSection = () => {
-    if (transcript.length === 0) return null;
+    const visibleTranscript = transcript.filter(
+      (turn) => turn.text && !turn.text.includes('--- Chat Session Ended ---')
+    );
+    if (visibleTranscript.length === 0) return null;
     return (
-      <View>
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerLabel}>AI CHAT HISTORY</Text>
-          <View style={styles.dividerLine} />
+      <View style={styles.historySection}>
+        <View style={styles.historyHeader}>
+          <View style={styles.historyIcon}>
+            <MessageSquare size={18} color="#453332" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.historyTitle}>Booking Assistant History</Text>
+            <Text style={styles.historySubtitle}>Previous conversation shared for context</Text>
+          </View>
         </View>
-        {transcript.map((turn, idx) => {
+        {visibleTranscript.map((turn, idx) => {
           const isUser = turn.role === 'user';
           const timeStr = turn.createdAt
             ? new Date(turn.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -668,9 +689,9 @@ export default function CustomerDirectChatScreen() {
 
           return (
             <View key={`transcript-${idx}`} style={styles.messageBlock}>
-              {!isUser && (
-                <Text style={styles.senderNameText}>Booking Assistant</Text>
-              )}
+              <Text style={[styles.senderNameText, isUser && styles.userSenderName]}>
+                {isUser ? 'You' : 'Booking Assistant'}
+              </Text>
               <View style={[styles.bubbleBase, isUser ? styles.sentBubble : styles.receivedBubble]}>
                 <Text style={[styles.bubbleText, isUser ? styles.sentText : styles.receivedText]}>
                   {turn.text}
@@ -686,7 +707,7 @@ export default function CustomerDirectChatScreen() {
         })}
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerLabel}>DIRECT SUPPORT</Text>
+          <Text style={styles.dividerLabel}>HUMAN SUPPORT STARTS HERE</Text>
           <View style={styles.dividerLine} />
         </View>
       </View>
@@ -705,7 +726,7 @@ export default function CustomerDirectChatScreen() {
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
@@ -721,12 +742,12 @@ export default function CustomerDirectChatScreen() {
                 width: 38,
                 height: 38,
                 borderRadius: 19,
-                backgroundColor: '#4A080C',
+                backgroundColor: '#453332',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontFamily: 'Fraunces-Bold', fontSize: 16, color: '#FBF7EF' }}>
+              <Text style={{ fontFamily: 'Fraunces-Bold', fontSize: 16, color: '#FFFFFF' }}>
                 {displayName.charAt(0).toUpperCase()}
               </Text>
             </View>
@@ -751,7 +772,7 @@ export default function CustomerDirectChatScreen() {
         >
           {loading ? (
             <View style={styles.centerContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : (
             <View>
@@ -763,7 +784,7 @@ export default function CustomerDirectChatScreen() {
                   style={styles.loadEarlierButton}
                 >
                   {loadingEarlier ? (
-                    <ActivityIndicator size="small" color="#4A080C" />
+                    <ActivityIndicator size="small" color="#453332" />
                   ) : (
                     <Text style={styles.loadEarlierText}>Load earlier messages</Text>
                   )}
@@ -806,7 +827,10 @@ export default function CustomerDirectChatScreen() {
                           <Text style={styles.timeHeaderText}>{formatDateHeader(msg.createdAt)}</Text>
                         </View>
                       )}
-                      <View style={styles.messageBlock}>
+                      <View style={[
+                        styles.messageBlock,
+                        index === messages.length - 1 && styles.lastMessageBlock,
+                      ]}>
                       {!isMe && (
                         <Text style={styles.senderNameText}>{displayName}</Text>
                       )}
@@ -848,15 +872,15 @@ export default function CustomerDirectChatScreen() {
                             >
                               <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {playingAudioId === msg.id ? (
-                                  <Pause size={16} color={isMe ? '#FFFFFF' : '#4A080C'} />
+                                  <Pause size={16} color={isMe ? '#FFFFFF' : '#453332'} />
                                 ) : (
-                                  <Play size={16} color={isMe ? '#FFFFFF' : '#4A080C'} style={{ marginLeft: 2 }} />
+                                  <Play size={16} color={isMe ? '#FFFFFF' : '#453332'} style={{ marginLeft: 2 }} />
                                 )}
                               </View>
                               <View style={{ flex: 1, justifyContent: 'center' }}>
                                 <AnimatedWaveform
                                   isAnimating={playingAudioId === msg.id}
-                                  color={isMe ? '#FFFFFF' : '#4A080C'}
+                                  color={isMe ? '#FFFFFF' : '#453332'}
                                   inactiveColor={isMe ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
                                   barCount={16}
                                   height={24}
@@ -878,9 +902,9 @@ export default function CustomerDirectChatScreen() {
                           msg.id.startsWith('temp-') ? (
                             <Check size={14} color="#8A7550" />
                           ) : msg.isRead ? (
-                            <CheckCheck size={14} color="#4A080C" />
+                            <CheckCheck size={14} color="#453332" />
                           ) : (
-                            <CheckCheck size={14} color="#8A7550" />
+                            <Check size={14} color="#8A7550" />
                           )
                         )}
                       </View>
@@ -894,7 +918,7 @@ export default function CustomerDirectChatScreen() {
 
           {uploadingImage && (
             <View style={styles.sendingIndicatorContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           )}
         </BottomAnchoredChatScrollView>
@@ -932,7 +956,7 @@ export default function CustomerDirectChatScreen() {
                 <View style={{ flex: 1, marginLeft: 12, justifyContent: 'center' }}>
                   <AnimatedWaveform
                     isAnimating={!isPaused}
-                    color="#4A080C"
+                    color="#453332"
                     inactiveColor="rgba(74, 8, 12, 0.2)"
                     barCount={34}
                     height={14}
@@ -960,25 +984,22 @@ export default function CustomerDirectChatScreen() {
                 </Pressable>
 
                 <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
-                  <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: '45deg' }] }} />
+                  <Send size={20} color="#FFFFFF" />
                 </Pressable>
               </View>
             </View>
           ) : (
             <>
-              <Pressable
-                onPress={handlePickImage}
-                disabled={uploadingImage}
-                style={({ pressed }) => [styles.toolCircleBtn, { opacity: pressed ? 0.8 : 1 }]}
-              >
-                {uploadingImage ? (
-                  <ActivityIndicator size="small" color="#4A080C" />
-                ) : (
-                  <Paperclip size={18} color="#3A2E1A" />
-                )}
-              </Pressable>
-
               <View style={styles.textInputWrapper}>
+                <Pressable
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    setShowEmojiPicker((prev) => !prev);
+                  }}
+                  style={styles.composerIconBtn}
+                >
+                  <Smile size={21} color={showEmojiPicker ? '#453332' : '#8A7550'} />
+                </Pressable>
                 <TextInput
                   style={styles.textInput}
                   value={inputText}
@@ -987,17 +1008,26 @@ export default function CustomerDirectChatScreen() {
                   onSubmitEditing={handleSend}
                   submitBehavior="submit"
                   returnKeyType="send"
-                  placeholder={`Message ${displayName.split(' ')[0]}...`}
+                  placeholder="Message"
                   placeholderTextColor="#8A7550"
                 />
                 <Pressable
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setShowEmojiPicker((prev) => !prev);
-                  }}
-                  style={styles.emojiBtn}
+                  onPress={() => void handlePickImage('library')}
+                  disabled={uploadingImage}
+                  style={styles.composerIconBtn}
                 >
-                  <Smile size={20} color={showEmojiPicker ? '#4A080C' : '#8A7550'} />
+                  {uploadingImage ? (
+                    <ActivityIndicator size="small" color="#8A7550" />
+                  ) : (
+                    <Paperclip size={20} color="#8A7550" />
+                  )}
+                </Pressable>
+                <Pressable
+                  onPress={() => void handlePickImage('camera')}
+                  disabled={uploadingImage}
+                  style={styles.composerIconBtn}
+                >
+                  <Camera size={20} color="#8A7550" />
                 </Pressable>
               </View>
 
@@ -1011,7 +1041,7 @@ export default function CustomerDirectChatScreen() {
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: '45deg' }] }} />
+                  <Send size={20} color="#FFFFFF" />
                 </Pressable>
               ) : (
                 <Pressable
@@ -1043,7 +1073,7 @@ export default function CustomerDirectChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FFFFFF',
   },
   timeHeaderContainer: {
     alignItems: 'center',
@@ -1064,7 +1094,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 36,
     gap: 12,
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FFFFFF',
   },
   headerBtn: {
     width: 40,
@@ -1083,7 +1113,7 @@ const styles = StyleSheet.create({
   headerNameText: {
     fontFamily: 'Fraunces-Bold',
     fontSize: 18,
-    color: '#4A080C',
+    color: '#453332',
   },
   headerSubtitleText: {
     fontFamily: 'WorkSans_400Regular',
@@ -1095,7 +1125,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 8,
-    paddingBottom: 16,
+    paddingBottom: 6,
   },
   loadEarlierButton: {
     alignSelf: 'center',
@@ -1105,7 +1135,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   loadEarlierText: {
-    color: '#4A080C',
+    color: '#453332',
     fontFamily: 'WorkSans_600SemiBold',
     fontSize: 13,
   },
@@ -1128,7 +1158,7 @@ const styles = StyleSheet.create({
   emptyTitleText: {
     fontFamily: 'Fraunces-Bold',
     fontSize: 18,
-    color: '#4A080C',
+    color: '#453332',
     marginBottom: 6,
   },
   emptySubtext: {
@@ -1143,6 +1173,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 16,
     paddingHorizontal: 4,
+  },
+  historySection: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(196, 167, 99, 0.38)',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    marginBottom: 10,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingBottom: 14,
+    marginBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(196, 167, 99, 0.32)',
+  },
+  historyIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F3E9DE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyTitle: {
+    fontFamily: 'Fraunces-Bold',
+    fontSize: 15,
+    color: '#453332',
+  },
+  historySubtitle: {
+    fontFamily: 'WorkSans_400Regular',
+    fontSize: 11,
+    color: '#8A7550',
+    marginTop: 2,
   },
   dividerLine: {
     flex: 1,
@@ -1160,12 +1227,19 @@ const styles = StyleSheet.create({
   messageBlock: {
     marginBottom: 16,
   },
+  lastMessageBlock: {
+    marginBottom: 2,
+  },
   senderNameText: {
     fontFamily: 'WorkSans_600SemiBold',
     fontSize: 12,
     color: '#3A2E1A',
     marginLeft: 4,
     marginBottom: 4,
+  },
+  userSenderName: {
+    alignSelf: 'flex-end',
+    marginRight: 4,
   },
   bubbleBase: {
     maxWidth: '82%',
@@ -1176,7 +1250,7 @@ const styles = StyleSheet.create({
   },
   sentBubble: {
     alignSelf: 'flex-end',
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     borderBottomRightRadius: 4,
   },
   receivedBubble: {
@@ -1193,7 +1267,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   receivedText: {
-    color: '#4A080C',
+    color: '#453332',
   },
   statusRow: {
     flexDirection: 'row',
@@ -1218,8 +1292,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FBF7EF',
+    paddingTop: 6,
+    paddingBottom: 12,
+    backgroundColor: '#FFFFFF',
   },
   recordingContainer: {
     flex: 1,
@@ -1278,7 +1353,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1301,7 +1376,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
   textInput: {
     flex: 1,
@@ -1309,7 +1384,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#3A2E1A',
     height: '100%',
-    paddingRight: 8,
+    paddingHorizontal: 8,
+  },
+  composerIconBtn: {
+    width: 32,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emojiBtn: {
     padding: 4,
@@ -1318,7 +1399,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1347,7 +1428,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E4D5B7',
     alignItems: 'center',

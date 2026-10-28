@@ -1,5 +1,4 @@
-import { useRef, useCallback } from "react";
-import { Animated } from "react-native";
+import { useCallback } from "react";
 import { alertEmitter, AlertPayload } from "@/shared/utils/alertEmitter";
 
 /**
@@ -19,6 +18,7 @@ export function useAppAlert() {
       title: string,
       message: string,
       opts: {
+        variant?: AlertPayload["variant"];
         confirmLabel?: string;
         cancelLabel?: string;
         onConfirm?: () => void;

@@ -34,7 +34,16 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
   }
 
   if (status === 500) {
-    console.error(JSON.stringify({ event: "request_failed", status, code }));
+    console.error(JSON.stringify({
+      event: "request_failed",
+      status,
+      code,
+      method: req.method,
+      path: req.originalUrl,
+      ...(process.env.NODE_ENV !== "production"
+        ? { errorName: err?.name, errorMessage: err?.message, stack: err?.stack }
+        : {}),
+    }));
   } else {
     console.warn(JSON.stringify({ event: "request_rejected", status, code }));
   }

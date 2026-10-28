@@ -39,9 +39,9 @@ export function Input({ label, error, secureTextEntry, ...rest }: InputProps) {
             hitSlop={8}
           >
             {showPassword ? (
-              <EyeOff size={20} color="#4A080C" />
+              <EyeOff size={20} color="#453332" />
             ) : (
-              <Eye size={20} color="#4A080C" />
+              <Eye size={20} color="#453332" />
             )}
           </Pressable>
         ) : null}

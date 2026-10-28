@@ -49,6 +49,8 @@ export default function AdminProfileEditScreen() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [timezone, setTimezone] = useState("Africa/Lagos");
+  const [slotDurationMinutes, setSlotDurationMinutes] = useState("60");
 
   // Fitting slots state
   const [slotsList, setSlotsList] = useState<any[]>([]);
@@ -96,6 +98,8 @@ export default function AdminProfileEditScreen() {
             }
           }
           setBrandLogoUrl(house.brandLogoUrl || null);
+          setTimezone(house.timezone || "Africa/Lagos");
+          setSlotDurationMinutes(String(house.slotDurationMinutes || 60));
           if (Array.isArray(house.categories) && house.categories.length > 0) {
             setSelectedCategories(house.categories);
           }
@@ -115,12 +119,12 @@ export default function AdminProfileEditScreen() {
     const timeToUse = timeStr || newSlotTime.trim();
 
     if (!dateToUse || !timeToUse) {
-      showAlert("Missing Fields", "Please enter both date (e.g. Sat, 12 Sep) and time (e.g. 10:00 AM).");
+      showAlert("Missing Fields", "Use YYYY-MM-DD for the date and HH:MM for the time.");
       return;
     }
     setAddingSlot(true);
     try {
-      const created = await slotsApi.createSlot(dateToUse, timeToUse);
+      const created = await slotsApi.createSlot(dateToUse, timeToUse, Number(slotDurationMinutes));
       setSlotsList((prev) => [...prev, created]);
       if (!dateStr) setNewSlotDate("");
       if (!timeStr) setNewSlotTime("");
@@ -189,6 +193,11 @@ export default function AdminProfileEditScreen() {
       showAlert("Payment Details", "Enter a bank name, a 10-digit account number, and the account name.");
       return;
     }
+    const duration = Number(slotDurationMinutes);
+    if (!timezone.trim() || !Number.isInteger(duration) || duration < 15 || duration > 480) {
+      showAlert("Scheduling Rules", "Enter a valid timezone and a duration between 15 and 480 minutes.");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -206,6 +215,8 @@ export default function AdminProfileEditScreen() {
         bankName: bankName.trim() || undefined,
         accountNumber: accountNumber.trim() || undefined,
         accountName: accountName.trim() || undefined,
+        timezone: timezone.trim(),
+        slotDurationMinutes: duration,
         availableSlots: slotsList.map(({ date, time }) => ({ date, time })),
       };
 
@@ -222,7 +233,7 @@ export default function AdminProfileEditScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={["top"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -263,7 +274,7 @@ export default function AdminProfileEditScreen() {
 
         {loading ? (
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            <ActivityIndicator color="#4A080C" size="large" />
+            <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : (
           <ScrollView
@@ -277,7 +288,7 @@ export default function AdminProfileEditScreen() {
               style={{
                 fontFamily: "WorkSans_600SemiBold",
                 fontSize: 13,
-                color: "#4A080C",
+                color: "#453332",
                 marginBottom: 8,
               }}
             >
@@ -300,7 +311,7 @@ export default function AdminProfileEditScreen() {
               }}
             >
               {uploadingLogo ? (
-                <ActivityIndicator color="#4A080C" />
+                <ActivityIndicator color="#453332" />
               ) : brandLogoUrl ? (
                 <Image
                   source={{ uri: brandLogoUrl }}
@@ -327,7 +338,7 @@ export default function AdminProfileEditScreen() {
               style={{
                 fontFamily: "WorkSans_600SemiBold",
                 fontSize: 13,
-                color: "#4A080C",
+                color: "#453332",
                 marginBottom: 8,
               }}
             >
@@ -357,7 +368,7 @@ export default function AdminProfileEditScreen() {
               style={{
                 fontFamily: "WorkSans_600SemiBold",
                 fontSize: 13,
-                color: "#4A080C",
+                color: "#453332",
                 marginBottom: 8,
               }}
             >
@@ -411,7 +422,7 @@ export default function AdminProfileEditScreen() {
                 onChangeText={setBankName}
                 placeholder="Bank name"
                 placeholderTextColor="#B0966C"
-                style={{ backgroundColor: "#FBF7EF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
+                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
               />
               <TextInput
                 value={accountNumber}
@@ -420,14 +431,14 @@ export default function AdminProfileEditScreen() {
                 placeholderTextColor="#B0966C"
                 keyboardType="number-pad"
                 maxLength={10}
-                style={{ backgroundColor: "#FBF7EF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
+                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
               />
               <TextInput
                 value={accountName}
                 onChangeText={setAccountName}
                 placeholder="Account holder name"
                 placeholderTextColor="#B0966C"
-                style={{ backgroundColor: "#FBF7EF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508" }}
+                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508" }}
               />
             </View>
 
@@ -436,7 +447,7 @@ export default function AdminProfileEditScreen() {
               style={{
                 fontFamily: "WorkSans_600SemiBold",
                 fontSize: 13,
-                color: "#4A080C",
+                color: "#453332",
                 marginBottom: 8,
               }}
             >
@@ -474,7 +485,7 @@ export default function AdminProfileEditScreen() {
                 style={{
                   fontFamily: "WorkSans_600SemiBold",
                   fontSize: 13,
-                  color: "#4A080C",
+                  color: "#453332",
                 }}
               >
                 Brand Bio / Motto
@@ -518,7 +529,7 @@ export default function AdminProfileEditScreen() {
               style={{
                 fontFamily: "WorkSans_600SemiBold",
                 fontSize: 13,
-                color: "#4A080C",
+                color: "#453332",
                 marginBottom: 12,
               }}
             >
@@ -536,7 +547,7 @@ export default function AdminProfileEditScreen() {
                       width: "48%",
                       height: 52,
                       borderRadius: 26,
-                      backgroundColor: selected ? "#4A080C" : "#FFFFFF",
+                      backgroundColor: selected ? "#453332" : "#FFFFFF",
                       borderWidth: selected ? 0 : 1,
                       borderColor: "rgba(0,0,0,0.1)",
                       alignItems: "center",
@@ -574,7 +585,7 @@ export default function AdminProfileEditScreen() {
               }}
             >
               <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
-                <Calendar size={18} color="#4A080C" style={{ marginRight: 8 }} />
+                <Calendar size={18} color="#453332" style={{ marginRight: 8 }} />
                 <Text
                   style={{
                     fontFamily: "Fraunces-SemiBold",
@@ -596,6 +607,25 @@ export default function AdminProfileEditScreen() {
                 Configure open slots for AI assistant & client appointment bookings.
               </Text>
 
+              <View style={{ flexDirection: "row", gap: 10, marginBottom: 12 }}>
+                <TextInput
+                  style={{ flex: 2, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(0,0,0,0.08)", height: 44, paddingHorizontal: 10, color: "#3B0508" }}
+                  placeholder="Timezone, e.g. Africa/Lagos"
+                  placeholderTextColor="#B0966C"
+                  value={timezone}
+                  onChangeText={setTimezone}
+                  autoCapitalize="none"
+                />
+                <TextInput
+                  style={{ flex: 1, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(0,0,0,0.08)", height: 44, paddingHorizontal: 10, color: "#3B0508" }}
+                  placeholder="Minutes"
+                  placeholderTextColor="#B0966C"
+                  value={slotDurationMinutes}
+                  onChangeText={setSlotDurationMinutes}
+                  keyboardType="number-pad"
+                />
+              </View>
+
               {/* Input for new slot */}
               <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
                 <View
@@ -603,7 +633,7 @@ export default function AdminProfileEditScreen() {
                     flex: 1,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: "#FBF7EF",
+                    backgroundColor: "#FFFFFF",
                     borderRadius: 12,
                     paddingHorizontal: 10,
                     height: 44,
@@ -614,7 +644,7 @@ export default function AdminProfileEditScreen() {
                   <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
                     style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="Sat, 12 Sep"
+                    placeholder="YYYY-MM-DD"
                     placeholderTextColor="#B0966C"
                     value={newSlotDate}
                     onChangeText={setNewSlotDate}
@@ -625,7 +655,7 @@ export default function AdminProfileEditScreen() {
                     flex: 1,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: "#FBF7EF",
+                    backgroundColor: "#FFFFFF",
                     borderRadius: 12,
                     paddingHorizontal: 10,
                     height: 44,
@@ -636,7 +666,7 @@ export default function AdminProfileEditScreen() {
                   <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
                     style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="10:00 AM"
+                    placeholder="HH:MM"
                     placeholderTextColor="#B0966C"
                     value={newSlotTime}
                     onChangeText={setNewSlotTime}
@@ -649,7 +679,7 @@ export default function AdminProfileEditScreen() {
                 disabled={addingSlot}
                 style={({ pressed }) => [
                   {
-                    backgroundColor: "#4A080C",
+                    backgroundColor: "#453332",
                     height: 42,
                     borderRadius: 12,
                     flexDirection: "row",
@@ -678,7 +708,7 @@ export default function AdminProfileEditScreen() {
                 style={{
                   fontFamily: "WorkSans_600SemiBold",
                   fontSize: 13,
-                  color: "#4A080C",
+                  color: "#453332",
                   marginBottom: 10,
                 }}
               >
@@ -686,7 +716,7 @@ export default function AdminProfileEditScreen() {
               </Text>
 
               {loadingSlots ? (
-                <ActivityIndicator color="#4A080C" style={{ marginVertical: 12 }} />
+                <ActivityIndicator color="#453332" style={{ marginVertical: 12 }} />
               ) : slotsList.length === 0 ? (
                 <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 12 }}>
                   No fitting slots added yet. Add your first slot above.
@@ -699,7 +729,7 @@ export default function AdminProfileEditScreen() {
                       flexDirection: "row",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      backgroundColor: "#FBF7EF",
+                      backgroundColor: "#FFFFFF",
                       paddingHorizontal: 12,
                       paddingVertical: 10,
                       borderRadius: 12,
@@ -709,9 +739,9 @@ export default function AdminProfileEditScreen() {
                     }}
                   >
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Calendar size={15} color="#4A080C" />
+                      <Calendar size={15} color="#453332" />
                       <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3B0508" }}>
-                        {slot.date} · {slot.time}
+                        {slot.label || `${slot.date} · ${slot.time}`}
                       </Text>
                       {slot.booked ? (
                         <View style={{ backgroundColor: "#FDE8E8", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
@@ -744,7 +774,7 @@ export default function AdminProfileEditScreen() {
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: "#FBF7EF",
+            backgroundColor: "#FFFFFF",
             paddingHorizontal: 24,
             paddingTop: 12,
             paddingBottom: 24,
@@ -759,7 +789,7 @@ export default function AdminProfileEditScreen() {
               {
                 height: 56,
                 borderRadius: 28,
-                backgroundColor: "#4A080C",
+                backgroundColor: "#453332",
                 alignItems: "center",
                 justifyContent: "center",
                 opacity: pressed || saving ? 0.85 : 1,

@@ -34,10 +34,8 @@ import {
   Plus,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { adminApi, ordersApi, slotsApi } from "@/shared/utils/apiClient";
+import { adminApi, slotsApi, staffApi } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
-
-import { API_BASE_URL } from "@/api/config";
 
 export default function AdminSettingsScreen() {
   const { width, height } = useWindowDimensions();
@@ -64,6 +62,7 @@ export default function AdminSettingsScreen() {
   const [newSlotDate, setNewSlotDate] = useState("");
   const [newSlotTime, setNewSlotTime] = useState("");
   const [addingSlot, setAddingSlot] = useState(false);
+  const [slotDurationMinutes, setSlotDurationMinutes] = useState(60);
 
   const fetchSlots = async () => {
     setLoadingSlots(true);
@@ -81,16 +80,16 @@ export default function AdminSettingsScreen() {
 
   const handleAddSlot = async () => {
     if (!newSlotDate.trim() || !newSlotTime.trim()) {
-      showAlert("Missing Fields", "Please enter both date (e.g. Sat, 12 Sep) and time (e.g. 10:00 AM).");
+      showAlert("Missing Fields", "Use YYYY-MM-DD for the date and HH:MM for the time.");
       return;
     }
     setAddingSlot(true);
     try {
-      const created = await slotsApi.createSlot(newSlotDate.trim(), newSlotTime.trim());
+      const created = await slotsApi.createSlot(newSlotDate.trim(), newSlotTime.trim(), slotDurationMinutes);
       setSlotsList((prev) => [...prev, created]);
       setNewSlotDate("");
       setNewSlotTime("");
-      showAlert("Slot Added", `Fitting slot for ${created.date} at ${created.time} is now available.`);
+      showAlert("Slot Added", `${created.label || `${created.date} at ${created.time}`} is now available.`);
     } catch (err: any) {
       showAlert("Add Failed", err?.message || "Could not add fitting slot.");
     } finally {
@@ -111,11 +110,10 @@ export default function AdminSettingsScreen() {
     async function loadData() {
       if (!token) return;
       try {
-        const [profileRes, ordersRes, staffRes, customersRes] = await Promise.allSettled([
+        const [profileRes, summaryRes, staffRes] = await Promise.allSettled([
           adminApi.getProfile(),
-          ordersApi.getOrders(),
-          fetch(`${API_BASE_URL}/api/staff`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
-          fetch(`${API_BASE_URL}/api/customers`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
+          adminApi.getSummary(),
+          staffApi.getStaff(),
         ]);
 
         if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
@@ -123,20 +121,18 @@ export default function AdminSettingsScreen() {
           if (house.shopName || house.name) {
             setBusinessName(house.shopName || house.name);
           }
+          setSlotDurationMinutes(house.slotDurationMinutes || 60);
         }
 
-        if (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value)) {
-          setInvoiceCount(ordersRes.value.length);
+        if (summaryRes.status === "fulfilled") {
+          setStaffCount(summaryRes.value.staffCount);
+          setCustomerCount(summaryRes.value.customerCount);
+          setInvoiceCount(summaryRes.value.invoiceCountThisMonth);
         }
 
         if (staffRes.status === "fulfilled" && Array.isArray(staffRes.value)) {
-          setStaffCount(staffRes.value.length);
           const totalUnread = staffRes.value.reduce((acc: number, st: any) => acc + (st.unreadCount || 0), 0);
           setUnreadChatCount(totalUnread);
-        }
-
-        if (customersRes.status === "fulfilled" && Array.isArray(customersRes.value)) {
-          setCustomerCount(customersRes.value.length);
         }
       } catch (err) {
         console.warn("Failed to load profile for settings", err);
@@ -152,7 +148,7 @@ export default function AdminSettingsScreen() {
   const displayTitle = businessName || fallbackName;
 
   const handleLogout = () => {
-    showConfirm("Log Out", "Are you sure you want to log out of your Òwújà account?", {
+    showConfirm("Log Out", "Are you sure you want to log out of your Owuja account?", {
       confirmLabel: "Log Out",
       cancelLabel: "Cancel",
       onConfirm: () => {
@@ -373,11 +369,11 @@ export default function AdminSettingsScreen() {
         onRequestClose={() => setShowSlotsModal(false)}
       >
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" }}>
-          <View style={{ backgroundColor: "#FBF7EF", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: "85%" }}>
+          <View style={{ backgroundColor: "#FFFFFF", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: "85%" }}>
             {/* Modal Header */}
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <View>
-                <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 20, color: "#4A080C" }}>
+                <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 20, color: "#453332" }}>
                   Fitting Time Slots
                 </Text>
                 <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#8A7550" }}>
@@ -398,21 +394,21 @@ export default function AdminSettingsScreen() {
                 Add New Fitting Slot
               </Text>
               <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FBF7EF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
                   <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
                     style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}
-                    placeholder="Sat, 12 Sep"
+                    placeholder="YYYY-MM-DD"
                     placeholderTextColor="#A09075"
                     value={newSlotDate}
                     onChangeText={setNewSlotDate}
                   />
                 </View>
-                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FBF7EF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
+                <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
                   <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
                     style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}
-                    placeholder="10:00 AM"
+                    placeholder="HH:MM"
                     placeholderTextColor="#A09075"
                     value={newSlotTime}
                     onChangeText={setNewSlotTime}
@@ -424,7 +420,7 @@ export default function AdminSettingsScreen() {
                 onPress={handleAddSlot}
                 disabled={addingSlot}
                 style={({ pressed }) => [{
-                  backgroundColor: "#4A080C",
+                  backgroundColor: "#453332",
                   height: 40,
                   borderRadius: 10,
                   justifyContent: "center",
@@ -449,7 +445,7 @@ export default function AdminSettingsScreen() {
 
             <ScrollView style={{ maxHeight: 240 }} showsVerticalScrollIndicator={false}>
               {loadingSlots ? (
-                <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+                <ActivityIndicator color="#453332" style={{ marginVertical: 20 }} />
               ) : slotsList.length === 0 ? (
                 <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 16 }}>
                   No fitting slots configured yet. Add your first slot above!
@@ -471,9 +467,9 @@ export default function AdminSettingsScreen() {
                     }}
                   >
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Calendar size={16} color="#4A080C" />
+                      <Calendar size={16} color="#453332" />
                       <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A" }}>
-                        {slot.date} · {slot.time}
+                        {slot.label || `${slot.date} · ${slot.time}`}
                       </Text>
                       {slot.booked ? (
                         <View style={{ backgroundColor: "#FDE8E8", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
@@ -506,7 +502,7 @@ export default function AdminSettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -542,7 +538,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,

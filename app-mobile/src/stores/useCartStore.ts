@@ -1,27 +1,6 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
-import * as SecureStore from 'expo-secure-store';
-
-const secureStorage: StateStorage = {
-  getItem: async (name: string): Promise<string | null> => {
-    try {
-      return await SecureStore.getItemAsync(name);
-    } catch {
-      return null;
-    }
-  },
-  setItem: async (name: string, value: string): Promise<void> => {
-    try {
-      if (value.length > 2000) return; // Prevent Android SecureStore 2048-byte limit warning
-      await SecureStore.setItemAsync(name, value);
-    } catch {}
-  },
-  removeItem: async (name: string): Promise<void> => {
-    try {
-      await SecureStore.deleteItemAsync(name);
-    } catch {}
-  },
-};
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { sqliteStateStorage } from '@/shared/services/sqliteStateStorage';
 
 export interface CartItem {
   id: string;
@@ -40,6 +19,7 @@ interface CartState {
   addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   removeItem: (id: string, selectedSize: string, selectedColor: string) => void;
   updateQuantity: (id: string, selectedSize: string, selectedColor: string, quantity: number) => void;
+  clearFashionHouse: (fashionHouseId: string) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -94,13 +74,17 @@ export const useCartStore = create<CartState>()(
           ),
         }));
       },
+      clearFashionHouse: (fashionHouseId) =>
+        set((state) => ({
+          items: state.items.filter((item) => item.fashionHouseId !== fashionHouseId),
+        })),
       clearCart: () => set({ items: [] }),
       getTotalItems: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
       getTotalPrice: () => get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     }),
     {
       name: 'tfh-cart-storage',
-      storage: createJSONStorage(() => secureStorage),
+      storage: createJSONStorage(() => sqliteStateStorage),
     }
   )
 );

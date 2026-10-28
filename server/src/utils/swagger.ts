@@ -1,9 +1,9 @@
 export const swaggerSpec = {
   openapi: "3.0.0",
   info: {
-    title: "Òwújà API Documentation",
+    title: "Owuja API Documentation",
     version: "1.0.0",
-    description: "Interactive Swagger UI for testing Òwújà API endpoints.",
+    description: "Interactive Swagger UI for testing Owuja API endpoints.",
   },
   servers: [
     {

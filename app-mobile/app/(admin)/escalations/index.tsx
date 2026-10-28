@@ -14,9 +14,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { X, UserCheck } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
-import { escalationsApi } from "@/shared/utils/apiClient";
+import { apiFetch, escalationsApi, measurementsApi, staffApi } from "@/shared/utils/apiClient";
+import { normalizeStatus } from "@/shared/domain/statuses";
+import { formatDate } from "@/shared/utils/formatters";
 
 interface BookingItem {
   id: string;
@@ -37,7 +38,7 @@ interface MessageTurn {
 interface StaffMember {
   id: string;
   email: string;
-  active: boolean;
+  active?: boolean;
 }
 
 // Default luxury demo bookings matching mockup
@@ -136,17 +137,17 @@ export default function BookingsScreen() {
     setLoading(true);
     try {
       const [escRes, staffRes] = await Promise.allSettled([
-        fetch(`${API_BASE_URL}/api/escalations`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE_URL}/api/staff`, { headers: { Authorization: `Bearer ${token}` } }),
+        escalationsApi.getEscalations(),
+        staffApi.getStaff(),
       ]);
 
-      if (staffRes.status === "fulfilled" && staffRes.value.ok) {
-        const staffData = await staffRes.value.json();
+      if (staffRes.status === "fulfilled") {
+        const staffData = staffRes.value;
         if (Array.isArray(staffData)) setStaffList(staffData);
       }
 
-      if (escRes.status === "fulfilled" && escRes.value.ok) {
-        const data = await escRes.value.json();
+      if (escRes.status === "fulfilled") {
+        const data = escRes.value;
         if (Array.isArray(data)) {
           const seen = new Set<string>();
           const mapped: BookingItem[] = [];
@@ -163,12 +164,12 @@ export default function BookingsScreen() {
               customerName: formattedName,
               serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Bespoke Fitting",
               appointmentTime: item.preferredDate
-                ? `${new Date(item.preferredDate).toLocaleDateString("en-US", {
+                ? `${formatDate(item.preferredDate, {
                     weekday: "short",
                     month: "short",
                     day: "numeric",
                   })}${item.preferredTime ? `, ${item.preferredTime}` : ""}`
-                : new Date(item.createdAt).toLocaleDateString("en-US", {
+                : formatDate(item.createdAt, {
                     weekday: "short",
                     month: "short",
                     day: "numeric",
@@ -177,7 +178,7 @@ export default function BookingsScreen() {
                   }),
               summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
               status:
-                item.bookingStatus === "declined" || item.status === "declined"
+                normalizeStatus(item.bookingStatus) === "declined" || normalizeStatus(item.status) === "declined"
                   ? "declined"
                   : item.resolved
                   ? "assigned"
@@ -212,11 +213,7 @@ export default function BookingsScreen() {
     setCheckingBookingId(booking.id);
     try {
       if (token) {
-        const res = await fetch(`${API_BASE_URL}/api/measurements/check/${encodeURIComponent(booking.customerName)}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
+          const data = await measurementsApi.checkCustomer(booking.customerName);
           if (data.hasMeasurements === false) {
             showConfirm(
               "Measurement Required",
@@ -239,7 +236,6 @@ export default function BookingsScreen() {
             );
             return;
           }
-        }
       }
     } catch {
       // Fallback directly to assign screen if check fails
@@ -308,13 +304,8 @@ export default function BookingsScreen() {
     setLoadingTranscript(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/escalations/${booking.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setTranscript(data.transcript ?? []);
-      }
+      const data = await apiFetch<any>(`/api/escalations/${booking.id}`, { silent: true });
+      setTranscript(data.transcript ?? []);
     } catch {
       // Fallback preview
       setTranscript([
@@ -394,7 +385,7 @@ export default function BookingsScreen() {
         {/* Bookings List */}
         {loading && bookings.length === 0 ? (
           <View style={styles.loaderContainer}>
-            <ActivityIndicator color="#4A080C" size="large" />
+            <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : (
           <FlatList
@@ -501,7 +492,7 @@ export default function BookingsScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Assign Tailor</Text>
               <Pressable onPress={() => setAssignModalVisible(false)}>
-                <X size={20} color="#4A080C" />
+                <X size={20} color="#453332" />
               </Pressable>
             </View>
 
@@ -546,7 +537,7 @@ export default function BookingsScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Fitting Request</Text>
               <Pressable onPress={() => setDetailModalVisible(false)}>
-                <X size={20} color="#4A080C" />
+                <X size={20} color="#453332" />
               </Pressable>
             </View>
 
@@ -559,7 +550,7 @@ export default function BookingsScreen() {
               <Text style={styles.transcriptSectionTitle}>Conversation Exchanges</Text>
 
               {loadingTranscript ? (
-                <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+                <ActivityIndicator color="#453332" style={{ marginVertical: 20 }} />
               ) : (
                 transcript.map((t, idx) => (
                   <View
@@ -591,7 +582,7 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -623,7 +614,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   pillActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   pillInactive: {
     backgroundColor: "#E2E5DF",
@@ -665,7 +656,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -721,7 +712,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -736,14 +727,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
   declineBtnText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
   },
   assignedFooter: {
     flexDirection: "row",
@@ -765,7 +756,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -779,7 +770,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 20,
-    color: "#4A080C",
+    color: "#453332",
   },
   modalSubtitle: {
     fontFamily: "WorkSans_400Regular",
@@ -824,7 +815,7 @@ const styles = StyleSheet.create({
   transcriptSectionTitle: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 10,
   },
   chatBubble: {
@@ -835,7 +826,7 @@ const styles = StyleSheet.create({
   },
   userBubble: {
     alignSelf: "flex-end",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   modelBubble: {
     alignSelf: "flex-start",

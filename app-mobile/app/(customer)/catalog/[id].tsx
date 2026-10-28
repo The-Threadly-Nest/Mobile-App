@@ -20,6 +20,7 @@ import {
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import CachedImage from "@/shared/components/CachedImage";
 import { apiFetch } from "@/shared/utils/apiClient";
+import { formatCurrency } from "@/shared/utils/formatters";
 
 export default function CatalogItemDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -76,14 +77,14 @@ export default function CatalogItemDetailScreen() {
 
   if (rawPrice !== undefined && rawPrice !== null && rawPrice !== "") {
     if (typeof rawPrice === "number") {
-      garmentPrice = `From ₦ ${rawPrice.toLocaleString()}`;
+      garmentPrice = `From ${formatCurrency(rawPrice)}`;
     } else {
       const strVal = String(rawPrice).trim();
       if (strVal.includes("₦")) {
         garmentPrice = strVal.startsWith("From ") ? strVal : `From ${strVal}`;
       } else {
         const numVal = Number(strVal.replace(/[^0-9.]/g, ""));
-        garmentPrice = !isNaN(numVal) && numVal > 0 ? `From ₦ ${numVal.toLocaleString()}` : strVal;
+        garmentPrice = !isNaN(numVal) && numVal > 0 ? `From ${formatCurrency(numVal)}` : strVal;
       }
     }
   }
@@ -106,6 +107,7 @@ export default function CatalogItemDetailScreen() {
         fashionHouseName: vendorName,
         garmentName: garmentName,
         garmentPrice: garmentPrice,
+        startNew: String(Date.now()),
       },
     });
   };
@@ -175,7 +177,7 @@ export default function CatalogItemDetailScreen() {
           onPress={handleViewFashionHouse}
         >
           <View style={styles.vendorIconCircle}>
-            <Store size={22} color="#4A080C" />
+            <Store size={22} color="#453332" />
           </View>
           <View style={styles.vendorInfo}>
             <Text style={styles.vendorLabel}>CRAFTED BY</Text>
@@ -238,7 +240,7 @@ export default function CatalogItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     height: 52,
@@ -281,7 +283,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 14,
     left: 14,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: "WorkSans_700Bold",
     fontSize: 11,
-    color: "#FBF7EF",
+    color: "#FFFFFF",
     letterSpacing: 0.5,
   },
   titleSection: {
@@ -298,7 +300,7 @@ const styles = StyleSheet.create({
   garmentTitle: {
     fontFamily: "Fraunces_700Bold",
     fontSize: 22,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 6,
   },
   garmentPrice: {
@@ -327,7 +329,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -355,7 +357,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   viewProfileBtn: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
@@ -365,7 +367,7 @@ const styles = StyleSheet.create({
   viewProfileText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 12,
-    color: "#4A080C",
+    color: "#453332",
   },
   specsContainer: {
     backgroundColor: "#FFFFFF",
@@ -418,7 +420,7 @@ const styles = StyleSheet.create({
     borderTopColor: "rgba(58, 46, 26, 0.1)",
   },
   bookBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     height: 50,
     borderRadius: 25,
     flexDirection: "row",

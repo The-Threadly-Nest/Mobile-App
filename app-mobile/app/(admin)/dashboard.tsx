@@ -4,10 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Plus, Trash2, Calendar, Clock, X } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useAppDataStore } from "@/stores/useAppDataStore";
-import { API_BASE_URL } from "@/api/config";
-import { adminApi, ordersApi, escalationsApi, slotsApi } from "@/shared/utils/apiClient";
+import { APP_DATA_CACHE_TTL_MS, useAppDataStore } from "@/stores/useAppDataStore";
+import { adminApi, ordersApi, escalationsApi, measurementsApi, slotsApi, type AdminDashboardSummary } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { isBookingPending, isOrderWorkActive, isPaymentPaid } from "@/shared/domain/statuses";
+import { formatCurrency } from "@/shared/utils/formatters";
 
 interface EscalationItem {
   id: string;
@@ -29,35 +30,61 @@ export default function AdminDashboard() {
 
   const storeName = useAuthStore((s) => s.name);
   const storeEmail = useAuthStore((s) => s.email);
+  const storeRole = useAuthStore((s) => s.role);
   const storedShopName = useAuthStore((s) => s.shopName);
   const setStoredShopName = useAuthStore((s) => s.setShopName);
 
   const cachedOrders = useAppDataStore((s) => s.orders);
   const cachedEscalations = useAppDataStore((s) => s.escalations);
   const cachedProfile = useAppDataStore((s) => s.profile);
+  const cachedSummary = useAppDataStore((s) => s.dashboardSummary);
+  const cacheOwnerKey = useAppDataStore((s) => s.cacheOwnerKey);
+  const cacheUpdatedAt = useAppDataStore((s) => s.lastSyncedAt);
   const setCachedOrders = useAppDataStore((s) => s.setOrders);
   const setCachedEscalations = useAppDataStore((s) => s.setEscalations);
+  const setCachedProfile = useAppDataStore((s) => s.setProfile);
+  const setCachedSummary = useAppDataStore((s) => s.setDashboardSummary);
+  const activateCache = useAppDataStore((s) => s.activateCache);
 
-  const [shopName, setShopName] = useState(cachedProfile?.shopName || storedShopName || "");
+  const expectedCacheOwner = storeEmail && storeRole
+    ? `${storeRole}:${storeEmail.trim().toLowerCase()}`
+    : null;
+  const cacheIsFresh = Boolean(
+    expectedCacheOwner &&
+      cacheOwnerKey === expectedCacheOwner &&
+      cacheUpdatedAt &&
+      Date.now() - cacheUpdatedAt <= APP_DATA_CACHE_TTL_MS
+  );
+
+  const [shopName, setShopName] = useState(
+    (cacheIsFresh ? cachedProfile?.shopName : null) || storedShopName || ""
+  );
 
   // Seed states directly from persistent device storage — instant 0-spinner load!
-  const [orders, setOrders] = useState<any[]>(cachedOrders || []);
-  const [escalations, setEscalations] = useState<EscalationItem[]>(cachedEscalations || []);
+  const [orders, setOrders] = useState<any[]>(cacheIsFresh ? cachedOrders : []);
+  const [escalations, setEscalations] = useState<EscalationItem[]>(cacheIsFresh ? cachedEscalations : []);
+  const [summary, setSummary] = useState<AdminDashboardSummary | null>(cacheIsFresh ? cachedSummary : null);
   const [assignLoadingId, setAssignLoadingId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(cachedOrders.length === 0 && cachedEscalations.length === 0);
+  const [loading, setLoading] = useState(
+    !cacheIsFresh || (cachedOrders.length === 0 && cachedEscalations.length === 0)
+  );
   const [refreshing, setRefreshing] = useState(false);
 
   React.useEffect(() => {
-    if (orders.length === 0 && cachedOrders.length > 0) {
+    if (expectedCacheOwner) activateCache(expectedCacheOwner);
+  }, [activateCache, expectedCacheOwner]);
+
+  React.useEffect(() => {
+    if (cacheIsFresh && orders.length === 0 && cachedOrders.length > 0) {
       setOrders(cachedOrders);
       setLoading(false);
     }
-    if (escalations.length === 0 && cachedEscalations.length > 0) {
+    if (cacheIsFresh && escalations.length === 0 && cachedEscalations.length > 0) {
       setEscalations(cachedEscalations);
       setLoading(false);
     }
-    if (cachedProfile?.shopName && !shopName) setShopName(cachedProfile.shopName);
-  }, [cachedEscalations, cachedOrders, cachedProfile, escalations.length, orders.length, shopName]);
+    if (cacheIsFresh && cachedProfile?.shopName && !shopName) setShopName(cachedProfile.shopName);
+  }, [cacheIsFresh, cachedEscalations, cachedOrders, cachedProfile, escalations.length, orders.length, shopName]);
 
 
 
@@ -67,14 +94,16 @@ export default function AdminDashboard() {
       setLoading(true);
     }
     try {
-      const [profileRes, ordersRes, escalationsRes] = await Promise.allSettled([
+      const [profileRes, summaryRes, ordersRes, escalationsRes] = await Promise.allSettled([
         adminApi.getProfile(),
+        adminApi.getDashboardSummary(),
         ordersApi.getOrders(),
         escalationsApi.getEscalations(),
       ]);
 
       if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
         const house = profileRes.value.fashionHouse;
+        setCachedProfile(house);
         if (house.admin?.name) {
           useAuthStore.getState().setName(house.admin.name);
         }
@@ -90,6 +119,11 @@ export default function AdminDashboard() {
         setCachedOrders(ordersRes.value);
       }
 
+      if (summaryRes.status === "fulfilled") {
+        setSummary(summaryRes.value);
+        setCachedSummary(summaryRes.value);
+      }
+
       if (escalationsRes.status === "fulfilled" && Array.isArray(escalationsRes.value)) {
         setEscalations(escalationsRes.value);
         setCachedEscalations(escalationsRes.value);
@@ -102,14 +136,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const refreshDashboardSummary = async () => {
+    try {
+      const latestSummary = await adminApi.getDashboardSummary();
+      setSummary(latestSummary);
+      setCachedSummary(latestSummary);
+    } catch (err) {
+      // Keep the last successful figures during a temporary network failure.
+      console.warn("Failed to refresh dashboard summary", err);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       // Immediate fetch on focus
       fetchData();
 
-      // Poll every 30 seconds while this screen is focused so staff
-      // updates are reflected without the admin needing to pull-to-refresh.
-      const interval = setInterval(fetchData, 30_000);
+      // Only refresh the three small dashboard figures in the background.
+      // Lists and profile data refresh on focus or pull-to-refresh.
+      const interval = setInterval(refreshDashboardSummary, 30_000);
 
       // Cleanup: stop polling when admin navigates away
       return () => clearInterval(interval);
@@ -166,51 +211,22 @@ export default function AdminDashboard() {
   const effectiveOrders = realOrders.length > 0 ? realOrders : orders;
   const effectiveEscalations = realEscalations.length > 0 ? realEscalations : escalations;
 
-  // Covered order/booking IDs to avoid double counting
-  const coveredOrderIds = new Set(effectiveOrders.map((o) => o.id || o.bookingId).filter(Boolean));
-
   // Active Orders count = orders in progress (not completed, delivered, ready_for_pickup, or cancelled)
-  const activeOrdersCount = effectiveOrders.filter(
-    (o) =>
-      o.status !== "completed" &&
-      o.status !== "delivered" &&
-      o.status !== "ready_for_pickup" &&
-      o.status !== "ready" &&
-      o.status !== "cancelled"
-  ).length;
+  const pageActiveOrdersCount = effectiveOrders.filter((o) => isOrderWorkActive(o.status)).length;
 
-  // Completed Orders count = orders marked completed/delivered/ready_for_pickup + completed bookings without order records
-  const completedOrdersFromOrders = effectiveOrders.filter(
-    (o) =>
-      o.status === "completed" ||
-      o.status === "delivered" ||
-      o.status === "ready_for_pickup" ||
-      o.status === "ready"
-  ).length;
-
-  const completedBookingsWithoutOrder = effectiveEscalations.filter(
-    (e) =>
-      !coveredOrderIds.has(e.id) &&
-      (e.bookingStatus === "completed" || e.status === "completed" || e.status === "delivered")
-  ).length;
-
-  // Total Revenue: Only include orders/invoices that are marked as Paid or completed/delivered
+  // Page-only fallback: payment and fulfilment are separate states.
   const paidOrders = realOrders.filter(
     (o) =>
       o.isPaid === true ||
-      o.paymentStatus === "Paid" ||
-      o.invoiceStatus === "Paid" ||
-      o.status === "Paid" ||
-      o.status === "completed" ||
-      o.status === "delivered"
+      isPaymentPaid(o.paymentStatus || o.invoice?.paymentStatus || o.invoiceStatus)
   );
 
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.price || 0), 0);
+  const pageRevenue = paidOrders.reduce((sum, o) => sum + (o.invoice?.total || o.price || 0), 0);
 
   // Deduplicate pending escalations/bookings by ID or customer reference
   const uniquePendingEscalations = new Map<string, any>();
   effectiveEscalations.forEach((e) => {
-    if (!e.resolved && e.bookingStatus !== "declined") {
+    if (!e.resolved && (isBookingPending(e.bookingStatus) || !e.bookingStatus)) {
       const key = e.id || e.customerId || e.customerName || "esc";
       if (!uniquePendingEscalations.has(key)) {
         uniquePendingEscalations.set(key, e);
@@ -218,7 +234,9 @@ export default function AdminDashboard() {
     }
   });
   const pendingEscalations = Array.from(uniquePendingEscalations.values());
-  const pendingBookingsCount = pendingEscalations.length;
+  const activeOrdersCount = summary?.activeOrdersCount ?? pageActiveOrdersCount;
+  const pendingBookingsCount = summary?.pendingBookingsCount ?? pendingEscalations.length;
+  const totalRevenue = summary?.revenueThisMonth ?? pageRevenue;
 
   // Declined bookings count — bookingStatus is set by the server
   const declinedBookingsCount = effectiveEscalations.filter(
@@ -251,26 +269,22 @@ export default function AdminDashboard() {
     return "Good evening";
   };
 
-  const formatMoney = (val: number) => {
-    return `₦${val.toLocaleString()}`;
-  };
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FBF7EF" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={["top"]}>
       <ScrollView
         contentContainerStyle={[
           { paddingHorizontal: 24, paddingTop: 36, paddingBottom: 40 },
           isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />}
       >
         {/* Subtitle Badge */}
         <Text
           style={{
             fontFamily: "WorkSans_500Medium",
             fontSize: 13,
-            color: "#4A080C",
+            color: "#453332",
             marginBottom: 4,
           }}
         >
@@ -299,7 +313,7 @@ export default function AdminDashboard() {
           <View
             style={[
               {
-                backgroundColor: "#4A080C",
+                backgroundColor: "#453332",
                 borderRadius: 16,
                 height: 86,
                 justifyContent: "center",
@@ -317,7 +331,7 @@ export default function AdminDashboard() {
                 marginBottom: 4,
               }}
             >
-              {formatMoney(totalRevenue)}
+              {formatCurrency(totalRevenue)}
             </Text>
             <Text
               style={{
@@ -412,7 +426,7 @@ export default function AdminDashboard() {
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "#4A080C",
+                backgroundColor: "#453332",
                 height: 52,
                 borderRadius: 26,
                 gap: 8,
@@ -447,7 +461,7 @@ export default function AdminDashboard() {
             style={{
               fontFamily: "Fraunces-SemiBold",
               fontSize: 18,
-              color: "#4A080C",
+              color: "#453332",
             }}
           >
             Booking requests
@@ -467,7 +481,7 @@ export default function AdminDashboard() {
 
         {/* Booking Requests List */}
         {loading ? (
-          <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+          <ActivityIndicator color="#453332" style={{ marginVertical: 20 }} />
         ) : displayRequests.length === 0 ? (
           <View
             style={{
@@ -596,38 +610,32 @@ export default function AdminDashboard() {
                         const custName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
                         setAssignLoadingId(item.id);
                         try {
-                          const token = useAuthStore.getState().token;
-                          if (token) {
-                            const res = await fetch(`${API_BASE_URL}/api/measurements/check/${encodeURIComponent(custName)}`, {
-                              headers: { Authorization: `Bearer ${token}` },
-                            });
-                            if (res.ok) {
-                              const data = await res.json();
-                              if (data.hasMeasurements === false) {
-                                showConfirm(
-                                  "Measurement Required",
-                                  `No measurements found for ${custName}. Please record measurement details before assigning staff.`,
-                                  {
-                                    confirmLabel: "Add Measurement",
-                                    onConfirm: () => {
-                                      router.push({
-                                        pathname: "/(admin)/measurements/new",
-                                        params: {
-                                          bookingId: item.id,
-                                          customerName: custName,
-                                          serviceTitle: item.reason || item.summary || "Bespoke Fitting",
-                                          appointmentTime: "Sat, Sept 6",
-                                          returnToAssign: "true",
-                                        },
-                                      } as any);
+                          const data = await measurementsApi.checkCustomer(custName);
+                          if (data.hasMeasurements === false) {
+                            showConfirm(
+                              "Measurement Required",
+                              `No measurements found for ${custName}. Please record measurement details before assigning staff.`,
+                              {
+                                confirmLabel: "Add Measurement",
+                                onConfirm: () => {
+                                  router.push({
+                                    pathname: "/(admin)/measurements/new",
+                                    params: {
+                                      bookingId: item.id,
+                                      customerName: custName,
+                                      serviceTitle: item.reason || item.summary || "Bespoke Fitting",
+                                      appointmentTime: "Sat, Sept 6",
+                                      returnToAssign: "true",
                                     },
-                                  }
-                                );
-                                return;
+                                  } as any);
+                                },
                               }
-                            }
+                            );
+                            return;
                           }
-                        } catch {
+                        } catch (err: any) {
+                          showAlert("Unable to Check Measurements", err?.message || "Please try again before assigning staff.");
+                          return;
                         } finally {
                           setAssignLoadingId(null);
                         }
@@ -647,7 +655,7 @@ export default function AdminDashboard() {
                         flex: 1,
                         height: 44,
                         borderRadius: 22,
-                        backgroundColor: "#4A080C",
+                        backgroundColor: "#453332",
                         alignItems: "center",
                         justifyContent: "center",
                         opacity: pressed || assignLoadingId === item.id ? 0.7 : 1,
@@ -682,7 +690,7 @@ export default function AdminDashboard() {
                         borderRadius: 22,
                         backgroundColor: "#FFFFFF",
                         borderWidth: 1.5,
-                        borderColor: "#4A080C",
+                        borderColor: "#453332",
                         alignItems: "center",
                         justifyContent: "center",
                         opacity: pressed ? 0.8 : 1,
@@ -693,7 +701,7 @@ export default function AdminDashboard() {
                       style={{
                         fontFamily: "WorkSans_600SemiBold",
                         fontSize: 14,
-                        color: "#4A080C",
+                        color: "#453332",
                       }}
                     >
                       Decline

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Òwújà",
+    "name": "Owuja",
     "slug": "the-threadly-nest",
     "scheme": "threadlynest",
     "version": "1.0.0",
@@ -8,9 +8,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icon.png",
+      "image": "./assets/splash-brand.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FBF7EF"
+      "backgroundColor": "#F96951"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,8 +24,8 @@
       "package": "com.thethreadlynest.app",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FBF7EF"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FFFFFF"
       }
     },
     "plugins": [
@@ -38,12 +38,21 @@
         }
       ],
       "expo-audio",
-      ["expo-notifications", {
-        "icon": "./assets/icon.png",
-        "color": "#4A080C",
-        "sounds": []
-      }],
-      "expo-sqlite"
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#453332",
+          "sounds": []
+        }
+      ],
+      "expo-sqlite",
+      "expo-font",
+      "expo-image",
+      "expo-secure-store",
+      "expo-sharing",
+      "expo-splash-screen",
+      "expo-status-bar"
     ],
     "extra": {
       "router": {

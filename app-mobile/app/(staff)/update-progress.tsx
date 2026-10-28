@@ -14,7 +14,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Info, Check, ArrowRight } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface StageItem {
@@ -67,24 +67,13 @@ export default function UpdateProgressScreen() {
     setSubmitting(true);
     try {
       if (token && orderId) {
-        const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
+        await apiFetch(`/api/orders/${orderId}/status`, {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             status: activeStageKey,
             note: updateNote.trim(),
           }),
         });
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          const message = body?.error || "Could not update order status. Please try again.";
-          showAlert("Update Failed", message);
-          return;
-        }
       }
 
       const activeStageLabel = STAGES.find((s) => s.key === activeStageKey)?.label;
@@ -119,13 +108,13 @@ export default function UpdateProgressScreen() {
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
 
         <Text style={styles.headerTitleText}>Update Progress</Text>
 
         <Pressable style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}>
-          <Info size={18} color="#4A080C" />
+          <Info size={18} color="#453332" />
         </Pressable>
       </View>
 
@@ -260,7 +249,7 @@ export default function UpdateProgressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   headerBar: {
     flexDirection: "row",
@@ -268,7 +257,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   headerBtn: {
     width: 40,
@@ -283,7 +272,7 @@ const styles = StyleSheet.create({
   headerTitleText: {
     fontFamily: "Fraunces-Bold",
     fontSize: 22,
-    color: "#4A080C",
+    color: "#453332",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -315,7 +304,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -358,7 +347,7 @@ const styles = StyleSheet.create({
   stagesHeadline: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 16,
   },
   stepperContainer: {
@@ -378,7 +367,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1,
@@ -388,7 +377,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
@@ -398,7 +387,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   upcomingNode: {
     width: 20,
@@ -414,7 +403,7 @@ const styles = StyleSheet.create({
     marginBottom: -2,
   },
   completedLine: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   upcomingLine: {
     backgroundColor: "#E4D5B7",
@@ -433,7 +422,7 @@ const styles = StyleSheet.create({
   },
   activeLabelText: {
     fontFamily: "WorkSans_600SemiBold",
-    color: "#4A080C",
+    color: "#453332",
   },
   upcomingLabelText: {
     fontFamily: "WorkSans_400Regular",
@@ -469,7 +458,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

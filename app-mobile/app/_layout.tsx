@@ -32,6 +32,7 @@ export default function RootLayout() {
     "Fraunces-Bold": require("../assets/fonts/Fraunces-Bold.ttf"),
     "Fraunces-SemiBold": require("../assets/fonts/Fraunces-Bold.ttf"),
     "Fraunces-Regular": require("../assets/fonts/Fraunces-Regular.ttf"),
+    "InstrumentSans-Regular": require("../assets/fonts/InstrumentSans-Regular.ttf"),
   });
 
   const onLayoutRootView = useCallback(async () => {

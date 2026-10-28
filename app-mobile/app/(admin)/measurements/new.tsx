@@ -20,7 +20,7 @@ import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
-function RecordVoiceIcon({ color = "#4A080C" }: { color?: string }) {
+function RecordVoiceIcon({ color = "#453332" }: { color?: string }) {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
       <Path
@@ -354,7 +354,7 @@ export default function NewMeasurementScreen() {
               ]}
             >
               <View style={styles.voiceIconWrapper}>
-                <RecordVoiceIcon color={isRecording ? "#FFFFFF" : "#4A080C"} />
+                <RecordVoiceIcon color={isRecording ? "#FFFFFF" : "#453332"} />
               </View>
               <Text
                 style={[
@@ -449,7 +449,7 @@ export default function NewMeasurementScreen() {
                   onPress={() => setShowAddCustom(true)}
                   style={({ pressed }) => [styles.addCustomBtn, { opacity: pressed ? 0.75 : 1 }]}
                 >
-                  <Plus size={18} color="#4A080C" style={{ marginRight: 6 }} />
+                  <Plus size={18} color="#453332" style={{ marginRight: 6 }} />
                   <Text style={styles.addCustomBtnText}>Add custom field</Text>
                 </Pressable>
               )}
@@ -483,7 +483,7 @@ export default function NewMeasurementScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   segmentBtnActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   segmentBtnInactive: {
     backgroundColor: "transparent",
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#4A080C",
+    color: "#453332",
     marginTop: 8,
     marginBottom: 16,
   },
@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
   addCustomBtnText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
   },
   addCustomBox: {
     backgroundColor: "#FFFFFF",
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 10,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   voiceRecordPillActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   voiceIconWrapper: {
     marginRight: 12,
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
   voiceRecordText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
   },
   voiceRecordTextActive: {
     color: "#FFFFFF",
@@ -708,7 +708,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   saveBtn: {
     width: "100%",
@@ -716,7 +716,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -32,7 +32,7 @@ export default function MessageDeleteMenu({
 
           {busy ? (
             <View style={styles.loadingRow}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : (
             <View style={styles.actions}>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 360,
     borderRadius: 20,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingTop: 22,
     paddingBottom: 10,
     shadowColor: "#3A2E1A",
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   actionText: {
-    color: "#4A080C",
+    color: "#453332",
     fontFamily: "WorkSans_500Medium",
     fontSize: 16,
   },

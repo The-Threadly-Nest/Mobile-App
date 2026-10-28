@@ -24,9 +24,10 @@ import {
   Layers,
 } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
+import { normalizeStatus } from "@/shared/domain/statuses";
+import { formatCurrency, formatShortDate } from "@/shared/utils/formatters";
 
 const STATUS_CONFIG: Record<
   string,
@@ -73,7 +74,6 @@ export default function OrderDetailScreen() {
     assignedStaff?: string;
   }>();
 
-  const token = useAuthStore((s) => s.token);
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
@@ -82,44 +82,33 @@ export default function OrderDetailScreen() {
   const [order, setOrder] = useState<any>(null);
 
   const fetchOrderDetail = useCallback(async () => {
-    if (!token || !orderId) return;
+    if (!orderId) return;
     try {
       if (orderId.startsWith("esc-")) {
         const rawEscId = orderId.replace(/^esc-/, "");
-        const res = await fetch(`${API_BASE_URL}/api/escalations/${rawEscId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const esc = await apiFetch<any>(`/api/escalations/${rawEscId}`, { silent: true });
+        setOrder({
+          id: orderId,
+          customer: {
+            name: esc.customerName || esc.customer?.name,
+            phone: esc.customer?.phone || null,
+            email: esc.customer?.email || null,
+            measurements: esc.customer?.measurements || [],
+          },
+          itemName: esc.summary || "Bespoke Request",
+          status: esc.resolved ? "delivered" : "in_production",
+          price: initialPrice ? parseFloat(initialPrice) : 0,
+          createdAt: esc.createdAt,
+          staff: null,
         });
-        if (res.ok) {
-          const esc = await res.json();
-          setOrder({
-            id: orderId,
-            customer: {
-              name: esc.customerName || esc.customer?.name,
-              phone: esc.customer?.phone || null,
-              email: esc.customer?.email || null,
-              measurements: esc.customer?.measurements || [],
-            },
-            itemName: esc.summary || "Bespoke Request",
-            status: esc.resolved ? "delivered" : "in_production",
-            price: initialPrice ? parseFloat(initialPrice) : 0,
-            createdAt: esc.createdAt,
-            staff: null,
-          });
-        }
         return;
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setOrder(data);
-      }
+      setOrder(await apiFetch<any>(`/api/orders/${orderId}`, { silent: true }));
     } catch (e) {
       // offline or silent fail
     }
-  }, [token, orderId, initialPrice]);
+  }, [orderId, initialPrice]);
 
   useEffect(() => {
     fetchOrderDetail();
@@ -138,18 +127,12 @@ export default function OrderDetailScreen() {
   const orderNum =
     initialOrderNumber ||
     generateOrderNumber(order?.bookingId || order?.id || orderId || "2000");
-  const currentStatus = order?.status || initialStatus || "in_production";
+  const currentStatus = normalizeStatus(order?.status || initialStatus || "in_production");
   const price = order?.price ?? (initialPrice ? parseFloat(initialPrice) : 0);
   const staffName =
     order?.staff?.name ||
     (initialStaff ? initialStaff.replace(/^Assigned to /, "") : "Unassigned");
-  const createdAt = order?.createdAt
-    ? new Date(order.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "Recent Order";
+  const createdAt = order?.createdAt ? formatShortDate(order.createdAt) : "Recent Order";
 
   const statusMeta = STATUS_CONFIG[currentStatus] ?? {
     label: "In Production",
@@ -197,7 +180,7 @@ export default function OrderDetailScreen() {
             onPress={handleOpenInvoice}
             style={({ pressed }) => [styles.invoiceHeaderBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <FileText size={18} color="#4A080C" />
+            <FileText size={18} color="#453332" />
           </Pressable>
         </View>
 
@@ -206,7 +189,7 @@ export default function OrderDetailScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />
           }
         >
           {/* Main Status & Order Hero Card */}
@@ -233,7 +216,7 @@ export default function OrderDetailScreen() {
             <View style={styles.heroMetaRow}>
               <View>
                 <Text style={styles.metaLabel}>TOTAL PRICE</Text>
-                <Text style={styles.priceValue}>₦{price.toLocaleString()}</Text>
+                <Text style={styles.priceValue}>{formatCurrency(price)}</Text>
               </View>
               <View style={{ alignItems: "flex-end" }}>
                 <Text style={styles.metaLabel}>CREATED</Text>
@@ -303,7 +286,7 @@ export default function OrderDetailScreen() {
 
             <View style={styles.infoRow}>
               <View style={styles.infoIconBox}>
-                <Scissors size={18} color="#4A080C" />
+                <Scissors size={18} color="#453332" />
               </View>
               <View style={styles.infoTextBox}>
                 <Text style={styles.infoFieldLabel}>Tailor / Staff In Charge</Text>
@@ -314,7 +297,7 @@ export default function OrderDetailScreen() {
             {customerPhone && (
               <View style={styles.infoRow}>
                 <View style={styles.infoIconBox}>
-                  <Phone size={18} color="#4A080C" />
+                  <Phone size={18} color="#453332" />
                 </View>
                 <View style={styles.infoTextBox}>
                   <Text style={styles.infoFieldLabel}>Phone Number</Text>
@@ -325,7 +308,7 @@ export default function OrderDetailScreen() {
 
             <View style={styles.infoRow}>
               <View style={styles.infoIconBox}>
-                <User size={18} color="#4A080C" />
+                <User size={18} color="#453332" />
               </View>
               <View style={styles.infoTextBox}>
                 <Text style={styles.infoFieldLabel}>Customer Name</Text>
@@ -339,7 +322,7 @@ export default function OrderDetailScreen() {
             <View style={styles.card}>
               <View style={styles.cardHeaderRow}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Ruler size={18} color="#4A080C" />
+                  <Ruler size={18} color="#453332" />
                   <Text style={styles.sectionTitle}>Client Measurements</Text>
                 </View>
                 {measurementsList.unit && (
@@ -401,11 +384,11 @@ export default function OrderDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   containerLandscape: {
     maxWidth: 720,
@@ -433,7 +416,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   headerSubtitle: {
     fontFamily: "WorkSans_500Medium",
@@ -478,7 +461,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -493,7 +476,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   garmentTitle: {
     fontFamily: "WorkSans_400Regular",
@@ -531,7 +514,7 @@ const styles = StyleSheet.create({
   priceValue: {
     fontFamily: "Fraunces-Bold",
     fontSize: 22,
-    color: "#4A080C",
+    color: "#453332",
   },
   dateValue: {
     fontFamily: "WorkSans_500Medium",
@@ -559,7 +542,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 14,
   },
   unitBadge: {
@@ -593,7 +576,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8E4DD",
   },
   stepConnectorActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   stepCircle: {
     width: 22,
@@ -604,10 +587,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   stepCirclePassed: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   stepCircleCurrent: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderWidth: 2,
     borderColor: "#B28847",
   },
@@ -624,11 +607,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   stepLabelActive: {
-    color: "#4A080C",
+    color: "#453332",
     fontFamily: "WorkSans_600SemiBold",
   },
   stepLabelCurrent: {
-    color: "#4A080C",
+    color: "#453332",
     fontFamily: "WorkSans_600SemiBold",
   },
   infoRow: {
@@ -643,7 +626,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -668,7 +651,7 @@ const styles = StyleSheet.create({
   },
   measurementItem: {
     width: "48%",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
@@ -682,7 +665,7 @@ const styles = StyleSheet.create({
   measurementVal: {
     fontFamily: "Fraunces-Bold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
     marginTop: 4,
   },
   actionContainer: {
@@ -690,14 +673,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderRadius: 16,
     height: 52,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#4A080C",
+    shadowColor: "#453332",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

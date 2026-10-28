@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { View, Text, Animated, Easing } from "react-native";
+import { View, Text, Image, Animated } from "react-native";
 import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import Svg, { Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { API_BASE_URL } from "@/api/config";
-import * as NavigationBar from "expo-navigation-bar";
+import { ApiError, apiFetch } from "@/shared/utils/apiClient";
+import { NavigationBar } from "expo-navigation-bar";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 
 export default function SplashScreen() {
@@ -15,37 +16,20 @@ export default function SplashScreen() {
   const onboardingCompleted = useAuthStore((state) => state.onboardingCompleted);
   const email = useAuthStore((state) => state.email);
   const progress = useRef(new Animated.Value(0)).current;
-  const rotation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Match Android nav bar to oxblood splash background
-    NavigationBar.setBackgroundColorAsync("#4A080C");
-    NavigationBar.setButtonStyleAsync("light");
-
-    // Spin the outer dotted circle continuously
-    Animated.loop(
-      Animated.timing(rotation, {
-        toValue: 1,
-        duration: 8000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
+    NavigationBar.setStyle("light");
 
     let isUnauthorized = false;
 
     // Helper to fetch with 401 handling
-    const fetchSafe = async (url: string) => {
+    const fetchSafe = async (endpoint: string) => {
       try {
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.status === 401) {
+        return await apiFetch<any>(endpoint, { silent: true });
+      } catch (error) {
+        if (error instanceof ApiError && error.details.status === 401) {
           isUnauthorized = true;
-          useAuthStore.getState().logout();
-          return null;
         }
-        if (!res.ok) return null;
-        return await res.json();
-      } catch {
         return null;
       }
     };
@@ -55,27 +39,28 @@ export default function SplashScreen() {
       if (!token || !role) return;
       try {
         const appStore = useAppDataStore.getState();
+        appStore.activateCache(`${role}:${email.trim().toLowerCase()}`);
 
         if (role === "admin") {
           const [orders, staff, escalations] = await Promise.all([
-            fetchSafe(`${API_BASE_URL}/api/orders?page=1&limit=30`),
-            fetchSafe(`${API_BASE_URL}/api/staff`),
-            fetchSafe(`${API_BASE_URL}/api/escalations?limit=20`),
+            fetchSafe("/api/orders?page=1&limit=30"),
+            fetchSafe("/api/staff"),
+            fetchSafe("/api/escalations?limit=20"),
           ]);
           if (Array.isArray(orders)) appStore.setOrders(orders);
           if (Array.isArray(staff)) appStore.setStaffList(staff);
           if (Array.isArray(escalations)) appStore.setEscalations(escalations);
         } else if (role === "staff") {
           const [orders, profile] = await Promise.all([
-            fetchSafe(`${API_BASE_URL}/api/orders?page=1&limit=30`),
-            fetchSafe(`${API_BASE_URL}/api/staff/me`),
+            fetchSafe("/api/orders?page=1&limit=30"),
+            fetchSafe("/api/staff/me"),
           ]);
           if (Array.isArray(orders)) appStore.setOrders(orders);
           if (profile) appStore.setProfile(profile);
         } else {
           const [myOrders, catalog] = await Promise.all([
-            fetchSafe(`${API_BASE_URL}/api/orders/my-orders`),
-            fetchSafe(`${API_BASE_URL}/api/fashion-houses`),
+            fetchSafe("/api/orders/my-orders"),
+            fetchSafe("/api/fashion-houses"),
           ]);
           if (Array.isArray(myOrders)) appStore.setOrders(myOrders);
           if (Array.isArray(catalog)) appStore.setCatalogItems(catalog);
@@ -122,20 +107,12 @@ export default function SplashScreen() {
     });
   }, [token, role, isVerified, onboardingCompleted, email]);
 
-  // Interpolate progress value to percentage width
-  const fillWidth = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0%", "100%"],
-  });
-
-  // Interpolate rotation value to degrees
-  const spin = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
+  const fillWidth = "0%" as const;
+  const spin = "0deg" as const;
 
   return (
-    <View className="flex-1 bg-oxblood items-center justify-center">
+    <View style={{ flex: 1, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" }}>
+      <StatusBar style="light" />
       {/* Main Content Container */}
       <View className="items-center justify-center gap-6">
 
@@ -145,6 +122,7 @@ export default function SplashScreen() {
           {/* Spinning outer dotted circle */}
           <Animated.View
             style={{
+              display: "none",
               position: "absolute",
               left: 0,
               top: 0,
@@ -172,7 +150,7 @@ export default function SplashScreen() {
             width={200}
             height={200}
             viewBox="0 0 200 200"
-            style={{ position: "absolute", left: 0, top: 0 }}
+            style={{ position: "absolute", left: 0, top: 0, display: "none" }}
           >
             <Circle
               cx={100}
@@ -184,18 +162,11 @@ export default function SplashScreen() {
             />
           </Svg>
 
-          {/* TTN Text inside the inner circle */}
-          <Text
-            style={{
-              letterSpacing: 2,
-              paddingLeft: 2,
-              includeFontPadding: false,
-              textAlignVertical: "center",
-            }}
-            className="font-display text-[48px] text-gold uppercase text-center"
-          >
-            TTN
-          </Text>
+          <Image
+            source={require("../assets/splash-icon-dark.png")}
+            style={{ width: 200, height: 200 }}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Text and progress wrapper — full screen width so text-center is relative to screen */}
@@ -204,14 +175,21 @@ export default function SplashScreen() {
           <View style={{ width: "100%", alignItems: "center", gap: 8 }}>
             {/* The Threadly Nest */}
             <Text
-              style={{ width: "100%", textAlign: "center" }}
-              className="font-display-regular text-[24px] text-white"
+              style={{
+                width: "100%",
+                textAlign: "center",
+                fontFamily: "InstrumentSans-Regular",
+                fontSize: 44,
+                lineHeight: 52,
+                color: "#FFFFFF",
+                includeFontPadding: false,
+              }}
             >
-              Òwújà
+              Owuja
             </Text>
             {/* Tagline */}
             <Text
-              style={{ width: "100%", textAlign: "center", letterSpacing: 1.5 }}
+              style={{ display: "none", width: "100%", textAlign: "center", letterSpacing: 1.5 }}
               className="font-body-semibold text-[11px] text-gold uppercase"
             >
               A HUB FOR FASHION.
@@ -220,7 +198,7 @@ export default function SplashScreen() {
 
           {/* Progress bar track */}
           <View
-            style={{ backgroundColor: "rgba(196, 167, 99, 0.25)", width: 200, height: 4, borderRadius: 36, overflow: "hidden" }}
+            style={{ display: "none", backgroundColor: "rgba(196, 167, 99, 0.25)", width: 200, height: 4, borderRadius: 36, overflow: "hidden" }}
           >
             {/* Progress bar fill */}
             <Animated.View

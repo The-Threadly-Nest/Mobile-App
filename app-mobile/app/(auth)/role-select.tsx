@@ -42,7 +42,7 @@ export default function RoleSelectScreen() {
             Choose your account type
           </Text>
           <Text style={[styles.subtitle, isLandscape && { fontSize: 13, lineHeight: 17 }]}>
-            Select how you plan to use Òwújà so we can tailor your experience.
+            Select how you plan to use Owuja so we can tailor your experience.
           </Text>
         </View>
 
@@ -70,11 +70,11 @@ export default function RoleSelectScreen() {
               >
                 <User
                   size={isLandscape ? 18 : 24}
-                  color={selectedRole === "customer" ? "#FFFFFF" : "#4A080C"}
+                  color={selectedRole === "customer" ? "#FFFFFF" : "#453332"}
                 />
               </View>
               {selectedRole === "customer" && (
-                <CheckCircle2 size={isLandscape ? 18 : 24} color="#4A080C" />
+                <CheckCircle2 size={isLandscape ? 18 : 24} color="#453332" />
               )}
             </View>
 
@@ -106,11 +106,11 @@ export default function RoleSelectScreen() {
               >
                 <Store
                   size={isLandscape ? 18 : 24}
-                  color={selectedRole === "admin" ? "#FFFFFF" : "#4A080C"}
+                  color={selectedRole === "admin" ? "#FFFFFF" : "#453332"}
                 />
               </View>
               {selectedRole === "admin" && (
-                <CheckCircle2 size={isLandscape ? 18 : 24} color="#4A080C" />
+                <CheckCircle2 size={isLandscape ? 18 : 24} color="#453332" />
               )}
             </View>
 
@@ -151,7 +151,7 @@ export default function RoleSelectScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flexGrow: 1,
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 6,
   },
   title: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   roleCardSelected: {
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     backgroundColor: "#F4EFE6",
   },
   roleCardUnselected: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   iconCircleSelected: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   iconCircleUnselected: {
     backgroundColor: "#EBE0D3",
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -276,6 +276,6 @@ const styles = StyleSheet.create({
   loginBold: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
   },
 });

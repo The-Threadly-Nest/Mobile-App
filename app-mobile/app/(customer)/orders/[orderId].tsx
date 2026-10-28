@@ -12,8 +12,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import {
   Calendar,
   MapPin,
@@ -28,10 +27,9 @@ import {
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import CachedImage from "@/shared/components/CachedImage";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { alertEmitter } from "@/shared/utils/alertEmitter";
-import { apiFetch } from "@/shared/utils/apiClient";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 
 const STAGES = [
@@ -112,13 +110,7 @@ export default function CustomerOrderDetailScreen() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders/track/${params.orderId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setOrderData(data);
-      }
+      setOrderData(await apiFetch<any>(`/api/orders/track/${params.orderId}`, { silent: true }));
     } catch (err) {
       console.warn("Failed to fetch order tracking details:", err);
     } finally {
@@ -167,7 +159,7 @@ export default function CustomerOrderDetailScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
         <Text style={styles.headerTitle}>Order Tracking</Text>
       </View>
@@ -176,7 +168,7 @@ export default function CustomerOrderDetailScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />
         }
       >
         {/* Compact Hero Card */}
@@ -206,7 +198,7 @@ export default function CustomerOrderDetailScreen() {
                   style={[
                     styles.orderBadgeText,
                     isDeclined && { color: "#DC2626" },
-                    isCancelled && { color: "#4A080C" },
+                    isCancelled && { color: "#453332" },
                   ]}
                 >
                   {orderNumber}
@@ -220,12 +212,12 @@ export default function CustomerOrderDetailScreen() {
               {garmentTitle}
             </Text>
             <View style={styles.dateRow}>
-              <Calendar size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#4A080C" : "#8A7550"} />
+              <Calendar size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#453332" : "#8A7550"} />
               <Text
                 style={[
                   styles.dateText,
                   isDeclined && { color: "#DC2626", fontFamily: "WorkSans_600SemiBold" },
-                  isCancelled && { color: "#4A080C", fontFamily: "WorkSans_600SemiBold" },
+                  isCancelled && { color: "#453332", fontFamily: "WorkSans_600SemiBold" },
                 ]}
                 numberOfLines={1}
               >
@@ -240,7 +232,7 @@ export default function CustomerOrderDetailScreen() {
           <View style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardHeadline}>Production Progress</Text>
-              {loading && <ActivityIndicator size="small" color="#4A080C" />}
+              {loading && <ActivityIndicator size="small" color="#453332" />}
             </View>
             <View style={styles.timelineContainer}>
               {STAGES.map((stg, idx) => {
@@ -340,7 +332,7 @@ export default function CustomerOrderDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FBF7EF" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     height: 52,
     marginTop: 36,
@@ -381,14 +373,14 @@ const styles = StyleSheet.create({
   compactContent: { flex: 1, marginLeft: 14, justifyContent: "center" },
   badgeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
   orderBadge: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
   },
-  orderBadgeText: { fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#4A080C" },
+  orderBadgeText: { fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#453332" },
   fhNameText: { fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#8A7550", flexShrink: 1, marginLeft: 6 },
   garmentTitleText: { fontFamily: "WorkSans_700Bold", fontSize: 16, color: "#3B0508", marginBottom: 4 },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
@@ -412,20 +404,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 14,
   },
-  cardHeadline: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#4A080C" },
+  cardHeadline: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#453332" },
   timelineContainer: { paddingLeft: 4 },
   stepRow: { flexDirection: "row", minHeight: 52 },
   indicatorCol: { alignItems: "center", width: 26, marginRight: 12 },
   circle: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  circleDone: { backgroundColor: "#4A080C" },
+  circleDone: { backgroundColor: "#453332" },
   circlePending: { backgroundColor: "#EBE6DC" },
   circleNumber: { fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#8A7550" },
   connector: { width: 2, flex: 1, marginVertical: 3 },
-  connectorDone: { backgroundColor: "#4A080C" },
+  connectorDone: { backgroundColor: "#453332" },
   connectorPending: { backgroundColor: "#EBE6DC" },
   stepInfoCol: { flex: 1, paddingBottom: 14 },
   stepLabel: { fontFamily: "WorkSans_600SemiBold", fontSize: 13.5, color: "#3B0508" },
-  stepLabelCurrent: { color: "#4A080C", fontFamily: "WorkSans_700Bold" },
+  stepLabelCurrent: { color: "#453332", fontFamily: "WorkSans_700Bold" },
   stepLabelPending: { color: "#A0A0A0" },
   stepDesc: { fontFamily: "WorkSans_400Regular", fontSize: 11.5, color: "#8A7550", marginTop: 1 },
   actionButtonRow: {
@@ -439,11 +431,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#4A080C",
+    shadowColor: "#453332",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -468,6 +460,6 @@ const styles = StyleSheet.create({
   pillBtnSecondaryText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14.5,
-    color: "#4A080C",
+    color: "#453332",
   },
 });

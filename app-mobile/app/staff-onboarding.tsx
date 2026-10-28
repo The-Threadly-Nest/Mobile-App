@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as NavigationBar from "expo-navigation-bar";
+import { NavigationBar } from "expo-navigation-bar";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -42,9 +42,7 @@ export default function StaffOnboardingScreen() {
 
   useEffect(() => {
     if (Platform.OS === "android") {
-      NavigationBar.setBackgroundColorAsync("transparent");
-      NavigationBar.setBehaviorAsync("overlay-swipe");
-      NavigationBar.setButtonStyleAsync("light");
+      NavigationBar.setStyle("dark");
     }
   }, []);
 
@@ -156,7 +154,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   darkOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0, 0, 0, 0.35)",
   },
   safeArea: {
@@ -232,7 +230,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#4A080C", // Oxblood
+    backgroundColor: "#453332", // Oxblood
     alignItems: "center",
     justifyContent: "center",
   },

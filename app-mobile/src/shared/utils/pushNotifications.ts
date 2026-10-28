@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 import Constants, { ExecutionEnvironment } from "expo-constants";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { alertEmitter } from "./alertEmitter";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -17,21 +17,21 @@ async function handleMessageAction(response: any) {
   const token = useAuthStore.getState().token;
   if (!threadId || !token) return;
 
-  const threadUrl = `${API_BASE_URL}/api/direct-messages/thread/${encodeURIComponent(String(threadId))}`;
+  const threadEndpoint = `/api/direct-messages/thread/${encodeURIComponent(String(threadId))}`;
   if (actionId === "REPLY") {
     const replyText = response.userText?.trim();
     if (!replyText) return;
-    await fetch(threadUrl, {
+    await apiFetch(threadEndpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ text: replyText, clientMessageId: createIdempotencyKey("dm-notification") }),
+      silent: true,
     });
     return;
   }
   if (actionId === "MARK_READ") {
-    await fetch(`${threadUrl}/read`, {
+    await apiFetch(`${threadEndpoint}/read`, {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
+      silent: true,
     });
     return;
   }
@@ -65,7 +65,7 @@ export async function initNotifications() {
     // 2. Setup Android high-priority channel with custom brand colors & vibration
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("default", {
-        name: "Òwújà Notifications",
+        name: "Owuja Notifications",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lightColor: "#D97706",
@@ -153,13 +153,10 @@ export async function registerPushToken(authToken: string) {
     const pushToken = pushTokenData.data;
 
     if (pushToken && authToken) {
-      await fetch(`${API_BASE_URL}/api/auth/push-token`, {
+      await apiFetch("/api/auth/push-token", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
         body: JSON.stringify({ pushToken }),
+        silent: true,
       });
     }
   } catch (e) {

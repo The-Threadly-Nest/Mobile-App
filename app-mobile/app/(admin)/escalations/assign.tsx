@@ -15,7 +15,7 @@ import { DollarSign, Ruler, Scissors } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch, staffApi } from "@/shared/utils/apiClient";
 
 interface TailorOption {
   id: string;
@@ -61,11 +61,7 @@ export default function AssignStaffScreen() {
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/staff`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
+          const data = await staffApi.getStaff();
           if (Array.isArray(data) && data.length > 0) {
             const mapped: TailorOption[] = data.map((st: any) => {
               const rawName = st.name ? st.name.trim() : "";
@@ -80,7 +76,6 @@ export default function AssignStaffScreen() {
             setTailors(mapped);
             setSelectedTailorId(mapped[0].id);
           }
-        }
       } catch {
         // Silent fallback
       } finally {
@@ -99,12 +94,8 @@ export default function AssignStaffScreen() {
 
     try {
       if (token) {
-        const res = await fetch(`${API_BASE_URL}/api/escalations/assign`, {
+        await apiFetch("/api/escalations/assign", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             bookingId: params.bookingId,
             staffId: tailor.id,
@@ -113,22 +104,6 @@ export default function AssignStaffScreen() {
             price: cleanedPrice,
           }),
         });
-
-        if (!res.ok) {
-          const errBody = await res.json().catch(() => ({}));
-          // Server returns { error: { status, code, message } } or { error: "string" }
-          const errField = (errBody as any)?.error;
-          const raw =
-            (typeof errField === "object" ? errField?.message : errField) ??
-            (errBody as any)?.message ??
-            "";
-          const errMsg =
-            typeof raw === "string" && raw.length > 0
-              ? raw
-              : `Server error ${res.status}. Please try again.`;
-          showAlert("Assignment Failed", errMsg);
-          return;
-        }
       }
     } catch {
       showAlert("Network Error", "Could not reach the server. Please check your connection.");
@@ -164,7 +139,7 @@ export default function AssignStaffScreen() {
           {/* Garment / Service Title Section */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeaderRow}>
-              <Scissors size={18} color="#4A080C" />
+              <Scissors size={18} color="#453332" />
               <Text style={styles.sectionTitle}>Garment / Item Name</Text>
             </View>
             <View style={styles.inputContainer}>
@@ -181,7 +156,7 @@ export default function AssignStaffScreen() {
           {/* Order Details & Pricing Section */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeaderRow}>
-              <DollarSign size={18} color="#4A080C" />
+              <DollarSign size={18} color="#453332" />
               <Text style={styles.sectionTitle}>Agreed Order Price (Optional)</Text>
             </View>
             <View style={styles.inputContainer}>
@@ -202,7 +177,7 @@ export default function AssignStaffScreen() {
 
           {/* Staff List */}
           {loadingStaff ? (
-            <ActivityIndicator size="small" color="#4A080C" style={{ marginVertical: 24 }} />
+            <ActivityIndicator size="small" color="#453332" style={{ marginVertical: 24 }} />
           ) : (
             tailors.map((tailor) => {
               const isSelected = tailor.id === selectedTailorId;
@@ -256,7 +231,7 @@ export default function AssignStaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -315,12 +290,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(74, 8, 12, 0.2)",
@@ -330,7 +305,7 @@ const styles = StyleSheet.create({
   currencyPrefix: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
     marginRight: 6,
   },
   priceInput: {
@@ -353,7 +328,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   measInput: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(74, 8, 12, 0.2)",
@@ -367,7 +342,7 @@ const styles = StyleSheet.create({
   selectTailorHeadline: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginTop: 4,
     marginBottom: 14,
   },
@@ -392,7 +367,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -423,7 +398,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { formatChatDate } from "@/shared/utils/formatters";
 import {
   View,
   Text,
@@ -18,6 +19,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { router, useLocalSearchParams } from "expo-router";
 import {
   Paperclip,
+  Camera,
   Smile,
   Send,
   MessageSquare,
@@ -35,7 +37,6 @@ import MessageDeleteMenu from "@/shared/components/MessageDeleteMenu";
 import { apiFetch } from "@/shared/utils/apiClient";
 import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import {
@@ -126,7 +127,7 @@ const SentTail = () => (
       width: 0,
       height: 0,
       borderTopWidth: 9,
-      borderTopColor: "#4A080C",
+      borderTopColor: "#453332",
       borderLeftWidth: 9,
       borderLeftColor: "transparent",
     }}
@@ -212,11 +213,7 @@ export default function StaffChatScreen() {
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/staff/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const body = await res.json();
+          const body = await apiFetch<any>("/api/staff/me", { silent: true });
           const fetchedStaffName = body.name || body.user?.name || (body.email ? body.email.split("@")[0] : null);
           const fetchedShopName = body.shopName || body.fashionHouse?.shopName || body.fashionHouse?.name;
 
@@ -233,7 +230,6 @@ export default function StaffChatScreen() {
           if (body.fashionHouseId) {
             setFashionHouseId(body.fashionHouseId);
           }
-        }
       } catch (e) {
         console.warn("Failed to fetch staff details", e);
       } finally {
@@ -264,12 +260,8 @@ export default function StaffChatScreen() {
           setLoading(false);
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/chat/session/${fashionHouseId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const body = await apiFetch<any>(`/api/chat/session/${fashionHouseId}`, { silent: true });
         if (cancelled) return;
-        if (res.ok) {
-          const body = await res.json();
           if (cancelled) return;
           if (Array.isArray(body.history) && body.history.length > 0) {
             const formatted: ChatMessage[] = body.history.map(mapHistoryTurn);
@@ -281,7 +273,6 @@ export default function StaffChatScreen() {
             hydratedConversationIdRef.current = fashionHouseId;
             void writeChatCache<ChatMessage[]>(cacheOwner, "staff-admin", fashionHouseId, []);
           }
-        }
       } catch (e) {
         console.error("Failed to load chat history", e);
       } finally {
@@ -342,18 +333,23 @@ export default function StaffChatScreen() {
     }
   };
 
-  const handlePickImage = async () => {
+  const handlePickImage = async (source: "library" | "camera" = "library") => {
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permission = source === "camera"
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
         showAlert("Permission Required", "Please allow access to your photos to attach images.");
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await (source === "camera" ? ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.7,
-      });
+      }) : ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+      }));
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
@@ -552,7 +548,7 @@ export default function StaffChatScreen() {
         return;
       }
 
-      const player = createAudioPlayer(audioUrl);
+      const player = createAudioPlayer({ uri: audioUrl });
       playerRef.current = player;
       setPlayingAudioId(msgId);
       player.play();
@@ -591,7 +587,7 @@ export default function StaffChatScreen() {
     } else if (msgDate.getTime() === yesterday.getTime()) {
       return `Yesterday, ${timeStr}`;
     } else {
-      const formattedDate = date.toLocaleDateString([], { day: "numeric", month: "short" });
+      const formattedDate = formatChatDate(date);
       return `${formattedDate}, ${timeStr}`;
     }
   };
@@ -607,7 +603,7 @@ export default function StaffChatScreen() {
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
 
         <View style={styles.headerInfoCol}>
@@ -632,7 +628,7 @@ export default function StaffChatScreen() {
         >
           {loading ? (
             <View style={styles.centerContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : messages.length === 0 ? (
             <View style={styles.centerContainer}>
@@ -704,16 +700,16 @@ export default function StaffChatScreen() {
                           {/* Play / Pause button */}
                           <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? "rgba(255,255,255,0.25)" : "rgba(74,8,12,0.15)", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                             {playingAudioId === msg.id ? (
-                              <Pause size={16} color={isMe ? "#FFFFFF" : "#4A080C"} />
+                              <Pause size={16} color={isMe ? "#FFFFFF" : "#453332"} />
                             ) : (
-                              <Play size={16} color={isMe ? "#FFFFFF" : "#4A080C"} style={{ marginLeft: 2 }} />
+                              <Play size={16} color={isMe ? "#FFFFFF" : "#453332"} style={{ marginLeft: 2 }} />
                             )}
                           </View>
                           {/* Animated Waveform */}
                           <View style={{ flex: 1, justifyContent: "center" }}>
                             <AnimatedWaveform
                               isAnimating={playingAudioId === msg.id}
-                              color={isMe ? "#FFFFFF" : "#4A080C"}
+                              color={isMe ? "#FFFFFF" : "#453332"}
                               inactiveColor={isMe ? "rgba(255,255,255,0.4)" : "rgba(74,8,12,0.4)"}
                               barCount={16}
                               height={24}
@@ -738,7 +734,7 @@ export default function StaffChatScreen() {
                       msg.id.startsWith("temp-") || msg.status === "Sent" ? (
                         <Check size={14} color="#8A7550" />
                       ) : msg.status === "Read" ? (
-                        <CheckCheck size={14} color="#4A080C" />
+                        <CheckCheck size={14} color="#453332" />
                       ) : (
                         <CheckCheck size={14} color="#8A7550" />
                       )
@@ -752,14 +748,14 @@ export default function StaffChatScreen() {
 
           {uploadingImage && (
             <View style={styles.sendingIndicatorContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           )}
         </BottomAnchoredChatScrollView>
 
         {loading && (
           <View style={[StyleSheet.absoluteFill, styles.centerContainer]} pointerEvents="none">
-            <ActivityIndicator size="small" color="#4A080C" />
+            <ActivityIndicator size="small" color="#453332" />
           </View>
         )}
 
@@ -798,7 +794,7 @@ export default function StaffChatScreen() {
                 <View style={{ flex: 1, marginLeft: 12, justifyContent: "center" }}>
                   <AnimatedWaveform
                     isAnimating={!isPaused}
-                    color="#4A080C"
+                    color="#453332"
                     inactiveColor="rgba(74, 8, 12, 0.2)"
                     barCount={34}
                     height={14}
@@ -827,45 +823,31 @@ export default function StaffChatScreen() {
                 </Pressable>
 
                 <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
-                  <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: "45deg" }] }} />
+                  <Send size={20} color="#FFFFFF" />
                 </Pressable>
               </View>
             </View>
           ) : (
             <>
-              {/* Attachment / Paperclip Button */}
-              <Pressable
-                onPress={handlePickImage}
-                disabled={uploadingImage}
-                style={({ pressed }) => [styles.toolCircleBtn, { opacity: pressed ? 0.8 : 1 }]}
-              >
-                {uploadingImage ? (
-                  <ActivityIndicator size="small" color="#4A080C" />
-                ) : (
-                  <Paperclip size={18} color="#3A2E1A" />
-                )}
-              </Pressable>
-
-              {/* Text Input Container */}
               <View style={styles.textInputWrapper}>
+                <Pressable onPress={() => { Keyboard.dismiss(); setShowEmojiPicker((prev) => !prev); }} style={styles.composerIconBtn}>
+                  <Smile size={21} color={showEmojiPicker ? "#453332" : "#8A7550"} />
+                </Pressable>
                 <TextInput
                   style={styles.textInput}
                   value={inputText}
                   onChangeText={setInputText}
                   onFocus={() => setShowEmojiPicker(false)}
-                  placeholder="Type a message..."
+                  placeholder="Message"
                   placeholderTextColor="#8A7550"
                   onSubmitEditing={handleSend}
                   returnKeyType="send"
                 />
-                <Pressable
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setShowEmojiPicker((prev) => !prev);
-                  }}
-                  style={styles.emojiBtn}
-                >
-                  <Smile size={20} color={showEmojiPicker ? "#4A080C" : "#8A7550"} />
+                <Pressable onPress={() => void handlePickImage("library")} disabled={uploadingImage} style={styles.composerIconBtn}>
+                  {uploadingImage ? <ActivityIndicator size="small" color="#8A7550" /> : <Paperclip size={20} color="#8A7550" />}
+                </Pressable>
+                <Pressable onPress={() => void handlePickImage("camera")} disabled={uploadingImage} style={styles.composerIconBtn}>
+                  <Camera size={20} color="#8A7550" />
                 </Pressable>
               </View>
 
@@ -880,7 +862,7 @@ export default function StaffChatScreen() {
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: "45deg" }] }} />
+                  <Send size={20} color="#FFFFFF" />
                 </Pressable>
               ) : (
                 <Pressable
@@ -912,7 +894,7 @@ export default function StaffChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   headerBar: {
     flexDirection: "row",
@@ -922,7 +904,7 @@ const styles = StyleSheet.create({
     gap: 12,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(228, 213, 183, 0.4)",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   headerBtn: {
     width: 40,
@@ -945,7 +927,7 @@ const styles = StyleSheet.create({
   headerNameText: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   headerSubtitleText: {
     fontFamily: "WorkSans_400Regular",
@@ -957,7 +939,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 8,
-    paddingBottom: 16,
+    paddingBottom: 6,
   },
   centerContainer: {
     flex: 1,
@@ -978,7 +960,7 @@ const styles = StyleSheet.create({
   emptyTitleText: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 6,
   },
   emptySubtext: {
@@ -1011,14 +993,14 @@ const styles = StyleSheet.create({
   },
   bubbleBase: {
     maxWidth: "82%",
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     paddingVertical: 12,
     borderRadius: 18,
     overflow: "visible",
   },
   sentBubble: {
     alignSelf: "flex-end",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderBottomRightRadius: 4,
   },
   receivedBubble: {
@@ -1035,7 +1017,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   receivedText: {
-    color: "#4A080C",
+    color: "#453332",
   },
   statusRow: {
     flexDirection: "row",
@@ -1060,11 +1042,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FBF7EF",
+    paddingTop: 6,
+    paddingBottom: 12,
+    backgroundColor: "#FFFFFF",
   },
   recordingContainer: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -1119,7 +1102,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1150,7 +1133,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3A2E1A",
     height: "100%",
-    paddingRight: 8,
+    paddingHorizontal: 8,
+  },
+  composerIconBtn: {
+    width: 32,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
   emojiBtn: {
     padding: 4,
@@ -1159,7 +1148,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1188,7 +1177,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E4D5B7",
     alignItems: "center",

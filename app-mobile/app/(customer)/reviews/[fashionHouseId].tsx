@@ -23,7 +23,7 @@ export default function AllReviewsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FBF7EF" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
   header: {
     flexDirection: "row",
     alignItems: "center",

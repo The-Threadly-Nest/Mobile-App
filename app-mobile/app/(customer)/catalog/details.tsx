@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons, Feather } from '@expo/vector-icons';
@@ -16,6 +15,8 @@ import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context'
 import Svg, { Path } from 'react-native-svg';
 import { useCartStore } from '../../../src/stores/useCartStore';
 import { apiFetch } from '../../../src/shared/utils/apiClient';
+import { formatCurrency } from '../../../src/shared/utils/formatters';
+import { useAppAlert } from '../../../src/shared/hooks/useAppAlert';
 
 function CustomBrushIcon({ width = 22, height = 22, color = '#FFFFFF' }: { width?: number; height?: number; color?: string }) {
   return (
@@ -82,6 +83,7 @@ export default function ProductDetailsScreen() {
   const [isLiked, setIsLiked] = useState(false);
 
   const addItemToCart = useCartStore((state) => state.addItem);
+  const { showAlert, showConfirm } = useAppAlert();
 
   const name = item?.name || params.initialName || 'Catalog item';
   const rawPrice = item?.price ?? (params.initialPrice ? parseFloat(params.initialPrice) : 0);
@@ -145,27 +147,32 @@ export default function ProductDetailsScreen() {
       quantity
     );
 
-    Alert.alert(
-      'Added to Cart',
-      `${name} (${selectedSize.toUpperCase()}, ${quantity}x) has been added to your shopping cart.`,
-      [
-        { text: 'Continue Shopping', style: 'cancel' },
-        { text: 'View Cart', onPress: () => router.push('/(customer)/(tabs)/orders') },
-      ]
+    showConfirm(
+      'Added to your cart',
+      `${name}\nSize ${selectedSize.toUpperCase()}  \u2022  Quantity ${quantity}`,
+      {
+        variant: 'cart',
+        cancelLabel: 'Keep shopping',
+        confirmLabel: 'View cart',
+        onConfirm: () => router.push('/(customer)/cart'),
+      }
     );
   };
 
   const handleCustomOrder = () => {
     if (fashionHouseId) {
-      router.push(`/(customer)/chat/${fashionHouseId}` as const);
+      router.push({
+        pathname: `/(customer)/chat/${fashionHouseId}`,
+        params: { startNew: String(Date.now()), fashionHouseName: vendorName },
+      });
     } else {
-      Alert.alert('Fashion House', 'Fashion House details unavailable for direct customization chat.');
+      showAlert('Fashion House', 'Fashion House details unavailable for direct customization chat.');
     }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8F6F0" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* Header Bar */}
       <View style={[styles.header, { paddingTop: 36 }]}>
@@ -206,13 +213,13 @@ export default function ProductDetailsScreen() {
         <View style={styles.titlePriceRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.productName}>{name}</Text>
-            <Text style={styles.priceText}>₦{price.toLocaleString()}</Text>
+            <Text style={styles.priceText}>{formatCurrency(price)}</Text>
           </View>
           <TouchableOpacity onPress={() => setIsLiked(!isLiked)} style={styles.heartBtn}>
             <Ionicons
               name={isLiked ? 'heart' : 'heart-outline'}
               size={24}
-              color={isLiked ? '#4A080C' : '#1A1110'}
+              color={isLiked ? '#453332' : '#1A1110'}
             />
           </TouchableOpacity>
         </View>
@@ -312,14 +319,14 @@ export default function ProductDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F6F0',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 12,
-    backgroundColor: '#F8F6F0',
+    backgroundColor: '#FFFFFF',
   },
   headerLeftGroup: {
     flexDirection: 'row',
@@ -346,7 +353,7 @@ const styles = StyleSheet.create({
   fashionHouseTopName: {
     fontFamily: 'WorkSans_600SemiBold',
     fontSize: 12,
-    color: '#4A080C',
+    color: '#453332',
     letterSpacing: 1,
     marginTop: 12,
     marginBottom: 12,
@@ -368,7 +375,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 16,
     left: 16,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
@@ -397,7 +404,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
   },
   titlePriceRow: {
     flexDirection: 'row',
@@ -449,7 +456,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sizePillSelected: {
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
   },
   sizePillText: {
     fontSize: 15,
@@ -466,7 +473,7 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderWidth: 2,
-    borderColor: '#4A080C',
+    borderColor: '#453332',
   },
   quantitySection: {
     marginBottom: 56,
@@ -507,7 +514,7 @@ const styles = StyleSheet.create({
   descriptionHeader: {
     fontFamily: 'WorkSans_500Medium',
     fontSize: 14,
-    color: '#4A080C',
+    color: '#453332',
     marginBottom: 8,
   },
   descriptionBody: {
@@ -529,7 +536,7 @@ const styles = StyleSheet.create({
   actionBtn: {
     flex: 1,
     height: 52,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     borderRadius: 26,
     flexDirection: 'row',
     alignItems: 'center',

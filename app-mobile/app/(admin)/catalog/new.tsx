@@ -137,7 +137,7 @@ export default function AdminNewGarmentScreen() {
           >
             {uploadingImage ? (
               <View style={styles.loadingBox}>
-                <ActivityIndicator color="#4A080C" size="small" />
+                <ActivityIndicator color="#453332" size="small" />
                 <Text style={styles.loadingText}>Uploading photo...</Text>
               </View>
             ) : imageUrl ? (
@@ -150,7 +150,7 @@ export default function AdminNewGarmentScreen() {
               </View>
             ) : (
               <View style={styles.placeholderBox}>
-                <UploadCloud size={36} color="#4A080C" style={{ marginBottom: 6 }} />
+                <UploadCloud size={36} color="#453332" style={{ marginBottom: 6 }} />
                 <Text style={styles.placeholderTitle}>Tap to upload clothes photo</Text>
                 <Text style={styles.placeholderSub}>JPG, PNG up to 5MB</Text>
               </View>
@@ -212,7 +212,7 @@ export default function AdminNewGarmentScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 8,
   },
   imagePickerBox: {
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: "WorkSans_500Medium",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
   },
   previewBox: {
     width: "100%",
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 24,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   submitBtn: {
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -19,6 +19,8 @@ export const adminOnboardingSchema = z.object({
   categories: z.array(z.string()).min(1, "Select at least one specialization category"),
   brandLogoUrl: z.string().url().optional().or(z.literal("")),
   currency: z.string().default("NGN"),
+  timezone: z.string().trim().min(1).max(100).default("Africa/Lagos"),
+  slotDurationMinutes: z.number().int().min(15).max(480).default(60),
   bankName: z.string().trim().min(2).max(100).optional(),
   accountNumber: z.string().trim().regex(/^\d{10}$/, "Account number must be 10 digits").optional(),
   accountName: z.string().trim().min(2).max(100).optional(),

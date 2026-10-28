@@ -53,7 +53,7 @@ app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300, standardHeaders: true, l
 
 app.get("/", (_req, res) =>
   res.json({
-    name: "Òwújà API",
+    name: "Owuja API",
     status: "ok",
     health: "/health",
     docs: "/api-docs",

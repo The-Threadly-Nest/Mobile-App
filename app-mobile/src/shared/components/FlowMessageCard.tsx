@@ -91,14 +91,14 @@ export default function FlowMessageCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderColor: "#E4D5B7",
     borderWidth: 1.5,
     borderRadius: 20,
     borderTopLeftRadius: 6, // Chat-bubble shape
     padding: 16,
     marginVertical: 4,
-    shadowColor: "#4A080C",
+    shadowColor: "#453332",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 10,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 10,
     color: "#C4A763",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontFamily: "Fraunces-Bold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
     flex: 1,
   },
   dismissBtn: {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   primaryBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,

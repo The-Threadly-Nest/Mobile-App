@@ -1,11 +1,16 @@
 import { useEffect, useState, useRef } from "react";
 import { AppState, View, Text } from "react-native";
 import { Tabs, usePathname } from "expo-router";
-import * as NavigationBar from "expo-navigation-bar";
+import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch, escalationsApi } from "@/shared/utils/apiClient";
+import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
+
+function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
+  return <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
+}
 
 // ─── Local Tray Notification for Admin Customer Inquiries & Escalations ───────
 async function scheduleCustomerNotification(senderName: string, text: string) {
@@ -26,7 +31,7 @@ async function scheduleCustomerNotification(senderName: string, text: string) {
 }
 
 function DashboardIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#4A080C" : color;
+  const activeColor = focused ? "#453332" : color;
   if (focused) {
     return (
       <Svg width="26" height="26" viewBox="0 0 24 24" fill="none">
@@ -62,10 +67,10 @@ function BookingsIcon({ color, focused }: { color: string; focused: boolean }) {
       <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <Path
           d="M17 3.5C20.3 3.7 21.5 5 21.5 9.5V15.5C21.5 19.5 20.5 21.5 16 21.5H8C3.5 21.5 2.5 19.5 2.5 15.5V9.5C2.5 5 3.7 3.7 7 3.5H17Z"
-          fill="#4A080C"
+          fill={color}
         />
-        <Path d="M8 1.5V5" stroke="#4A080C" strokeWidth="2" strokeLinecap="round" />
-        <Path d="M16 1.5V5" stroke="#4A080C" strokeWidth="2" strokeLinecap="round" />
+        <Path d="M8 1.5V5" stroke={color} strokeWidth="2" strokeLinecap="round" />
+        <Path d="M16 1.5V5" stroke={color} strokeWidth="2" strokeLinecap="round" />
         <Path d="M7.5 11.5H16.5" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
         <Path d="M7.5 15.5H13" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
       </Svg>
@@ -89,13 +94,13 @@ function BookingsIcon({ color, focused }: { color: string; focused: boolean }) {
 }
 
 function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#4A080C" : "#000000";
+  const activeColor = focused ? color : color;
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       {focused && (
         <Path
           d="M5.82 3.87L4.75 13.96C4.61 15.59 5.9 16.99 7.54 16.99H18.19C19.63 16.99 20.89 15.81 21 14.38L21.54 6.88C21.66 5.22 20.4 3.87 18.73 3.87H5.82Z"
-          fill="#4A080C"
+          fill={color}
         />
       )}
       <Path
@@ -137,7 +142,7 @@ function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
 }
 
 function MoreIcon({ color, focused, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
-  const activeColor = focused ? "#4A080C" : color;
+  const activeColor = focused ? "#453332" : color;
 
   return (
     <View style={{ width: 26, height: 26, justifyContent: "center", alignItems: "center" }}>
@@ -188,11 +193,7 @@ export default function AdminLayout() {
   }, [pathname]);
 
   useEffect(() => {
-    // Match Android navigation bar to white background if supported
-    try {
-      NavigationBar.setBackgroundColorAsync("#FFFFFF");
-      NavigationBar.setButtonStyleAsync("dark");
-    } catch {}
+    NavigationBar.setStyle("light");
   }, []);
 
   // ── Clear badge immediately when admin views customer messages or escalations ──────
@@ -211,16 +212,12 @@ export default function AdminLayout() {
       if (!appIsActiveRef.current || pathnameRef.current.includes("messages")) return;
       try {
         // 1. Fetch customer direct message threads
-        const threadsRes = await fetch(`${API_BASE_URL}/api/direct-messages/threads`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const threads = await apiFetch<any[]>("/api/direct-messages/threads", { silent: true });
 
         let threadsUnread = 0;
         let latestSender = "Customer";
         let latestMsg = "You have a new customer message.";
 
-        if (threadsRes.ok) {
-          const threads = await threadsRes.json();
           if (Array.isArray(threads)) {
             threadsUnread = threads.reduce((acc: number, t: any) => acc + (t.unreadCount || 0), 0);
             const activeThread = threads.find((t: any) => t.unreadCount > 0);
@@ -229,19 +226,13 @@ export default function AdminLayout() {
               latestMsg = activeThread.latestMessage || latestMsg;
             }
           }
-        }
 
         // 2. Fetch pending AI escalations count
-        const escRes = await fetch(`${API_BASE_URL}/api/escalations`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const escData = await escalationsApi.getEscalations();
 
         let escUnread = 0;
-        if (escRes.ok) {
-          const escData = await escRes.json();
-          const escalationsList = escData.escalations || [];
+          const escalationsList = Array.isArray(escData) ? escData : [];
           escUnread = escalationsList.filter((e: any) => !e.resolved).length;
-        }
 
         const totalUnread = threadsUnread + escUnread;
         const isOnChatScreen =
@@ -280,18 +271,18 @@ export default function AdminLayout() {
   return (
     <Tabs
       backBehavior="history"
+      tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A080C",
-        tabBarInactiveTintColor: "#000000",
+        tabBarActiveTintColor: "#FFFFFF",
+        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "rgba(0, 0, 0, 0.05)",
-          borderTopWidth: 1,
-          height: 58 + Math.max(14, extraBottom),
-          paddingTop: 6,
-          paddingBottom: Math.max(14, extraBottom),
+          height: 54, paddingTop: 0, paddingBottom: 0, borderRadius: 27, borderTopWidth: 0,
+          backgroundColor: "#453332", elevation: 5, shadowColor: "#000000",
+          shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 },
         },
+        tabBarItemStyle: { height: 54 },
         tabBarLabelStyle: {
           fontFamily: "WorkSans_600SemiBold",
           fontSize: 12,
@@ -304,7 +295,7 @@ export default function AdminLayout() {
         name="dashboard"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color, focused }) => <DashboardIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><DashboardIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
 
@@ -313,7 +304,7 @@ export default function AdminLayout() {
         name="escalations/index"
         options={{
           title: "Bookings",
-          tabBarIcon: ({ color, focused }) => <BookingsIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><BookingsIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
 
@@ -322,7 +313,7 @@ export default function AdminLayout() {
         name="orders"
         options={{
           title: "Orders",
-          tabBarIcon: ({ color, focused }) => <OrdersIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><OrdersIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
 
@@ -331,7 +322,7 @@ export default function AdminLayout() {
         name="settings"
         options={{
           title: "More",
-          tabBarIcon: ({ color, focused }) => <MoreIcon color={color} focused={focused} unreadCount={unreadCount} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><MoreIcon color={String(color)} focused={focused} unreadCount={unreadCount} /></FloatingTabIcon>,
         }}
       />
 

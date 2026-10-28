@@ -50,7 +50,7 @@ const secureStorage = {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       role: null,
       name: "",
       shopName: "",
@@ -77,7 +77,14 @@ export const useAuthStore = create<AuthState>()(
       setHasSeenSketchpadGuide: (hasSeenSketchpadGuide) => set({ hasSeenSketchpadGuide }),
       setResendAvailableAt: (resendAvailableAt) => set({ resendAvailableAt }),
       setCreatedAt: (createdAt) => set({ createdAt }),
-      setSession: (session) => set(session),
+      setSession: (session) => {
+        const email = session.email ?? get().email;
+        const role = session.role ?? get().role;
+        if (email && role) {
+          useAppDataStore.getState().activateCache(`${role}:${email.trim().toLowerCase()}`);
+        }
+        set(session);
+      },
       logout: () => {
         try {
           useOrdersStore.getState().setOrders([]);
@@ -91,6 +98,7 @@ export const useAuthStore = create<AuthState>()(
           role: null,
           name: "",
           shopName: "",
+          shopLogo: null,
           email: "",
           phone: "",
           location: "Lagos, Nigeria",

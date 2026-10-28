@@ -5,7 +5,7 @@ type Variant = "primary" | "secondary" | "accent";
 
 const styles: Record<Variant, { container: string; text: string }> = {
   primary: { container: "bg-oxblood", text: "text-cream" },
-  secondary: { container: "bg-cream border border-oxblood", text: "text-oxblood" },
+  secondary: { container: "bg-white border border-oxblood", text: "text-oxblood" },
   accent: { container: "bg-gold", text: "text-ink" },
 };
 
@@ -30,7 +30,7 @@ export function Button({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? "#FBF7EF" : "#4A080C"} />
+        <ActivityIndicator color={variant === "primary" ? "#FFFFFF" : "#453332"} />
       ) : (
         <Text className={`${s.text} font-body-semibold text-base`}>{label}</Text>
       )}

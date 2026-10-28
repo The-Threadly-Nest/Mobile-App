@@ -16,6 +16,7 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch, apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
+import { formatCurrency } from "@/shared/utils/formatters";
 
 export interface CatalogItem {
   id: string;
@@ -101,7 +102,7 @@ export default function AdminCatalogListScreen() {
 
   const formatMoney = (val: number | null | undefined) => {
     if (!val || typeof val !== "number") return "Price on request";
-    return `₦${val.toLocaleString()}`;
+    return formatCurrency(val);
   };
 
   return (
@@ -130,7 +131,7 @@ export default function AdminCatalogListScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />}
       >
         <Text style={styles.subtext}>
           Upload clothes photos and starting prices to showcase your atelier portfolio to clients.
@@ -138,7 +139,7 @@ export default function AdminCatalogListScreen() {
 
         {loading ? (
           <View style={styles.loadingWrap}>
-            <ActivityIndicator color="#4A080C" size="large" />
+            <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : items.length === 0 ? (
           <View style={styles.emptyWrap}>
@@ -220,7 +221,7 @@ export default function AdminCatalogListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -247,7 +248,7 @@ const styles = StyleSheet.create({
   addBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -299,7 +300,7 @@ const styles = StyleSheet.create({
   emptyActionBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,

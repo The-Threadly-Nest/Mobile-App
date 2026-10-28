@@ -13,9 +13,10 @@ import { router, useFocusEffect } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
+import { isOrderDelivered, normalizeStatus, orderStatusLabel } from "@/shared/domain/statuses";
 
 interface StaffOrder {
   id: string;
@@ -156,11 +157,8 @@ export default function StaffDashboard() {
   const fetchStaffMe = async () => {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/staff/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok && data.shopName) {
+      const data = await apiFetch<any>("/api/staff/me", { silent: true });
+      if (data.shopName) {
         setLocalShopName(data.shopName);
         setShopName(data.shopName);
         setCachedProfile(data);
@@ -175,11 +173,8 @@ export default function StaffDashboard() {
     // Silent revalidation if cached orders already rendered
     if (orders.length === 0) setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders?page=1&limit=30`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok && Array.isArray(data)) {
+      const data = await apiFetch<any[]>("/api/orders?page=1&limit=30", { silent: true });
+      if (Array.isArray(data)) {
         setCachedOrders(data);
         const seen = new Set<string>();
         const formatted: StaffOrder[] = [];
@@ -189,7 +184,7 @@ export default function StaffDashboard() {
           if (!seen.has(key)) {
             seen.add(key);
             const orderStatus = o.status || "in_production";
-            const isDone = orderStatus === "completed" || orderStatus === "delivered";
+            const isDone = isOrderDelivered(orderStatus);
             formatted.push({
               id: o.id,
               customerName: custName,
@@ -223,8 +218,8 @@ export default function StaffDashboard() {
   const realOrders = orders.filter((o) => !o.id.startsWith("mock-") && !o.id.startsWith("demo-"));
   const effectiveOrders = realOrders.length > 0 ? realOrders : orders;
 
-  const inProgressOrders = effectiveOrders.filter((o) => o.status !== "completed" && o.status !== "delivered");
-  const completedOrders = effectiveOrders.filter((o) => o.status === "completed" || o.status === "delivered");
+  const inProgressOrders = effectiveOrders.filter((o) => !isOrderDelivered(o.status));
+  const completedOrders = effectiveOrders.filter((o) => isOrderDelivered(o.status));
   const displayedOrders = activeTab === "in_progress" ? inProgressOrders : completedOrders;
 
   const handleActionPress = (order: StaffOrder) => {
@@ -242,7 +237,7 @@ export default function StaffDashboard() {
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
+    switch (normalizeStatus(status)) {
       case "booked":
       case "order_placed":
       case "pending_admin_review":
@@ -261,7 +256,7 @@ export default function StaffDashboard() {
       case "delivered":
         return "Completed";
       default:
-        return status.replace(/_/g, " ").toUpperCase();
+        return orderStatusLabel(status);
     }
   };
 
@@ -326,7 +321,7 @@ export default function StaffDashboard() {
         {/* Order Cards List */}
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator color="#4A080C" size="large" />
+            <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : (
           displayedOrders.map((order) => {
@@ -387,7 +382,7 @@ export default function StaffDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -413,7 +408,7 @@ const styles = StyleSheet.create({
     fontFamily: "Fraunces-Bold",
     fontSize: 28,
     lineHeight: 34,
-    color: "#4A080C",
+    color: "#453332",
   },
   tabsRow: {
     flexDirection: "row",
@@ -428,7 +423,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeTabPill: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   inactiveTabPill: {
     backgroundColor: "#EBE0D3",
@@ -470,7 +465,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -512,14 +507,14 @@ const styles = StyleSheet.create({
   statusLabelText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 14,
   },
   actionBtn: {
     width: "100%",
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

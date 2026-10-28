@@ -33,7 +33,7 @@ function GradientAvatar({ initial }: { initial: string }) {
       <Svg width={40} height={40} viewBox="0 0 40 40" style={StyleSheet.absoluteFill}>
         <Defs>
           <LinearGradient id="avatarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor="#4A080C" />
+            <Stop offset="0%" stopColor="#453332" />
             <Stop offset="100%" stopColor="#C4A763" />
           </LinearGradient>
         </Defs>
@@ -151,7 +151,7 @@ export default function StaffScreen() {
         {/* Staff List */}
         {fetchingStaff && staffList.length === 0 ? (
           <View style={styles.loaderContainer}>
-            <ActivityIndicator color="#4A080C" size="large" />
+            <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : (
           <FlatList
@@ -219,7 +219,7 @@ export default function StaffScreen() {
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <View style={styles.emptyIconCircle}>
-                  <Users size={28} color="#4A080C" />
+                  <Users size={28} color="#453332" />
                 </View>
                 <Text style={styles.emptyTitle}>
                   {searchQuery ? "No matching staff member" : "No staff members yet"}
@@ -267,7 +267,7 @@ export default function StaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E4D5B7",
     alignItems: "center",
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 6,
     textAlign: "center",
   },
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     maxWidth: 280,
   },
   emptyActionBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -467,10 +467,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#4A080C",
+    shadowColor: "#453332",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,

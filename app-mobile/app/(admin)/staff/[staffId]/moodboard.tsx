@@ -16,7 +16,7 @@ import { Headline, Subtext } from "@/shared/components/Headline";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface Sketch {
@@ -48,15 +48,7 @@ export default function AdminStaffMoodBoardScreen() {
     if (!token || !staffId) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/moodboard/staff/${staffId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setSketches(data);
-      } else {
-        console.error("Error loading staff sketches:", data.error);
-      }
+      setSketches(await apiFetch<Sketch[]>(`/api/moodboard/staff/${staffId}`, { silent: true }));
     } catch (e) {
       console.error("Failed to fetch staff sketches", e);
     } finally {
@@ -89,22 +81,13 @@ export default function AdminStaffMoodBoardScreen() {
         return;
       }
 
-      const res = await fetch(`${API_BASE_URL}/api/moodboard/${selectedSketch.id}/promote`, {
+      await apiFetch(`/api/moodboard/${selectedSketch.id}/promote`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           priceFrom: numPrice,
           name: customName.trim() || selectedSketch.title,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Could not promote sketch to catalog.");
-      }
 
       // Update local state to show promoted status
       setSketches((prev) =>
@@ -121,7 +104,7 @@ export default function AdminStaffMoodBoardScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
       <View className="flex-row items-center px-5 pt-4 pb-2 gap-3">
         <Pressable
@@ -138,7 +121,7 @@ export default function AdminStaffMoodBoardScreen() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#4A080C" />
+          <ActivityIndicator color="#453332" />
         </View>
       ) : (
         <FlatList
@@ -166,7 +149,7 @@ export default function AdminStaffMoodBoardScreen() {
 
                 {item.promotedToCatalog ? (
                   <View className="bg-oxblood/10 py-1.5 px-2 rounded-lg flex-row items-center justify-center gap-1">
-                    <CheckCircle2 size={12} color="#4A080C" />
+                    <CheckCircle2 size={12} color="#453332" />
                     <Text className="font-body-semibold text-oxblood text-[10px]">In Catalog</Text>
                   </View>
                 ) : (
@@ -187,7 +170,7 @@ export default function AdminStaffMoodBoardScreen() {
       {/* Promotion Price Modal */}
       <Modal visible={!!selectedSketch} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-cream rounded-t-3xl p-6">
+          <View className="bg-white rounded-t-3xl p-6">
             <Headline className="text-xl text-oxblood mb-1">Promote to Catalog</Headline>
             <Subtext className="text-xs mb-4">
               Add this sketch to your public Fashion House catalog for customers to view.

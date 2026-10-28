@@ -12,8 +12,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { ordersApi } from "@/shared/utils/apiClient";
+import { isPaymentPaid } from "@/shared/domain/statuses";
+import { formatCurrency, formatShortDate } from "@/shared/utils/formatters";
 
 interface InvoiceItem {
   id: string;
@@ -29,28 +30,21 @@ interface InvoiceItem {
 export default function InvoicesListScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
-  const token = useAuthStore((s) => s.token);
   const storeOrders = useAppDataStore((s) => s.orders);
   const [liveOrders, setLiveOrders] = useState<any[]>(storeOrders || []);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchOrders = useCallback(async () => {
-    if (!token) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setLiveOrders(data);
-          useAppDataStore.getState().setOrders(data);
-        }
+      const data = await ordersApi.getOrders();
+      if (Array.isArray(data)) {
+        setLiveOrders(data);
+        useAppDataStore.getState().setOrders(data);
       }
     } catch {
       // fallback to store
     }
-  }, [token]);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,9 +70,9 @@ export default function InvoicesListScreen() {
           orderNumber: orderNum,
           customerName: o.customer?.name || o.customer || "Customer",
           garment: o.itemName || o.item || "Bespoke Fitting & Tailoring",
-          date: o.createdAt ? new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Date unavailable",
+          date: formatShortDate(o.createdAt),
           amount: typeof o.invoice?.total === "number" ? o.invoice.total : (typeof o.price === "number" ? o.price : 0),
-          status: o.invoice?.paymentStatus === "paid" ? "Paid" : "Pending",
+          status: isPaymentPaid(o.invoice?.paymentStatus) ? "Paid" : "Pending",
         };
       });
     }
@@ -107,10 +101,10 @@ export default function InvoicesListScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A080C" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />
           }
           renderItem={({ item }) => {
-            const isPaid = item.status === "Paid";
+            const isPaid = isPaymentPaid(item.status);
 
             return (
               <Pressable
@@ -144,7 +138,7 @@ export default function InvoicesListScreen() {
                 {/* Right Column: Amount & Status Badge */}
                 <View style={styles.rightCol}>
                   <Text style={styles.amount}>
-                    ₦{item.amount.toLocaleString()}
+                    {formatCurrency(item.amount)}
                   </Text>
                   <View
                     style={[
@@ -174,7 +168,7 @@ export default function InvoicesListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,

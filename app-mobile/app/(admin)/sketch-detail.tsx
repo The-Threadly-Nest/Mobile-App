@@ -16,7 +16,7 @@ import { SvgUri } from "react-native-svg";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 
@@ -78,22 +78,13 @@ export default function AdminSketchDetailScreen() {
       }
 
       if (params.id && !params.id.startsWith("sk")) {
-        const res = await fetch(`${API_BASE_URL}/api/moodboard/${params.id}/promote`, {
+        await apiFetch(`/api/moodboard/${params.id}/promote`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             priceFrom: numPrice,
             name: customName.trim(),
           }),
         });
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error ?? "Failed to promote sketch.");
-        }
       }
 
       setIsPromoted(true);
@@ -219,7 +210,7 @@ export default function AdminSketchDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -292,7 +283,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -323,14 +314,14 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     padding: 20,
   },
   modalTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 20,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 4,
   },
   modalSub: {

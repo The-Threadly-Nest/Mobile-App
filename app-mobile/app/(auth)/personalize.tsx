@@ -12,7 +12,7 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Check } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 const SHOPPING_CATEGORIES = [
   "Bridal",
@@ -63,13 +63,9 @@ export default function PersonalizeScreen() {
   const handleContinue = async () => {
     try {
       setLoading(true);
-      if (token && API_BASE_URL) {
-        await fetch(`${API_BASE_URL}/api/preferences`, {
+      if (token) {
+        await apiFetch("/api/preferences", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             styles: selectedCategories,
             budget: selectedBudget,
@@ -285,7 +281,7 @@ export default function PersonalizeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -303,14 +299,14 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderRadius: 2,
   },
   categoryLabel: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 12,
     textTransform: "uppercase",
   },
@@ -366,8 +362,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.35)",
   },
   pillSelected: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   pillText: {
     fontFamily: "WorkSans_500Medium",
@@ -396,7 +392,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   budgetSegmentSelected: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   budgetSymbolText: {
     fontFamily: "WorkSans_600SemiBold",
@@ -423,7 +419,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },

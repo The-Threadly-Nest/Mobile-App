@@ -88,7 +88,7 @@ export default function AdminWelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   imageContainer: {
     width: "100%",
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     height: 63,
     borderRadius: 31.5,
     borderWidth: 1.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   logInText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
     letterSpacing: 0.2,
   },
   disclaimerText: {

@@ -15,7 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 export default function InviteStaffScreen() {
@@ -43,25 +43,13 @@ export default function InviteStaffScreen() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/staff/invite`, {
+      await apiFetch("/api/staff/invite", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim().toLowerCase(),
         }),
       });
-
-      const body = await res.json();
-      if (!res.ok) {
-        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-          ? body.issues.map((i: any) => i.message).join(". ")
-          : null;
-        throw new Error(issueMsg || body.error || "Could not invite staff member.");
-      }
 
       showAlert("Invite Sent", `An activation code has been sent to ${email.trim().toLowerCase()}.`);
       setTimeout(() => {
@@ -165,7 +153,7 @@ export default function InviteStaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -224,7 +212,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -9,
     left: 14,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 6,
     zIndex: 1,
   },
@@ -253,7 +241,7 @@ const styles = StyleSheet.create({
   sendBtn: {
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 12,

@@ -6,6 +6,7 @@ import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
 import { apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import CachedImage from "@/shared/components/CachedImage";
+import { isCustomerOrderActive, isOrderCancelled, isOrderDelivered } from "@/shared/domain/statuses";
 
 function getRealGarmentImage(order: OrderItem): string {
   return order.imageUrl || "";
@@ -68,9 +69,9 @@ export default function CustomerOrdersScreen() {
   const realOrders = storeOrders.filter((o) => !o.id.startsWith("mock-"));
   const effectiveOrders = realOrders;
 
-  const activeOrders = effectiveOrders.filter((o) => o.status === "active");
-  const completedOrders = effectiveOrders.filter((o) => o.status === "completed");
-  const declinedOrders = effectiveOrders.filter((o) => o.status === "declined" || o.status === "cancelled");
+  const activeOrders = effectiveOrders.filter((o) => isCustomerOrderActive(o.rawStatus || o.status));
+  const completedOrders = effectiveOrders.filter((o) => isOrderDelivered(o.rawStatus || o.status));
+  const declinedOrders = effectiveOrders.filter((o) => isOrderCancelled(o.rawStatus || o.status));
 
   const displayedOrders =
     activeTab === "active"
@@ -80,7 +81,7 @@ export default function CustomerOrdersScreen() {
         : declinedOrders;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
       <ScrollView
         className="flex-1 px-4"
         style={{ paddingTop: 36 }}
@@ -101,7 +102,7 @@ export default function CustomerOrdersScreen() {
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 12 }, isLandscape && { maxWidth: 600 }]}>
           <Pressable
             onPress={() => setActiveTab("active")}
-            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "active" ? "bg-[#4A080C]" : "bg-[#E2E2E2]"
+            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "active" ? "bg-[#453332]" : "bg-[#E2E2E2]"
               }`}
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
@@ -115,7 +116,7 @@ export default function CustomerOrdersScreen() {
 
           <Pressable
             onPress={() => setActiveTab("completed")}
-            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "completed" ? "bg-[#4A080C]" : "bg-[#E2E2E2]"
+            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "completed" ? "bg-[#453332]" : "bg-[#E2E2E2]"
               }`}
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
@@ -130,7 +131,7 @@ export default function CustomerOrdersScreen() {
           {declinedOrders.length > 0 && (
             <Pressable
               onPress={() => setActiveTab("declined")}
-              className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "declined" ? "bg-[#4A080C]" : "bg-[#E2E2E2]"
+              className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "declined" ? "bg-[#453332]" : "bg-[#E2E2E2]"
                 }`}
               style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
             >
@@ -147,7 +148,7 @@ export default function CustomerOrdersScreen() {
         {/* Orders List */}
         {loading && displayedOrders.length === 0 ? (
           <View className="py-16 items-center justify-center">
-            <ActivityIndicator size="large" color="#4A080C" />
+            <ActivityIndicator size="large" color="#453332" />
           </View>
         ) : displayedOrders.length === 0 ? (
           <View className="py-12 items-center justify-center">
@@ -159,8 +160,8 @@ export default function CustomerOrdersScreen() {
           <View style={isLandscape ? { flexDirection: "row", flexWrap: "wrap", gap: 12 } : { gap: 12 }}>
             {displayedOrders.map((order) => {
               const formattedNum = generateOrderNumber(order.orderId || order.bookingId || order.id);
-              const isDeclined = order.rawStatus === "declined" || order.status === "declined";
-              const isCancelled = order.rawStatus === "cancelled" || order.status === "cancelled";
+              const isDeclined = isOrderCancelled(order.rawStatus || order.status);
+              const isCancelled = isDeclined;
 
               return (
                 <Pressable
@@ -221,7 +222,7 @@ export default function CustomerOrdersScreen() {
                           </View>
                         ) : isCancelled ? (
                           <View style={{ backgroundColor: "#F5EFE6", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#E5DFD5" }}>
-                            <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#4A080C" }}>
+                            <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#453332" }}>
                               Cancelled
                             </Text>
                           </View>
@@ -267,9 +268,9 @@ export default function CustomerOrdersScreen() {
                 style={{ alignSelf: "center", paddingVertical: 12, paddingHorizontal: 20 }}
               >
                 {loadingMore ? (
-                  <ActivityIndicator size="small" color="#4A080C" />
+                  <ActivityIndicator size="small" color="#453332" />
                 ) : (
-                  <Text style={{ color: "#4A080C", fontFamily: "WorkSans_600SemiBold" }}>Load more orders</Text>
+                  <Text style={{ color: "#453332", fontFamily: "WorkSans_600SemiBold" }}>Load more orders</Text>
                 )}
               </Pressable>
             ) : null}

@@ -22,6 +22,8 @@ import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { invoicesApi } from "@/shared/utils/apiClient";
+import { isPaymentPaid } from "@/shared/domain/statuses";
+import { formatCurrency, formatShortDate } from "@/shared/utils/formatters";
 
 interface InvoiceDetail {
   id: string;
@@ -50,8 +52,7 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 
-const formatMoney = (amount: number, currency: string) =>
-  `${currency === "NGN" ? "₦" : `${currency} `}${amount.toLocaleString()}`;
+const formatMoney = (amount: number, currency: string) => formatCurrency(amount, currency);
 
 export default function InvoiceDetailScreen() {
   const {
@@ -75,7 +76,7 @@ export default function InvoiceDetailScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const { showAlert } = useAppAlert();
-  const viewShotRef = useRef<ViewShot>(null);
+  const viewShotRef = useRef<any>(null);
 
   const authShopName = useAuthStore((s) => s.shopName);
   const authShopLogo = useAuthStore((s) => s.shopLogo);
@@ -103,7 +104,7 @@ export default function InvoiceDetailScreen() {
       id: orderId || "",
       invoiceNumber,
       atelierName,
-      date: paramDate || new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      date: paramDate || formatShortDate(new Date()),
       customerName,
       orderNumber,
       status: "Pending",
@@ -148,10 +149,10 @@ export default function InvoiceDetailScreen() {
           id: savedInvoice.id,
           invoiceNumber: `INV-${savedInvoice.id.slice(0, 8).toUpperCase()}`,
           atelierName: house.shopName,
-          date: new Date(savedInvoice.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+          date: formatShortDate(savedInvoice.createdAt),
           customerName: order.customer.name,
           orderNumber: `#TFH-${order.id.slice(0, 8).toUpperCase()}`,
-          status: savedInvoice.paymentStatus === "paid" ? "Paid" : "Pending",
+          status: isPaymentPaid(savedInvoice.paymentStatus) ? "Paid" : "Pending",
           items: [{ name: order.itemName, amount: savedInvoice.subtotal }],
           subtotal: savedInvoice.subtotal,
           taxRate: savedInvoice.taxRate,
@@ -173,7 +174,7 @@ export default function InvoiceDetailScreen() {
     };
   }, [orderId]);
 
-  const isPaid = invoice.status === "Paid";
+  const isPaid = isPaymentPaid(invoice.status);
   const canExport =
     invoiceLoaded && Boolean(invoice.bankName && invoice.accountNumber && invoice.accountName);
 
@@ -196,7 +197,7 @@ export default function InvoiceDetailScreen() {
     const safeCustomerName = escapeHtml(invoice.customerName);
     const safeAccountName = escapeHtml(invoice.accountName);
     const safeBankName = escapeHtml(invoice.bankName);
-    const htmlCurrency = invoice.currency === "NGN" ? "&#8358;" : `${escapeHtml(invoice.currency)} `;
+    const htmlMoney = (amount: number) => escapeHtml(formatCurrency(amount, invoice.currency));
 
     return `
       <!DOCTYPE html>
@@ -211,7 +212,7 @@ export default function InvoiceDetailScreen() {
           * { box-sizing: border-box; margin: 0; padding: 0; }
           html, body {
             height: 100%;
-            background-color: #FBF7EF;
+            background-color: #FFFFFF;
             font-family: 'Work Sans', sans-serif;
             color: #1A1110;
           }
@@ -231,7 +232,7 @@ export default function InvoiceDetailScreen() {
             font-family: 'Fraunces', serif;
             font-size: 38px;
             font-weight: 700;
-            color: #4A080C;
+            color: #453332;
             opacity: 0.04;
             text-align: center;
             pointer-events: none;
@@ -263,9 +264,9 @@ export default function InvoiceDetailScreen() {
             width: 48px;
             height: 48px;
             border-radius: 24px;
-            background-color: #4A080C;
+            background-color: #453332;
             border: 1.5px solid #C4A763;
-            color: #FBF7EF;
+            color: #FFFFFF;
             font-family: 'Fraunces', serif;
             font-size: 22px;
             font-weight: 700;
@@ -277,7 +278,7 @@ export default function InvoiceDetailScreen() {
             font-family: 'Fraunces', serif;
             font-size: 24px;
             font-weight: 700;
-            color: #4A080C;
+            color: #453332;
             margin-bottom: 2px;
           }
           .app-tag {
@@ -292,7 +293,7 @@ export default function InvoiceDetailScreen() {
             font-size: 13px;
             font-weight: 600;
             background-color: ${isPaid ? 'rgba(74, 8, 12, 0.12)' : '#F4ECE1'};
-            color: ${isPaid ? '#4A080C' : '#B57E42'};
+            color: ${isPaid ? '#453332' : '#B57E42'};
           }
           .dashed-line {
             border-top: 1.5px dashed #E4D5B7;
@@ -313,7 +314,7 @@ export default function InvoiceDetailScreen() {
           .field-value {
             font-size: 17px;
             font-weight: 600;
-            color: #4A080C;
+            color: #453332;
           }
           .items-section {
             margin-top: 8px;
@@ -351,7 +352,7 @@ export default function InvoiceDetailScreen() {
             font-family: 'Fraunces', serif;
             font-size: 22px;
             font-weight: 700;
-            color: #4A080C;
+            color: #453332;
           }
           .payment-card {
             background-color: #F9F5EE;
@@ -374,7 +375,7 @@ export default function InvoiceDetailScreen() {
             gap: 12px;
           }
           .payment-col-label { font-size: 10px; color: #8A7550; font-weight: 600; margin-bottom: 2px; }
-          .payment-col-val { font-size: 13px; color: #4A080C; font-weight: 600; }
+          .payment-col-val { font-size: 13px; color: #453332; font-weight: 600; }
           .footer-note {
             text-align: center;
             margin-top: 20px;
@@ -386,7 +387,7 @@ export default function InvoiceDetailScreen() {
       </head>
       <body>
         <div class="page-container">
-          <div class="watermark">ÒWÚJÀ<br/>OFFICIAL INVOICE</div>
+          <div class="watermark">OWUJA<br/>OFFICIAL INVOICE</div>
           <div class="card">
             <div>
               <div class="atelier-row">
@@ -397,7 +398,7 @@ export default function InvoiceDetailScreen() {
                   }
                   <div>
                     <div class="atelier-name">${safeAtelierName}</div>
-                    <div class="app-tag">Òwújà • ${invoice.invoiceNumber}</div>
+                    <div class="app-tag">Owuja • ${invoice.invoiceNumber}</div>
                   </div>
                 </div>
                 <div class="status-pill">${invoice.status}</div>
@@ -430,7 +431,7 @@ export default function InvoiceDetailScreen() {
                     (item) => `
                     <div class="item-row">
                       <div class="item-name">${escapeHtml(item.name)}</div>
-                      <div class="item-price">${htmlCurrency}${item.amount.toLocaleString()}</div>
+                      <div class="item-price">${htmlMoney(item.amount)}</div>
                     </div>
                   `
                   )
@@ -439,16 +440,16 @@ export default function InvoiceDetailScreen() {
 
               <div class="summary-row">
                 <div>Subtotal</div>
-                <div style="font-weight: 600; color: #3A2E1A;">${htmlCurrency}${subtotal.toLocaleString()}</div>
+                <div style="font-weight: 600; color: #3A2E1A;">${htmlMoney(subtotal)}</div>
               </div>
               <div class="summary-row">
                 <div>VAT / Tax (${(invoice.taxRate * 100).toLocaleString()}%)</div>
-                <div style="font-weight: 600; color: #3A2E1A;">${htmlCurrency}${vat.toLocaleString()}</div>
+                <div style="font-weight: 600; color: #3A2E1A;">${htmlMoney(vat)}</div>
               </div>
 
               <div class="total-row">
                 <div class="total-label">Total Due</div>
-                <div class="total-amount">${htmlCurrency}${grandTotal.toLocaleString()}</div>
+                <div class="total-amount">${htmlMoney(grandTotal)}</div>
               </div>
             </div>
 
@@ -472,7 +473,7 @@ export default function InvoiceDetailScreen() {
               </div>
 
               <div class="footer-note">
-                <strong>Òwújà</strong>
+                <strong>Owuja</strong>
               </div>
             </div>
           </div>
@@ -622,7 +623,7 @@ export default function InvoiceDetailScreen() {
           contentContainerStyle={styles.scrollContent}
         >
           {!invoiceLoaded && !invoiceError ? (
-            <ActivityIndicator color="#4A080C" style={{ marginBottom: 16 }} />
+            <ActivityIndicator color="#453332" style={{ marginBottom: 16 }} />
           ) : null}
           {invoiceError ? (
             <View style={{ backgroundColor: "#FDECEC", borderRadius: 12, padding: 12, marginBottom: 16 }}>
@@ -650,12 +651,12 @@ export default function InvoiceDetailScreen() {
                   style={{
                     fontFamily: "Fraunces-Bold",
                     fontSize: 26,
-                    color: "#4A080C",
+                    color: "#453332",
                     transform: [{ rotate: "-20deg" }],
                     textAlign: "center",
                   }}
                 >
-                  ÒWÚJÀ{"\n"}OFFICIAL INVOICE
+                  OWUJA{"\n"}OFFICIAL INVOICE
                 </Text>
               </View>
 
@@ -680,14 +681,14 @@ export default function InvoiceDetailScreen() {
                         width: 44,
                         height: 44,
                         borderRadius: 22,
-                        backgroundColor: "#4A080C",
+                        backgroundColor: "#453332",
                         borderWidth: 1.5,
                         borderColor: "#C4A763",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "Fraunces-Bold", fontSize: 20, color: "#FBF7EF" }}>
+                      <Text style={{ fontFamily: "Fraunces-Bold", fontSize: 20, color: "#FFFFFF" }}>
                         {invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A"}
                       </Text>
                     </View>
@@ -695,7 +696,7 @@ export default function InvoiceDetailScreen() {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.atelierName}>{invoice.atelierName}</Text>
                     <Text style={styles.invoiceSubtitle}>
-                      Òwújà • {invoice.invoiceNumber}
+                      Owuja • {invoice.invoiceNumber}
                     </Text>
                   </View>
                 </View>
@@ -799,23 +800,23 @@ export default function InvoiceDetailScreen() {
                 <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
                   <View>
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BANK</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.bankName || "Not configured"}</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332" }}>{invoice.bankName || "Not configured"}</Text>
                   </View>
                   <View>
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>ACCOUNT NO.</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.accountNumber || "—"}</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountNumber || "—"}</Text>
                   </View>
                   <View>
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BENEFICIARY</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C" }}>{invoice.accountName || "—"}</Text>
+                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountName || "—"}</Text>
                   </View>
                 </View>
               </View>
 
               {/* Footer Tag */}
               <View style={{ marginTop: 16, alignItems: "center", zIndex: 1 }}>
-                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#4A080C", textAlign: "center" }}>
-                  Òwújà
+                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#453332", textAlign: "center" }}>
+                  Owuja
                 </Text>
               </View>
             </View>
@@ -834,7 +835,7 @@ export default function InvoiceDetailScreen() {
                 ]}
               >
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Share2 size={18} color="#4A080C" />
+                  <Share2 size={18} color="#453332" />
                   <Text style={styles.outlineBtnText}>Share</Text>
                 </View>
               </Pressable>
@@ -882,7 +883,7 @@ export default function InvoiceDetailScreen() {
               ]}
             >
               <View style={styles.optionIconContainer}>
-                <FileText size={22} color="#4A080C" />
+                <FileText size={22} color="#453332" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.optionTitle}>Share as PDF</Text>
@@ -899,7 +900,7 @@ export default function InvoiceDetailScreen() {
               ]}
             >
               <View style={styles.optionIconContainer}>
-                <ImageIcon size={22} color="#4A080C" />
+                <ImageIcon size={22} color="#453332" />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.optionTitle}>Share as Image</Text>
@@ -916,7 +917,7 @@ export default function InvoiceDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -971,7 +972,7 @@ const styles = StyleSheet.create({
   atelierName: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 4,
   },
   invoiceSubtitle: {
@@ -1002,7 +1003,7 @@ const styles = StyleSheet.create({
   fieldValue: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
   },
   itemsTable: {
     marginTop: 4,
@@ -1032,7 +1033,7 @@ const styles = StyleSheet.create({
   },
   tableBottomBorder: {
     borderBottomWidth: 0.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     marginTop: 6,
     marginBottom: 18,
   },
@@ -1044,12 +1045,12 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   totalAmount: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   statusPill: {
     paddingHorizontal: 12,
@@ -1072,7 +1073,7 @@ const styles = StyleSheet.create({
     color: "#B57E42",
   },
   paidText: {
-    color: "#4A080C",
+    color: "#453332",
   },
   actionButtonsContainer: {
     marginTop: 28,
@@ -1086,7 +1087,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1101,14 +1102,14 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
   outlineBtnText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
   },
   secondaryBtn: {
     width: "100%",
@@ -1123,7 +1124,7 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
   },
   modalOverlay: {
     flex: 1,

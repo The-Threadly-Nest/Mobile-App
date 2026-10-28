@@ -12,8 +12,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
+import { apiFetchCollectionPage, escalationsApi } from "@/shared/utils/apiClient";
+import { normalizeStatus } from "@/shared/domain/statuses";
 
 interface OrderItem {
   id: string;
@@ -121,21 +122,16 @@ export default function AdminOrdersScreen() {
     }
     try {
       const [ordersRes, escRes] = await Promise.allSettled([
-        fetch(`${API_BASE_URL}/api/orders?page=1&limit=50`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${API_BASE_URL}/api/escalations`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        apiFetchCollectionPage<any>("/api/orders?page=1&limit=50", { silent: true }),
+        escalationsApi.getEscalations(),
       ]);
 
       const merged: OrderItem[] = [];
 
       // 1. Process database Orders
-      if (ordersRes.status === "fulfilled" && ordersRes.value.ok) {
-        const nextPageHeader = ordersRes.value.headers.get("X-Next-Page");
-        setNextPage(nextPageHeader ? Number(nextPageHeader) : null);
-        const data = await ordersRes.value.json();
+      if (ordersRes.status === "fulfilled") {
+        setNextPage(ordersRes.value.nextPage);
+        const data = ordersRes.value.items;
         if (Array.isArray(data)) {
           data.forEach((o: any) => {
             merged.push({
@@ -154,8 +150,8 @@ export default function AdminOrdersScreen() {
       // 2. Supplement resolved escalations if not already captured in orders
       const coveredNames = new Set(merged.map((o) => o.customer.toLowerCase()));
 
-      if (escRes.status === "fulfilled" && escRes.value.ok) {
-        const escData = await escRes.value.json();
+      if (escRes.status === "fulfilled") {
+        const escData = escRes.value;
         if (Array.isArray(escData)) {
           escData
             .filter((e: any) => e.resolved && e.bookingStatus !== "declined")
@@ -192,11 +188,9 @@ export default function AdminOrdersScreen() {
     if (!token || !nextPage || loadingMore) return;
     setLoadingMore(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/orders?page=${nextPage}&limit=50`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) return;
-      const data = await response.json();
+      const result = await apiFetchCollectionPage<any>(`/api/orders?page=${nextPage}&limit=50`, { silent: true });
+      const data = result.items;
+      setNextPage(result.nextPage);
       if (Array.isArray(data)) {
         const incoming: OrderItem[] = data.map((order: any) => ({
           id: order.id,
@@ -213,8 +207,6 @@ export default function AdminOrdersScreen() {
           return Array.from(byId.values());
         });
       }
-      const nextPageHeader = response.headers.get("X-Next-Page");
-      setNextPage(nextPageHeader ? Number(nextPageHeader) : null);
     } finally {
       setLoadingMore(false);
     }
@@ -235,7 +227,7 @@ export default function AdminOrdersScreen() {
   const filteredItems = useMemo(() => {
     if (selectedFilter === "All") return items;
     return items.filter((item) => {
-      const meta = STATUS_CONFIG[item.status];
+      const meta = STATUS_CONFIG[normalizeStatus(item.status)];
       return meta?.filterKey === selectedFilter;
     });
   }, [items, selectedFilter]);
@@ -282,7 +274,7 @@ export default function AdminOrdersScreen() {
 
       {/* Content */}
       {loading ? (
-        <ActivityIndicator color="#4A080C" style={{ marginTop: 40 }} />
+        <ActivityIndicator color="#453332" style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={filteredItems}
@@ -291,12 +283,12 @@ export default function AdminOrdersScreen() {
           showsVerticalScrollIndicator={false}
           onEndReached={() => void loadMoreOrders()}
           onEndReachedThreshold={0.4}
-          ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#4A080C"
+              tintColor="#453332"
             />
           }
           ListEmptyComponent={
@@ -310,7 +302,7 @@ export default function AdminOrdersScreen() {
             </View>
           }
           renderItem={({ item }) => {
-            const meta = STATUS_CONFIG[item.status] ?? {
+            const meta = STATUS_CONFIG[normalizeStatus(item.status)] ?? {
               label: "In Production",
               bg: "#EFE6D8",
               text: "#B28847",
@@ -381,7 +373,7 @@ export default function AdminOrdersScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#FAF7F2",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     paddingHorizontal: 24,
@@ -406,7 +398,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   filterChipActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   filterChipInactive: {
     backgroundColor: "#EBE7E1",
@@ -442,7 +434,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -505,7 +497,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "Fraunces-SemiBold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 6,
   },
   emptySubText: {

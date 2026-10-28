@@ -118,6 +118,8 @@ export const FashionHouseScalarFieldEnum = {
   accountName: 'accountName',
   categories: 'categories',
   currency: 'currency',
+  timezone: 'timezone',
+  slotDurationMinutes: 'slotDurationMinutes',
   onboardingCompleted: 'onboardingCompleted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -209,6 +211,10 @@ export const AvailableSlotScalarFieldEnum = {
   fashionHouseId: 'fashionHouseId',
   date: 'date',
   time: 'time',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  durationMinutes: 'durationMinutes',
+  active: 'active',
   booked: 'booked',
   createdAt: 'createdAt'
 } as const

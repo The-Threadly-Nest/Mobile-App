@@ -7,6 +7,7 @@ export interface ApiErrorDetail {
   code: string;
   message: string;
   details?: any;
+  responseBody?: any;
 }
 
 export class ApiError extends Error {
@@ -72,6 +73,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     onResponse?.(response);
 
     if (response.ok) {
+      if (response.status === 204) return undefined as T;
       return (await response.json()) as T;
     }
 
@@ -102,6 +104,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         code,
         message,
         details: body.issues || (typeof body.error === "object" ? body.error?.details : undefined),
+        responseBody: body,
       };
     } catch {
       errorDetail = {
@@ -200,6 +203,8 @@ export interface AdminOnboardingPayload {
   categories: string[];
   brandLogoUrl?: string;
   currency?: string;
+  timezone?: string;
+  slotDurationMinutes?: number;
   bankName?: string;
   accountNumber?: string;
   accountName?: string;
@@ -209,9 +214,29 @@ export interface AdminOnboardingPayload {
   }>;
 }
 
+export interface AdminSummary {
+  staffCount: number;
+  customerCount: number;
+  invoiceCountThisMonth: number;
+  activeOrdersCount: number;
+  pendingBookingsCount: number;
+  revenueThisMonth: number;
+}
+
+export type AdminDashboardSummary = Pick<
+  AdminSummary,
+  "activeOrdersCount" | "pendingBookingsCount" | "revenueThisMonth"
+>;
+
 export const adminApi = {
   getProfile: async () => {
     return apiFetch<{ fashionHouse: any }>("/api/admin/profile", { silent: true });
+  },
+  getSummary: async () => {
+    return apiFetch<AdminSummary>("/api/admin/summary", { silent: true });
+  },
+  getDashboardSummary: async () => {
+    return apiFetch<AdminDashboardSummary>("/api/admin/dashboard-summary", { silent: true });
   },
   completeOnboarding: async (data: AdminOnboardingPayload) => {
     return apiFetch<{ message: string; fashionHouse: any }>("/api/admin/onboarding", {
@@ -262,12 +287,38 @@ export const escalationsApi = {
   },
 };
 
+export interface StaffListItem {
+  id: string;
+  name?: string | null;
+  email: string;
+  unreadCount?: number;
+  [key: string]: unknown;
+}
+
+export const staffApi = {
+  getStaff: async () => apiFetch<StaffListItem[]>("/api/staff", { silent: true }),
+};
+
+export interface MeasurementCheckResult {
+  hasMeasurements: boolean;
+  count: number;
+  customerId: string | null;
+}
+
+export const measurementsApi = {
+  checkCustomer: async (customerName: string) =>
+    apiFetch<MeasurementCheckResult>(
+      `/api/measurements/check/${encodeURIComponent(customerName)}`,
+      { silent: true }
+    ),
+};
+
 export const slotsApi = {
   getSlots: async () => apiFetch<any[]>("/api/slots", { silent: true }),
-  createSlot: async (date: string, time: string) =>
+  createSlot: async (date: string, time: string, durationMinutes?: number) =>
     apiFetch<any>("/api/slots", {
       method: "POST",
-      body: JSON.stringify({ date, time }),
+      body: JSON.stringify({ date, time, durationMinutes }),
     }),
   deleteSlot: async (id: string) =>
     apiFetch<any>(`/api/slots/${id}`, { method: "DELETE" }),

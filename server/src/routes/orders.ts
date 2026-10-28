@@ -3,9 +3,9 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole, getOwnFashionHouseId } from "../middleware/auth";
 import { validate } from "../middleware/validate";
-import { createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
+import { catalogCheckoutSchema, createOrderSchema, updateOrderStatusSchema } from "../schemas/orders.schema";
 import { formatEstimatedReady } from "../utils/dateUtils";
-import { sendNotificationToUser } from "../lib/notifications";
+import { sendNotificationToAdmin, sendNotificationToUser } from "../lib/notifications";
 import { isUniqueConstraintError, readIdempotencyKey } from "../lib/idempotency";
 import { collectionPaginationSchema, type CollectionPagination } from "../schemas/pagination.schema";
 import { collectionWindow, sendCollectionPage } from "../lib/pagination";
@@ -81,25 +81,46 @@ router.get("/my-orders", requireAuth, validate({ query: collectionPaginationSche
   try {
     const userId = req.authUserId!;
     const { page, limit } = req.query as unknown as CollectionPagination;
-    const bookings = await prisma.booking.findMany({
-      where: { customerId: userId },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      ...collectionWindow(page, limit),
-      include: {
-        fashionHouse: {
-          select: {
-            id: true,
-            shopName: true,
-            catalogItems: {
-              select: { id: true, name: true, imageUrl: true },
-              orderBy: { createdAt: "desc" },
-              take: 25,
+    const windowEnd = page * limit + 1;
+    const [bookings, standaloneOrders] = await Promise.all([
+      prisma.booking.findMany({
+        where: { customerId: userId },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: windowEnd,
+        include: {
+          fashionHouse: {
+            select: {
+              id: true,
+              shopName: true,
+              catalogItems: {
+                select: { id: true, name: true, imageUrl: true },
+                orderBy: { createdAt: "desc" },
+                take: 25,
+              },
+            },
+          },
+          order: { select: { id: true, status: true } },
+        },
+      }),
+      prisma.order.findMany({
+        where: { bookingId: null, customer: { userId } },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: windowEnd,
+        include: {
+          fashionHouse: {
+            select: {
+              id: true,
+              shopName: true,
+              catalogItems: {
+                select: { id: true, name: true, imageUrl: true },
+                orderBy: { createdAt: "desc" },
+                take: 25,
+              },
             },
           },
         },
-        order: { select: { id: true, status: true } },
-      },
-    });
+      }),
+    ]);
 
     const formatted = bookings.map((b) => {
       const canonicalId = b.order?.id || b.id;
@@ -127,6 +148,7 @@ router.get("/my-orders", requireAuth, validate({ query: collectionPaginationSche
       }
 
       return {
+        _createdAt: b.createdAt,
         id: b.id,
         orderId: b.order?.id,
         bookingId: b.id,
@@ -141,7 +163,129 @@ router.get("/my-orders", requireAuth, validate({ query: collectionPaginationSche
       };
     });
 
-    sendCollectionPage(res, formatted, page, limit);
+    const standaloneFormatted = standaloneOrders.map((order) => {
+      let mappedStatus: "active" | "completed" | "declined" = "active";
+      if (["completed", "delivered"].includes(order.status)) mappedStatus = "completed";
+      if (["declined", "cancelled"].includes(order.status)) mappedStatus = "declined";
+      return {
+        _createdAt: order.createdAt,
+        id: order.id,
+        orderId: order.id,
+        atelierName: order.fashionHouse.shopName || "Fashion House",
+        garmentType: order.itemName,
+        orderNumber: generateOrderNumberServer(order.id),
+        estimatedReady: "Awaiting fashion house confirmation",
+        progressPercent: getProgressPercent(order.status),
+        imageUrl: resolveGarmentImageUrl(order.itemName, order.fashionHouse),
+        status: mappedStatus,
+        rawStatus: order.status,
+      };
+    });
+
+    const offset = (page - 1) * limit;
+    const combinedWindow = [...formatted, ...standaloneFormatted]
+      .sort((a, b) => b._createdAt.getTime() - a._createdAt.getTime())
+      .slice(offset, offset + limit + 1)
+      .map(({ _createdAt, ...order }) => order);
+
+    sendCollectionPage(res, combinedWindow, page, limit);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/orders/catalog-checkout — customer purchases catalog items directly.
+router.post("/catalog-checkout", requireAuth, requireRole("customer"), validate({ body: catalogCheckoutSchema }), async (req, res, next) => {
+  try {
+    const userId = req.authUserId!;
+    const idempotencyKey = readIdempotencyKey(req);
+    if (!idempotencyKey) {
+      return res.status(400).json({ error: "An Idempotency-Key header is required." });
+    }
+
+    const { fashionHouseId, items } = req.body as {
+      fashionHouseId: string;
+      items: Array<{ catalogItemId: string; quantity: number; selectedSize: string; selectedColor: string }>;
+    };
+
+    const priorOrder = await prisma.order.findFirst({
+      where: { fashionHouseId, idempotencyKey, customer: { userId } },
+      include: { fashionHouse: { select: { shopName: true } } },
+    });
+    if (priorOrder) return res.status(200).json(priorOrder);
+
+    const uniqueItemIds = [...new Set(items.map((item) => item.catalogItemId))];
+    const [catalogItems, user, fashionHouse] = await Promise.all([
+      prisma.catalogItem.findMany({
+        where: { id: { in: uniqueItemIds }, fashionHouseId },
+        select: { id: true, name: true, priceFrom: true },
+      }),
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } }),
+      prisma.fashionHouse.findUnique({ where: { id: fashionHouseId }, select: { id: true, shopName: true } }),
+    ]);
+
+    if (!fashionHouse) return res.status(404).json({ error: "Fashion house not found." });
+    if (catalogItems.length !== uniqueItemIds.length) {
+      return res.status(400).json({ error: "One or more cart items are no longer available from this fashion house." });
+    }
+
+    const catalogById = new Map(catalogItems.map((item) => [item.id, item]));
+    let total = 0;
+    const itemLabels: string[] = [];
+    for (const requestedItem of items) {
+      const catalogItem = catalogById.get(requestedItem.catalogItemId)!;
+      if (!catalogItem.priceFrom || catalogItem.priceFrom <= 0) {
+        return res.status(400).json({ error: `${catalogItem.name} requires a price confirmation before ordering.` });
+      }
+      total += catalogItem.priceFrom * requestedItem.quantity;
+      const options = [requestedItem.selectedSize, requestedItem.selectedColor].filter(Boolean).join(", ");
+      itemLabels.push(`${requestedItem.quantity}× ${catalogItem.name}${options ? ` (${options})` : ""}`);
+    }
+
+    const order = await prisma.$transaction(async (tx) => {
+      let customer = await tx.customer.findFirst({ where: { fashionHouseId, userId } });
+      if (!customer) {
+        customer = await tx.customer.create({
+          data: {
+            fashionHouseId,
+            userId,
+            name: user?.name || user?.email || "Customer",
+            status: "active",
+          },
+        });
+      }
+
+      try {
+        return await tx.order.create({
+          data: {
+            fashionHouseId,
+            customerId: customer.id,
+            itemName: itemLabels.join("; "),
+            price: total,
+            status: "order_placed",
+            idempotencyKey,
+          },
+          include: { fashionHouse: { select: { shopName: true } } },
+        });
+      } catch (error) {
+        if (!isUniqueConstraintError(error)) throw error;
+        const existing = await tx.order.findFirst({
+          where: { fashionHouseId, idempotencyKey, customer: { userId } },
+          include: { fashionHouse: { select: { shopName: true } } },
+        });
+        if (!existing) throw error;
+        return existing;
+      }
+    });
+
+    void sendNotificationToAdmin(
+      fashionHouseId,
+      "New catalog order",
+      `${user?.name || "A customer"} placed an order for ${items.length} cart item${items.length === 1 ? "" : "s"}.`,
+      { screen: "orders", orderId: order.id },
+    );
+
+    return res.status(201).json(order);
   } catch (err) {
     next(err);
   }

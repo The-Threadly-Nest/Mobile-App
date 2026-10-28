@@ -20,8 +20,18 @@ export type FashionHouseModel = runtime.Types.Result.DefaultSelection<Prisma.$Fa
 
 export type AggregateFashionHouse = {
   _count: FashionHouseCountAggregateOutputType | null
+  _avg: FashionHouseAvgAggregateOutputType | null
+  _sum: FashionHouseSumAggregateOutputType | null
   _min: FashionHouseMinAggregateOutputType | null
   _max: FashionHouseMaxAggregateOutputType | null
+}
+
+export type FashionHouseAvgAggregateOutputType = {
+  slotDurationMinutes: number | null
+}
+
+export type FashionHouseSumAggregateOutputType = {
+  slotDurationMinutes: number | null
 }
 
 export type FashionHouseMinAggregateOutputType = {
@@ -36,6 +46,8 @@ export type FashionHouseMinAggregateOutputType = {
   accountNumber: string | null
   accountName: string | null
   currency: string | null
+  timezone: string | null
+  slotDurationMinutes: number | null
   onboardingCompleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -53,6 +65,8 @@ export type FashionHouseMaxAggregateOutputType = {
   accountNumber: string | null
   accountName: string | null
   currency: string | null
+  timezone: string | null
+  slotDurationMinutes: number | null
   onboardingCompleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -71,12 +85,22 @@ export type FashionHouseCountAggregateOutputType = {
   accountName: number
   categories: number
   currency: number
+  timezone: number
+  slotDurationMinutes: number
   onboardingCompleted: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type FashionHouseAvgAggregateInputType = {
+  slotDurationMinutes?: true
+}
+
+export type FashionHouseSumAggregateInputType = {
+  slotDurationMinutes?: true
+}
 
 export type FashionHouseMinAggregateInputType = {
   id?: true
@@ -90,6 +114,8 @@ export type FashionHouseMinAggregateInputType = {
   accountNumber?: true
   accountName?: true
   currency?: true
+  timezone?: true
+  slotDurationMinutes?: true
   onboardingCompleted?: true
   createdAt?: true
   updatedAt?: true
@@ -107,6 +133,8 @@ export type FashionHouseMaxAggregateInputType = {
   accountNumber?: true
   accountName?: true
   currency?: true
+  timezone?: true
+  slotDurationMinutes?: true
   onboardingCompleted?: true
   createdAt?: true
   updatedAt?: true
@@ -125,6 +153,8 @@ export type FashionHouseCountAggregateInputType = {
   accountName?: true
   categories?: true
   currency?: true
+  timezone?: true
+  slotDurationMinutes?: true
   onboardingCompleted?: true
   createdAt?: true
   updatedAt?: true
@@ -169,6 +199,18 @@ export type FashionHouseAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: FashionHouseAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: FashionHouseSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: FashionHouseMinAggregateInputType
@@ -199,6 +241,8 @@ export type FashionHouseGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: FashionHouseCountAggregateInputType | true
+  _avg?: FashionHouseAvgAggregateInputType
+  _sum?: FashionHouseSumAggregateInputType
   _min?: FashionHouseMinAggregateInputType
   _max?: FashionHouseMaxAggregateInputType
 }
@@ -216,10 +260,14 @@ export type FashionHouseGroupByOutputType = {
   accountName: string | null
   categories: string[]
   currency: string
+  timezone: string
+  slotDurationMinutes: number
   onboardingCompleted: boolean
   createdAt: Date
   updatedAt: Date
   _count: FashionHouseCountAggregateOutputType | null
+  _avg: FashionHouseAvgAggregateOutputType | null
+  _sum: FashionHouseSumAggregateOutputType | null
   _min: FashionHouseMinAggregateOutputType | null
   _max: FashionHouseMaxAggregateOutputType | null
 }
@@ -255,6 +303,8 @@ export type FashionHouseWhereInput = {
   accountName?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   categories?: Prisma.StringNullableListFilter<"FashionHouse">
   currency?: Prisma.StringFilter<"FashionHouse"> | string
+  timezone?: Prisma.StringFilter<"FashionHouse"> | string
+  slotDurationMinutes?: Prisma.IntFilter<"FashionHouse"> | number
   onboardingCompleted?: Prisma.BoolFilter<"FashionHouse"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FashionHouse"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FashionHouse"> | Date | string
@@ -284,6 +334,8 @@ export type FashionHouseOrderByWithRelationInput = {
   accountName?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  slotDurationMinutes?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -316,6 +368,8 @@ export type FashionHouseWhereUniqueInput = Prisma.AtLeast<{
   accountName?: Prisma.StringNullableFilter<"FashionHouse"> | string | null
   categories?: Prisma.StringNullableListFilter<"FashionHouse">
   currency?: Prisma.StringFilter<"FashionHouse"> | string
+  timezone?: Prisma.StringFilter<"FashionHouse"> | string
+  slotDurationMinutes?: Prisma.IntFilter<"FashionHouse"> | number
   onboardingCompleted?: Prisma.BoolFilter<"FashionHouse"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FashionHouse"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FashionHouse"> | Date | string
@@ -345,12 +399,16 @@ export type FashionHouseOrderByWithAggregationInput = {
   accountName?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  slotDurationMinutes?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FashionHouseCountOrderByAggregateInput
+  _avg?: Prisma.FashionHouseAvgOrderByAggregateInput
   _max?: Prisma.FashionHouseMaxOrderByAggregateInput
   _min?: Prisma.FashionHouseMinOrderByAggregateInput
+  _sum?: Prisma.FashionHouseSumOrderByAggregateInput
 }
 
 export type FashionHouseScalarWhereWithAggregatesInput = {
@@ -369,6 +427,8 @@ export type FashionHouseScalarWhereWithAggregatesInput = {
   accountName?: Prisma.StringNullableWithAggregatesFilter<"FashionHouse"> | string | null
   categories?: Prisma.StringNullableListFilter<"FashionHouse">
   currency?: Prisma.StringWithAggregatesFilter<"FashionHouse"> | string
+  timezone?: Prisma.StringWithAggregatesFilter<"FashionHouse"> | string
+  slotDurationMinutes?: Prisma.IntWithAggregatesFilter<"FashionHouse"> | number
   onboardingCompleted?: Prisma.BoolWithAggregatesFilter<"FashionHouse"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FashionHouse"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FashionHouse"> | Date | string
@@ -386,6 +446,8 @@ export type FashionHouseCreateInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -415,6 +477,8 @@ export type FashionHouseUncheckedCreateInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -442,6 +506,8 @@ export type FashionHouseUpdateInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -471,6 +537,8 @@ export type FashionHouseUncheckedUpdateInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -499,6 +567,8 @@ export type FashionHouseCreateManyInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -516,6 +586,8 @@ export type FashionHouseUpdateManyMutationInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -534,6 +606,8 @@ export type FashionHouseUncheckedUpdateManyInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -565,9 +639,15 @@ export type FashionHouseCountOrderByAggregateInput = {
   accountName?: Prisma.SortOrder
   categories?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  slotDurationMinutes?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type FashionHouseAvgOrderByAggregateInput = {
+  slotDurationMinutes?: Prisma.SortOrder
 }
 
 export type FashionHouseMaxOrderByAggregateInput = {
@@ -582,6 +662,8 @@ export type FashionHouseMaxOrderByAggregateInput = {
   accountNumber?: Prisma.SortOrder
   accountName?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  slotDurationMinutes?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -599,9 +681,15 @@ export type FashionHouseMinOrderByAggregateInput = {
   accountNumber?: Prisma.SortOrder
   accountName?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
+  slotDurationMinutes?: Prisma.SortOrder
   onboardingCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type FashionHouseSumOrderByAggregateInput = {
+  slotDurationMinutes?: Prisma.SortOrder
 }
 
 export type FashionHouseScalarRelationFilter = {
@@ -664,6 +752,14 @@ export type FashionHouseCreatecategoriesInput = {
 export type FashionHouseUpdatecategoriesInput = {
   set?: string[]
   push?: string | string[]
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type FashionHouseCreateNestedOneWithoutCustomersInput = {
@@ -804,6 +900,8 @@ export type FashionHouseCreateWithoutAdminInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -831,6 +929,8 @@ export type FashionHouseUncheckedCreateWithoutAdminInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -863,6 +963,8 @@ export type FashionHouseCreateWithoutStaffInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -891,6 +993,8 @@ export type FashionHouseUncheckedCreateWithoutStaffInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -933,6 +1037,8 @@ export type FashionHouseUpdateWithoutAdminInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -960,6 +1066,8 @@ export type FashionHouseUncheckedUpdateWithoutAdminInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -998,6 +1106,8 @@ export type FashionHouseUpdateWithoutStaffInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1026,6 +1136,8 @@ export type FashionHouseUncheckedUpdateWithoutStaffInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1052,6 +1164,8 @@ export type FashionHouseCreateWithoutCustomersInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1080,6 +1194,8 @@ export type FashionHouseUncheckedCreateWithoutCustomersInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1122,6 +1238,8 @@ export type FashionHouseUpdateWithoutCustomersInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1150,6 +1268,8 @@ export type FashionHouseUncheckedUpdateWithoutCustomersInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1176,6 +1296,8 @@ export type FashionHouseCreateWithoutOrdersInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1204,6 +1326,8 @@ export type FashionHouseUncheckedCreateWithoutOrdersInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1246,6 +1370,8 @@ export type FashionHouseUpdateWithoutOrdersInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1274,6 +1400,8 @@ export type FashionHouseUncheckedUpdateWithoutOrdersInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1300,6 +1428,8 @@ export type FashionHouseCreateWithoutCatalogItemsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1328,6 +1458,8 @@ export type FashionHouseUncheckedCreateWithoutCatalogItemsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1370,6 +1502,8 @@ export type FashionHouseUpdateWithoutCatalogItemsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1398,6 +1532,8 @@ export type FashionHouseUncheckedUpdateWithoutCatalogItemsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1424,6 +1560,8 @@ export type FashionHouseCreateWithoutAvailableSlotsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1452,6 +1590,8 @@ export type FashionHouseUncheckedCreateWithoutAvailableSlotsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1494,6 +1634,8 @@ export type FashionHouseUpdateWithoutAvailableSlotsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1522,6 +1664,8 @@ export type FashionHouseUncheckedUpdateWithoutAvailableSlotsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1548,6 +1692,8 @@ export type FashionHouseCreateWithoutBookingsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1576,6 +1722,8 @@ export type FashionHouseUncheckedCreateWithoutBookingsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1618,6 +1766,8 @@ export type FashionHouseUpdateWithoutBookingsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1646,6 +1796,8 @@ export type FashionHouseUncheckedUpdateWithoutBookingsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1672,6 +1824,8 @@ export type FashionHouseCreateWithoutChatEscalationsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1700,6 +1854,8 @@ export type FashionHouseUncheckedCreateWithoutChatEscalationsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1742,6 +1898,8 @@ export type FashionHouseUpdateWithoutChatEscalationsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1770,6 +1928,8 @@ export type FashionHouseUncheckedUpdateWithoutChatEscalationsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1796,6 +1956,8 @@ export type FashionHouseCreateWithoutSketchesInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1824,6 +1986,8 @@ export type FashionHouseUncheckedCreateWithoutSketchesInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1866,6 +2030,8 @@ export type FashionHouseUpdateWithoutSketchesInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1894,6 +2060,8 @@ export type FashionHouseUncheckedUpdateWithoutSketchesInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1920,6 +2088,8 @@ export type FashionHouseCreateWithoutChatSessionsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1948,6 +2118,8 @@ export type FashionHouseUncheckedCreateWithoutChatSessionsInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1990,6 +2162,8 @@ export type FashionHouseUpdateWithoutChatSessionsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2018,6 +2192,8 @@ export type FashionHouseUncheckedUpdateWithoutChatSessionsInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2044,6 +2220,8 @@ export type FashionHouseCreateWithoutDirectMessagesInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2072,6 +2250,8 @@ export type FashionHouseUncheckedCreateWithoutDirectMessagesInput = {
   accountName?: string | null
   categories?: Prisma.FashionHouseCreatecategoriesInput | string[]
   currency?: string
+  timezone?: string
+  slotDurationMinutes?: number
   onboardingCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2114,6 +2294,8 @@ export type FashionHouseUpdateWithoutDirectMessagesInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2142,6 +2324,8 @@ export type FashionHouseUncheckedUpdateWithoutDirectMessagesInput = {
   accountName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.FashionHouseUpdatecategoriesInput | string[]
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   onboardingCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2281,6 +2465,8 @@ export type FashionHouseSelect<ExtArgs extends runtime.Types.Extensions.Internal
   accountName?: boolean
   categories?: boolean
   currency?: boolean
+  timezone?: boolean
+  slotDurationMinutes?: boolean
   onboardingCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2311,6 +2497,8 @@ export type FashionHouseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   accountName?: boolean
   categories?: boolean
   currency?: boolean
+  timezone?: boolean
+  slotDurationMinutes?: boolean
   onboardingCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2330,6 +2518,8 @@ export type FashionHouseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   accountName?: boolean
   categories?: boolean
   currency?: boolean
+  timezone?: boolean
+  slotDurationMinutes?: boolean
   onboardingCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2349,12 +2539,14 @@ export type FashionHouseSelectScalar = {
   accountName?: boolean
   categories?: boolean
   currency?: boolean
+  timezone?: boolean
+  slotDurationMinutes?: boolean
   onboardingCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FashionHouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adminId" | "shopName" | "location" | "phone" | "bio" | "brandLogoUrl" | "bankName" | "accountNumber" | "accountName" | "categories" | "currency" | "onboardingCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["fashionHouse"]>
+export type FashionHouseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "adminId" | "shopName" | "location" | "phone" | "bio" | "brandLogoUrl" | "bankName" | "accountNumber" | "accountName" | "categories" | "currency" | "timezone" | "slotDurationMinutes" | "onboardingCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["fashionHouse"]>
 export type FashionHouseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   admin?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   staff?: boolean | Prisma.FashionHouse$staffArgs<ExtArgs>
@@ -2404,6 +2596,8 @@ export type $FashionHousePayload<ExtArgs extends runtime.Types.Extensions.Intern
     accountName: string | null
     categories: string[]
     currency: string
+    timezone: string
+    slotDurationMinutes: number
     onboardingCompleted: boolean
     createdAt: Date
     updatedAt: Date
@@ -2853,6 +3047,8 @@ export interface FashionHouseFieldRefs {
   readonly accountName: Prisma.FieldRef<"FashionHouse", 'String'>
   readonly categories: Prisma.FieldRef<"FashionHouse", 'String[]'>
   readonly currency: Prisma.FieldRef<"FashionHouse", 'String'>
+  readonly timezone: Prisma.FieldRef<"FashionHouse", 'String'>
+  readonly slotDurationMinutes: Prisma.FieldRef<"FashionHouse", 'Int'>
   readonly onboardingCompleted: Prisma.FieldRef<"FashionHouse", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"FashionHouse", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FashionHouse", 'DateTime'>

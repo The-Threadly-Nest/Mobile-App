@@ -9,13 +9,13 @@ import {
   Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
+import { router, useFocusEffect } from "expo-router";
 import { MessageSquare } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
+import { formatChatDate } from "@/shared/utils/formatters";
 
 interface ChatThread {
   fashionHouseId: string;
@@ -52,7 +52,7 @@ function formatThreadTime(dateString: string | null): string {
     return "Yesterday";
   }
 
-  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+  return formatChatDate(date);
 }
 
 export default function CustomerMessagesScreen() {
@@ -128,7 +128,7 @@ export default function CustomerMessagesScreen() {
               resizeMode="cover"
             />
           ) : (
-            <Text className="font-display font-semibold text-[15px] text-[#4A080C]">
+            <Text className="font-display font-semibold text-[15px] text-[#453332]">
               {initials}
             </Text>
           )}
@@ -159,7 +159,7 @@ export default function CustomerMessagesScreen() {
 
         {/* Unread Badge */}
         {item.unreadCount > 0 && (
-          <View className="bg-[#4A080C] min-w-[20px] h-5 rounded-full px-1.5 items-center justify-center">
+          <View className="bg-[#453332] min-w-[20px] h-5 rounded-full px-1.5 items-center justify-center">
             <Text className="font-body font-bold text-[11px] text-white">
               {item.unreadCount}
             </Text>
@@ -170,9 +170,9 @@ export default function CustomerMessagesScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
       {/* Header */}
-      <View style={{ paddingTop: 36 }} className="flex-row items-center px-4 pb-3 bg-[#FBF7EF] border-b border-[#F0EBE1]">
+      <View style={{ paddingTop: 36 }} className="flex-row items-center px-4 pb-3 bg-[#FFFFFF] border-b border-[#F0EBE1]">
         <Pressable
           onPress={() => router.back()}
           className="w-10 h-10 items-center justify-center -ml-2 rounded-full active:bg-[#EFECE6]"
@@ -187,7 +187,7 @@ export default function CustomerMessagesScreen() {
       {/* List / Loading / Empty */}
       {loading && !refreshing ? (
         <View className="flex-1 items-center justify-center py-12">
-          <ActivityIndicator size="large" color="#4A080C" />
+          <ActivityIndicator size="large" color="#453332" />
           <Text className="font-body text-[14px] text-[#8A7550] mt-3">
             Loading conversations...
           </Text>
@@ -195,7 +195,7 @@ export default function CustomerMessagesScreen() {
       ) : threads.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6 py-12">
           <View className="w-16 h-16 rounded-full bg-[#EBE7DF] items-center justify-center mb-4">
-            <MessageSquare size={28} color="#4A080C" />
+            <MessageSquare size={28} color="#453332" />
           </View>
           <Text className="font-display font-semibold text-[18px] text-black text-center mb-1">
             No Messages Yet
@@ -213,8 +213,8 @@ export default function CustomerMessagesScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => fetchThreads(true)}
-              tintColor="#4A080C"
-              colors={["#4A080C"]}
+              tintColor="#453332"
+              colors={["#453332"]}
             />
           }
           contentContainerStyle={{ paddingBottom: 24 }}

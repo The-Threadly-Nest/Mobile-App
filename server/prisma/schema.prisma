@@ -40,6 +40,7 @@ model User {
   directMessageDeletions DirectMessageUserDeletion[]
 
   @@index([fashionHouseId])
+  @@index([fashionHouseId, role])
   @@map("users")
 }
 
@@ -56,6 +57,8 @@ model FashionHouse {
   accountName         String?
   categories          String[] @default([])
   currency            String   @default("NGN")
+  timezone            String   @default("Africa/Lagos")
+  slotDurationMinutes Int      @default(60)
   onboardingCompleted Boolean  @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -153,6 +156,8 @@ model Invoice {
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
+  @@index([createdAt])
+  @@index([paymentStatus, createdAt])
   @@map("invoices")
 }
 
@@ -180,6 +185,10 @@ model AvailableSlot {
   fashionHouseId String
   date           String
   time           String
+  startsAt       DateTime?
+  endsAt         DateTime?
+  durationMinutes Int    @default(60)
+  active         Boolean  @default(true)
   booked         Boolean  @default(false)
   createdAt      DateTime @default(now())
 
@@ -187,7 +196,9 @@ model AvailableSlot {
   booking      Booking?
 
   @@index([fashionHouseId, booked])
+  @@index([fashionHouseId, active, booked, startsAt])
   @@unique([fashionHouseId, date, time])
+  @@unique([fashionHouseId, startsAt])
   @@map("available_slots")
 }
 
@@ -227,7 +238,7 @@ model ChatEscalation {
   status         String   @default("pending")
   activeKey      String?  @unique
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime @default(now()) @updatedAt
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)

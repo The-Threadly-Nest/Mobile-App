@@ -1,5 +1,5 @@
 const RESEND_API_URL = "https://api.resend.com/emails";
-const BRAND_NAME = "Òwújà";
+const BRAND_NAME = "Owuja";
 
 const getSender = () => process.env.EMAIL_FROM || `${BRAND_NAME} <heyowuja@owuja.com>`;
 const getReplyTo = () => process.env.EMAIL_REPLY_TO || "support@owuja.com";
@@ -28,7 +28,7 @@ async function sendEmail({ to, subject, text, html }: { to: string; subject: str
 
 function emailShell(content: string): string {
   return `<div style="font-family:Arial,sans-serif;max-width:460px;margin:0 auto;padding:24px;border:1px solid #4A080C;border-radius:12px;color:#3A2E1A;">
-    <h1 style="font-size:22px;color:#4A080C;font-family:Georgia,serif;letter-spacing:1px;margin:0 0 20px;text-align:center;">ÒWÚJÀ</h1>
+    <h1 style="font-size:22px;color:#4A080C;font-family:Georgia,serif;letter-spacing:1px;margin:0 0 20px;text-align:center;">OWUJA</h1>
     ${content}
     <p style="font-size:12px;color:#8A7550;text-align:center;margin:24px 0 0;">Need help? Reply to this email or contact support@owuja.com.</p>
   </div>`;

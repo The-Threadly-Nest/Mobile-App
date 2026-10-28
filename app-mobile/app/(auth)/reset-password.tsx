@@ -6,7 +6,7 @@ import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function ResetPasswordScreen() {
   const { token, email, firstTimeStaff } = useLocalSearchParams<{ token: string; email: string; firstTimeStaff?: string }>();
@@ -33,20 +33,13 @@ export default function ResetPasswordScreen() {
     try {
       if (isFirstTimeStaff) {
         if (!sessionToken) throw new Error("Please log in before changing your password.");
-        const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+        const body = await apiFetch<any>("/api/auth/change-password", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessionToken}` },
           body: JSON.stringify({
             currentPassword,
             newPassword,
           }),
         });
-        const rawText = await res.text();
-        let body: any = {};
-        try { body = JSON.parse(rawText); } catch { }
-        if (!res.ok) {
-          throw new Error(body.error || "Could not update password. Please check your current password.");
-        }
         if (!body.token) throw new Error("Please log in again to continue.");
         setSessionToken(body.token);
         setOnboardingCompleted(true);
@@ -55,20 +48,10 @@ export default function ResetPasswordScreen() {
       }
 
       if (!isFirstTimeStaff) {
-        const res = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        await apiFetch("/api/auth/reset-password", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: inputEmail.trim(), token: inputToken.trim(), newPassword }),
         });
-        const rawText = await res.text();
-        let body: any = {};
-        try { body = JSON.parse(rawText); } catch { }
-        if (!res.ok) {
-          const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-            ? body.issues.map((i: any) => i.message).join(". ")
-            : null;
-          throw new Error(issueMsg || body.error || "Could not reset password. Please check your PIN.");
-        }
       }
       setSuccess(true);
     } catch (e: any) {
@@ -92,7 +75,7 @@ export default function ResetPasswordScreen() {
 
   if (success) {
     return (
-      <View className="flex-1 bg-cream items-center justify-center px-8">
+      <View className="flex-1 bg-white items-center justify-center px-8">
         <Headline className="text-xl mb-2 text-center">Password updated</Headline>
         <Subtext className="text-center mb-8">You can now log in with your new password.</Subtext>
         <Button label="Go to Login" onPress={() => router.replace("/(auth)/login")} />
@@ -101,9 +84,9 @@ export default function ResetPasswordScreen() {
   }
 
   return (
-    <View className="flex-1 bg-cream px-6 justify-center">
+    <View className="flex-1 bg-white px-6 justify-center">
       <Pressable onPress={handleBack} className="absolute top-14 left-6">
-        <BackArrowIcon size={20} color="#4A080C" />
+        <BackArrowIcon size={20} color="#453332" />
       </Pressable>
 
       <Headline className="text-2xl mb-1">

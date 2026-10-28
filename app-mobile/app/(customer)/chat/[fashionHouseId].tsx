@@ -16,7 +16,7 @@ import { ArrowUp, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import BottomAnchoredChatScrollView from "@/shared/components/BottomAnchoredChatScrollView";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { ApiError, apiFetch } from "@/shared/utils/apiClient";
 import {
   createChatCacheOwner,
   readChatCache,
@@ -65,11 +65,12 @@ const DEFAULT_INITIAL_TURNS: Turn[] = [
 
 export default function BookingChatScreen() {
   const insets = useSafeAreaInsets();
-  const { fashionHouseId, fashionHouseName: paramFhName, garmentName, garmentPrice } = useLocalSearchParams<{
+  const { fashionHouseId, fashionHouseName: paramFhName, garmentName, garmentPrice, startNew } = useLocalSearchParams<{
     fashionHouseId: string;
     fashionHouseName?: string;
     garmentName?: string;
     garmentPrice?: string;
+    startNew?: string;
   }>();
 
   const [availableSlots, setAvailableSlots] = useState<Slot[]>([]);
@@ -125,10 +126,9 @@ export default function BookingChatScreen() {
         }
 
         if (fashionHouseId) {
-          const fhRes = await fetch(`${API_BASE_URL}/api/fashion-houses/${fashionHouseId}`);
+          const fhBody = await apiFetch<any>(`/api/fashion-houses/${fashionHouseId}`, { silent: true });
           if (cancelled) return;
-          if (fhRes.ok) {
-            const fhBody = await fhRes.json();
+          if (fhBody) {
             if (cancelled) return;
             if (fhBody.shopName) {
               setFashionHouseName(fhBody.shopName);
@@ -137,10 +137,9 @@ export default function BookingChatScreen() {
               setHouseCategories(fhBody.categories);
             }
           } else if (!paramFhName) {
-            const listRes = await fetch(`${API_BASE_URL}/api/fashion-houses`);
+            const listBody = await apiFetch<any[]>("/api/fashion-houses", { silent: true });
             if (cancelled) return;
-            if (listRes.ok) {
-              const listBody = await listRes.json();
+            if (Array.isArray(listBody)) {
               if (cancelled) return;
               if (Array.isArray(listBody) && listBody.length > 0) {
                 setFashionHouseName(listBody[0].shopName);
@@ -152,12 +151,17 @@ export default function BookingChatScreen() {
           }
         }
         if (token && fashionHouseId) {
-          const res = await fetch(`${API_BASE_URL}/api/chat/session/${fashionHouseId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          if (startNew) {
+            await apiFetch(`/api/chat/session/${fashionHouseId}/restart`, {
+              method: "POST",
+              silent: true,
+            });
+            if (cancelled) return;
+            setEscalatedToHuman(false);
+          }
+          const body = await apiFetch<any>(`/api/chat/session/${fashionHouseId}`, { silent: true });
           if (cancelled) return;
-          if (res.ok) {
-            const body = await res.json();
+          if (body) {
             if (cancelled) return;
             const serverHistory: Turn[] = body.history ?? [];
             const serverSlots: Slot[] = Array.isArray(body.availableSlots) ? body.availableSlots : [];
@@ -213,7 +217,7 @@ export default function BookingChatScreen() {
     return () => {
       cancelled = true;
     };
-  }, [cacheOwner, fashionHouseId, token]);
+  }, [cacheOwner, fashionHouseId, startNew, token]);
 
   useEffect(() => {
     if (
@@ -289,27 +293,27 @@ export default function BookingChatScreen() {
         availableSlot?: {
           date: string;
           time: string;
+          label?: string;
         } | null;
       } | null = null;
 
       if (token && fashionHouseId) {
-        const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            "Idempotency-Key": chatRequestKey,
-          },
-          body: JSON.stringify({
-            fashionHouseId,
-            message: textToSend,
-            garmentName: activeGarment,
-            availableSlotId,
-            idempotencyKey: chatRequestKey,
-          }),
-        });
-        const body = await res.json().catch(() => ({}));
-        if (!res.ok) {
+        let body: any;
+        try {
+          body = await apiFetch<any>("/api/chat/message", {
+            method: "POST",
+            headers: { "Idempotency-Key": chatRequestKey },
+            body: JSON.stringify({
+              fashionHouseId,
+              message: textToSend,
+              garmentName: activeGarment,
+              availableSlotId,
+              idempotencyKey: chatRequestKey,
+            }),
+          });
+        } catch (error) {
+          const failedBody = error instanceof ApiError ? error.details.responseBody ?? {} : {};
+          body = failedBody;
           if (body.code === "SLOT_REQUIRED" || body.code === "SLOT_UNAVAILABLE") {
             const freshSlots: Slot[] = Array.isArray(body.availableSlots) ? body.availableSlots : [];
             setSelectedSlotLabel(null);
@@ -326,9 +330,8 @@ export default function BookingChatScreen() {
             ]);
             return;
           }
-          throw new Error(typeof body.error === "string" ? body.error : "Unable to send your message.");
+          throw error;
         }
-        if (res.ok) {
           replyText = sanitizeText(body.reply);
           responseType = body.type;
           if (Array.isArray(body.availableSlots)) {
@@ -342,7 +345,6 @@ export default function BookingChatScreen() {
               setSelectedGarment(body.booking.styleNotes);
             }
           }
-        }
       }
 
       const lowerReply = replyText.toLowerCase();
@@ -388,7 +390,7 @@ export default function BookingChatScreen() {
 
         const requestedSlot =
           (confirmedBooking.availableSlot
-            ? `${confirmedBooking.availableSlot.date} · ${confirmedBooking.availableSlot.time}`
+            ? confirmedBooking.availableSlot.label || `${confirmedBooking.availableSlot.date} · ${confirmedBooking.availableSlot.time}`
             : null) ||
           confirmedBooking.preferredTime ||
           textToSend.replace(/^Book slot:\s*/i, "") ||
@@ -537,15 +539,10 @@ export default function BookingChatScreen() {
     setRequestingHuman(true);
     try {
       if (token && fashionHouseId) {
-        const response = await fetch(`${API_BASE_URL}/api/chat/escalate`, {
+        await apiFetch("/api/chat/escalate", {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ fashionHouseId, reason: "Customer initiated manual escalation" }),
         });
-        const body = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(typeof body.error === "string" ? body.error : "Could not request human assistance.");
-        }
       }
       setEscalatedToHuman(true);
       const escalationTurn: Turn = {
@@ -571,9 +568,9 @@ export default function BookingChatScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Top Header */}
-      <View className="flex-row items-center px-6 py-4 bg-cream border-b border-grey100">
+      <View className="flex-row items-center px-6 py-4 bg-white border-b border-grey100">
         <Pressable
           onPress={() => router.back()}
           className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-3"
@@ -620,12 +617,12 @@ export default function BookingChatScreen() {
           style={{ flex: 1 }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 20, gap: 16 }}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 6, gap: 16 }}
           showsVerticalScrollIndicator={false}
         >
           {loadingSession ? (
             <View className="py-8 items-center">
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : (
             history.map((turn, index) => {
@@ -637,7 +634,7 @@ export default function BookingChatScreen() {
                 return (
                   <View key={index} style={{ flexDirection: "row", alignItems: "center", marginVertical: 24, paddingHorizontal: 12 }}>
                     <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
-                    <Text style={{ marginHorizontal: 16, fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#4A080C", letterSpacing: 2, textTransform: "uppercase" }}>
+                    <Text style={{ marginHorizontal: 16, fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#453332", letterSpacing: 2, textTransform: "uppercase" }}>
                       ENDED
                     </Text>
                     <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
@@ -668,7 +665,7 @@ export default function BookingChatScreen() {
                             borderBottomRightRadius: 4,
                           }
                         : {
-                            backgroundColor: "#4A080C",
+                            backgroundColor: "#453332",
                             alignSelf: "flex-start",
                             borderBottomLeftRadius: 4,
                           },
@@ -679,7 +676,7 @@ export default function BookingChatScreen() {
                         fontFamily: "WorkSans_400Regular",
                         fontSize: 15,
                         lineHeight: 22,
-                        color: isUser ? "#4A080C" : "#FFFFFF",
+                        color: isUser ? "#453332" : "#FFFFFF",
                       }}
                     >
                       {sanitizeText(turn.text)}
@@ -696,9 +693,9 @@ export default function BookingChatScreen() {
                           style={({ pressed }) => [
                             {
                               width: turn.options!.length > 1 ? "48.5%" : "100%",
-                              backgroundColor: "#FBF7EF",
+                              backgroundColor: "#FFFFFF",
                               borderWidth: 1,
-                              borderColor: "#4A080C",
+                              borderColor: "#453332",
                               paddingHorizontal: 12,
                               paddingVertical: 10,
                               borderRadius: 20,
@@ -712,7 +709,7 @@ export default function BookingChatScreen() {
                             style={{
                               fontFamily: "WorkSans_500Medium",
                               fontSize: 13,
-                              color: "#4A080C",
+                              color: "#453332",
                               textAlign: "center",
                             }}
                           >
@@ -746,7 +743,7 @@ export default function BookingChatScreen() {
                                   isSelected ? "bg-oxblood" : "bg-[#D5C4C6]"
                                 }`}
                                 style={({ pressed }) => ({
-                                  backgroundColor: (pressed || isSelected) ? "#4A080C" : "#D5C4C6",
+                                  backgroundColor: (pressed || isSelected) ? "#453332" : "#D5C4C6",
                                   opacity: (selectedSlotLabel && !isSelected) ? 0.4 : 1,
                                 })}
                               >
@@ -789,7 +786,7 @@ export default function BookingChatScreen() {
             pointerEvents="none"
             style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0, alignItems: "center", justifyContent: "center" }}
           >
-            <ActivityIndicator size="small" color="#4A080C" />
+            <ActivityIndicator size="small" color="#453332" />
           </View>
         )}
 
@@ -798,21 +795,29 @@ export default function BookingChatScreen() {
           <View
             style={{
               paddingHorizontal: 24,
-              paddingTop: 8,
+              paddingTop: 6,
               paddingBottom: Math.max(insets.bottom, 16),
-              backgroundColor: "#FBF7EF",
+              backgroundColor: "#FFFFFF",
             }}
           >
             {escalatedToHuman ? (
-              <Pressable
-                onPress={() => router.push({
-                  pathname: `/(customer)/direct-chat/${fashionHouseId}`,
-                  params: { fashionHouseName },
-                })}
-                className="bg-oxblood rounded-full items-center justify-center py-4 px-6"
-              >
-                <Text className="font-body-semibold text-[14px] text-white">Open Human Chat</Text>
-              </Pressable>
+              <View style={{ gap: 8 }}>
+                <Pressable
+                  onPress={() => router.setParams({ startNew: String(Date.now()) })}
+                  className="bg-oxblood rounded-full items-center justify-center py-4 px-6"
+                >
+                  <Text className="font-body-semibold text-[14px] text-white">Start a new booking</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push({
+                    pathname: `/(customer)/direct-chat/${fashionHouseId}`,
+                    params: { fashionHouseName },
+                  })}
+                  className="rounded-full items-center justify-center py-3 px-6 border border-oxblood"
+                >
+                  <Text className="font-body-semibold text-[14px] text-oxblood">Continue human chat</Text>
+                </Pressable>
+              </View>
             ) : (
             <View className="flex-row items-center gap-3">
               <TextInput

@@ -13,6 +13,7 @@
 export type AlertPayload = {
   title: string;
   message: string;
+  variant?: "default" | "cart";
   confirmLabel?: string;
   cancelLabel?: string;
   onConfirm?: () => void | Promise<void>;

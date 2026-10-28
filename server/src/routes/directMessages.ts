@@ -482,7 +482,7 @@ router.post(
       );
     }
 
-      res.status(201).json(message);
+      res.status(201).json({ ...message, isRead: Boolean(message.readAt) });
     } catch (err) {
       next(err);
     }

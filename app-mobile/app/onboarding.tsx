@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as NavigationBar from "expo-navigation-bar";
+import { NavigationBar } from "expo-navigation-bar";
 import { router } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 
@@ -39,10 +39,7 @@ export default function OnboardingScreen() {
   const isLast = currentIndex === slides.length - 1;
 
   useEffect(() => {
-    // Transparent nav bar so background image fills edge-to-edge
-    NavigationBar.setBackgroundColorAsync("transparent");
-    NavigationBar.setBehaviorAsync("overlay-swipe");
-    NavigationBar.setButtonStyleAsync("light");
+    NavigationBar.setStyle("dark");
   }, []);
 
   const handleNext = () => {
@@ -78,7 +75,7 @@ export default function OnboardingScreen() {
               style={{ width: "100%", height: "100%" }}
               resizeMode="cover"
             >
-              <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.15)" }]} />
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.15)" }]} />
             </ImageBackground>
 
             {/* Back Button */}
@@ -161,7 +158,7 @@ export default function OnboardingScreen() {
                   width: "100%",
                   height: 48,
                   borderRadius: 24,
-                  backgroundColor: "#4A080C",
+                  backgroundColor: "#453332",
                   borderWidth: 1,
                   borderColor: "rgba(255,255,255,0.2)",
                   alignItems: "center",
@@ -215,7 +212,7 @@ export default function OnboardingScreen() {
                     flex: 1,
                     height: 48,
                     borderRadius: 24,
-                    backgroundColor: "#4A080C",
+                    backgroundColor: "#453332",
                     borderWidth: 1,
                     borderColor: "rgba(255,255,255,0.2)",
                     alignItems: "center",
@@ -251,7 +248,7 @@ export default function OnboardingScreen() {
     >
       {/* Subtle top darkening */}
       <View
-        style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.18)" }]}
+        style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.18)" }]}
       />
 
       {/* Dark overlay for text legibility across all slides */}
@@ -359,7 +356,7 @@ export default function OnboardingScreen() {
               width: "100%",
               height: 63,
               borderRadius: 31,
-              backgroundColor: "#4A080C",
+              backgroundColor: "#453332",
               alignItems: "center",
               justifyContent: "center",
               opacity: pressed ? 0.85 : 1,
@@ -411,7 +408,7 @@ export default function OnboardingScreen() {
                 flex: 1,
                 height: 63,
                 borderRadius: 31,
-                backgroundColor: "#4A080C",
+                backgroundColor: "#453332",
                 alignItems: "center",
                 justifyContent: "center",
                 opacity: pressed ? 0.85 : 1,

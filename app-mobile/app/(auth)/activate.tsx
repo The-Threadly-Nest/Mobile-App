@@ -15,7 +15,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Rect, Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function ActivateAccountScreen() {
   const params = useLocalSearchParams<{ token?: string | string[]; email?: string | string[] }>();
@@ -88,20 +88,10 @@ export default function ActivateAccountScreen() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/activate-account`, {
+      const body = await apiFetch<any>("/api/auth/activate-account", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: inputEmail, token: fullCode, password }),
       });
-      const rawText = await res.text();
-      let body: any = {};
-      try { body = JSON.parse(rawText); } catch {}
-      if (!res.ok) {
-        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-          ? body.issues.map((issue: any) => issue.message).join(". ")
-          : null;
-        throw new Error(issueMsg || body.error || "Could not activate account.");
-      }
 
       setSession({ token: body.token, email: body.user.email, role: body.user.role, isVerified: true });
       setIsVerified(true);
@@ -126,7 +116,7 @@ export default function ActivateAccountScreen() {
             <Svg width={100} height={100} viewBox="0 0 100 100" fill="none">
               <Path
                 d="M50 8.33337C27.0417 8.33337 8.33337 27.0417 8.33337 50C8.33337 72.9584 27.0417 91.6667 50 91.6667C72.9584 91.6667 91.6667 72.9584 91.6667 50C91.6667 27.0417 72.9584 8.33337 50 8.33337ZM69.9167 40.4167L46.2917 64.0417C45.7084 64.625 44.9167 64.9584 44.0834 64.9584C43.25 64.9584 42.4584 64.625 41.875 64.0417L30.0834 52.25C28.875 51.0417 28.875 49.0417 30.0834 47.8334C31.2917 46.625 33.2917 46.625 34.5 47.8334L44.0834 57.4167L65.5 36C66.7084 34.7917 68.7084 34.7917 69.9167 36C71.125 37.2084 71.125 39.1667 69.9167 40.4167Z"
-                fill="#4A080C"
+                fill="#453332"
               />
             </Svg>
           </View>
@@ -222,7 +212,7 @@ export default function ActivateAccountScreen() {
               autoCorrect={false}
             />
             <Pressable onPress={() => setShowPassword((visible) => !visible)} style={styles.passwordToggle}>
-              {showPassword ? <EyeOff size={20} color="#4A080C" /> : <Eye size={20} color="#4A080C" />}
+              {showPassword ? <EyeOff size={20} color="#453332" /> : <Eye size={20} color="#453332" />}
             </Pressable>
           </View>
           <Text style={styles.passwordHint}>At least 8 characters and one number.</Text>
@@ -258,7 +248,7 @@ export default function ActivateAccountScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   content: {
     paddingHorizontal: 24,
@@ -287,7 +277,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "Fraunces-Bold",
     fontSize: 28,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 8,
   },
   subtitle: {
@@ -299,7 +289,7 @@ const styles = StyleSheet.create({
   },
   emailHighlight: {
     fontFamily: "WorkSans_600SemiBold",
-    color: "#4A080C",
+    color: "#453332",
   },
   otpRow: {
     flexDirection: "row",
@@ -313,7 +303,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Fraunces-Bold",
     fontSize: 26,
-    color: "#4A080C",
+    color: "#453332",
   },
   otpBoxEmpty: {
     backgroundColor: "#FFFFFF",
@@ -323,7 +313,7 @@ const styles = StyleSheet.create({
   otpBoxFilled: {
     backgroundColor: "#EBE0D3",
     borderWidth: 1,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
   },
   passwordContainer: {
     height: 56,
@@ -371,7 +361,7 @@ const styles = StyleSheet.create({
   resendAction: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
   },
   resendDisabled: {
     color: "#8A7550",
@@ -397,14 +387,14 @@ const styles = StyleSheet.create({
   changeEmailText: {
     fontFamily: "WorkSans_500Medium",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
     textDecorationLine: "underline",
   },
   submitContainer: {
     marginTop: 12,
   },
   submitBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderRadius: 50,
     paddingVertical: 16,
     alignItems: "center",
@@ -434,7 +424,7 @@ const styles = StyleSheet.create({
   verifiedTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 28,
-    color: "#4A080C",
+    color: "#453332",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -453,7 +443,7 @@ const styles = StyleSheet.create({
     right: 24,
   },
   continueBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderRadius: 50,
     paddingVertical: 18,
     alignItems: "center",

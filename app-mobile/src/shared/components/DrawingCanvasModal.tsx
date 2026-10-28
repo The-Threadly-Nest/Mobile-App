@@ -30,14 +30,14 @@ interface DrawingCanvasModalProps {
 }
 
 const COLORS = [
-  "#4A080C", // Oxblood
+  "#453332", // Oxblood
   "#C4A763", // Gold
   "#3A2E1A", // Ink
   "#292D32", // Charcoal
   "#D32F2F", // Red
   "#1E88E5", // Blue
   "#43A047", // Green
-  "#FBF7EF", // Eraser (Background cream)
+  "#FFFFFF", // Eraser (Background cream)
 ];
 
 const STROKE_WIDTHS = [
@@ -81,7 +81,7 @@ export default function DrawingCanvasModal({
   const canvasCaptureRef = useRef<View>(null);
   const [paths, setPaths] = useState<PathData[]>([]);
   const [currentPath, setCurrentPath] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>("#4A080C");
+  const [selectedColor, setSelectedColor] = useState<string>("#453332");
   const [selectedWidth, setSelectedWidth] = useState<number>(5);
   const [bgGuide, setBgGuide] = useState<"blank" | "croquis" | "grid">("croquis");
   const [title, setTitle] = useState("");
@@ -181,7 +181,7 @@ export default function DrawingCanvasModal({
           {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.headerTitleRow}>
-              <Paintbrush size={20} color="#4A080C" />
+              <Paintbrush size={20} color="#453332" />
               <Text style={styles.headerTitle}>Fashion Sketchpad</Text>
             </View>
 
@@ -194,13 +194,13 @@ export default function DrawingCanvasModal({
                   bgGuide === "croquis" && styles.guideBtnActive,
                 ]}
               >
-                <User size={13} color={bgGuide === "croquis" ? "#FFFFFF" : "#4A080C"} />
+                <User size={13} color={bgGuide === "croquis" ? "#FFFFFF" : "#453332"} />
               </Pressable>
               <Pressable
                 onPress={() => setBgGuide("grid")}
                 style={[styles.guideBtn, bgGuide === "grid" && styles.guideBtnActive]}
               >
-                <Grid size={13} color={bgGuide === "grid" ? "#FFFFFF" : "#4A080C"} />
+                <Grid size={13} color={bgGuide === "grid" ? "#FFFFFF" : "#453332"} />
               </Pressable>
               <Pressable
                 onPress={() => setBgGuide("blank")}
@@ -226,11 +226,11 @@ export default function DrawingCanvasModal({
                 style={styles.closeBtn}
                 hitSlop={8}
               >
-                <HelpCircle size={18} color="#4A080C" />
+                <HelpCircle size={18} color="#453332" />
               </Pressable>
 
               <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={8}>
-                <X size={20} color="#4A080C" />
+                <X size={20} color="#453332" />
               </Pressable>
             </View>
           </View>
@@ -268,7 +268,7 @@ export default function DrawingCanvasModal({
           {/* Canvas Area */}
           <View ref={canvasCaptureRef} collapsable={false} style={styles.canvasContainer} {...panResponder.panHandlers}>
             <Svg width={340} height={340} viewBox="0 0 340 340">
-              <Rect width="100%" height="100%" fill="#FBF7EF" />
+              <Rect width="100%" height="100%" fill="#FFFFFF" />
 
               {/* Background Guide: Fashion Croquis (Mannequin Silhouette) */}
               {bgGuide === "croquis" && (
@@ -342,7 +342,7 @@ export default function DrawingCanvasModal({
                   paddingHorizontal: 10,
                   paddingVertical: 5,
                   borderRadius: 12,
-                  backgroundColor: title === chip ? "#4A080C" : "#E4D5B7",
+                  backgroundColor: title === chip ? "#453332" : "#E4D5B7",
                 }}
               >
                 <Text
@@ -367,14 +367,14 @@ export default function DrawingCanvasModal({
                 disabled={paths.length === 0}
                 style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
               >
-                <Undo2 size={16} color={paths.length > 0 ? "#4A080C" : "#A6926B"} />
+                <Undo2 size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
               </Pressable>
               <Pressable
                 onPress={handleClear}
                 disabled={paths.length === 0}
                 style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
               >
-                <RotateCcw size={16} color={paths.length > 0 ? "#4A080C" : "#A6926B"} />
+                <RotateCcw size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
               </Pressable>
             </View>
 
@@ -394,7 +394,7 @@ export default function DrawingCanvasModal({
                       width: w.value * 1.5 + 4,
                       height: w.value * 1.5 + 4,
                       borderRadius: 10,
-                      backgroundColor: selectedWidth === w.value ? "#FFFFFF" : "#4A080C",
+                      backgroundColor: selectedWidth === w.value ? "#FFFFFF" : "#453332",
                     }}
                   />
                 </Pressable>
@@ -405,7 +405,7 @@ export default function DrawingCanvasModal({
           {/* Color Palette */}
           <View style={styles.colorPaletteRow}>
             {COLORS.map((c) => {
-              const isEraser = c === "#FBF7EF";
+              const isEraser = c === "#FFFFFF";
               const isSelected = selectedColor === c;
               return (
                 <Pressable
@@ -418,11 +418,11 @@ export default function DrawingCanvasModal({
                   ]}
                 >
                   {isEraser ? (
-                    <Eraser size={14} color="#4A080C" />
+                    <Eraser size={14} color="#453332" />
                   ) : isSelected ? (
                     <Check
                       size={14}
-                      color={c === "#FBF7EF" || c === "#C4A763" ? "#4A080C" : "#FFFFFF"}
+                      color={c === "#FFFFFF" || c === "#C4A763" ? "#453332" : "#FFFFFF"}
                     />
                   ) : null}
                 </Pressable>
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 20,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   guideToggleRow: {
     flexDirection: "row",
@@ -499,12 +499,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   guideBtnActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   guideBtnText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 10,
-    color: "#4A080C",
+    color: "#453332",
   },
   closeBtn: {
     padding: 4,
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1.5,
     borderColor: "#E4D5B7",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     marginBottom: 12,
   },
   toolbarRow: {
@@ -560,8 +560,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   widthBtnActive: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   colorPaletteRow: {
     flexDirection: "row",
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderWidth: 2.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     transform: [{ scale: 1.1 }],
   },
   footerContainer: {

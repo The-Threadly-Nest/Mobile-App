@@ -16,6 +16,7 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import CachedImage from "@/shared/components/CachedImage";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
+import { formatCurrency } from "@/shared/utils/formatters";
 
 function renderStars(rating: number) {
   return Array.from({ length: 5 }).map((_, i) => (
@@ -132,7 +133,7 @@ export default function FashionHouseScreen() {
   if (loading && !fhData && !initialName) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: "center", alignItems: "center" }]} edges={["top"]}>
-        <ActivityIndicator size="large" color="#4A080C" />
+        <ActivityIndicator size="large" color="#453332" />
       </SafeAreaView>
     );
   }
@@ -187,7 +188,7 @@ export default function FashionHouseScreen() {
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{minimumPrice ? `From ₦${minimumPrice.toLocaleString()}` : "On request"}</Text>
+            <Text style={styles.statValue}>{minimumPrice ? `From ${formatCurrency(minimumPrice)}` : "On request"}</Text>
             <Text style={styles.statLabel}>PRICE RANGE</Text>
           </View>
           <View style={styles.statDivider} />
@@ -217,7 +218,7 @@ export default function FashionHouseScreen() {
               {catalogItems.map((item: any) => {
                 const formattedPrice =
                   typeof item.priceFrom === "number"
-                    ? `From ₦ ${item.priceFrom.toLocaleString()}`
+                    ? `From ${formatCurrency(item.priceFrom)}`
                     : item.priceFrom
                       ? `From ${item.priceFrom}`
                       : "Price on Request";
@@ -255,7 +256,7 @@ export default function FashionHouseScreen() {
             </View>
           ) : (
             <View style={{ paddingVertical: 20, alignItems: "center" }}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           )}
         </View>
@@ -297,11 +298,11 @@ export default function FashionHouseScreen() {
             onPress={() =>
               router.push({
                 pathname: `/(customer)/direct-chat/${targetId}`,
-                params: { fashionHouseName: displayName },
+                params: { fashionHouseName: displayName, startNew: String(Date.now()) },
               })
             }
           >
-            <Text style={[styles.bookingBtnText, { color: '#4A080C' }]}>Message</Text>
+            <Text style={[styles.bookingBtnText, { color: '#453332' }]}>Message</Text>
           </Pressable>
 
           <Pressable
@@ -324,7 +325,7 @@ export default function FashionHouseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   heroContainer: {
     position: "relative",
@@ -433,7 +434,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
     letterSpacing: 1.2,
   },
   viewAllText: {
@@ -484,7 +485,7 @@ const styles = StyleSheet.create({
   catalogPrice: {
     fontFamily: "WorkSans_500Medium",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
     marginTop: 2,
   },
   emptyCatalogCard: {
@@ -562,7 +563,7 @@ const styles = StyleSheet.create({
     color: "#3A2E1A",
   },
   bookingBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     width: "100%",
     maxWidth: 376,
     height: 63,

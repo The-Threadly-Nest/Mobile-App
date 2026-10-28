@@ -17,11 +17,10 @@ import { ArrowLeft, Paintbrush, Sparkles, CheckCircle2 } from "lucide-react-nati
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { apiFetch } from "@/shared/utils/apiClient";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface SketchItem {
@@ -142,22 +141,13 @@ export default function AdminMoodBoardRedesignScreen() {
       }
 
       if (selectedSketch.isRemote) {
-        const res = await fetch(`${API_BASE_URL}/api/moodboard/${selectedSketch.id}/promote`, {
+        await apiFetch(`/api/moodboard/${selectedSketch.id}/promote`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             priceFrom: numPrice,
             name: customName.trim() || selectedSketch.title,
           }),
         });
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error ?? "Failed to promote sketch.");
-        }
       }
 
       // Update promoted status locally
@@ -218,7 +208,7 @@ export default function AdminMoodBoardRedesignScreen() {
         {/* Tailor Sections */}
         {loading ? (
           <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#4A080C" />
+            <ActivityIndicator size="large" color="#453332" />
           </View>
         ) : (
           <View style={{ gap: 28 }}>
@@ -329,7 +319,7 @@ export default function AdminMoodBoardRedesignScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -370,7 +360,7 @@ const styles = StyleSheet.create({
   drawBtn: {
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -454,14 +444,14 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     padding: 20,
   },
   modalTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 20,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 4,
   },
   modalSub: {

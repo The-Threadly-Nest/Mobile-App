@@ -1,11 +1,16 @@
 import { useEffect, useState, useRef } from "react";
 import { View, Text } from "react-native";
 import { Tabs, usePathname } from "expo-router";
-import * as NavigationBar from "expo-navigation-bar";
+import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
+import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
+
+function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
+  return <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
+}
 
 // ─── Schedule a local tray notification for a new incoming chat message ───────
 async function scheduleMessageNotification(senderName: string, text: string) {
@@ -26,13 +31,13 @@ async function scheduleMessageNotification(senderName: string, text: string) {
 }
 
 function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#4A080C" : "#000000";
+  const activeColor = focused ? color : color;
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       {focused && (
         <Path
           d="M5.82 3.87L4.75 13.96C4.61 15.59 5.9 16.99 7.54 16.99H18.19C19.63 16.99 20.89 15.81 21 14.38L21.54 6.88C21.66 5.22 20.4 3.87 18.73 3.87H5.82Z"
-          fill="#4A080C"
+          fill={color}
         />
       )}
       <Path
@@ -74,7 +79,7 @@ function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
 }
 
 function ChatIcon({ color, focused, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
-  const activeColor = focused ? "#4A080C" : color;
+  const activeColor = focused ? "#453332" : color;
 
   return (
     <View style={{ width: 24, height: 24, justifyContent: "center", alignItems: "center" }}>
@@ -114,7 +119,7 @@ function ChatIcon({ color, focused, unreadCount }: { color: string; focused: boo
 }
 
 function MoodboardIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#4A080C" : "#000000";
+  const activeColor = focused ? color : color;
   const strokeWidth = focused ? "1.8" : "1.5";
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -146,12 +151,12 @@ function MoodboardIcon({ color, focused }: { color: string; focused: boolean }) 
 }
 
 function ProfileIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#4A080C" : "#000000";
+  const activeColor = focused ? color : color;
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <Path
         d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
-        fill={focused ? "#4A080C" : "none"}
+        fill={focused ? color : "none"}
         stroke={activeColor}
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -159,7 +164,7 @@ function ProfileIcon({ color, focused }: { color: string; focused: boolean }) {
       />
       <Path
         d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22"
-        fill={focused ? "#4A080C" : "none"}
+        fill={focused ? color : "none"}
         stroke={activeColor}
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -185,8 +190,7 @@ export default function StaffLayout() {
   }, [pathname]);
 
   useEffect(() => {
-    NavigationBar.setBackgroundColorAsync("#FFFFFF");
-    NavigationBar.setButtonStyleAsync("dark");
+    NavigationBar.setStyle("light");
   }, []);
 
   // ── Clear badge immediately when the user navigates to the chat tab ────────
@@ -205,23 +209,13 @@ export default function StaffLayout() {
       try {
         // 1. Resolve staff ID once and cache it
         if (!staffIdRef.current) {
-          const meRes = await fetch(`${API_BASE_URL}/api/staff/me`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!meRes.ok) return;
-          const me = await meRes.json();
+          const me = await apiFetch<any>("/api/staff/me", { silent: true });
           if (!me.id) return;
           staffIdRef.current = me.id;
         }
 
         // 2. Fetch chat session
-        const sessionRes = await fetch(
-          `${API_BASE_URL}/api/chat/session/${staffIdRef.current}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        if (!sessionRes.ok) return;
-
-        const session = await sessionRes.json();
+        const session = await apiFetch<any>(`/api/chat/session/${staffIdRef.current}`, { silent: true });
         const history: any[] = session.history || [];
 
         // 3. Count trailing admin/model messages (= unread for staff)
@@ -268,18 +262,18 @@ export default function StaffLayout() {
   return (
     <Tabs
       backBehavior="history"
+      tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A080C",
-        tabBarInactiveTintColor: "#000000",
+        tabBarActiveTintColor: "#FFFFFF",
+        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "rgba(0, 0, 0, 0.05)",
-          borderTopWidth: 1,
-          height: 58 + Math.max(14, extraBottom),
-          paddingTop: 6,
-          paddingBottom: Math.max(14, extraBottom),
+          height: 54, paddingTop: 0, paddingBottom: 0, borderRadius: 27, borderTopWidth: 0,
+          backgroundColor: "#453332", elevation: 5, shadowColor: "#000000",
+          shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 },
         },
+        tabBarItemStyle: { height: 54 },
         tabBarLabelStyle: {
           fontFamily: "WorkSans_600SemiBold",
           fontSize: 12,
@@ -291,7 +285,7 @@ export default function StaffLayout() {
         name="dashboard"
         options={{
           title: "Orders",
-          tabBarIcon: ({ color, focused }) => <OrdersIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><OrdersIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen
@@ -299,21 +293,21 @@ export default function StaffLayout() {
         options={{
           title: "Chat",
           tabBarStyle: { display: "none" },
-          tabBarIcon: ({ color, focused }) => <ChatIcon color={color} focused={focused} unreadCount={unreadCount} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ChatIcon color={String(color)} focused={focused} unreadCount={unreadCount} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen
         name="moodboard"
         options={{
           title: "Mood Board",
-          tabBarIcon: ({ color, focused }) => <MoodboardIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><MoodboardIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, focused }) => <ProfileIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ProfileIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen

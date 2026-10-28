@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { formatMonthYear } from "@/shared/utils/formatters";
 import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
+import { router, useFocusEffect } from "expo-router";
 import Svg, { Path, Circle } from "react-native-svg";
 import { MapPin, Phone, Edit2, Check, Navigation, X, Ruler } from "lucide-react-native";
 import * as Location from "expo-location";
@@ -182,7 +182,7 @@ export default function CustomerProfileScreen() {
     if (!createdAt) return "Member since June 2025";
     const d = new Date(createdAt);
     if (isNaN(d.getTime())) return "Member since June 2025";
-    const formatted = d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    const formatted = formatMonthYear(d);
     return `Member since ${formatted}`;
   }, [createdAt]);
 
@@ -242,7 +242,7 @@ export default function CustomerProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FBF7EF]" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
       <ScrollView
         className="flex-1 px-4"
         style={{ paddingTop: 36 }}
@@ -262,7 +262,7 @@ export default function CustomerProfileScreen() {
                   position: 'absolute',
                   top: -2,
                   right: -2,
-                  backgroundColor: '#4A080C',
+                  backgroundColor: '#453332',
                   minWidth: 18,
                   height: 18,
                   borderRadius: 9,
@@ -270,7 +270,7 @@ export default function CustomerProfileScreen() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderWidth: 2,
-                  borderColor: '#FBF7EF',
+                  borderColor: '#FFFFFF',
                 }}
               >
                 <Text style={{ color: '#FFFFFF', fontSize: 9, fontFamily: 'WorkSans_700Bold' }}>
@@ -320,7 +320,7 @@ export default function CustomerProfileScreen() {
         {/* Contact & Location Details Card */}
         <View className="bg-white rounded-2xl p-4 mb-6 shadow-sm border border-[#F0EBE1]">
           <View className="flex-row items-center justify-between mb-3">
-            <Text className="font-body font-semibold text-[15px] text-[#4A080C]">
+            <Text className="font-body font-semibold text-[15px] text-[#453332]">
               Personal Information
             </Text>
             {!isEditingInfo ? (
@@ -328,13 +328,13 @@ export default function CustomerProfileScreen() {
                 onPress={() => setIsEditingInfo(true)}
                 className="flex-row items-center bg-[#F7F4EC] px-3 py-1.5 rounded-full"
               >
-                <Edit2 size={13} color="#4A080C" style={{ marginRight: 4 }} />
-                <Text className="font-body text-[12px] text-[#4A080C] font-medium">Edit</Text>
+                <Edit2 size={13} color="#453332" style={{ marginRight: 4 }} />
+                <Text className="font-body text-[12px] text-[#453332] font-medium">Edit</Text>
               </Pressable>
             ) : (
               <Pressable
                 onPress={handleSaveContactInfo}
-                className="flex-row items-center bg-[#4A080C] px-3.5 py-1.5 rounded-full"
+                className="flex-row items-center bg-[#453332] px-3.5 py-1.5 rounded-full"
               >
                 <Check size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
                 <Text className="font-body text-[12px] text-white font-medium">Save</Text>
@@ -346,7 +346,7 @@ export default function CustomerProfileScreen() {
             <View className="gap-2.5">
               {/* Phone Display */}
               <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-[#FBF7EF] items-center justify-center mr-3">
+                <View className="w-8 h-8 rounded-full bg-[#FFFFFF] items-center justify-center mr-3">
                   <Phone size={15} color="#3A2E1A" />
                 </View>
                 <View className="flex-1">
@@ -361,7 +361,7 @@ export default function CustomerProfileScreen() {
 
               {/* Location Display */}
               <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-[#FBF7EF] items-center justify-center mr-3">
+                <View className="w-8 h-8 rounded-full bg-[#FFFFFF] items-center justify-center mr-3">
                   <MapPin size={15} color="#3A2E1A" />
                 </View>
                 <View className="flex-1">
@@ -392,11 +392,11 @@ export default function CustomerProfileScreen() {
                     onPress={handleAutoDetectLocation}
                     className="flex-row items-center"
                   >
-                    <Navigation size={12} color="#4A080C" style={{ marginRight: 3 }} />
-                    <Text className="font-body text-[11px] text-[#4A080C] font-semibold">
+                    <Navigation size={12} color="#453332" style={{ marginRight: 3 }} />
+                    <Text className="font-body text-[11px] text-[#453332] font-semibold">
                       {isDetecting ? "Detecting..." : "Auto-detect"}
                     </Text>
-                    {isDetecting && <ActivityIndicator size="small" color="#4A080C" style={{ marginLeft: 4 }} />}
+                    {isDetecting && <ActivityIndicator size="small" color="#453332" style={{ marginLeft: 4 }} />}
                   </Pressable>
                 </View>
                 <TextInput
@@ -404,7 +404,7 @@ export default function CustomerProfileScreen() {
                   onChangeText={setTempLocation}
                   placeholder="e.g. Lagos, Nigeria"
                   style={{ height: 46, width: "100%", alignSelf: "stretch" }}
-                  className="bg-[#FBF7EF] border border-[#E5E0D5] rounded-xl px-3.5 text-[14px] text-black font-body"
+                  className="bg-[#FFFFFF] border border-[#E5E0D5] rounded-xl px-3.5 text-[14px] text-black font-body"
                 />
               </View>
             </View>
@@ -448,7 +448,7 @@ export default function CustomerProfileScreen() {
             {totalUnread > 0 && (
               <View
                 style={{
-                  backgroundColor: '#4A080C',
+                  backgroundColor: '#453332',
                   minWidth: 22,
                   height: 22,
                   borderRadius: 11,
@@ -534,14 +534,14 @@ export default function CustomerProfileScreen() {
       >
         <View className="flex-1 bg-black/60 items-center justify-center p-4">
           <View
-            className="w-full bg-[#FBF7EF] rounded-3xl p-6 border border-[#E5E0D5] shadow-2xl"
+            className="w-full bg-[#FFFFFF] rounded-3xl p-6 border border-[#E5E0D5] shadow-2xl"
             style={{ maxWidth: 440 }}
           >
             {/* Modal Header */}
             <View className="flex-row items-center justify-between pb-3 border-b border-[#EBE7DF]">
               <View className="flex-row items-center gap-2.5">
-                <View className="w-9 h-9 rounded-full bg-[#4A080C]/10 items-center justify-center">
-                  <Ruler size={18} color="#4A080C" />
+                <View className="w-9 h-9 rounded-full bg-[#453332]/10 items-center justify-center">
+                  <Ruler size={18} color="#453332" />
                 </View>
                 <View>
                   <Text className="font-display font-semibold text-[18px] text-black">
@@ -564,7 +564,7 @@ export default function CustomerProfileScreen() {
             <ScrollView className="my-4 max-h-[360px]" showsVerticalScrollIndicator={false}>
               {loadingMeasurements ? (
                 <View className="py-8 items-center justify-center">
-                  <ActivityIndicator size="small" color="#4A080C" />
+                  <ActivityIndicator size="small" color="#453332" />
                   <Text className="font-body text-[13px] text-[#8A7550] mt-2">
                     Loading measurements...
                   </Text>
@@ -584,7 +584,7 @@ export default function CustomerProfileScreen() {
                         <Text className="font-body text-[11px] uppercase tracking-wider text-[#8A7550]">
                           {label}
                         </Text>
-                        <Text className="font-display font-semibold text-[18px] text-[#4A080C] mt-0.5">
+                        <Text className="font-display font-semibold text-[18px] text-[#453332] mt-0.5">
                           {m.value} {m.unit || "in"}
                         </Text>
                       </View>
@@ -609,7 +609,7 @@ export default function CustomerProfileScreen() {
             {/* Modal Footer / Close Button */}
             <Pressable
               onPress={() => setIsMeasurementsModalVisible(false)}
-              className="w-full bg-[#4A080C] py-3.5 rounded-2xl items-center justify-center shadow-sm"
+              className="w-full bg-[#453332] py-3.5 rounded-2xl items-center justify-center shadow-sm"
             >
               <Text className="font-body font-semibold text-[14px] text-white">
                 Done
@@ -621,6 +621,5 @@ export default function CustomerProfileScreen() {
     </SafeAreaView>
   );
 }
-
 
 

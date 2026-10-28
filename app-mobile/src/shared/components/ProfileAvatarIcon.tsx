@@ -30,7 +30,7 @@ export function ProfileAvatarIcon({ size = 60, name }: ProfileAvatarIconProps) {
             y2="106.5"
             gradientUnits="userSpaceOnUse"
           >
-            <Stop stopColor="#4A080C" />
+            <Stop stopColor="#453332" />
             <Stop offset={1} stopColor="#C4A763" />
           </LinearGradient>
         </Defs>

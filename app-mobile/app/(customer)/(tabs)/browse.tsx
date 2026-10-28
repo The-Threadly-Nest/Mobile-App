@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -12,12 +12,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
-import { MapPin, Search, Star, ShoppingBag, Store } from "lucide-react-native";
+import { MapPin, Search, Star, ShoppingBag, ShoppingCart, Store } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import CachedImage from "@/shared/components/CachedImage";
+import { formatCurrency } from "@/shared/utils/formatters";
+import { useCartStore } from "@/stores/useCartStore";
 
 export interface TailorItem {
   id: string;
@@ -57,6 +59,9 @@ export default function BrowseScreen() {
 
   const cachedCatalog = useAppDataStore((s) => s.catalogItems);
   const setCachedCatalog = useAppDataStore((s) => s.setCatalogItems);
+  const cartItemCount = useCartStore((s) =>
+    s.items.reduce((total, item) => total + item.quantity, 0)
+  );
 
   const [mode, setMode] = useState<"vendors" | "marketplace">("vendors");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -65,6 +70,7 @@ export default function BrowseScreen() {
   const initialTailors = Array.isArray(cachedCatalog) ? cachedCatalog.filter(hasRealId) : [];
 
   const [tailorsList, setTailorsList] = useState<TailorItem[]>(initialTailors);
+  const tailorsListRef = useRef<TailorItem[]>(initialTailors);
   const [marketplaceList, setMarketplaceList] = useState<MarketplaceItem[]>([]);
   const [loadingMarketplace, setLoadingMarketplace] = useState<boolean>(true);
   const [nextVendorsPage, setNextVendorsPage] = useState<number | null>(null);
@@ -83,7 +89,9 @@ export default function BrowseScreen() {
 
   useEffect(() => {
     if (Array.isArray(cachedCatalog)) {
-      setTailorsList(cachedCatalog.filter(hasRealId));
+      const validCatalog = cachedCatalog.filter(hasRealId);
+      tailorsListRef.current = validCatalog;
+      setTailorsList(validCatalog);
     }
   }, [cachedCatalog]);
 
@@ -96,16 +104,16 @@ export default function BrowseScreen() {
       );
       const fetched = result.items.filter(hasRealId);
       if (Array.isArray(fetched) && fetched.length > 0) {
-        setTailorsList((current) => {
-          const map = new Map<string, TailorItem>();
-          (page === 1 ? [] : current).forEach((item) => map.set(item.id, item));
-          fetched.forEach((item) => map.set(item.id, item));
-          const merged = Array.from(map.values());
-          setCachedCatalog(merged);
-          return merged;
-        });
+        const map = new Map<string, TailorItem>();
+        (page === 1 ? [] : tailorsListRef.current).forEach((item) => map.set(item.id, item));
+        fetched.forEach((item) => map.set(item.id, item));
+        const merged = Array.from(map.values());
+        tailorsListRef.current = merged;
+        setTailorsList(merged);
+        setCachedCatalog(merged);
         setNextVendorsPage(result.nextPage);
       } else if (page === 1) {
+        tailorsListRef.current = [];
         setTailorsList([]);
         setCachedCatalog([]);
         setNextVendorsPage(null);
@@ -129,7 +137,7 @@ export default function BrowseScreen() {
         const formatted: MarketplaceItem[] = fetched.map((c: any) => ({
           id: c.id,
           name: c.name,
-          priceFrom: typeof c.priceFrom === "number" ? `₦ ${c.priceFrom.toLocaleString()}` : (c.priceFrom ? String(c.priceFrom) : "Price on request"),
+          priceFrom: typeof c.priceFrom === "number" ? formatCurrency(c.priceFrom) : (c.priceFrom ? String(c.priceFrom) : "Price on request"),
           imageUrl: c.imageUrl || "",
           fashionHouseId: c.fashionHouseId,
           vendorName: c.fashionHouse?.shopName || "Luxury Fashion House",
@@ -282,12 +290,27 @@ export default function BrowseScreen() {
             {isFetchingLocation ? "Detecting location..." : currentLocation}
           </Text>
           {isFetchingLocation && (
-            <ActivityIndicator size="small" color="#4A080C" style={{ marginLeft: 4 }} />
+            <ActivityIndicator size="small" color="#453332" style={{ marginLeft: 4 }} />
           )}
         </Pressable>
 
-        {/* Brand Title */}
-        <Text style={styles.brandTitle}>Òwújà</Text>
+        {/* Brand and cart */}
+        <View style={styles.brandRow}>
+          <Text style={styles.brandTitle}>Owuja</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Open cart with ${cartItemCount} item${cartItemCount === 1 ? "" : "s"}`}
+            onPress={() => router.push("/(customer)/cart")}
+            style={({ pressed }) => [styles.cartButton, { opacity: pressed ? 0.75 : 1 }]}
+          >
+            <ShoppingCart size={22} color="#453332" />
+            {cartItemCount > 0 ? (
+              <View style={styles.cartBadge}>
+                <Text style={styles.cartBadgeText}>{cartItemCount > 99 ? "99+" : cartItemCount}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        </View>
 
         {/* Vendors vs Marketplace Segmented Control Switch */}
         <View style={styles.segmentedContainer}>
@@ -348,8 +371,8 @@ export default function BrowseScreen() {
               <Text style={styles.emptyBody}>{vendorsError || "Registered fashion houses will appear here."}</Text>
             </View>
           }
-          ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#453332" />}
           renderItem={({ item }) => (
             <Pressable
               style={({ pressed }) => [
@@ -409,7 +432,7 @@ export default function BrowseScreen() {
         />
       ) : loadingMarketplace && marketplaceList.length === 0 ? (
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingTop: 60 }}>
-          <ActivityIndicator size="large" color="#4A080C" />
+          <ActivityIndicator size="large" color="#453332" />
         </View>
       ) : (
         /* Marketplace Garments View — Strict 2-Column Grid (Fits 4 items above the fold) */
@@ -432,8 +455,8 @@ export default function BrowseScreen() {
               <Text style={styles.emptyBody}>{marketplaceError || "Uploaded catalog styles will appear here."}</Text>
             </View>
           }
-          ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#4A080C" />}
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#453332" />}
           renderItem={({ item }) => {
             const cardHeight = isLandscape ? 220 : 255;
             const cardWidth = isLandscape
@@ -455,7 +478,7 @@ export default function BrowseScreen() {
                 ]}
                 onPress={() => {
                   router.push({
-                    pathname: `/(customer)/catalog/${item.id}`,
+                    pathname: `/(customer)/catalog/details`,
                     params: {
                       initialName: item.name,
                       initialPrice: item.priceFrom || "Price upon request",
@@ -548,7 +571,7 @@ export default function BrowseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   emptyState: {
     alignItems: "center",
@@ -580,9 +603,41 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 26,
-    color: "#4A080C",
-    marginBottom: 16,
+    color: "#453332",
     letterSpacing: 0.3,
+  },
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  cartButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.18)",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cartBadge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: "#453332",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cartBadgeText: {
+    color: "#FFFFFF",
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 9,
   },
   locationText: {
     fontFamily: "WorkSans_500Medium",
@@ -605,7 +660,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   segmentedPillActive: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   segmentedText: {
     fontFamily: "WorkSans_600SemiBold",
@@ -643,12 +698,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   categoryPillSelected: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   categoryPillUnselected: {
     backgroundColor: "transparent",
-    borderColor: "#4A080C",
+    borderColor: "#453332",
   },
   categoryText: {
     fontFamily: "WorkSans_500Medium",
@@ -658,7 +713,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   categoryTextUnselected: {
-    color: "#4A080C",
+    color: "#453332",
   },
   listContainer: {
     paddingHorizontal: 20,
@@ -720,7 +775,7 @@ const styles = StyleSheet.create({
   cardPrice: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 17,
-    color: "#4A080C",
+    color: "#453332",
   },
   vendorSubtext: {
     fontFamily: "WorkSans_400Regular",
@@ -771,7 +826,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   orderBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,

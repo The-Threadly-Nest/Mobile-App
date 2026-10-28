@@ -19,10 +19,9 @@ import { Button } from "@/shared/components/Button";
 import DrawingCanvasModal from "@/shared/components/DrawingCanvasModal";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
-import { apiFetch } from "@/shared/utils/apiClient";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 
 interface Sketch {
@@ -115,22 +114,13 @@ export default function StaffMoodBoardScreen() {
 
       const uploadResult = await uploadFile(imageUri, filename, contentType);
 
-      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
+      const data = await apiFetch<any>("/api/moodboard", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           title: drawingTitle,
           imageUrl: uploadResult.fileUrl,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Failed to save drawing to database.");
-      }
 
       setSketches((prev) => [data, ...prev]);
     } catch (e: any) {
@@ -155,22 +145,13 @@ export default function StaffMoodBoardScreen() {
 
       const uploadResult = await uploadFile(selectedUri, filename, contentType);
 
-      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
+      const data = await apiFetch<any>("/api/moodboard", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           title: title.trim(),
           imageUrl: uploadResult.fileUrl,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Failed to save sketch to database.");
-      }
 
       setSketches((prev) => [data, ...prev]);
       setModalVisible(false);
@@ -192,16 +173,10 @@ export default function StaffMoodBoardScreen() {
         cancelLabel: "Cancel",
         onConfirm: async () => {
           try {
-            const res = await fetch(`${API_BASE_URL}/api/moodboard/${id}`, {
+            await apiFetch(`/api/moodboard/${id}`, {
               method: "DELETE",
-              headers: { Authorization: `Bearer ${token}` },
             });
-            if (res.ok) {
-              setSketches((prev) => prev.filter((s) => s.id !== id));
-            } else {
-              const data = await res.json();
-              showAlert("Delete Failed", data.error ?? "Could not delete sketch.");
-            }
+            setSketches((prev) => prev.filter((s) => s.id !== id));
           } catch (e) {
             console.error("Failed to delete sketch", e);
           }
@@ -244,7 +219,7 @@ export default function StaffMoodBoardScreen() {
         {/* Grid List of Sketches */}
         {loading ? (
           <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#4A080C" />
+            <ActivityIndicator size="large" color="#453332" />
           </View>
         ) : (
           <FlatList
@@ -257,7 +232,7 @@ export default function StaffMoodBoardScreen() {
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <View style={styles.emptyIconCircle}>
-                  <PenTool size={28} color="#4A080C" />
+                  <PenTool size={28} color="#453332" />
                 </View>
                 <Text style={styles.emptyTitle}>No sketches yet</Text>
                 <Text style={styles.emptySubtext}>
@@ -304,7 +279,7 @@ export default function StaffMoodBoardScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>New Mood Board Sketch</Text>
               <Pressable onPress={() => setModalVisible(false)}>
-                <X size={20} color="#4A080C" />
+                <X size={20} color="#453332" />
               </Pressable>
             </View>
 
@@ -347,7 +322,7 @@ export default function StaffMoodBoardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -368,7 +343,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 26,
-    color: "#4A080C",
+    color: "#453332",
   },
   headerActions: {
     flexDirection: "row",
@@ -378,7 +353,7 @@ const styles = StyleSheet.create({
   drawBtn: {
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -393,7 +368,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -489,7 +464,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
@@ -497,7 +472,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 4,
   },
   emptySubtext: {
@@ -513,7 +488,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -527,7 +502,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 20,
-    color: "#4A080C",
+    color: "#453332",
   },
   previewImageWrapper: {
     alignItems: "center",

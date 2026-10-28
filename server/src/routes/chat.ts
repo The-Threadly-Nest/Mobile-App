@@ -12,6 +12,7 @@ import { sendNotificationToUser, sendNotificationToAdmin } from "../lib/notifica
 import { randomUUID } from "node:crypto";
 import { isUniqueConstraintError, readIdempotencyKey } from "../lib/idempotency";
 import { availableSlotClaimWhere } from "../lib/authorization";
+import { formatSlotLabel } from "../lib/availability";
 
 const router = Router();
 router.use(requireAuth);
@@ -92,26 +93,58 @@ async function resolveSessionTarget(paramId: string, authUserId: string) {
 }
 
 // GET /api/chat/session/:fashionHouseId — load existing session history on screen open
+// Starts a fresh automated booking conversation while preserving the previous
+// escalation record and transcript as resolved support history.
+router.post("/session/:fashionHouseId/restart", async (req, res, next) => {
+  try {
+    const authUserId = req.authUserId!;
+    const { sessionCustomerId, fashionHouseId, role } = await resolveSessionTarget(
+      req.params.fashionHouseId,
+      authUserId
+    );
+    if (role !== "customer") {
+      return res.status(403).json({ error: "Only customers can start a new booking conversation." });
+    }
+
+    await prisma.$transaction([
+      prisma.chatEscalation.updateMany({
+        where: { fashionHouseId, customerId: sessionCustomerId, resolved: false },
+        data: { resolved: true, status: "resolved", activeKey: null },
+      }),
+      prisma.chatSession.upsert({
+        where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
+        update: { history: [] },
+        create: { customerId: sessionCustomerId, fashionHouseId, history: [] },
+      }),
+    ]);
+
+    res.json({ success: true, conversationState: "automated" });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/session/:fashionHouseId", async (req, res, next) => {
   try {
     const rawParam = req.params.fashionHouseId;
     const authUserId = req.authUserId!;
     const { sessionCustomerId, fashionHouseId } = await resolveSessionTarget(rawParam, authUserId);
 
-    const [session, availableSlots, activeEscalation] = await Promise.all([
+    const [session, availableSlots, activeEscalation, fashionHouse] = await Promise.all([
       prisma.chatSession.findUnique({
         where: { customerId_fashionHouseId: { customerId: sessionCustomerId, fashionHouseId } },
       }),
       prisma.availableSlot.findMany({
-        where: { fashionHouseId, booked: false },
-        orderBy: { date: "asc" },
+        where: { fashionHouseId, booked: false, active: true, startsAt: { gt: new Date() } },
+        orderBy: { startsAt: "asc" },
         take: 10,
-        select: { id: true, date: true, time: true },
+        select: { id: true, date: true, time: true, startsAt: true },
       }),
       prisma.chatEscalation.findUnique({
         where: { activeKey: `${fashionHouseId}:${sessionCustomerId}` },
         select: { id: true, status: true },
       }),
+      prisma.fashionHouse.findUnique({ where: { id: fashionHouseId }, select: { timezone: true } }),
     ]);
 
     const rawHistory = (session?.history as unknown as ChatTurn[]) ?? [];
@@ -127,7 +160,9 @@ router.get("/session/:fashionHouseId", async (req, res, next) => {
       history: visibleHistoryForUser(history, authUserId),
       availableSlots: availableSlots.map((slot) => ({
         id: slot.id,
-        label: `${slot.date} · ${slot.time}`,
+        label: slot.startsAt && fashionHouse
+          ? formatSlotLabel(slot.startsAt, fashionHouse.timezone)
+          : `${slot.date} · ${slot.time}`,
       })),
       conversationState: activeEscalation?.status ?? "automated",
       escalationId: activeEscalation?.id ?? null,
@@ -321,7 +356,7 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
         customerId,
         history,
         triggerMessage: message,
-        reason: guardrail.reason,
+        reason: guardrail.reason ?? "guardrail_triggered",
         summary: "The automated assistant's safety rules required a human response.",
         reply,
       });
@@ -350,7 +385,21 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
       where: { id: fashionHouseId },
       include: {
         catalogItems: { take: 10, orderBy: { createdAt: "desc" } },
-        availableSlots: { where: { booked: false }, take: 10, orderBy: { date: "asc" } },
+        availableSlots: {
+          where: { booked: false, active: true, startsAt: { gt: new Date() } },
+          take: 10,
+          orderBy: { startsAt: "asc" },
+          // Keep chat compatible while older development databases are being
+          // upgraded; Prisma otherwise selects every slot column, including
+          // newly introduced availability fields.
+          select: {
+            id: true,
+            date: true,
+            time: true,
+            startsAt: true,
+            durationMinutes: true,
+          },
+        },
       },
     });
     if (!fh) return res.status(404).json({ error: "Fashion house not found" });
@@ -371,7 +420,9 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
             .join("; ")
         : "Custom Bespoke Tailoring & Couture upon request";
 
-    const availableSlots = fh.availableSlots.map((s: any) => `${s.date} · ${s.time}`);
+    const availableSlots = fh.availableSlots.map((s: any) =>
+      s.startsAt ? formatSlotLabel(s.startsAt, fh.timezone) : `${s.date} · ${s.time}`
+    );
 
     const systemPrompt = buildSystemPrompt({
       fashionHouseName: fh.shopName,
@@ -442,10 +493,8 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
               });
               if (claimed.count !== 1) throw new SlotUnavailableError();
 
-              const preferredDate = new Date(`${slot.date}T00:00:00.000Z`);
-              if (Number.isNaN(preferredDate.getTime())) {
-                throw new Error("The selected fitting slot has an invalid date.");
-              }
+              const preferredDate = slot.startsAt;
+              if (!preferredDate || preferredDate <= new Date()) throw new SlotUnavailableError();
 
               return transaction.booking.create({
                 data: {
@@ -470,16 +519,16 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
             });
             if (!booking && error instanceof SlotUnavailableError) {
               const freshSlots = await prisma.availableSlot.findMany({
-                where: { fashionHouseId, booked: false },
+                where: { fashionHouseId, booked: false, active: true, startsAt: { gt: new Date() } },
                 take: 10,
-                orderBy: [{ date: "asc" }, { time: "asc" }],
+                orderBy: { startsAt: "asc" },
               });
               return res.status(409).json({
                 code: "SLOT_UNAVAILABLE",
                 error: "That fitting slot was just taken. Please choose another available time.",
                 availableSlots: freshSlots.map((slot) => ({
                   id: slot.id,
-                  label: `${slot.date} · ${slot.time}`,
+                  label: slot.startsAt ? formatSlotLabel(slot.startsAt, fh.timezone) : `${slot.date} · ${slot.time}`,
                 })),
               });
             }
@@ -495,7 +544,9 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
           );
         }
         const reservedSlotLabel = booking.availableSlot
-          ? `${booking.availableSlot.date} at ${booking.availableSlot.time}`
+          ? booking.availableSlot.startsAt
+            ? formatSlotLabel(booking.availableSlot.startsAt, fh.timezone)
+            : `${booking.availableSlot.date} at ${booking.availableSlot.time}`
           : args.preferredTime;
         const confirmReply = `Your fitting request with ${fh.shopName} for ${reservedSlotLabel} has been received! Our team will confirm shortly.`;
         const updatedHistory: ChatTurn[] = [
@@ -507,7 +558,19 @@ router.post("/message", chatLimiter, validate({ body: sendChatMessageSchema }), 
         await prisma.chatSession.update({ where: { id: session.id }, data: { history: updatedHistory as unknown as Prisma.InputJsonValue } });
         return res.json({
           type: "booking_created",
-          booking,
+          booking: {
+            ...booking,
+            availableSlot: booking.availableSlot
+              ? {
+                  ...booking.availableSlot,
+                  startsAt: booking.availableSlot.startsAt?.toISOString() ?? null,
+                  timezone: fh.timezone,
+                  label: booking.availableSlot.startsAt
+                    ? formatSlotLabel(booking.availableSlot.startsAt, fh.timezone)
+                    : `${booking.availableSlot.date} · ${booking.availableSlot.time}`,
+                }
+              : null,
+          },
           reply: confirmReply,
         });
       }

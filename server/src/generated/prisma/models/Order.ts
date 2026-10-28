@@ -648,14 +648,6 @@ export type OrderUncheckedUpdateManyWithoutCustomerNestedInput = {
   deleteMany?: Prisma.OrderScalarWhereInput | Prisma.OrderScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type OrderCreateNestedOneWithoutInvoiceInput = {
   create?: Prisma.XOR<Prisma.OrderCreateWithoutInvoiceInput, Prisma.OrderUncheckedCreateWithoutInvoiceInput>
   connectOrCreate?: Prisma.OrderCreateOrConnectWithoutInvoiceInput

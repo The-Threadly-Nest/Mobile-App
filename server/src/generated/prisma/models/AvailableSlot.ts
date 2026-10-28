@@ -20,8 +20,18 @@ export type AvailableSlotModel = runtime.Types.Result.DefaultSelection<Prisma.$A
 
 export type AggregateAvailableSlot = {
   _count: AvailableSlotCountAggregateOutputType | null
+  _avg: AvailableSlotAvgAggregateOutputType | null
+  _sum: AvailableSlotSumAggregateOutputType | null
   _min: AvailableSlotMinAggregateOutputType | null
   _max: AvailableSlotMaxAggregateOutputType | null
+}
+
+export type AvailableSlotAvgAggregateOutputType = {
+  durationMinutes: number | null
+}
+
+export type AvailableSlotSumAggregateOutputType = {
+  durationMinutes: number | null
 }
 
 export type AvailableSlotMinAggregateOutputType = {
@@ -29,6 +39,10 @@ export type AvailableSlotMinAggregateOutputType = {
   fashionHouseId: string | null
   date: string | null
   time: string | null
+  startsAt: Date | null
+  endsAt: Date | null
+  durationMinutes: number | null
+  active: boolean | null
   booked: boolean | null
   createdAt: Date | null
 }
@@ -38,6 +52,10 @@ export type AvailableSlotMaxAggregateOutputType = {
   fashionHouseId: string | null
   date: string | null
   time: string | null
+  startsAt: Date | null
+  endsAt: Date | null
+  durationMinutes: number | null
+  active: boolean | null
   booked: boolean | null
   createdAt: Date | null
 }
@@ -47,17 +65,33 @@ export type AvailableSlotCountAggregateOutputType = {
   fashionHouseId: number
   date: number
   time: number
+  startsAt: number
+  endsAt: number
+  durationMinutes: number
+  active: number
   booked: number
   createdAt: number
   _all: number
 }
 
 
+export type AvailableSlotAvgAggregateInputType = {
+  durationMinutes?: true
+}
+
+export type AvailableSlotSumAggregateInputType = {
+  durationMinutes?: true
+}
+
 export type AvailableSlotMinAggregateInputType = {
   id?: true
   fashionHouseId?: true
   date?: true
   time?: true
+  startsAt?: true
+  endsAt?: true
+  durationMinutes?: true
+  active?: true
   booked?: true
   createdAt?: true
 }
@@ -67,6 +101,10 @@ export type AvailableSlotMaxAggregateInputType = {
   fashionHouseId?: true
   date?: true
   time?: true
+  startsAt?: true
+  endsAt?: true
+  durationMinutes?: true
+  active?: true
   booked?: true
   createdAt?: true
 }
@@ -76,6 +114,10 @@ export type AvailableSlotCountAggregateInputType = {
   fashionHouseId?: true
   date?: true
   time?: true
+  startsAt?: true
+  endsAt?: true
+  durationMinutes?: true
+  active?: true
   booked?: true
   createdAt?: true
   _all?: true
@@ -119,6 +161,18 @@ export type AvailableSlotAggregateArgs<ExtArgs extends runtime.Types.Extensions.
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AvailableSlotAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AvailableSlotSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AvailableSlotMinAggregateInputType
@@ -149,6 +203,8 @@ export type AvailableSlotGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   _count?: AvailableSlotCountAggregateInputType | true
+  _avg?: AvailableSlotAvgAggregateInputType
+  _sum?: AvailableSlotSumAggregateInputType
   _min?: AvailableSlotMinAggregateInputType
   _max?: AvailableSlotMaxAggregateInputType
 }
@@ -158,9 +214,15 @@ export type AvailableSlotGroupByOutputType = {
   fashionHouseId: string
   date: string
   time: string
+  startsAt: Date | null
+  endsAt: Date | null
+  durationMinutes: number
+  active: boolean
   booked: boolean
   createdAt: Date
   _count: AvailableSlotCountAggregateOutputType | null
+  _avg: AvailableSlotAvgAggregateOutputType | null
+  _sum: AvailableSlotSumAggregateOutputType | null
   _min: AvailableSlotMinAggregateOutputType | null
   _max: AvailableSlotMaxAggregateOutputType | null
 }
@@ -188,6 +250,10 @@ export type AvailableSlotWhereInput = {
   fashionHouseId?: Prisma.StringFilter<"AvailableSlot"> | string
   date?: Prisma.StringFilter<"AvailableSlot"> | string
   time?: Prisma.StringFilter<"AvailableSlot"> | string
+  startsAt?: Prisma.DateTimeNullableFilter<"AvailableSlot"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"AvailableSlot"> | Date | string | null
+  durationMinutes?: Prisma.IntFilter<"AvailableSlot"> | number
+  active?: Prisma.BoolFilter<"AvailableSlot"> | boolean
   booked?: Prisma.BoolFilter<"AvailableSlot"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AvailableSlot"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
@@ -199,6 +265,10 @@ export type AvailableSlotOrderByWithRelationInput = {
   fashionHouseId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   time?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  durationMinutes?: Prisma.SortOrder
+  active?: Prisma.SortOrder
   booked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
@@ -208,28 +278,39 @@ export type AvailableSlotOrderByWithRelationInput = {
 export type AvailableSlotWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   fashionHouseId_date_time?: Prisma.AvailableSlotFashionHouseIdDateTimeCompoundUniqueInput
+  fashionHouseId_startsAt?: Prisma.AvailableSlotFashionHouseIdStartsAtCompoundUniqueInput
   AND?: Prisma.AvailableSlotWhereInput | Prisma.AvailableSlotWhereInput[]
   OR?: Prisma.AvailableSlotWhereInput[]
   NOT?: Prisma.AvailableSlotWhereInput | Prisma.AvailableSlotWhereInput[]
   fashionHouseId?: Prisma.StringFilter<"AvailableSlot"> | string
   date?: Prisma.StringFilter<"AvailableSlot"> | string
   time?: Prisma.StringFilter<"AvailableSlot"> | string
+  startsAt?: Prisma.DateTimeNullableFilter<"AvailableSlot"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"AvailableSlot"> | Date | string | null
+  durationMinutes?: Prisma.IntFilter<"AvailableSlot"> | number
+  active?: Prisma.BoolFilter<"AvailableSlot"> | boolean
   booked?: Prisma.BoolFilter<"AvailableSlot"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AvailableSlot"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
   booking?: Prisma.XOR<Prisma.BookingNullableScalarRelationFilter, Prisma.BookingWhereInput> | null
-}, "id" | "fashionHouseId_date_time">
+}, "id" | "fashionHouseId_date_time" | "fashionHouseId_startsAt">
 
 export type AvailableSlotOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   time?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  durationMinutes?: Prisma.SortOrder
+  active?: Prisma.SortOrder
   booked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AvailableSlotCountOrderByAggregateInput
+  _avg?: Prisma.AvailableSlotAvgOrderByAggregateInput
   _max?: Prisma.AvailableSlotMaxOrderByAggregateInput
   _min?: Prisma.AvailableSlotMinOrderByAggregateInput
+  _sum?: Prisma.AvailableSlotSumOrderByAggregateInput
 }
 
 export type AvailableSlotScalarWhereWithAggregatesInput = {
@@ -240,6 +321,10 @@ export type AvailableSlotScalarWhereWithAggregatesInput = {
   fashionHouseId?: Prisma.StringWithAggregatesFilter<"AvailableSlot"> | string
   date?: Prisma.StringWithAggregatesFilter<"AvailableSlot"> | string
   time?: Prisma.StringWithAggregatesFilter<"AvailableSlot"> | string
+  startsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailableSlot"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AvailableSlot"> | Date | string | null
+  durationMinutes?: Prisma.IntWithAggregatesFilter<"AvailableSlot"> | number
+  active?: Prisma.BoolWithAggregatesFilter<"AvailableSlot"> | boolean
   booked?: Prisma.BoolWithAggregatesFilter<"AvailableSlot"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AvailableSlot"> | Date | string
 }
@@ -248,6 +333,10 @@ export type AvailableSlotCreateInput = {
   id?: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutAvailableSlotsInput
@@ -259,6 +348,10 @@ export type AvailableSlotUncheckedCreateInput = {
   fashionHouseId: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
   booking?: Prisma.BookingUncheckedCreateNestedOneWithoutAvailableSlotInput
@@ -268,6 +361,10 @@ export type AvailableSlotUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutAvailableSlotsNestedInput
@@ -279,6 +376,10 @@ export type AvailableSlotUncheckedUpdateInput = {
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUncheckedUpdateOneWithoutAvailableSlotNestedInput
@@ -289,6 +390,10 @@ export type AvailableSlotCreateManyInput = {
   fashionHouseId: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
 }
@@ -297,6 +402,10 @@ export type AvailableSlotUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -306,6 +415,10 @@ export type AvailableSlotUncheckedUpdateManyInput = {
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -326,13 +439,26 @@ export type AvailableSlotFashionHouseIdDateTimeCompoundUniqueInput = {
   time: string
 }
 
+export type AvailableSlotFashionHouseIdStartsAtCompoundUniqueInput = {
+  fashionHouseId: string
+  startsAt: Date | string
+}
+
 export type AvailableSlotCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fashionHouseId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   time?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  durationMinutes?: Prisma.SortOrder
+  active?: Prisma.SortOrder
   booked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AvailableSlotAvgOrderByAggregateInput = {
+  durationMinutes?: Prisma.SortOrder
 }
 
 export type AvailableSlotMaxOrderByAggregateInput = {
@@ -340,6 +466,10 @@ export type AvailableSlotMaxOrderByAggregateInput = {
   fashionHouseId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   time?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  durationMinutes?: Prisma.SortOrder
+  active?: Prisma.SortOrder
   booked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -349,8 +479,16 @@ export type AvailableSlotMinOrderByAggregateInput = {
   fashionHouseId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   time?: Prisma.SortOrder
+  startsAt?: Prisma.SortOrder
+  endsAt?: Prisma.SortOrder
+  durationMinutes?: Prisma.SortOrder
+  active?: Prisma.SortOrder
   booked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AvailableSlotSumOrderByAggregateInput = {
+  durationMinutes?: Prisma.SortOrder
 }
 
 export type AvailableSlotNullableScalarRelationFilter = {
@@ -420,6 +558,10 @@ export type AvailableSlotCreateWithoutFashionHouseInput = {
   id?: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
   booking?: Prisma.BookingCreateNestedOneWithoutAvailableSlotInput
@@ -429,6 +571,10 @@ export type AvailableSlotUncheckedCreateWithoutFashionHouseInput = {
   id?: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
   booking?: Prisma.BookingUncheckedCreateNestedOneWithoutAvailableSlotInput
@@ -468,6 +614,10 @@ export type AvailableSlotScalarWhereInput = {
   fashionHouseId?: Prisma.StringFilter<"AvailableSlot"> | string
   date?: Prisma.StringFilter<"AvailableSlot"> | string
   time?: Prisma.StringFilter<"AvailableSlot"> | string
+  startsAt?: Prisma.DateTimeNullableFilter<"AvailableSlot"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"AvailableSlot"> | Date | string | null
+  durationMinutes?: Prisma.IntFilter<"AvailableSlot"> | number
+  active?: Prisma.BoolFilter<"AvailableSlot"> | boolean
   booked?: Prisma.BoolFilter<"AvailableSlot"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AvailableSlot"> | Date | string
 }
@@ -476,6 +626,10 @@ export type AvailableSlotCreateWithoutBookingInput = {
   id?: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutAvailableSlotsInput
@@ -486,6 +640,10 @@ export type AvailableSlotUncheckedCreateWithoutBookingInput = {
   fashionHouseId: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
 }
@@ -510,6 +668,10 @@ export type AvailableSlotUpdateWithoutBookingInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutAvailableSlotsNestedInput
@@ -520,6 +682,10 @@ export type AvailableSlotUncheckedUpdateWithoutBookingInput = {
   fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -528,6 +694,10 @@ export type AvailableSlotCreateManyFashionHouseInput = {
   id?: string
   date: string
   time: string
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  durationMinutes?: number
+  active?: boolean
   booked?: boolean
   createdAt?: Date | string
 }
@@ -536,6 +706,10 @@ export type AvailableSlotUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUpdateOneWithoutAvailableSlotNestedInput
@@ -545,6 +719,10 @@ export type AvailableSlotUncheckedUpdateWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   booking?: Prisma.BookingUncheckedUpdateOneWithoutAvailableSlotNestedInput
@@ -554,6 +732,10 @@ export type AvailableSlotUncheckedUpdateManyWithoutFashionHouseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.StringFieldUpdateOperationsInput | string
   time?: Prisma.StringFieldUpdateOperationsInput | string
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   booked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -565,6 +747,10 @@ export type AvailableSlotSelect<ExtArgs extends runtime.Types.Extensions.Interna
   fashionHouseId?: boolean
   date?: boolean
   time?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  durationMinutes?: boolean
+  active?: boolean
   booked?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -576,6 +762,10 @@ export type AvailableSlotSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   fashionHouseId?: boolean
   date?: boolean
   time?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  durationMinutes?: boolean
+  active?: boolean
   booked?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -586,6 +776,10 @@ export type AvailableSlotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   fashionHouseId?: boolean
   date?: boolean
   time?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  durationMinutes?: boolean
+  active?: boolean
   booked?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -596,11 +790,15 @@ export type AvailableSlotSelectScalar = {
   fashionHouseId?: boolean
   date?: boolean
   time?: boolean
+  startsAt?: boolean
+  endsAt?: boolean
+  durationMinutes?: boolean
+  active?: boolean
   booked?: boolean
   createdAt?: boolean
 }
 
-export type AvailableSlotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "date" | "time" | "booked" | "createdAt", ExtArgs["result"]["availableSlot"]>
+export type AvailableSlotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "date" | "time" | "startsAt" | "endsAt" | "durationMinutes" | "active" | "booked" | "createdAt", ExtArgs["result"]["availableSlot"]>
 export type AvailableSlotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
   booking?: boolean | Prisma.AvailableSlot$bookingArgs<ExtArgs>
@@ -623,6 +821,10 @@ export type $AvailableSlotPayload<ExtArgs extends runtime.Types.Extensions.Inter
     fashionHouseId: string
     date: string
     time: string
+    startsAt: Date | null
+    endsAt: Date | null
+    durationMinutes: number
+    active: boolean
     booked: boolean
     createdAt: Date
   }, ExtArgs["result"]["availableSlot"]>
@@ -1054,6 +1256,10 @@ export interface AvailableSlotFieldRefs {
   readonly fashionHouseId: Prisma.FieldRef<"AvailableSlot", 'String'>
   readonly date: Prisma.FieldRef<"AvailableSlot", 'String'>
   readonly time: Prisma.FieldRef<"AvailableSlot", 'String'>
+  readonly startsAt: Prisma.FieldRef<"AvailableSlot", 'DateTime'>
+  readonly endsAt: Prisma.FieldRef<"AvailableSlot", 'DateTime'>
+  readonly durationMinutes: Prisma.FieldRef<"AvailableSlot", 'Int'>
+  readonly active: Prisma.FieldRef<"AvailableSlot", 'Boolean'>
   readonly booked: Prisma.FieldRef<"AvailableSlot", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"AvailableSlot", 'DateTime'>
 }

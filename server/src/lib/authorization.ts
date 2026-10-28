@@ -32,6 +32,8 @@ export function availableSlotClaimWhere(slotId: string, fashionHouseId: string) 
     id: slotId,
     fashionHouseId,
     booked: false,
+    active: true,
+    startsAt: { gt: new Date() },
   } as const;
 }
 

@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 46,
     paddingHorizontal: 12,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   inputRowError: {
     borderColor: "#D32F2F",
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -313,6 +313,6 @@ const styles = StyleSheet.create({
   itemCode: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
   },
 });

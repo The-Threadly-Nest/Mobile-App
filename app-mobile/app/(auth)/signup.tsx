@@ -17,7 +17,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 
@@ -45,6 +45,7 @@ export default function SignupScreen() {
   const setIsVerified = useAuthStore((s) => s.setIsVerified);
   const setResendAvailableAt = useAuthStore((s) => s.setResendAvailableAt);
   const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
+  const setSession = useAuthStore((s) => s.setSession);
 
   const isValidEmail = (e: string) => {
     const clean = e.trim().toLowerCase();
@@ -81,11 +82,8 @@ export default function SignupScreen() {
 
     setLoading(true);
     try {
-      const targetUrl = `${API_BASE_URL}/api/auth/signup`;
-      console.log(`[Signup] Attempting POST to ${targetUrl}`);
-      const res = await fetch(targetUrl, {
+      const body = await apiFetch<any>("/api/auth/signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: email.trim().toLowerCase(),
           password,
@@ -94,23 +92,16 @@ export default function SignupScreen() {
           businessName: role === "admin" ? businessName.trim() : undefined,
         }),
       });
-      const body = await res.json();
-      if (!res.ok) {
-        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-          ? body.issues.map((i: any) => i.message).join(". ")
-          : null;
-        throw new Error(issueMsg || body.error || "Could not create account.");
-      }
 
-      setToken(body.token);
-      setEmailStore(body.user.email);
-      setNameStore(name.trim());
-      if (role === "admin" && businessName) {
-        setShopName(businessName.trim());
-      }
-      setCreatedAt(new Date().toISOString());
-      setRoleStore(body.user.role);
-      setIsVerified(role !== "admin");
+      setSession({
+        token: body.token,
+        email: body.user.email,
+        name: name.trim(),
+        shopName: role === "admin" ? businessName.trim() : "",
+        createdAt: new Date().toISOString(),
+        role: body.user.role,
+        isVerified: role !== "admin",
+      });
       setResendAvailableAt(Date.now() + 60000);
 
       // Register push token asynchronously so notifications work immediately
@@ -124,7 +115,7 @@ export default function SignupScreen() {
       );
     } catch (e: any) {
       if (e.message === "Network request failed" || e.name === "TypeError") {
-        setError(`Network request failed. (Connecting to ${API_BASE_URL})`);
+        setError("Network request failed. Please check your connection and try again.");
       } else {
         setError(e.message);
       }
@@ -310,7 +301,7 @@ export default function SignupScreen() {
               ]}
             >
               {googleLoading ? (
-                <ActivityIndicator color="#4A080C" />
+                <ActivityIndicator color="#453332" />
               ) : (
                 <>
               <Svg width={20} height={20} viewBox="0 0 24 24">
@@ -351,7 +342,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -397,7 +388,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -10,
     left: 16,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 6,
     zIndex: 1,
   },
@@ -445,14 +436,14 @@ const styles = StyleSheet.create({
   roleToggleValue: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 12,
-    color: "#4A080C",
+    color: "#453332",
     textDecorationLine: "underline",
   },
   createAccountBtn: {
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
@@ -477,7 +468,7 @@ const styles = StyleSheet.create({
   loginLinkBold: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
   },
   dividerContainer: {
     flexDirection: "row",
@@ -501,7 +492,7 @@ const styles = StyleSheet.create({
     height: 63,
     borderRadius: 31.5,
     borderWidth: 1,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     backgroundColor: "transparent",
     flexDirection: "row",
     alignItems: "center",

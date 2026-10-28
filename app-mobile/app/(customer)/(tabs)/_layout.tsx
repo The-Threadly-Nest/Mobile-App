@@ -1,9 +1,28 @@
 import React, { useEffect } from "react";
 import { Tabs } from "expo-router";
-import * as NavigationBar from "expo-navigation-bar";
+import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View } from "react-native";
 import Svg, { Path, Circle } from "react-native-svg";
 import { useAppDataStore } from "@/stores/useAppDataStore";
+import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
+
+function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
+  return (
+    <View
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: focused ? "#F96951" : "transparent",
+      }}
+    >
+      {children}
+    </View>
+  );
+}
 
 function DiscoverTabIcon({ color, focused }: { color: string; focused: boolean }) {
   if (focused) {
@@ -53,13 +72,13 @@ function DiscoverTabIcon({ color, focused }: { color: string; focused: boolean }
 }
 
 function OrdersTabIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#4A080C" : "#000000";
+  const activeColor = focused ? color : color;
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       {focused && (
         <Path
           d="M5.82 3.87L4.75 13.96C4.61 15.59 5.9 16.99 7.54 16.99H18.19C19.63 16.99 20.89 15.81 21 14.38L21.54 6.88C21.66 5.22 20.4 3.87 18.73 3.87H5.82Z"
-          fill="#4A080C"
+          fill={color}
         />
       )}
       <Path
@@ -139,25 +158,31 @@ export default function TabsLayout() {
   const unreadMessageCount = useAppDataStore((s) => s.unreadMessageCount);
 
   useEffect(() => {
-    // Match nav bar to tab bar background — blends seamlessly
-    NavigationBar.setBackgroundColorAsync("#FBF7EF");
-    NavigationBar.setButtonStyleAsync("dark");
+    NavigationBar.setStyle("light");
   }, []);
 
   return (
     <Tabs
+      tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#4A080C",
-        tabBarInactiveTintColor: "#000000",
+        tabBarActiveTintColor: "#FFFFFF",
+        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#FBF7EF",
-          borderTopColor: "rgba(74, 8, 12, 0.12)",
-          borderTopWidth: 0.5,
-          height: 58 + Math.max(14, extraBottom),
-          paddingTop: 6,
-          paddingBottom: Math.max(14, extraBottom),
+          height: 54,
+          paddingTop: 0,
+          paddingBottom: 0,
+          borderRadius: 27,
+          borderTopWidth: 0,
+          backgroundColor: "#453332",
+          elevation: 5,
+          shadowColor: "#000000",
+          shadowOpacity: 0.12,
+          shadowRadius: 6,
+          shadowOffset: { width: 0, height: 3 },
         },
+        tabBarItemStyle: { height: 54 },
         tabBarLabelStyle: {
           fontFamily: "WorkSans_600SemiBold",
           fontSize: 12,
@@ -169,24 +194,24 @@ export default function TabsLayout() {
         name="browse"
         options={{
           title: "Discover",
-          tabBarIcon: ({ color, focused }) => <DiscoverTabIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><DiscoverTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
           title: "My Orders",
-          tabBarIcon: ({ color, focused }) => <OrdersTabIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><OrdersTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, focused }) => <ProfileTabIcon color={color} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ProfileTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
           tabBarBadge: unreadMessageCount > 0 ? (unreadMessageCount > 99 ? "99+" : unreadMessageCount) : undefined,
           tabBarBadgeStyle: {
-            backgroundColor: "#4A080C",
+            backgroundColor: "#453332",
             color: "#FFFFFF",
             fontSize: 9,
             minWidth: 16,

@@ -19,7 +19,7 @@ import { Button } from "@/shared/components/Button";
 import FlowMessageCard from "@/shared/components/FlowMessageCard";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { captureRef } from "react-native-view-shot";
 
@@ -30,14 +30,14 @@ interface PathData {
 }
 
 const COLORS = [
-  "#4A080C",
+  "#453332",
   "#C4A763",
   "#3A2E1A",
   "#292D32",
   "#D32F2F",
   "#1E88E5",
   "#43A047",
-  "#FBF7EF",
+  "#FFFFFF",
 ];
 
 const STROKE_WIDTHS = [
@@ -99,7 +99,7 @@ export default function StaffDrawScreen() {
   const [guideStep, setGuideStep] = useState(1);
   const [paths, setPaths] = useState<PathData[]>([]);
   const [currentPath, setCurrentPath] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>("#4A080C");
+  const [selectedColor, setSelectedColor] = useState<string>("#453332");
   const [selectedWidth, setSelectedWidth] = useState<number>(5);
   const [bgGuide, setBgGuide] = useState<"croquis" | "grid" | "blank">("croquis");
   const [title, setTitle] = useState("");
@@ -271,22 +271,13 @@ export default function StaffDrawScreen() {
       });
       const uploadResult = await uploadFile(tempFileUri, filename, "image/png");
 
-      const res = await fetch(`${API_BASE_URL}/api/moodboard`, {
+      await apiFetch("/api/moodboard", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           title: title.trim(),
           imageUrl: uploadResult.fileUrl,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Failed to save sketch to database.");
-      }
 
       showAlert("Saved!", `"${title.trim()}" has been saved to your moodboard.`);
       router.back();
@@ -319,7 +310,7 @@ export default function StaffDrawScreen() {
           y={virtualViewBoxY.toFixed(1)}
           width={virtualWidth.toFixed(1)}
           height={virtualHeight.toFixed(1)}
-          fill="#FBF7EF"
+          fill="#FFFFFF"
         />
 
         {bgGuide === "croquis" && (
@@ -411,7 +402,7 @@ export default function StaffDrawScreen() {
 
         {activePanel !== null && (
           <Pressable
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
             onPress={() => setActivePanel(null)}
           />
         )}
@@ -420,7 +411,7 @@ export default function StaffDrawScreen() {
           <View style={[styles.floatPanel, { left: panelLeft }]}>
             <View style={styles.floatPanelCol}>
               {COLORS.map((c) => {
-                const isEraser = c === "#FBF7EF";
+                const isEraser = c === "#FFFFFF";
                 const isSelected = selectedColor === c;
                 return (
                   <Pressable
@@ -433,9 +424,9 @@ export default function StaffDrawScreen() {
                     ]}
                   >
                     {isEraser ? (
-                      <Eraser size={12} color="#4A080C" />
+                      <Eraser size={12} color="#453332" />
                     ) : isSelected ? (
-                      <Check size={12} color={c === "#C4A763" ? "#4A080C" : "#FFF"} />
+                      <Check size={12} color={c === "#C4A763" ? "#453332" : "#FFF"} />
                     ) : null}
                   </Pressable>
                 );
@@ -456,7 +447,7 @@ export default function StaffDrawScreen() {
                     onPress={() => { setSelectedWidth(w.value); setActivePanel(null); }}
                     style={[styles.panelBtn, isActive && styles.panelBtnActive]}
                   >
-                    <Pen size={penSize} color={isActive ? "#FFF" : "#4A080C"} />
+                    <Pen size={penSize} color={isActive ? "#FFF" : "#453332"} />
                   </Pressable>
                 );
               })}
@@ -468,8 +459,8 @@ export default function StaffDrawScreen() {
           <View style={[styles.floatPanel, { left: panelLeft }]}>
             <View style={styles.floatPanelCol}>
               {([
-                { key: "croquis" as const, icon: <User size={15} color={bgGuide === "croquis" ? "#FFF" : "#4A080C"} /> },
-                { key: "grid" as const, icon: <Grid size={15} color={bgGuide === "grid" ? "#FFF" : "#4A080C"} /> },
+                { key: "croquis" as const, icon: <User size={15} color={bgGuide === "croquis" ? "#FFF" : "#453332"} /> },
+                { key: "grid" as const, icon: <Grid size={15} color={bgGuide === "grid" ? "#FFF" : "#453332"} /> },
                 { key: "blank" as const, icon: <Text style={[styles.panelBtnLabel, bgGuide === "blank" && { color: "#FFF" }]}>—</Text> },
               ]).map(({ key, icon }) => (
                 <Pressable
@@ -495,7 +486,7 @@ export default function StaffDrawScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => [styles.floatBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={16} color="#4A080C" />
+              <BackArrowIcon size={16} color="#453332" />
             </Pressable>
 
             <View style={styles.floatDivider} />
@@ -504,12 +495,12 @@ export default function StaffDrawScreen() {
               onPress={() => togglePanel("color")}
               style={[
                 styles.floatBtn,
-                { backgroundColor: selectedColor === "#FBF7EF" ? "#E4D5B7" : selectedColor },
+                { backgroundColor: selectedColor === "#FFFFFF" ? "#E4D5B7" : selectedColor },
                 activePanel === "color" && styles.floatBtnRing,
               ]}
             >
-              {selectedColor === "#FBF7EF" ? (
-                <Eraser size={13} color="#4A080C" />
+              {selectedColor === "#FFFFFF" ? (
+                <Eraser size={13} color="#453332" />
               ) : (
                 <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.55)", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)" }} />
               )}
@@ -521,7 +512,7 @@ export default function StaffDrawScreen() {
             >
               <Pen
                 size={selectedWidth === 2 ? 12 : selectedWidth === 5 ? 16 : 20}
-                color={activePanel === "width" ? "#FFF" : "#4A080C"}
+                color={activePanel === "width" ? "#FFF" : "#453332"}
               />
             </Pressable>
 
@@ -530,9 +521,9 @@ export default function StaffDrawScreen() {
               style={[styles.floatBtn, activePanel === "guide" && styles.floatBtnActive]}
             >
               {bgGuide === "croquis" ? (
-                <User size={14} color={activePanel === "guide" ? "#FFF" : "#4A080C"} />
+                <User size={14} color={activePanel === "guide" ? "#FFF" : "#453332"} />
               ) : bgGuide === "grid" ? (
-                <Grid size={14} color={activePanel === "guide" ? "#FFF" : "#4A080C"} />
+                <Grid size={14} color={activePanel === "guide" ? "#FFF" : "#453332"} />
               ) : (
                 <Text style={[styles.panelBtnLabel, activePanel === "guide" && { color: "#FFF" }]}>—</Text>
               )}
@@ -545,7 +536,7 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0}
               style={[styles.floatBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <Undo2 size={14} color={paths.length > 0 ? "#4A080C" : "#C4A763"} />
+              <Undo2 size={14} color={paths.length > 0 ? "#453332" : "#C4A763"} />
             </Pressable>
 
             <Pressable
@@ -553,7 +544,7 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0}
               style={[styles.floatBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <RotateCcw size={14} color={paths.length > 0 ? "#4A080C" : "#C4A763"} />
+              <RotateCcw size={14} color={paths.length > 0 ? "#453332" : "#C4A763"} />
             </Pressable>
 
             <View style={styles.floatDivider} />
@@ -589,13 +580,13 @@ export default function StaffDrawScreen() {
             onPress={() => setBgGuide("croquis")}
             style={[styles.guideBtn, bgGuide === "croquis" && styles.guideBtnActive]}
           >
-            <User size={13} color={bgGuide === "croquis" ? "#FFFFFF" : "#4A080C"} />
+            <User size={13} color={bgGuide === "croquis" ? "#FFFFFF" : "#453332"} />
           </Pressable>
           <Pressable
             onPress={() => setBgGuide("grid")}
             style={[styles.guideBtn, bgGuide === "grid" && styles.guideBtnActive]}
           >
-            <Grid size={13} color={bgGuide === "grid" ? "#FFFFFF" : "#4A080C"} />
+            <Grid size={13} color={bgGuide === "grid" ? "#FFFFFF" : "#453332"} />
           </Pressable>
           <Pressable
             onPress={() => setBgGuide("blank")}
@@ -609,7 +600,7 @@ export default function StaffDrawScreen() {
             onPress={() => setShowGuide((prev) => !prev)}
             style={[styles.guideBtn, showGuide && styles.guideBtnActive]}
           >
-            <HelpCircle size={13} color={showGuide ? "#FFFFFF" : "#4A080C"} />
+            <HelpCircle size={13} color={showGuide ? "#FFFFFF" : "#453332"} />
           </Pressable>
         </View>
       </View>
@@ -693,14 +684,14 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0}
               style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <Undo2 size={16} color={paths.length > 0 ? "#4A080C" : "#A6926B"} />
+              <Undo2 size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
             </Pressable>
             <Pressable
               onPress={handleClear}
               disabled={paths.length === 0}
               style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <RotateCcw size={16} color={paths.length > 0 ? "#4A080C" : "#A6926B"} />
+              <RotateCcw size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
             </Pressable>
           </View>
 
@@ -714,7 +705,7 @@ export default function StaffDrawScreen() {
                   onPress={() => setSelectedWidth(w.value)}
                   style={[styles.toolIconBtn, isActive && styles.widthBtnActive]}
                 >
-                  <Pen size={penSize} color={isActive ? "#FFFFFF" : "#4A080C"} />
+                  <Pen size={penSize} color={isActive ? "#FFFFFF" : "#453332"} />
                 </Pressable>
               );
             })}
@@ -723,7 +714,7 @@ export default function StaffDrawScreen() {
 
         <View style={styles.colorPaletteRow}>
           {COLORS.map((c) => {
-            const isEraser = c === "#FBF7EF";
+            const isEraser = c === "#FFFFFF";
             const isSelected = selectedColor === c;
             return (
               <Pressable
@@ -736,11 +727,11 @@ export default function StaffDrawScreen() {
                 ]}
               >
                 {isEraser ? (
-                  <Eraser size={14} color="#4A080C" />
+                  <Eraser size={14} color="#453332" />
                 ) : isSelected ? (
                   <Check
                     size={14}
-                    color={c === "#FBF7EF" || c === "#C4A763" ? "#4A080C" : "#FFFFFF"}
+                    color={c === "#FFFFFF" || c === "#C4A763" ? "#453332" : "#FFFFFF"}
                   />
                 ) : null}
               </Pressable>
@@ -790,7 +781,7 @@ export default function StaffDrawScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#FBF7EF" },
+  safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -824,8 +815,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  guideBtnActive: { backgroundColor: "#4A080C" },
-  guideBtnText: { fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#4A080C" },
+  guideBtnActive: { backgroundColor: "#453332" },
+  guideBtnText: { fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#453332" },
   portraitCanvasWrapper: { alignItems: "center", paddingTop: 8 },
   portraitToolsScroll: { flex: 1, paddingHorizontal: 16 },
   toolsContent: { paddingBottom: 20 },
@@ -870,7 +861,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  widthBtnActive: { backgroundColor: "#4A080C", borderColor: "#4A080C" },
+  widthBtnActive: { backgroundColor: "#453332", borderColor: "#453332" },
   colorPaletteRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -888,11 +879,11 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderWidth: 2.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     transform: [{ scale: 1.15 }],
   },
   chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
-  chipActive: { backgroundColor: "#4A080C" },
+  chipActive: { backgroundColor: "#453332" },
   chipInactive: { backgroundColor: "#E4D5B7" },
   chipText: { fontFamily: "WorkSans_600SemiBold", fontSize: 11 },
   errorText: {
@@ -907,7 +898,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1.5,
     borderColor: "#E4D5B7",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -923,7 +914,7 @@ const styles = StyleSheet.create({
   landscapeRoot: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   landscapeErrorBanner: {
     position: "absolute",
@@ -984,16 +975,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   floatBtnActive: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   floatBtnRing: {
     borderWidth: 2.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
   },
   floatBtnSave: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   floatDivider: {
     width: 28,
@@ -1033,13 +1024,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   panelBtnActive: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   panelBtnLabel: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
   },
   panelColorSwatch: {
     width: 32,
@@ -1052,7 +1043,7 @@ const styles = StyleSheet.create({
   },
   panelColorSwatchSelected: {
     borderWidth: 2.5,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     transform: [{ scale: 1.15 }],
   },
 });

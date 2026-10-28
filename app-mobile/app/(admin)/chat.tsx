@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { formatChatDate } from "@/shared/utils/formatters";
 import {
   View,
   Text,
@@ -20,6 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Paperclip,
+  Camera,
   Smile,
   Send,
   MessageSquare,
@@ -33,13 +35,12 @@ import {
 import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from "expo-audio";
 import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch, staffApi } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import BottomAnchoredChatScrollView from "@/shared/components/BottomAnchoredChatScrollView";
 import MessageDeleteMenu from "@/shared/components/MessageDeleteMenu";
-import { apiFetch } from "@/shared/utils/apiClient";
 import {
   createChatCacheOwner,
   readChatCache,
@@ -135,7 +136,7 @@ const SentTail = () => (
       width: 0,
       height: 0,
       borderTopWidth: 9,
-      borderTopColor: "#4A080C",
+      borderTopColor: "#453332",
       borderLeftWidth: 9,
       borderLeftColor: "transparent",
     }}
@@ -215,11 +216,7 @@ export default function AdminStaffChatScreen() {
     (async () => {
       if (!token) return;
       try {
-        const res = await fetch(`${API_BASE_URL}/api/staff`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
+          const data = await staffApi.getStaff();
           if (Array.isArray(data) && data.length > 0) {
             const mapped: StaffMember[] = data.map((st: any, idx: number) => {
               const name = st.name || (st.email ? st.email.split("@")[0] : `Staff ${idx + 1}`);
@@ -239,7 +236,6 @@ export default function AdminStaffChatScreen() {
               setSelectedStaff(mapped[0]);
             }
           }
-        }
       } catch (e) {
         console.warn("Failed to fetch staff list for chat", e);
       }
@@ -268,12 +264,8 @@ export default function AdminStaffChatScreen() {
           setLoading(false);
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/chat/session/${selectedStaff.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const body = await apiFetch<any>(`/api/chat/session/${selectedStaff.id}`, { silent: true });
         if (cancelled) return;
-        if (res.ok) {
-          const body = await res.json();
           if (cancelled) return;
           if (Array.isArray(body.history) && body.history.length > 0) {
             const formatted: ChatMessage[] = body.history.map(mapHistoryTurn);
@@ -285,7 +277,6 @@ export default function AdminStaffChatScreen() {
             hydratedStaffIdRef.current = selectedStaff.id;
             void writeChatCache<ChatMessage[]>(cacheOwner, "admin-staff", selectedStaff.id, []);
           }
-        }
       } catch (e) {
         console.warn("Failed to load staff chat history", e);
       } finally {
@@ -343,20 +334,25 @@ export default function AdminStaffChatScreen() {
     }
   };
 
-  const handlePickImage = async () => {
+  const handlePickImage = async (source: "library" | "camera" = "library") => {
     const selectedStaffId = selectedStaff?.id;
     if (!selectedStaffId) return;
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permission = source === "camera"
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
         showAlert("Permission Required", "Please allow access to your photos to attach images.");
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await (source === "camera" ? ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.7,
-      });
+      }) : ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.7,
+      }));
 
       if (!result.canceled && result.assets[0]) {
         const asset = result.assets[0];
@@ -555,7 +551,7 @@ export default function AdminStaffChatScreen() {
         return;
       }
 
-      const player = createAudioPlayer(audioUrl);
+      const player = createAudioPlayer({ uri: audioUrl });
       playerRef.current = player;
       setPlayingAudioId(msgId);
       player.play();
@@ -594,7 +590,7 @@ export default function AdminStaffChatScreen() {
     } else if (msgDate.getTime() === yesterday.getTime()) {
       return `Yesterday, ${timeStr}`;
     } else {
-      const formattedDate = date.toLocaleDateString([], { day: "numeric", month: "short" });
+      const formattedDate = formatChatDate(date);
       return `${formattedDate}, ${timeStr}`;
     }
   };
@@ -603,7 +599,7 @@ export default function AdminStaffChatScreen() {
     return (
       <SafeAreaView style={styles.container} edges={["top"]}>
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color="#4A080C" />
+          <ActivityIndicator size="large" color="#453332" />
         </View>
       </SafeAreaView>
     );
@@ -620,7 +616,7 @@ export default function AdminStaffChatScreen() {
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
 
         <View style={styles.headerInfoCol}>
@@ -642,7 +638,7 @@ export default function AdminStaffChatScreen() {
         >
           {loading ? (
             <View style={styles.centerContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : messages.length === 0 ? (
             <View style={styles.centerContainer}>
@@ -712,16 +708,16 @@ export default function AdminStaffChatScreen() {
                           {/* Play / Pause button */}
                           <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? "rgba(255,255,255,0.25)" : "rgba(74,8,12,0.15)", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                             {playingAudioId === msg.id ? (
-                              <Pause size={16} color={isMe ? "#FFFFFF" : "#4A080C"} />
+                              <Pause size={16} color={isMe ? "#FFFFFF" : "#453332"} />
                             ) : (
-                              <Play size={16} color={isMe ? "#FFFFFF" : "#4A080C"} style={{ marginLeft: 2 }} />
+                              <Play size={16} color={isMe ? "#FFFFFF" : "#453332"} style={{ marginLeft: 2 }} />
                             )}
                           </View>
                           {/* Animated Waveform */}
                           <View style={{ flex: 1, justifyContent: "center" }}>
                             <AnimatedWaveform
                               isAnimating={playingAudioId === msg.id}
-                              color={isMe ? "#FFFFFF" : "#4A080C"}
+                              color={isMe ? "#FFFFFF" : "#453332"}
                               inactiveColor={isMe ? "rgba(255,255,255,0.4)" : "rgba(74,8,12,0.4)"}
                               barCount={16}
                               height={24}
@@ -746,7 +742,7 @@ export default function AdminStaffChatScreen() {
                       msg.id.startsWith("temp-") || msg.status === "Sent" ? (
                         <Check size={14} color="#8A7550" />
                       ) : msg.status === "Read" ? (
-                        <CheckCheck size={14} color="#4A080C" />
+                        <CheckCheck size={14} color="#453332" />
                       ) : (
                         <CheckCheck size={14} color="#8A7550" />
                       )
@@ -760,14 +756,14 @@ export default function AdminStaffChatScreen() {
 
           {uploadingImage && (
             <View style={styles.sendingIndicatorContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           )}
         </BottomAnchoredChatScrollView>
 
         {loading && (
           <View style={[StyleSheet.absoluteFill, styles.centerContainer]} pointerEvents="none">
-            <ActivityIndicator size="small" color="#4A080C" />
+            <ActivityIndicator size="small" color="#453332" />
           </View>
         )}
 
@@ -806,7 +802,7 @@ export default function AdminStaffChatScreen() {
                 <View style={{ flex: 1, marginLeft: 12, justifyContent: "center" }}>
                   <AnimatedWaveform
                     isAnimating={!isPaused}
-                    color="#4A080C"
+                    color="#453332"
                     inactiveColor="rgba(74, 8, 12, 0.2)"
                     barCount={34}
                     height={14}
@@ -835,43 +831,31 @@ export default function AdminStaffChatScreen() {
                 </Pressable>
 
                 <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
-                  <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: "45deg" }] }} />
+                  <Send size={20} color="#FFFFFF" />
                 </Pressable>
               </View>
             </View>
           ) : (
             <>
-              <Pressable
-                onPress={handlePickImage}
-                disabled={uploadingImage}
-                style={({ pressed }) => [styles.toolCircleBtn, { opacity: pressed ? 0.8 : 1 }]}
-              >
-                {uploadingImage ? (
-                  <ActivityIndicator size="small" color="#4A080C" />
-                ) : (
-                  <Paperclip size={18} color="#3A2E1A" />
-                )}
-              </Pressable>
-
               <View style={styles.textInputWrapper}>
+                <Pressable onPress={() => { Keyboard.dismiss(); setShowEmojiPicker((prev) => !prev); }} style={styles.composerIconBtn}>
+                  <Smile size={21} color={showEmojiPicker ? "#453332" : "#8A7550"} />
+                </Pressable>
                 <TextInput
                   style={styles.textInput}
                   value={inputText}
                   onChangeText={setInputText}
                   onFocus={() => setShowEmojiPicker(false)}
-                  placeholder={`Message ${selectedStaff.name.split(" ")[0]}...`}
+                  placeholder="Message"
                   placeholderTextColor="#8A7550"
                   onSubmitEditing={handleSend}
                   returnKeyType="send"
                 />
-                <Pressable
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setShowEmojiPicker((prev) => !prev);
-                  }}
-                  style={styles.emojiBtn}
-                >
-                  <Smile size={20} color={showEmojiPicker ? "#4A080C" : "#8A7550"} />
+                <Pressable onPress={() => void handlePickImage("library")} disabled={uploadingImage} style={styles.composerIconBtn}>
+                  {uploadingImage ? <ActivityIndicator size="small" color="#8A7550" /> : <Paperclip size={20} color="#8A7550" />}
+                </Pressable>
+                <Pressable onPress={() => void handlePickImage("camera")} disabled={uploadingImage} style={styles.composerIconBtn}>
+                  <Camera size={20} color="#8A7550" />
                 </Pressable>
               </View>
 
@@ -886,7 +870,7 @@ export default function AdminStaffChatScreen() {
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: "45deg" }] }} />
+                  <Send size={20} color="#FFFFFF" />
                 </Pressable>
               ) : (
                 <Pressable
@@ -918,7 +902,7 @@ export default function AdminStaffChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   headerBar: {
     flexDirection: "row",
@@ -927,7 +911,7 @@ const styles = StyleSheet.create({
     paddingTop: 36,
     paddingBottom: 12,
     gap: 12,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   headerBtn: {
     width: 40,
@@ -946,7 +930,7 @@ const styles = StyleSheet.create({
   headerNameText: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   headerSubtitleText: {
     fontFamily: "WorkSans_400Regular",
@@ -958,10 +942,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(228, 213, 183, 0.4)",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   staffScrollContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     gap: 8,
     flexDirection: "row",
     alignItems: "center",
@@ -978,8 +962,8 @@ const styles = StyleSheet.create({
     borderColor: "#E4D5B7",
   },
   staffPillSelected: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   pillAvatar: {
     width: 24,
@@ -995,7 +979,7 @@ const styles = StyleSheet.create({
   pillAvatarText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 11,
-    color: "#4A080C",
+    color: "#453332",
   },
   pillNameText: {
     fontFamily: "WorkSans_500Medium",
@@ -1020,7 +1004,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop: 8,
-    paddingBottom: 24,
+    paddingBottom: 6,
   },
   centerContainer: {
     flex: 1,
@@ -1041,7 +1025,7 @@ const styles = StyleSheet.create({
   emptyTitleText: {
     fontFamily: "Fraunces-Bold",
     fontSize: 18,
-    color: "#4A080C",
+    color: "#453332",
   },
   messageBlock: {
     marginBottom: 16,
@@ -1062,7 +1046,7 @@ const styles = StyleSheet.create({
   },
   sentBubble: {
     alignSelf: "flex-end",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderBottomRightRadius: 4,
   },
   receivedBubble: {
@@ -1079,7 +1063,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   receivedText: {
-    color: "#4A080C",
+    color: "#453332",
   },
   statusRow: {
     flexDirection: "row",
@@ -1104,11 +1088,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#FBF7EF",
+    paddingTop: 6,
+    paddingBottom: 12,
+    backgroundColor: "#FFFFFF",
   },
   recordingContainer: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -1175,7 +1160,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1206,7 +1191,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#3A2E1A",
     height: "100%",
-    paddingRight: 8,
+    paddingHorizontal: 8,
+  },
+  composerIconBtn: {
+    width: 32,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
   },
   emojiBtn: {
     padding: 4,
@@ -1215,7 +1206,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1244,7 +1235,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#E4D5B7",
     alignItems: "center",
@@ -1265,7 +1256,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1277,7 +1268,7 @@ const styles = StyleSheet.create({
   listStaffName: {
     fontFamily: "Fraunces-Bold",
     fontSize: 16,
-    color: "#4A080C",
+    color: "#453332",
   },
   listStaffSubtitle: {
     fontFamily: "WorkSans_400Regular",

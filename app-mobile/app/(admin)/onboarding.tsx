@@ -36,6 +36,7 @@ type OnboardingSlot = {
   date: string;
   time: string;
   booked: boolean;
+  label?: string;
 };
 
 const formatLocalDate = (date: Date) => {
@@ -63,6 +64,8 @@ export default function AdminOnboardingScreen() {
   const [brandLogoUrl, setBrandLogoUrl] = useState<string>("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Bespoke Suits"]);
   const [currency, setCurrency] = useState<string>("NGN");
+  const [timezone, setTimezone] = useState<string>("Africa/Lagos");
+  const [slotDurationMinutes, setSlotDurationMinutes] = useState<string>("60");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
@@ -88,6 +91,8 @@ export default function AdminOnboardingScreen() {
           if (data.fashionHouse.brandLogoUrl) setBrandLogoUrl(data.fashionHouse.brandLogoUrl);
           if (data.fashionHouse.categories?.length) setSelectedCategories(data.fashionHouse.categories);
           if (data.fashionHouse.currency) setCurrency(data.fashionHouse.currency);
+          if (data.fashionHouse.timezone) setTimezone(data.fashionHouse.timezone);
+          if (data.fashionHouse.slotDurationMinutes) setSlotDurationMinutes(String(data.fashionHouse.slotDurationMinutes));
           if (Array.isArray(data.fashionHouse.availableSlots)) {
             setSlotsList(data.fashionHouse.availableSlots);
           }
@@ -197,6 +202,11 @@ export default function AdminOnboardingScreen() {
       setError("Please add at least one fitting slot.");
       return;
     }
+    const duration = Number(slotDurationMinutes);
+    if (!timezone.trim() || !Number.isInteger(duration) || duration < 15 || duration > 480) {
+      setError("Enter a valid timezone and a slot duration between 15 and 480 minutes.");
+      return;
+    }
     setLoading(true);
     try {
       await adminApi.completeOnboarding({
@@ -207,6 +217,8 @@ export default function AdminOnboardingScreen() {
         brandLogoUrl: brandLogoUrl || undefined,
         categories: selectedCategories,
         currency,
+        timezone: timezone.trim(),
+        slotDurationMinutes: duration,
         availableSlots: slotsList.map(({ date, time }) => ({ date, time })),
       });
 
@@ -270,7 +282,7 @@ export default function AdminOnboardingScreen() {
           {step === 1 && (
             <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
               <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
-                <Store size={isLandscape ? 22 : 28} color="#4A080C" />
+                <Store size={isLandscape ? 22 : 28} color="#453332" />
               </View>
               <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Brand & Identity</Text>
               <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
@@ -291,7 +303,7 @@ export default function AdminOnboardingScreen() {
                 >
                   {uploadingLogo ? (
                     <View style={styles.logoUploadingWrap}>
-                      <ActivityIndicator color="#4A080C" size="small" />
+                      <ActivityIndicator color="#453332" size="small" />
                       <Text style={styles.logoUploadingText}>Uploading....</Text>
                     </View>
                   ) : brandLogoUrl ? (
@@ -304,7 +316,7 @@ export default function AdminOnboardingScreen() {
                     </View>
                   ) : (
                     <View style={styles.logoPlaceholderWrap}>
-                      <UploadCloud size={isLandscape ? 24 : 32} color="#4A080C" />
+                      <UploadCloud size={isLandscape ? 24 : 32} color="#453332" />
                       <Text style={[styles.logoPlaceholderText, isLandscape && { fontSize: 13 }]}>Tap to upload brand logo</Text>
                       <Text style={styles.logoSubtext}>JPG, PNG up to 5MB</Text>
                     </View>
@@ -348,7 +360,7 @@ export default function AdminOnboardingScreen() {
           {step === 2 && (
             <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
               <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
-                <MapPin size={isLandscape ? 22 : 28} color="#4A080C" />
+                <MapPin size={isLandscape ? 22 : 28} color="#453332" />
               </View>
               <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Location & Contact</Text>
               <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
@@ -384,7 +396,7 @@ export default function AdminOnboardingScreen() {
           {step === 3 && (
             <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
               <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
-                <Sparkles size={isLandscape ? 22 : 28} color="#4A080C" />
+                <Sparkles size={isLandscape ? 22 : 28} color="#453332" />
               </View>
               <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>What do you specialize in?</Text>
               <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
@@ -418,7 +430,7 @@ export default function AdminOnboardingScreen() {
           {step === 4 && (
             <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
               <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
-                <Calendar size={isLandscape ? 22 : 28} color="#4A080C" />
+                <Calendar size={isLandscape ? 22 : 28} color="#453332" />
               </View>
               <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Fitting & Booking Slots</Text>
               <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
@@ -452,12 +464,32 @@ export default function AdminOnboardingScreen() {
                       },
                     ]}
                   >
-                    <Plus size={14} color="#4A080C" />
+                    <Plus size={14} color="#453332" />
                     <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: "#3B0508" }}>
                       {preset.date} · {preset.time}
                     </Text>
                   </Pressable>
                 ))}
+              </View>
+
+              <Text style={[styles.label, { fontSize: 13, marginBottom: 8 }]}>Scheduling Rules</Text>
+              <View style={{ flexDirection: "row", gap: 10, marginBottom: 14 }}>
+                <TextInput
+                  style={{ flex: 2, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(74, 8, 12, 0.25)", height: 46, paddingHorizontal: 12, color: "#3B0508" }}
+                  placeholder="Timezone, e.g. Africa/Lagos"
+                  placeholderTextColor="#8A7550"
+                  value={timezone}
+                  onChangeText={setTimezone}
+                  autoCapitalize="none"
+                />
+                <TextInput
+                  style={{ flex: 1, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(74, 8, 12, 0.25)", height: 46, paddingHorizontal: 12, color: "#3B0508" }}
+                  placeholder="Minutes"
+                  placeholderTextColor="#8A7550"
+                  value={slotDurationMinutes}
+                  onChangeText={setSlotDurationMinutes}
+                  keyboardType="number-pad"
+                />
               </View>
 
               {/* Custom Slot Input */}
@@ -515,7 +547,7 @@ export default function AdminOnboardingScreen() {
                 onPress={() => handleAddSlot()}
                 style={({ pressed }) => [
                   {
-                    backgroundColor: "#4A080C",
+                    backgroundColor: "#453332",
                     height: 44,
                     borderRadius: 12,
                     flexDirection: "row",
@@ -536,7 +568,7 @@ export default function AdminOnboardingScreen() {
               {/* Active Slots list */}
               {slotsList.length > 0 ? (
                 <View style={{ marginTop: 4 }}>
-                  <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#4A080C", marginBottom: 8 }}>
+                  <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332", marginBottom: 8 }}>
                     Configured Fitting Slots ({slotsList.length})
                   </Text>
                   {slotsList.map((slot) => (
@@ -556,9 +588,9 @@ export default function AdminOnboardingScreen() {
                       }}
                     >
                       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                        <Calendar size={15} color="#4A080C" />
+                        <Calendar size={15} color="#453332" />
                         <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3B0508" }}>
-                          {slot.date} · {slot.time}
+                          {slot.label || `${slot.date} · ${slot.time}`}
                         </Text>
                       </View>
                       <Pressable
@@ -619,7 +651,7 @@ export default function AdminOnboardingScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -636,14 +668,14 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     borderRadius: 2,
   },
   stepBadge: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 16,
   },
   stepContainer: {
@@ -706,7 +738,7 @@ const styles = StyleSheet.create({
   logoUploadingText: {
     fontFamily: "WorkSans_500Medium",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
   },
   logoPreviewWrap: {
     alignItems: "center",
@@ -723,7 +755,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -777,8 +809,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillSelected: {
-    backgroundColor: "#4A080C",
-    borderColor: "#4A080C",
+    backgroundColor: "#453332",
+    borderColor: "#453332",
   },
   pillUnselected: {
     backgroundColor: "transparent",
@@ -826,7 +858,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 20,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   nextBtn: {
     width: "100%",
@@ -834,7 +866,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -7,6 +7,7 @@ import {
   Animated,
   StyleSheet,
 } from "react-native";
+import { ShoppingBag } from "lucide-react-native";
 import { alertEmitter, AlertPayload } from "@/shared/utils/alertEmitter";
 
 /**
@@ -58,6 +59,7 @@ export default function AppAlert() {
   }, [open]);
 
   const isConfirm = !!(payload.onConfirm || payload.confirmLabel);
+  const isCartAlert = payload.variant === "cart";
 
   return (
     <Modal transparent animationType="none" visible={visible} onRequestClose={() => close(payload.onCancel)}>
@@ -81,9 +83,18 @@ export default function AppAlert() {
           {/* Oxblood accent bar */}
           <View style={styles.accent} />
 
-          <View style={styles.body}>
-            <Text style={styles.title}>{payload.title}</Text>
-            <Text style={styles.message}>{payload.message}</Text>
+          <View style={[styles.body, isCartAlert && styles.cartBody]}>
+            {isCartAlert && (
+              <View style={styles.cartHeading}>
+                <View style={styles.cartIconCircle}>
+                  <ShoppingBag size={28} color="#453332" strokeWidth={1.8} />
+                </View>
+                <Text style={styles.cartEyebrow}>CART UPDATED</Text>
+              </View>
+            )}
+
+            <Text style={[styles.title, isCartAlert && styles.centeredText]}>{payload.title}</Text>
+            <Text style={[styles.message, isCartAlert && styles.centeredText]}>{payload.message}</Text>
 
             <View style={[styles.actions, isConfirm && styles.actionsRow]}>
               {isConfirm && (
@@ -130,7 +141,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     overflow: "hidden",
-    shadowColor: "#4A080C",
+    shadowColor: "#453332",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.18,
     shadowRadius: 24,
@@ -138,13 +149,37 @@ const styles = StyleSheet.create({
   },
   accent: {
     height: 6,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
   },
   body: {
     padding: 24,
   },
+  cartBody: {
+    paddingTop: 22,
+  },
+  cartHeading: {
+    alignItems: "center",
+    marginBottom: 14,
+  },
+  cartIconCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F3E9DE",
+    borderWidth: 1,
+    borderColor: "#E8D5C2",
+    marginBottom: 10,
+  },
+  cartEyebrow: {
+    fontFamily: "WorkSans_600SemiBold",
+    fontSize: 11,
+    letterSpacing: 1.5,
+    color: "#8A6252",
+  },
   title: {
-    fontFamily: "Fraunces_700Bold",
+    fontFamily: "Fraunces-Bold",
     fontSize: 20,
     color: "#3B0508",
     marginBottom: 8,
@@ -155,6 +190,9 @@ const styles = StyleSheet.create({
     color: "#5C4A32",
     lineHeight: 21,
     marginBottom: 24,
+  },
+  centeredText: {
+    textAlign: "center",
   },
   actions: {
     alignItems: "flex-end",
@@ -182,10 +220,10 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 14,
-    color: "#4A080C",
+    color: "#453332",
   },
   confirmBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { formatChatDate } from '@/shared/utils/formatters';
 import {
   View,
   Text,
@@ -21,6 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Paperclip,
+  Camera,
   Smile,
   Send,
   MessageSquare,
@@ -165,7 +167,7 @@ const SentTail = () => (
       width: 0,
       height: 0,
       borderTopWidth: 9,
-      borderTopColor: '#4A080C',
+      borderTopColor: '#453332',
       borderLeftWidth: 9,
       borderLeftColor: 'transparent',
     }}
@@ -275,13 +277,13 @@ export default function AdminMessagesScreen() {
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
       const becameActive = nextState === 'active' && !appIsActiveRef.current;
       appIsActiveRef.current = nextState === 'active';
-      if (becameActive && !selectedCustomer) void fetchThreads(true);
+      if (becameActive) void fetchThreads(true);
     });
     const interval = setInterval(() => {
-      if (appIsActiveRef.current && !selectedCustomer) {
+      if (appIsActiveRef.current) {
         void fetchThreads(true);
       }
-    }, 20000);
+    }, 10000);
     return () => {
       clearInterval(interval);
       appStateSubscription.remove();
@@ -525,19 +527,24 @@ export default function AdminMessagesScreen() {
     }
   };
 
-  const handlePickImage = async () => {
+  const handlePickImage = async (source: 'library' | 'camera' = 'library') => {
     if (!selectedCustomer) return;
     try {
-      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const permission = source === 'camera'
+        ? await ImagePicker.requestCameraPermissionsAsync()
+        : await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
         showAlert('Permission Required', 'Please allow access to photos to upload images.');
         return;
       }
 
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await (source === 'camera' ? ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.8,
-      });
+      }) : ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+      }));
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
@@ -695,18 +702,13 @@ export default function AdminMessagesScreen() {
     } else if (msgDate.getTime() === yesterday.getTime()) {
       return `Yesterday, ${timeStr}`;
     } else {
-      const formattedDate = date.toLocaleDateString([], { day: 'numeric', month: 'short' });
+      const formattedDate = formatChatDate(date);
       return `${formattedDate}, ${timeStr}`;
     }
   };
 
   const renderThreadItem = ({ item }: { item: ThreadSummary }) => {
-    const timeStr = item.latestAt
-      ? new Date(item.latestAt).toLocaleDateString([], {
-        month: 'short',
-        day: 'numeric',
-      })
-      : '';
+    const timeStr = item.latestAt ? formatChatDate(item.latestAt) : '';
 
     return (
       <TouchableOpacity
@@ -738,15 +740,22 @@ export default function AdminMessagesScreen() {
   };
 
   const renderTranscriptSection = () => {
-    if (transcript.length === 0) return null;
+    const visibleTranscript = transcript.filter(
+      (turn) => turn.text && !turn.text.includes('--- Chat Session Ended ---')
+    );
+    if (visibleTranscript.length === 0) return null;
     return (
-      <View>
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerLabel}>AI CHAT HISTORY</Text>
-          <View style={styles.dividerLine} />
+      <View style={styles.historySection}>
+        <View style={styles.historyHeader}>
+          <View style={styles.historyIcon}>
+            <MessageSquare size={18} color="#453332" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.historyTitle}>Booking Assistant History</Text>
+            <Text style={styles.historySubtitle}>Customer conversation before human support</Text>
+          </View>
         </View>
-        {transcript.map((turn, idx) => {
+        {visibleTranscript.map((turn, idx) => {
           const isUser = turn.role === 'user';
           const timeStr = turn.createdAt
             ? new Date(turn.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -756,9 +765,9 @@ export default function AdminMessagesScreen() {
 
           return (
             <View key={`t-${idx}`} style={styles.messageBlock}>
-              {!isUser && (
-                <Text style={styles.senderNameText}>Booking Assistant</Text>
-              )}
+              <Text style={[styles.senderNameText, isUser && styles.userSenderName]}>
+                {isUser ? 'Customer' : 'Booking Assistant'}
+              </Text>
               {/* Bubble + tail wrapper */}
               <View style={{ position: 'relative', alignSelf: isUser ? 'flex-end' : 'flex-start' }}>
                 <View style={[styles.bubbleBase, isUser ? styles.receivedBubble : styles.sentBubble]}>
@@ -778,7 +787,7 @@ export default function AdminMessagesScreen() {
         })}
         <View style={styles.dividerRow}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerLabel}>DIRECT SUPPORT</Text>
+          <Text style={styles.dividerLabel}>HUMAN SUPPORT STARTS HERE</Text>
           <View style={styles.dividerLine} />
         </View>
       </View>
@@ -855,15 +864,15 @@ export default function AdminMessagesScreen() {
                 >
                   <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isFashionHouse ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {playingAudioId === item.id ? (
-                      <Pause size={16} color={isFashionHouse ? '#FFFFFF' : '#4A080C'} />
+                      <Pause size={16} color={isFashionHouse ? '#FFFFFF' : '#453332'} />
                     ) : (
-                      <Play size={16} color={isFashionHouse ? '#FFFFFF' : '#4A080C'} style={{ marginLeft: 2 }} />
+                      <Play size={16} color={isFashionHouse ? '#FFFFFF' : '#453332'} style={{ marginLeft: 2 }} />
                     )}
                   </View>
                   <View style={{ flex: 1, justifyContent: 'center' }}>
                     <AnimatedWaveform
                       isAnimating={playingAudioId === item.id}
-                      color={isFashionHouse ? '#FFFFFF' : '#4A080C'}
+                      color={isFashionHouse ? '#FFFFFF' : '#453332'}
                       inactiveColor={isFashionHouse ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
                       barCount={16}
                       height={24}
@@ -885,9 +894,9 @@ export default function AdminMessagesScreen() {
               item.id.startsWith('temp-') ? (
                 <Check size={14} color="#8A7550" />
               ) : item.isRead ? (
-                <CheckCheck size={14} color="#4A080C" />
+                <CheckCheck size={14} color="#453332" />
               ) : (
-                <CheckCheck size={14} color="#8A7550" />
+                <Check size={14} color="#8A7550" />
               )
             )}
           </View>
@@ -904,11 +913,11 @@ export default function AdminMessagesScreen() {
       <View style={styles.headerBar}>
         {selectedCustomer ? (
           <TouchableOpacity style={styles.headerBtn} onPress={closeThread}>
-            <BackArrowIcon size={20} color="#4A080C" />
+            <BackArrowIcon size={20} color="#453332" />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()}>
-            <BackArrowIcon size={20} color="#4A080C" />
+            <BackArrowIcon size={20} color="#453332" />
           </TouchableOpacity>
         )}
 
@@ -946,7 +955,7 @@ export default function AdminMessagesScreen() {
         activeTab === 'customers' ? (
           loadingThreads && threads.length === 0 ? (
             <View style={styles.centerContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : threads.length === 0 ? (
             <View style={styles.centerContainer}>
@@ -969,7 +978,7 @@ export default function AdminMessagesScreen() {
         ) : (
           loadingStaff && staffList.length === 0 ? (
             <View style={styles.centerContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : staffList.length === 0 ? (
             <View style={styles.centerContainer}>
@@ -1016,7 +1025,7 @@ export default function AdminMessagesScreen() {
         >
           {loadingMessages && messages.length === 0 ? (
             <View style={styles.centerContainer}>
-              <ActivityIndicator size="small" color="#4A080C" />
+              <ActivityIndicator size="small" color="#453332" />
             </View>
           ) : (
             <BottomAnchoredChatScrollView
@@ -1032,7 +1041,7 @@ export default function AdminMessagesScreen() {
                   style={styles.loadEarlierButton}
                 >
                   {loadingEarlier ? (
-                    <ActivityIndicator size="small" color="#4A080C" />
+                    <ActivityIndicator size="small" color="#453332" />
                   ) : (
                     <Text style={styles.loadEarlierText}>Load earlier messages</Text>
                   )}
@@ -1075,7 +1084,7 @@ export default function AdminMessagesScreen() {
                   <View style={{ flex: 1, marginLeft: 12, justifyContent: 'center' }}>
                     <AnimatedWaveform
                       isAnimating={!isPaused}
-                      color="#4A080C"
+                      color="#453332"
                       inactiveColor="rgba(74, 8, 12, 0.2)"
                       barCount={34}
                       height={14}
@@ -1103,25 +1112,16 @@ export default function AdminMessagesScreen() {
                   </Pressable>
 
                   <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
-                    <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: '45deg' }] }} />
+                    <Send size={20} color="#FFFFFF" />
                   </Pressable>
                 </View>
               </View>
             ) : (
               <>
-                <Pressable
-                  onPress={handlePickImage}
-                  disabled={uploadingImage}
-                  style={({ pressed }) => [styles.toolCircleBtn, { opacity: pressed ? 0.8 : 1 }]}
-                >
-                  {uploadingImage ? (
-                    <ActivityIndicator size="small" color="#4A080C" />
-                  ) : (
-                    <Paperclip size={18} color="#3A2E1A" />
-                  )}
-                </Pressable>
-
                 <View style={styles.textInputWrapper}>
+                  <Pressable onPress={() => { Keyboard.dismiss(); setShowEmojiPicker((prev) => !prev); }} style={styles.composerIconBtn}>
+                    <Smile size={21} color={showEmojiPicker ? '#453332' : '#8A7550'} />
+                  </Pressable>
                   <TextInput
                     style={styles.textInput}
                     value={inputText}
@@ -1130,17 +1130,14 @@ export default function AdminMessagesScreen() {
                     onSubmitEditing={handleSend}
                     submitBehavior="submit"
                     returnKeyType="send"
-                    placeholder={selectedCustomer ? `Message ${selectedCustomer.customerName.split(' ')[0]}...` : 'Type a message...'}
+                    placeholder="Message"
                     placeholderTextColor="#8A7550"
                   />
-                  <Pressable
-                    onPress={() => {
-                      Keyboard.dismiss();
-                      setShowEmojiPicker((prev) => !prev);
-                    }}
-                    style={styles.emojiBtn}
-                  >
-                    <Smile size={20} color={showEmojiPicker ? '#4A080C' : '#8A7550'} />
+                  <Pressable onPress={() => void handlePickImage('library')} disabled={uploadingImage} style={styles.composerIconBtn}>
+                    {uploadingImage ? <ActivityIndicator size="small" color="#8A7550" /> : <Paperclip size={20} color="#8A7550" />}
+                  </Pressable>
+                  <Pressable onPress={() => void handlePickImage('camera')} disabled={uploadingImage} style={styles.composerIconBtn}>
+                    <Camera size={20} color="#8A7550" />
                   </Pressable>
                 </View>
 
@@ -1154,7 +1151,7 @@ export default function AdminMessagesScreen() {
                       { opacity: pressed ? 0.85 : 1 },
                     ]}
                   >
-                    <Send size={18} color="#FFFFFF" style={{ transform: [{ rotate: '45deg' }] }} />
+                    <Send size={20} color="#FFFFFF" />
                   </Pressable>
                 ) : (
                   <Pressable
@@ -1187,7 +1184,7 @@ export default function AdminMessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FFFFFF',
   },
   headerBar: {
     flexDirection: 'row',
@@ -1198,7 +1195,7 @@ const styles = StyleSheet.create({
     gap: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(228, 213, 183, 0.4)',
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FFFFFF',
   },
   headerBtn: {
     width: 40,
@@ -1217,7 +1214,7 @@ const styles = StyleSheet.create({
   headerNameText: {
     fontFamily: 'Fraunces-Bold',
     fontSize: 18,
-    color: '#4A080C',
+    color: '#453332',
   },
   headerSubtitleText: {
     fontFamily: 'WorkSans_400Regular',
@@ -1244,7 +1241,7 @@ const styles = StyleSheet.create({
   emptyTitleText: {
     fontFamily: 'Fraunces-Bold',
     fontSize: 18,
-    color: '#4A080C',
+    color: '#453332',
     marginBottom: 6,
   },
   emptySubtext: {
@@ -1282,7 +1279,7 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -1317,7 +1314,7 @@ const styles = StyleSheet.create({
     color: '#8A7550',
   },
   unreadBadge: {
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
@@ -1333,7 +1330,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: 24,
     paddingTop: 8,
-    paddingBottom: 16,
+    paddingBottom: 6,
   },
   loadEarlierButton: {
     alignSelf: 'center',
@@ -1343,7 +1340,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   loadEarlierText: {
-    color: '#4A080C',
+    color: '#453332',
     fontFamily: 'WorkSans_600SemiBold',
     fontSize: 13,
   },
@@ -1352,6 +1349,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 16,
     paddingHorizontal: 4,
+  },
+  historySection: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(196, 167, 99, 0.38)',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    marginBottom: 10,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingBottom: 14,
+    marginBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(196, 167, 99, 0.32)',
+  },
+  historyIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F3E9DE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyTitle: {
+    fontFamily: 'Fraunces-Bold',
+    fontSize: 15,
+    color: '#453332',
+  },
+  historySubtitle: {
+    fontFamily: 'WorkSans_400Regular',
+    fontSize: 11,
+    color: '#8A7550',
+    marginTop: 2,
   },
   dividerLine: {
     flex: 1,
@@ -1376,6 +1410,10 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     marginBottom: 4,
   },
+  userSenderName: {
+    alignSelf: 'flex-end',
+    marginRight: 4,
+  },
   bubbleBase: {
     maxWidth: '82%',
     paddingHorizontal: 16,
@@ -1385,7 +1423,7 @@ const styles = StyleSheet.create({
   },
   sentBubble: {
     alignSelf: 'flex-end',
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     borderBottomRightRadius: 4,
   },
   receivedBubble: {
@@ -1402,7 +1440,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   receivedText: {
-    color: '#4A080C',
+    color: '#453332',
   },
   statusRow: {
     flexDirection: 'row',
@@ -1422,8 +1460,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FBF7EF',
+    paddingTop: 6,
+    paddingBottom: 12,
+    backgroundColor: '#FFFFFF',
   },
   recordingContainer: {
     flex: 1,
@@ -1482,7 +1521,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1505,7 +1544,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
   textInput: {
     flex: 1,
@@ -1513,7 +1552,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#3A2E1A',
     height: '100%',
-    paddingRight: 8,
+    paddingHorizontal: 8,
+  },
+  composerIconBtn: {
+    width: 32,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emojiBtn: {
     padding: 4,
@@ -1522,7 +1567,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1551,7 +1596,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FBF7EF',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E4D5B7',
     alignItems: 'center',
@@ -1575,7 +1620,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   segmentedPillActive: {
-    backgroundColor: '#4A080C',
+    backgroundColor: '#453332',
   },
   segmentedText: {
     fontFamily: 'WorkSans_600SemiBold',

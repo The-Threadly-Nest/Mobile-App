@@ -147,7 +147,7 @@ export default function CustomersScreen() {
 
         {/* Customers List */}
         {loading ? (
-          <ActivityIndicator color="#4A080C" size="large" style={{ marginVertical: 40 }} />
+          <ActivityIndicator color="#453332" size="large" style={{ marginVertical: 40 }} />
         ) : (
           <FlatList
             data={filteredCustomers}
@@ -156,7 +156,7 @@ export default function CustomersScreen() {
             contentContainerStyle={styles.listContent}
             onEndReached={() => void loadMoreCustomers()}
             onEndReachedThreshold={0.4}
-            ListFooterComponent={loadingMore ? <ActivityIndicator color="#4A080C" style={{ margin: 16 }} /> : null}
+            ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
           renderItem={({ item }) => {
             const initial = (item.name || "C").charAt(0).toUpperCase();
 
@@ -203,7 +203,7 @@ export default function CustomersScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Customer Profile</Text>
               <Pressable onPress={() => setModalVisible(false)}>
-                <X size={20} color="#4A080C" />
+                <X size={20} color="#453332" />
               </Pressable>
             </View>
 
@@ -240,7 +240,7 @@ export default function CustomersScreen() {
                 </View>
 
                 <View style={styles.statBox}>
-                  <UserCheck size={16} color="#4A080C" />
+                  <UserCheck size={16} color="#453332" />
                   <Text style={styles.statBoxText}>
                     Total Orders: <Text style={{ fontFamily: "WorkSans_600SemiBold" }}>{selectedCustomer.ordersCount}</Text>
                   </Text>
@@ -259,7 +259,7 @@ export default function CustomersScreen() {
               }}
               style={({ pressed }) => [
                 styles.measActionBtn,
-                { opacity: pressed ? 0.85 : 1, marginBottom: 10, backgroundColor: "#4A080C" },
+                { opacity: pressed ? 0.85 : 1, marginBottom: 10, backgroundColor: "#453332" },
               ]}
             >
               <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -298,7 +298,7 @@ export default function CustomersScreen() {
                 }}
                 style={({ pressed }) => [
                   styles.measActionBtn,
-                  { backgroundColor: selectedCustomer.status === "inactive" ? "#4A080C" : "#8A7550", opacity: pressed ? 0.85 : 1 },
+                  { backgroundColor: selectedCustomer.status === "inactive" ? "#453332" : "#8A7550", opacity: pressed ? 0.85 : 1 },
                 ]}
               >
                 <Text style={styles.measActionBtnText}>
@@ -316,7 +316,7 @@ export default function CustomersScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 20,
-    color: "#4A080C",
+    color: "#453332",
   },
   statBox: {
     flexDirection: "row",
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   measActionBtn: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

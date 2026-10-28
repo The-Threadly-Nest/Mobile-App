@@ -14,7 +14,7 @@ import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { Phone, Calendar, Ruler, Scissors, ArrowRight } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 
 const STAGE_LABELS: Record<string, { label: string; percent: number }> = {
@@ -53,13 +53,7 @@ export default function StaffOrderDetailScreen() {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE_URL}/api/orders/${params.orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setOrder(data);
-      }
+      setOrder(await apiFetch<any>(`/api/orders/${params.orderId}`, { silent: true }));
     } catch (err) {
       console.warn("Could not fetch order detail:", err);
     } finally {
@@ -100,7 +94,7 @@ export default function StaffOrderDetailScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#4A080C" />
+          <BackArrowIcon size={20} color="#453332" />
         </Pressable>
         <Text style={styles.headerTitleText}>Order Details</Text>
         <View style={{ width: 36 }} />
@@ -137,7 +131,7 @@ export default function StaffOrderDetailScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardHeadline}>Garment Specifications</Text>
-            <Scissors size={18} color="#4A080C" />
+            <Scissors size={18} color="#453332" />
           </View>
           <Text style={styles.garmentTitle}>{garmentDetails}</Text>
           {customerPhone ? (
@@ -155,11 +149,11 @@ export default function StaffOrderDetailScreen() {
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <Text style={styles.cardHeadline}>Customer Measurements</Text>
-            <Ruler size={18} color="#4A080C" />
+            <Ruler size={18} color="#453332" />
           </View>
 
           {loading ? (
-            <ActivityIndicator color="#4A080C" style={{ marginVertical: 20 }} />
+            <ActivityIndicator color="#453332" style={{ marginVertical: 20 }} />
           ) : measurementsList.length > 0 ? (
             <View style={styles.measurementsGrid}>
               {measurementsList.map((m: any, idx: number) => (
@@ -206,7 +200,7 @@ export default function StaffOrderDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FBF7EF" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     height: 52,
     paddingHorizontal: 20,
@@ -224,7 +218,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitleText: { fontFamily: "WorkSans_600SemiBold", fontSize: 17, color: "#4A080C" },
+  headerTitleText: { fontFamily: "WorkSans_600SemiBold", fontSize: 17, color: "#453332" },
   scrollContent: { paddingHorizontal: 20, paddingVertical: 20, paddingBottom: 40 },
   heroCard: {
     flexDirection: "row",
@@ -238,20 +232,20 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
   },
   avatarText: { fontFamily: "WorkSans_700Bold", fontSize: 18, color: "#FFFFFF" },
   heroInfoCol: { flex: 1 },
-  customerNameText: { fontFamily: "WorkSans_700Bold", fontSize: 18, color: "#4A080C" },
+  customerNameText: { fontFamily: "WorkSans_700Bold", fontSize: 18, color: "#453332" },
   orderNumberText: { fontFamily: "WorkSans_500Medium", fontSize: 13, color: "#8A7550", marginTop: 2 },
   card: { backgroundColor: "#FFFFFF", borderRadius: 20, padding: 18, marginBottom: 16 },
   cardHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
-  cardHeadline: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#4A080C" },
-  statusBadge: { backgroundColor: "#FBF7EF", borderWidth: 1, borderColor: "#4A080C", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
-  statusBadgeText: { fontFamily: "WorkSans_600SemiBold", fontSize: 12, color: "#4A080C" },
+  cardHeadline: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#453332" },
+  statusBadge: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#453332", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
+  statusBadgeText: { fontFamily: "WorkSans_600SemiBold", fontSize: 12, color: "#453332" },
   progressTrack: { height: 8, backgroundColor: "rgba(0,0,0,0.06)", borderRadius: 4, overflow: "hidden", marginBottom: 6 },
   progressFill: { height: "100%", backgroundColor: "#C4A763", borderRadius: 4 },
   percentSubtext: { fontFamily: "WorkSans_500Medium", fontSize: 12, color: "#8A7550" },
@@ -259,12 +253,12 @@ const styles = StyleSheet.create({
   phoneRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   phoneText: { fontFamily: "WorkSans_500Medium", fontSize: 13, color: "#8A7550" },
   measurementsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  measurementItem: { width: "47%", backgroundColor: "#FBF7EF", borderRadius: 12, padding: 10 },
+  measurementItem: { width: "47%", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 10 },
   measurementLabel: { fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#8A7550", marginBottom: 2 },
-  measurementVal: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#4A080C" },
+  measurementVal: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#453332" },
   noMeasurementsText: { fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#8A7550", fontStyle: "italic", lineHeight: 20 },
   actionBtn: {
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     height: 52,
     borderRadius: 16,
     flexDirection: "row",

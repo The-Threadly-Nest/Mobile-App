@@ -17,7 +17,7 @@ import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { API_BASE_URL } from "@/api/config";
+import { apiFetch } from "@/shared/utils/apiClient";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 
@@ -39,6 +39,7 @@ export default function LoginScreen() {
   const setCreatedAt = useAuthStore((s) => s.setCreatedAt);
   const setIsVerified = useAuthStore((s) => s.setIsVerified);
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
+  const setSession = useAuthStore((s) => s.setSession);
 
   const isValidEmail = (e: string) => {
     const clean = e.trim().toLowerCase();
@@ -63,32 +64,24 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const targetUrl = `${API_BASE_URL}/api/auth/login`;
-      console.log(`[Login] Attempting POST to ${targetUrl}`);
-      const res = await fetch(targetUrl, {
+      const body = await apiFetch<any>("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
-      const body = await res.json();
-      if (!res.ok) {
-        const issueMsg = Array.isArray(body.issues) && body.issues.length > 0
-          ? body.issues.map((i: any) => i.message).join(". ")
-          : null;
-        throw new Error(issueMsg || body.error || "Invalid email or password.");
-      }
 
       const userVerified = body.user.isVerified ?? true;
       const userOnboardingCompleted = body.user.onboardingCompleted ?? false;
 
-      setToken(body.token);
-      setEmailStore(body.user.email);
-      setNameStore(body.user.name ?? "");
-      setShopName(body.user.shopName ?? "");
-      setRoleStore(body.user.role);
-      setCreatedAt(body.user.createdAt ?? null);
-      setIsVerified(userVerified);
-      setOnboardingCompleted(userOnboardingCompleted);
+      setSession({
+        token: body.token,
+        email: body.user.email,
+        name: body.user.name ?? "",
+        shopName: body.user.shopName ?? "",
+        role: body.user.role,
+        createdAt: body.user.createdAt ?? null,
+        isVerified: userVerified,
+        onboardingCompleted: userOnboardingCompleted,
+      });
 
       // Register push token asynchronously so notifications work immediately without cold start
       registerPushToken(body.token).catch((err) =>
@@ -108,7 +101,7 @@ export default function LoginScreen() {
       } else router.replace("/(customer)/browse");
     } catch (e: any) {
       if (e.message === "Network request failed" || e.name === "TypeError") {
-        setError(`Network request failed. (Connecting to ${API_BASE_URL})`);
+        setError("Network request failed. Please check your connection and try again.");
       } else {
         setError(e.message);
       }
@@ -262,7 +255,7 @@ export default function LoginScreen() {
               ]}
             >
               {googleLoading ? (
-                <ActivityIndicator color="#4A080C" />
+                <ActivityIndicator color="#453332" />
               ) : (
                 <>
               <Svg width={20} height={20} viewBox="0 0 24 24">
@@ -302,7 +295,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -348,7 +341,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -10,
     left: 16,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 6,
     zIndex: 1,
   },
@@ -376,7 +369,7 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontFamily: "WorkSans_400Regular",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
   },
   errorText: {
     fontFamily: "WorkSans_400Regular",
@@ -388,7 +381,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
@@ -413,7 +406,7 @@ const styles = StyleSheet.create({
   signupLinkBold: {
     fontFamily: "WorkSans_600SemiBold",
     fontSize: 15,
-    color: "#4A080C",
+    color: "#453332",
   },
   dividerContainer: {
     flexDirection: "row",
@@ -436,7 +429,7 @@ const styles = StyleSheet.create({
     height: 63,
     borderRadius: 31.5,
     borderWidth: 1,
-    borderColor: "#4A080C",
+    borderColor: "#453332",
     backgroundColor: "transparent",
     flexDirection: "row",
     alignItems: "center",

@@ -85,7 +85,7 @@ export default function StaffProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontFamily: "Fraunces-Bold",
     fontSize: 26,
-    color: "#4A080C",
+    color: "#453332",
     marginBottom: 20,
   },
   profileCard: {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#4A080C",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
