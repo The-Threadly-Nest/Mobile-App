@@ -173,19 +173,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cartEyebrow: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 1.5,
     color: "#8A6252",
   },
   title: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#3B0508",
     marginBottom: 8,
   },
   message: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#5C4A32",
     lineHeight: 21,
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.3)",
   },
   cancelText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#453332",
   },
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   confirmText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#FFFFFF",
     letterSpacing: 0.5,

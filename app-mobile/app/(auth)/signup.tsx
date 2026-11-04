@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#3B0508",
   },
@@ -393,12 +393,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   labelText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "rgba(74, 8, 12, 0.75)",
   },
   textInput: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
     color: "#3B0508",
     paddingRight: 32,
@@ -410,14 +410,14 @@ const styles = StyleSheet.create({
     top: 18,
   },
   helperText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "rgba(74, 8, 12, 0.60)",
     marginBottom: 36,
     marginTop: -2,
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#D32F2F",
     marginBottom: 16,
@@ -429,12 +429,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   roleToggleLabel: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "rgba(74, 8, 12, 0.6)",
   },
   roleToggleValue: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#453332",
     textDecorationLine: "underline",
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   createAccountText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
     letterSpacing: 0.2,
@@ -461,12 +461,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   loginLinkText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     color: "#3B0508",
   },
   loginLinkBold: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#453332",
   },
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(74, 8, 12, 0.15)",
   },
   dividerText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "rgba(74, 8, 12, 0.60)",
     paddingHorizontal: 16,
@@ -501,13 +501,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   googleBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#1A1A1A",
     letterSpacing: 0.2,
   },
   disclaimerText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
     color: "rgba(74, 8, 12, 0.60)",

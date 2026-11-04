@@ -105,7 +105,7 @@ export default function OnboardingScreen() {
             {/* Headline */}
             <Text
               style={{
-                fontFamily: "Fraunces-Bold",
+                fontFamily: "HedvigLettersSerif-Regular",
                 fontSize: 26,
                 lineHeight: 34,
                 color: "#FFFFFF",
@@ -118,7 +118,7 @@ export default function OnboardingScreen() {
             {/* Subtitle */}
             <Text
               style={{
-                fontFamily: "WorkSans_400Regular",
+                fontFamily: "InstrumentSans-Regular",
                 fontSize: 14,
                 lineHeight: 20,
                 color: "rgba(255,255,255,0.85)",
@@ -168,7 +168,7 @@ export default function OnboardingScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "WorkSans_600SemiBold",
+                    fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 15,
                     color: "#FFFFFF",
                     letterSpacing: 0.2,
@@ -195,7 +195,7 @@ export default function OnboardingScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "WorkSans_600SemiBold",
+                      fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 15,
                       color: "#FFFFFF",
                       letterSpacing: 0.2,
@@ -222,7 +222,7 @@ export default function OnboardingScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "WorkSans_600SemiBold",
+                      fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 15,
                       color: "#FFFFFF",
                       letterSpacing: 0.2,
@@ -296,7 +296,7 @@ export default function OnboardingScreen() {
         {/* Headline */}
         <Text
           style={{
-            fontFamily: "Fraunces-Bold",
+            fontFamily: "HedvigLettersSerif-Regular",
             fontSize: 36,
             lineHeight: 44,
             color: "#FFFFFF",
@@ -310,7 +310,7 @@ export default function OnboardingScreen() {
         {/* Subtitle */}
         <Text
           style={{
-            fontFamily: "WorkSans_400Regular",
+            fontFamily: "InstrumentSans-Regular",
             fontSize: 20,
             lineHeight: 26,
             width: 308,
@@ -364,7 +364,7 @@ export default function OnboardingScreen() {
           >
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 16,
                 color: "#FFFFFF",
                 letterSpacing: 0.2,
@@ -391,7 +391,7 @@ export default function OnboardingScreen() {
             >
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
                   color: "#FFFFFF",
                   letterSpacing: 0.2,
@@ -416,7 +416,7 @@ export default function OnboardingScreen() {
             >
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
                   color: "#FFFFFF",
                   letterSpacing: 0.2,

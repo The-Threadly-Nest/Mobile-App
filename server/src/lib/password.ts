@@ -24,3 +24,8 @@ export function generateResetToken(): string {
 export function hashResetToken(token: string): string {
   return crypto.createHash("sha256").update(token.toUpperCase().trim()).digest("hex");
 }
+
+export function codeMatches(token: string, expectedHash: string): boolean {
+  if (!/^[a-f0-9]{64}$/i.test(expectedHash)) return false;
+  return crypto.timingSafeEqual(Buffer.from(hashResetToken(token), "hex"), Buffer.from(expectedHash, "hex"));
+}

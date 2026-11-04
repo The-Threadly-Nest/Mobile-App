@@ -747,7 +747,7 @@ export default function CustomerDirectChatScreen() {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontFamily: 'Fraunces-Bold', fontSize: 16, color: '#FFFFFF' }}>
+              <Text style={{ fontFamily: 'HedvigLettersSerif-Regular', fontSize: 16, color: '#FFFFFF' }}>
                 {displayName.charAt(0).toUpperCase()}
               </Text>
             </View>
@@ -886,7 +886,7 @@ export default function CustomerDirectChatScreen() {
                                   height={24}
                                 />
                               </View>
-                              <Text style={{ fontFamily: 'WorkSans_500Medium', fontSize: 12, color: isMe ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
+                              <Text style={{ fontFamily: 'InstrumentSans-Medium', fontSize: 12, color: isMe ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
                                 {formatDuration(msg.audioDuration || 0)}
                               </Text>
                             </Pressable>
@@ -1082,7 +1082,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   timeHeaderText: {
-    fontFamily: 'WorkSans_500Medium',
+    fontFamily: 'InstrumentSans-Medium',
     fontSize: 13,
     color: '#8A7550',
     textAlign: 'center',
@@ -1111,12 +1111,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerNameText: {
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: 'HedvigLettersSerif-Regular',
     fontSize: 18,
     color: '#453332',
   },
   headerSubtitleText: {
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 12,
     color: '#8A7550',
     marginTop: 2,
@@ -1136,7 +1136,7 @@ const styles = StyleSheet.create({
   },
   loadEarlierText: {
     color: '#453332',
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 13,
   },
   centerContainer: {
@@ -1156,13 +1156,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitleText: {
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: 'HedvigLettersSerif-Regular',
     fontSize: 18,
     color: '#453332',
     marginBottom: 6,
   },
   emptySubtext: {
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 13,
     color: '#8A7550',
     textAlign: 'center',
@@ -1201,12 +1201,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   historyTitle: {
-    fontFamily: 'Fraunces-Bold',
+    fontFamily: 'HedvigLettersSerif-Regular',
     fontSize: 15,
     color: '#453332',
   },
   historySubtitle: {
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 11,
     color: '#8A7550',
     marginTop: 2,
@@ -1220,7 +1220,7 @@ const styles = StyleSheet.create({
   dividerLabel: {
     marginHorizontal: 12,
     fontSize: 10,
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     color: '#C4A763',
     letterSpacing: 2,
   },
@@ -1231,7 +1231,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   senderNameText: {
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 12,
     color: '#3A2E1A',
     marginLeft: 4,
@@ -1259,7 +1259,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 14,
     lineHeight: 20,
   },
@@ -1278,7 +1278,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   statusText: {
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 10,
     color: '#8A7550',
   },
@@ -1317,7 +1317,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   recordingTimerText: {
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 16,
     color: '#3A2E1A',
     minWidth: 42,
@@ -1345,7 +1345,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   pausePillText: {
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 14,
     color: '#3A2E1A',
   },
@@ -1380,7 +1380,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 14,
     color: '#3A2E1A',
     height: '100%',

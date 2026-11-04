@@ -273,7 +273,7 @@ export default function CustomerProfileScreen() {
                   borderColor: '#FFFFFF',
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 9, fontFamily: 'WorkSans_700Bold' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 9, fontFamily: 'InstrumentSans-Bold' }}>
                   {totalUnread > 99 ? '99+' : totalUnread}
                 </Text>
               </View>
@@ -457,7 +457,7 @@ export default function CustomerProfileScreen() {
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 11, fontFamily: 'WorkSans_700Bold' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 11, fontFamily: 'InstrumentSans-Bold' }}>
                   {totalUnread > 99 ? '99+' : totalUnread}
                 </Text>
               </View>

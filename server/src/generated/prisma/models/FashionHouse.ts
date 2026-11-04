@@ -754,14 +754,6 @@ export type FashionHouseUpdatecategoriesInput = {
   push?: string | string[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type FashionHouseCreateNestedOneWithoutCustomersInput = {
   create?: Prisma.XOR<Prisma.FashionHouseCreateWithoutCustomersInput, Prisma.FashionHouseUncheckedCreateWithoutCustomersInput>
   connectOrCreate?: Prisma.FashionHouseCreateOrConnectWithoutCustomersInput

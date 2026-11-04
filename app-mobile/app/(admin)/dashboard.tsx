@@ -282,7 +282,7 @@ export default function AdminDashboard() {
         {/* Subtitle Badge */}
         <Text
           style={{
-            fontFamily: "WorkSans_500Medium",
+            fontFamily: "InstrumentSans-Medium",
             fontSize: 13,
             color: "#453332",
             marginBottom: 4,
@@ -297,7 +297,7 @@ export default function AdminDashboard() {
             numberOfLines={1}
             adjustsFontSizeToFit
             style={{
-              fontFamily: "Fraunces-SemiBold",
+              fontFamily: "HedvigLettersSerif-Regular",
               fontSize: 26,
               color: "#3B0508",
               lineHeight: 34,
@@ -325,7 +325,7 @@ export default function AdminDashboard() {
           >
             <Text
               style={{
-                fontFamily: "Fraunces-Bold",
+                fontFamily: "HedvigLettersSerif-Regular",
                 fontSize: 28,
                 color: "#FFFFFF",
                 marginBottom: 4,
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
             </Text>
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 11,
                 letterSpacing: 1.2,
                 color: "rgba(244, 239, 230, 0.8)",
@@ -361,7 +361,7 @@ export default function AdminDashboard() {
             >
               <Text
                 style={{
-                  fontFamily: "Fraunces-Bold",
+                  fontFamily: "HedvigLettersSerif-Regular",
                   fontSize: 24,
                   color: "#3B0508",
                   marginBottom: 2,
@@ -371,7 +371,7 @@ export default function AdminDashboard() {
               </Text>
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 10,
                   letterSpacing: 0.8,
                   color: "#8A7550",
@@ -395,7 +395,7 @@ export default function AdminDashboard() {
             >
               <Text
                 style={{
-                  fontFamily: "Fraunces-Bold",
+                  fontFamily: "HedvigLettersSerif-Regular",
                   fontSize: 24,
                   color: "#3B0508",
                   marginBottom: 2,
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
               </Text>
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 10,
                   letterSpacing: 0.8,
                   color: "#8A7550",
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
             <Plus size={20} color="#FFFFFF" />
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 15,
                 color: "#FFFFFF",
               }}
@@ -459,7 +459,7 @@ export default function AdminDashboard() {
         >
           <Text
             style={{
-              fontFamily: "Fraunces-SemiBold",
+              fontFamily: "HedvigLettersSerif-Regular",
               fontSize: 18,
               color: "#453332",
             }}
@@ -469,7 +469,7 @@ export default function AdminDashboard() {
           <Pressable onPress={() => router.push("/(admin)/escalations")}>
             <Text
               style={{
-                fontFamily: "WorkSans_500Medium",
+                fontFamily: "InstrumentSans-Medium",
                 fontSize: 13,
                 color: "#8A7550",
               }}
@@ -495,7 +495,7 @@ export default function AdminDashboard() {
           >
             <Text
               style={{
-                fontFamily: "WorkSans_400Regular",
+                fontFamily: "InstrumentSans-Regular",
                 fontSize: 14,
                 color: "rgba(74, 8, 12, 0.6)",
               }}
@@ -547,7 +547,7 @@ export default function AdminDashboard() {
                   >
                     <Text
                       style={{
-                        fontFamily: "Fraunces-Bold",
+                        fontFamily: "HedvigLettersSerif-Regular",
                         fontSize: 18,
                         color: "#FFFFFF",
                       }}
@@ -560,7 +560,7 @@ export default function AdminDashboard() {
                   <View style={{ flex: 1 }}>
                     <Text
                       style={{
-                        fontFamily: "WorkSans_600SemiBold",
+                        fontFamily: "InstrumentSans-SemiBold",
                         fontSize: 16,
                         color: "#3B0508",
                         marginBottom: 2,
@@ -571,7 +571,7 @@ export default function AdminDashboard() {
                     <Text
                       numberOfLines={1}
                       style={{
-                        fontFamily: "WorkSans_400Regular",
+                        fontFamily: "InstrumentSans-Regular",
                         fontSize: 12,
                         color: "#8A7550",
                       }}
@@ -591,7 +591,7 @@ export default function AdminDashboard() {
                   >
                     <Text
                       style={{
-                        fontFamily: "WorkSans_500Medium",
+                        fontFamily: "InstrumentSans-Medium",
                         fontSize: 11,
                         color: "#B0966C",
                       }}
@@ -667,7 +667,7 @@ export default function AdminDashboard() {
                     ) : (
                       <Text
                         style={{
-                          fontFamily: "WorkSans_600SemiBold",
+                          fontFamily: "InstrumentSans-SemiBold",
                           fontSize: 14,
                           color: "#FFFFFF",
                         }}
@@ -699,7 +699,7 @@ export default function AdminDashboard() {
                   >
                     <Text
                       style={{
-                        fontFamily: "WorkSans_600SemiBold",
+                        fontFamily: "InstrumentSans-SemiBold",
                         fontSize: 14,
                         color: "#453332",
                       }}

@@ -19,10 +19,10 @@ export default class AppErrorBoundary extends Component<Props, State> {
     if (!this.state.error) return this.props.children;
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#FFFFFF" }}>
-        <Text style={{ fontFamily: "Fraunces-Bold", fontSize: 24, color: "#453332", textAlign: "center" }}>
+        <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#453332", textAlign: "center" }}>
           Something went wrong
         </Text>
-        <Text style={{ marginTop: 12, fontFamily: "WorkSans_400Regular", fontSize: 15, lineHeight: 22, color: "#3A2E1A", textAlign: "center" }}>
+        <Text style={{ marginTop: 12, fontFamily: "InstrumentSans-Regular", fontSize: 15, lineHeight: 22, color: "#3A2E1A", textAlign: "center" }}>
           We could not open this page. Please try again.
         </Text>
         <Pressable
@@ -30,7 +30,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
           onPress={() => this.setState({ error: null })}
           style={({ pressed }) => ({ marginTop: 24, minWidth: 140, alignItems: "center", borderRadius: 24, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: "#453332", opacity: pressed ? 0.8 : 1 })}
         >
-          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 15, color: "#FFFFFF" }}>Try again</Text>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFFFF" }}>Try again</Text>
         </Pressable>
       </View>
     );

@@ -1,19 +1,19 @@
-import type { Response } from "express";
+import { EndpointResult } from "../core/http/endpoint-result";
 
 export function collectionWindow(page: number, limit: number) {
   return { skip: (page - 1) * limit, take: limit + 1 };
 }
 
-export function sendCollectionPage<T>(
-  res: Response,
+export function collectionPage<T>(
   rows: T[],
   page: number,
   limit: number
 ) {
   const hasMore = rows.length > limit;
   const items = hasMore ? rows.slice(0, limit) : rows;
-  res.setHeader("X-Page", String(page));
-  res.setHeader("X-Has-More", String(hasMore));
-  if (hasMore) res.setHeader("X-Next-Page", String(page + 1));
-  return res.json(items);
+  return new EndpointResult(items, 200, {
+    "X-Page": String(page),
+    "X-Has-More": String(hasMore),
+    ...(hasMore ? { "X-Next-Page": String(page + 1) } : {}),
+  });
 }

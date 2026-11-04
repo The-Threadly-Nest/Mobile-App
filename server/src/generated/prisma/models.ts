@@ -9,6 +9,8 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/WaitlistEntry'
+export type * from './models/RateLimitBucket'
 export type * from './models/FashionHouse'
 export type * from './models/Customer'
 export type * from './models/Measurement'

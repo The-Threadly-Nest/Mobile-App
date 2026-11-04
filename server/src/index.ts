@@ -1,7 +1,16 @@
-import { app } from "./app";
+import { Logger } from "@nestjs/common";
+import { createApplication } from "./app";
 
-const PORT = process.env.PORT ?? 4000;
+async function bootstrap(): Promise<void> {
+  const app = await createApplication();
+  app.enableShutdownHooks();
+  const port = Number(process.env.PORT ?? "4000");
+  if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT must be a valid TCP port.");
+  await app.listen(port, "0.0.0.0");
+  Logger.log(`Owuja API is ready and listening on port ${port}.`, "Bootstrap");
+}
 
-app.listen(PORT, () => {
-  console.log(`Owuja API listening on port ${PORT}`);
+void bootstrap().catch((error: unknown) => {
+  Logger.error(error instanceof Error ? error.message : "Application startup failed.", undefined, "Bootstrap");
+  process.exitCode = 1;
 });

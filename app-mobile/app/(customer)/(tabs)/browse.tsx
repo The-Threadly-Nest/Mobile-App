@@ -579,13 +579,13 @@ const styles = StyleSheet.create({
     paddingVertical: 56,
   },
   emptyTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3A2E1A",
     marginBottom: 6,
   },
   emptyBody: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#646464",
     textAlign: "center",
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   brandTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#453332",
     letterSpacing: 0.3,
@@ -636,11 +636,11 @@ const styles = StyleSheet.create({
   },
   cartBadgeText: {
     color: "#FFFFFF",
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 9,
   },
   locationText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#3A2E1A",
   },
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   segmentedText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     color: "#3A2E1A",
   },
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
   },
@@ -706,7 +706,7 @@ const styles = StyleSheet.create({
     borderColor: "#453332",
   },
   categoryText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
   },
   categoryTextSelected: {
@@ -752,7 +752,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
   },
   badgeText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     color: "#FFFFFF",
     letterSpacing: 0.8,
@@ -767,18 +767,18 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cardTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 17,
     color: "#000000",
     marginRight: 8,
   },
   cardPrice: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 17,
     color: "#453332",
   },
   vendorSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
     marginBottom: 12,
@@ -789,7 +789,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   locationSub: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#404040",
   },
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   ratingText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#404040",
     marginLeft: 4,
@@ -815,7 +815,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
   },
   tagText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#000000",
   },
@@ -832,7 +832,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   orderBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     color: "#FFFFFF",
   },

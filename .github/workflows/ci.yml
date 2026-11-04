@@ -9,6 +9,32 @@ permissions:
   contents: read
 
 jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan committed content for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependency-security:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [server, app-mobile, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check dependency advisories
+        run: npm audit --audit-level=high
+        working-directory: ${{ matrix.project }}
+
   validate:
     runs-on: ubuntu-latest
     env:
@@ -38,14 +64,14 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
         working-directory: server
-      - name: Run security regression tests
-        run: npm test
-        working-directory: server
       - name: Type-check server
         run: npm run typecheck
         working-directory: server
       - name: Build server
         run: npm run build
+        working-directory: server
+      - name: Run security regression tests
+        run: npm test
         working-directory: server
       - name: Type-check mobile app
         run: npm run typecheck
@@ -53,5 +79,9 @@ jobs:
       - name: Enforce real production data mode
         run: npm run validate:production-data
         working-directory: app-mobile
-      - name: Scan committed content for secrets
-        uses: gitleaks/gitleaks-action@v2
+      - name: Install web dependencies
+        run: npm ci
+        working-directory: web
+      - name: Type-check web app
+        run: npx tsc --noEmit
+        working-directory: web

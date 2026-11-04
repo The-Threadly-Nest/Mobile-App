@@ -414,12 +414,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
   headerSubtitle: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#7A7265",
     marginTop: 2,
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#FFFFFF",
   },
@@ -474,12 +474,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerName: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
   garmentTitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#6E685E",
     marginTop: 2,
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   statusText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
   },
   heroDivider: {
@@ -505,19 +505,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   metaLabel: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     letterSpacing: 0.8,
     color: "#8A7550",
     marginBottom: 4,
   },
   priceValue: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 22,
     color: "#453332",
   },
   dateValue: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#333333",
   },
@@ -540,13 +540,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 16,
     color: "#453332",
     marginBottom: 14,
   },
   unitBadge: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#8A7550",
     backgroundColor: "#F4ECE1",
@@ -595,12 +595,12 @@ const styles = StyleSheet.create({
     borderColor: "#B28847",
   },
   stepNumText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#7A7265",
   },
   stepLabel: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
     color: "#999",
     marginTop: 6,
@@ -608,11 +608,11 @@ const styles = StyleSheet.create({
   },
   stepLabelActive: {
     color: "#453332",
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
   },
   stepLabelCurrent: {
     color: "#453332",
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
   },
   infoRow: {
     flexDirection: "row",
@@ -634,12 +634,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoFieldLabel: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
     color: "#7A7265",
   },
   infoFieldValue: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#1A1110",
     marginTop: 2,
@@ -658,12 +658,12 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.06)",
   },
   measurementKey: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#7A7265",
   },
   measurementVal: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 16,
     color: "#453332",
     marginTop: 4,
@@ -687,7 +687,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   primaryBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#FFFFFF",
   },

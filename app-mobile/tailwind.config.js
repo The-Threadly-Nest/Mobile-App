@@ -16,12 +16,13 @@ module.exports = {
       },
       fontFamily: {
         // Headlines / display moments only — see README for usage rules
-        display: ["Fraunces-Bold"],
-        "display-regular": ["Fraunces-Regular"],
+        display: ["HedvigLettersSerif-Regular"],
+        "display-regular": ["HedvigLettersSerif-Regular"],
         // Body, buttons, labels, forms, chat — everything small/dense
-        body: ["WorkSans_400Regular"],
-        "body-medium": ["WorkSans_500Medium"],
-        "body-semibold": ["WorkSans_600SemiBold"],
+        body: ["InstrumentSans-Regular"],
+        "body-medium": ["InstrumentSans-Medium"],
+        "body-semibold": ["InstrumentSans-SemiBold"],
+        "body-bold": ["InstrumentSans-Bold"],
       },
       borderRadius: { none: "0px", pill: "999px" },
     },

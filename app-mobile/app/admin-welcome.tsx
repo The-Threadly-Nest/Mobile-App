@@ -110,14 +110,14 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   title: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     lineHeight: 36,
     color: "#3B0508",
     marginBottom: 10,
   },
   subtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
     color: "rgba(74, 8, 12, 0.75)",
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   createAccountText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
     letterSpacing: 0.2,
@@ -152,13 +152,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logInText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#453332",
     letterSpacing: 0.2,
   },
   disclaimerText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
     color: "rgba(74, 8, 12, 0.60)",

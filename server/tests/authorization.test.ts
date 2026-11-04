@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { Request } from "express";
+import type { AccountIdentity } from "../src/core/auth/account-identity";
 import {
   availableSlotClaimWhere,
   bookingAccessWhere,
@@ -12,12 +12,12 @@ function actor(
   role: "admin" | "staff" | "customer",
   userId: string,
   fashionHouseId?: string
-): Request {
+): AccountIdentity {
   return {
     authRole: role,
     authUserId: userId,
     authFashionHouseId: fashionHouseId ?? null,
-  } as Request;
+  };
 }
 
 test("admin and staff order access is restricted to their fashion house", () => {
@@ -41,11 +41,17 @@ test("customer order and booking access is restricted to their identity", () => 
 });
 
 test("slot claims are restricted to the selected fashion house and unbooked rows", () => {
-  assert.deepEqual(availableSlotClaimWhere("slot-a", "house-a"), {
+  const before = Date.now();
+  const claim = availableSlotClaimWhere("slot-a", "house-a");
+  assert.deepEqual({ ...claim, startsAt: undefined }, {
     id: "slot-a",
     fashionHouseId: "house-a",
     booked: false,
+    active: true,
+    startsAt: undefined,
   });
+  assert.ok(claim.startsAt.gt.getTime() >= before);
+  assert.ok(claim.startsAt.gt.getTime() <= Date.now());
 });
 
 test("customer cannot obtain a fashion-house moodboard predicate", () => {

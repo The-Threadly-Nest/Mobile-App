@@ -93,7 +93,7 @@ export default function CustomerOrdersScreen() {
       >
         {/* Title */}
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", marginBottom: 4 }, isLandscape && { maxWidth: 600 }]}>
-          <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 24, color: "#000000" }}>
+          <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#000000" }}>
             My Orders
           </Text>
         </View>
@@ -216,13 +216,13 @@ export default function CustomerOrdersScreen() {
                         </Text>
                         {isDeclined ? (
                           <View style={{ backgroundColor: "#FDEAEA", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
-                            <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#DC2626" }}>
+                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#DC2626" }}>
                               Declined
                             </Text>
                           </View>
                         ) : isCancelled ? (
                           <View style={{ backgroundColor: "#F5EFE6", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#E5DFD5" }}>
-                            <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#453332" }}>
+                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#453332" }}>
                               Cancelled
                             </Text>
                           </View>
@@ -235,11 +235,11 @@ export default function CustomerOrdersScreen() {
                     </View>
 
                     {isDeclined ? (
-                      <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 11.5, color: "#DC2626" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 11.5, color: "#DC2626" }}>
                         Appointment request declined
                       </Text>
                     ) : isCancelled ? (
-                      <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 11.5, color: "#5C4A32" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 11.5, color: "#5C4A32" }}>
                         Order cancelled by you
                       </Text>
                     ) : (
@@ -270,7 +270,7 @@ export default function CustomerOrdersScreen() {
                 {loadingMore ? (
                   <ActivityIndicator size="small" color="#453332" />
                 ) : (
-                  <Text style={{ color: "#453332", fontFamily: "WorkSans_600SemiBold" }}>Load more orders</Text>
+                  <Text style={{ color: "#453332", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
                 )}
               </Pressable>
             ) : null}

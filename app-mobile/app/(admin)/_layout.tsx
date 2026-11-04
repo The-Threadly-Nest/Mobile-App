@@ -168,7 +168,7 @@ function MoreIcon({ color, focused, unreadCount }: { color: string; focused: boo
             borderColor: "#FFFFFF",
           }}
         >
-          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
             {unreadCount}
           </Text>
         </View>
@@ -284,7 +284,7 @@ export default function AdminLayout() {
         },
         tabBarItemStyle: { height: 54 },
         tabBarLabelStyle: {
-          fontFamily: "WorkSans_600SemiBold",
+          fontFamily: "InstrumentSans-SemiBold",
           fontSize: 12,
           marginTop: 1,
         },

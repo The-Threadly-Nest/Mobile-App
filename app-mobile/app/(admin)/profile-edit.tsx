@@ -263,7 +263,7 @@ export default function AdminProfileEditScreen() {
           </Pressable>
           <Text
             style={{
-              fontFamily: "Fraunces-SemiBold",
+              fontFamily: "HedvigLettersSerif-Regular",
               fontSize: 20,
               color: "#3B0508",
             }}
@@ -286,7 +286,7 @@ export default function AdminProfileEditScreen() {
             {/* Brand Logo Card */}
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 13,
                 color: "#453332",
                 marginBottom: 8,
@@ -322,7 +322,7 @@ export default function AdminProfileEditScreen() {
                   <Upload size={24} color="#8A7550" style={{ marginBottom: 6 }} />
                   <Text
                     style={{
-                      fontFamily: "WorkSans_500Medium",
+                      fontFamily: "InstrumentSans-Medium",
                       fontSize: 13,
                       color: "#8A7550",
                     }}
@@ -336,7 +336,7 @@ export default function AdminProfileEditScreen() {
             {/* Shop / Business Name */}
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 13,
                 color: "#453332",
                 marginBottom: 8,
@@ -354,7 +354,7 @@ export default function AdminProfileEditScreen() {
                 borderRadius: 16,
                 paddingHorizontal: 16,
                 height: 52,
-                fontFamily: "WorkSans_500Medium",
+                fontFamily: "InstrumentSans-Medium",
                 fontSize: 15,
                 color: "#3B0508",
                 borderWidth: 1,
@@ -366,7 +366,7 @@ export default function AdminProfileEditScreen() {
             {/* Location */}
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 13,
                 color: "#453332",
                 marginBottom: 8,
@@ -384,7 +384,7 @@ export default function AdminProfileEditScreen() {
                 borderRadius: 16,
                 paddingHorizontal: 16,
                 height: 52,
-                fontFamily: "WorkSans_500Medium",
+                fontFamily: "InstrumentSans-Medium",
                 fontSize: 15,
                 color: "#3B0508",
                 borderWidth: 1,
@@ -411,10 +411,10 @@ export default function AdminProfileEditScreen() {
                 marginBottom: 20,
               }}
             >
-              <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 16, color: "#3B0508", marginBottom: 4 }}>
+              <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 16, color: "#3B0508", marginBottom: 4 }}>
                 Invoice Payment Details
               </Text>
-              <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#8A7550", marginBottom: 14 }}>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#8A7550", marginBottom: 14 }}>
                 These details appear only on invoices created for your fashion house.
               </Text>
               <TextInput
@@ -422,7 +422,7 @@ export default function AdminProfileEditScreen() {
                 onChangeText={setBankName}
                 placeholder="Bank name"
                 placeholderTextColor="#B0966C"
-                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
+                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
               />
               <TextInput
                 value={accountNumber}
@@ -431,21 +431,21 @@ export default function AdminProfileEditScreen() {
                 placeholderTextColor="#B0966C"
                 keyboardType="number-pad"
                 maxLength={10}
-                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
+                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
               />
               <TextInput
                 value={accountName}
                 onChangeText={setAccountName}
                 placeholder="Account holder name"
                 placeholderTextColor="#B0966C"
-                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3B0508" }}
+                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3B0508" }}
               />
             </View>
 
             {/* Standard Turnaround Time */}
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 13,
                 color: "#453332",
                 marginBottom: 8,
@@ -463,7 +463,7 @@ export default function AdminProfileEditScreen() {
                 borderRadius: 16,
                 paddingHorizontal: 16,
                 height: 52,
-                fontFamily: "WorkSans_500Medium",
+                fontFamily: "InstrumentSans-Medium",
                 fontSize: 15,
                 color: "#3B0508",
                 borderWidth: 1,
@@ -483,7 +483,7 @@ export default function AdminProfileEditScreen() {
             >
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 13,
                   color: "#453332",
                 }}
@@ -492,7 +492,7 @@ export default function AdminProfileEditScreen() {
               </Text>
               <Text
                 style={{
-                  fontFamily: "WorkSans_400Regular",
+                  fontFamily: "InstrumentSans-Regular",
                   fontSize: 11,
                   color: "#8A7550",
                 }}
@@ -514,7 +514,7 @@ export default function AdminProfileEditScreen() {
                 paddingHorizontal: 16,
                 paddingVertical: 12,
                 height: 60,
-                fontFamily: "WorkSans_400Regular",
+                fontFamily: "InstrumentSans-Regular",
                 fontSize: 14,
                 color: "#3B0508",
                 borderWidth: 1,
@@ -527,7 +527,7 @@ export default function AdminProfileEditScreen() {
             {/* Specialization Pills (2 per row) */}
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 13,
                 color: "#453332",
                 marginBottom: 12,
@@ -561,7 +561,7 @@ export default function AdminProfileEditScreen() {
                     <Text
                       numberOfLines={1}
                       style={{
-                        fontFamily: "WorkSans_500Medium",
+                        fontFamily: "InstrumentSans-Medium",
                         fontSize: 13,
                         color: selected ? "#FFFFFF" : "#3B0508",
                       }}
@@ -588,7 +588,7 @@ export default function AdminProfileEditScreen() {
                 <Calendar size={18} color="#453332" style={{ marginRight: 8 }} />
                 <Text
                   style={{
-                    fontFamily: "Fraunces-SemiBold",
+                    fontFamily: "HedvigLettersSerif-Regular",
                     fontSize: 16,
                     color: "#3B0508",
                   }}
@@ -598,7 +598,7 @@ export default function AdminProfileEditScreen() {
               </View>
               <Text
                 style={{
-                  fontFamily: "WorkSans_400Regular",
+                  fontFamily: "InstrumentSans-Regular",
                   fontSize: 12,
                   color: "#8A7550",
                   marginBottom: 14,
@@ -643,7 +643,7 @@ export default function AdminProfileEditScreen() {
                 >
                   <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
-                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
+                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
                     placeholder="YYYY-MM-DD"
                     placeholderTextColor="#B0966C"
                     value={newSlotDate}
@@ -665,7 +665,7 @@ export default function AdminProfileEditScreen() {
                 >
                   <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
-                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
+                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
                     placeholder="HH:MM"
                     placeholderTextColor="#B0966C"
                     value={newSlotTime}
@@ -696,7 +696,7 @@ export default function AdminProfileEditScreen() {
                 ) : (
                   <>
                     <Plus size={16} color="#FFFFFF" />
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#FFFFFF" }}>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>
                       Add Slot
                     </Text>
                   </>
@@ -706,7 +706,7 @@ export default function AdminProfileEditScreen() {
               {/* Active Slots list */}
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 13,
                   color: "#453332",
                   marginBottom: 10,
@@ -718,7 +718,7 @@ export default function AdminProfileEditScreen() {
               {loadingSlots ? (
                 <ActivityIndicator color="#453332" style={{ marginVertical: 12 }} />
               ) : slotsList.length === 0 ? (
-                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 12 }}>
+                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 12 }}>
                   No fitting slots added yet. Add your first slot above.
                 </Text>
               ) : (
@@ -740,16 +740,16 @@ export default function AdminProfileEditScreen() {
                   >
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                       <Calendar size={15} color="#453332" />
-                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3B0508" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3B0508" }}>
                         {slot.label || `${slot.date} · ${slot.time}`}
                       </Text>
                       {slot.booked ? (
                         <View style={{ backgroundColor: "#FDE8E8", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#D32F2F" }}>Booked</Text>
+                          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#D32F2F" }}>Booked</Text>
                         </View>
                       ) : (
                         <View style={{ backgroundColor: "#E8F5E9", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#2E7D32" }}>Available</Text>
+                          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2E7D32" }}>Available</Text>
                         </View>
                       )}
                     </View>
@@ -801,7 +801,7 @@ export default function AdminProfileEditScreen() {
             ) : (
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
                   color: "#FFFFFF",
                 }}

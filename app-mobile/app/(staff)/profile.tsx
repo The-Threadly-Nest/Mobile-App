@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   pageTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#453332",
     marginBottom: 20,
@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#FFFFFF",
   },
   userName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 20,
     color: "#3A2E1A",
     marginBottom: 6,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   roleBadgeText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 0.8,
     color: "#C4A763",
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   sectionHeader: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 1,
     color: "#8A7550",
@@ -173,13 +173,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoLabel: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginBottom: 2,
   },
   infoValue: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
     color: "#3A2E1A",
   },
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(220, 38, 38, 0.3)",
   },
   logoutBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#DC2626",
   },

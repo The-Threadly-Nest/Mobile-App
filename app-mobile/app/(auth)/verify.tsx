@@ -357,20 +357,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     color: "#453332",
     marginBottom: 8,
   },
   subtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#404040",
     lineHeight: 20,
     marginBottom: 32,
   },
   emailHighlight: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     color: "#453332",
   },
   otpRow: {
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 14,
     textAlign: "center",
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#453332",
   },
@@ -398,14 +398,14 @@ const styles = StyleSheet.create({
     borderColor: "#453332",
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#D32F2F",
     textAlign: "center",
     marginBottom: 16,
   },
   successText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#2E7D32",
     textAlign: "center",
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   resendLabel: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#404040",
   },
   resendAction: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#453332",
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     color: "#8A7550",
   },
   resendTimer: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#404040",
   },
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   changeEmailText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#453332",
     textDecorationLine: "underline",
@@ -459,14 +459,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   verifiedTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     color: "#453332",
     textAlign: "center",
     marginBottom: 12,
   },
   verifiedSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#404040",
     textAlign: "center",
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   continueBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
   },

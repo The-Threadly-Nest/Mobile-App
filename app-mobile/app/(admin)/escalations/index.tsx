@@ -595,7 +595,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   screenTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     color: "#1A1110",
     marginBottom: 20,
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#E2E5DF",
   },
   pillText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
   },
   pillTextActive: {
@@ -662,7 +662,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -670,13 +670,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#1A1110",
     marginBottom: 2,
   },
   serviceSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
   },
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FDEAEA",
   },
   badgeText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#A4895C",
   },
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   assignBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#FFFFFF",
   },
@@ -732,7 +732,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   declineBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#453332",
   },
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
     borderTopColor: "rgba(74, 8, 12, 0.08)",
   },
   assignedFooterText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#15803D",
   },
@@ -768,12 +768,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#453332",
   },
   modalSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#5C4A32",
     marginBottom: 14,
@@ -787,7 +787,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.15)",
   },
   staffItemName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#1A1110",
   },
@@ -800,20 +800,20 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.1)",
   },
   summaryLabel: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#8A7550",
     textTransform: "uppercase",
     marginBottom: 4,
   },
   summaryText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#1A1110",
     lineHeight: 20,
   },
   transcriptSectionTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#453332",
     marginBottom: 10,
@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.1)",
   },
   chatText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
   },
   userChatText: {

@@ -201,7 +201,7 @@ export default function StaffScreen() {
                           justifyContent: "center",
                         }}
                       >
-                        <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#FFFFFF" }}>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#FFFFFF" }}>
                           {item.unreadCount}
                         </Text>
                       </View>
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
     color: "#1A1110",
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: "100%",
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     color: "#1A1110",
   },
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 17,
     color: "#FFFFFF",
   },
@@ -366,19 +366,19 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   staffName: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
     color: "#000000",
     marginBottom: 2,
   },
   staffEmail: {
-    fontFamily: "WorkSans_300Light",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#404040",
     marginBottom: 2,
   },
   ordersText: {
-    fontFamily: "WorkSans_300Light",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#404040",
   },
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(220, 38, 38, 0.2)",
   },
   badgeText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11.5,
   },
   badgeTextActive: {
@@ -434,14 +434,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   emptyTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
     marginBottom: 6,
     textAlign: "center",
   },
   emptySubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
     color: "#8A7550",
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   emptyActionBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#FFFFFF",
   },

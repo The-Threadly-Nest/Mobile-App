@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   categoryLabel: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
     color: "#453332",
@@ -311,14 +311,14 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   headline: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 30,
     lineHeight: 36,
     color: "#3B0508",
     marginBottom: 8,
   },
   subtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
     color: "rgba(74, 8, 12, 0.75)",
@@ -328,13 +328,13 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   sectionTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3B0508",
     marginBottom: 4,
   },
   sectionSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "rgba(74, 8, 12, 0.60)",
     marginBottom: 16,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     borderColor: "#453332",
   },
   pillText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
   },
   pillTextUnselected: {
@@ -395,12 +395,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   budgetSymbolText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     lineHeight: 16,
   },
   budgetLabelText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 16,
   },
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   continueBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
     letterSpacing: 0.2,
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   skipBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3B0508",
     letterSpacing: 0.2,

@@ -215,7 +215,7 @@ export default function CustomersScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 18, color: "#1A1110" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#1A1110" }}>
                         {selectedCustomer.name}
                       </Text>
                       <View style={{
@@ -225,7 +225,7 @@ export default function CustomersScreen() {
                         borderRadius: 8
                       }}>
                         <Text style={{
-                          fontFamily: "WorkSans_600SemiBold",
+                          fontFamily: "InstrumentSans-SemiBold",
                           fontSize: 11,
                           color: selectedCustomer.status === "inactive" ? "#616161" : "#137333"
                         }}>
@@ -233,7 +233,7 @@ export default function CustomersScreen() {
                         </Text>
                       </View>
                     </View>
-                    <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#7A7265" }}>
+                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#7A7265" }}>
                       {selectedCustomer.phone}
                     </Text>
                   </View>
@@ -242,7 +242,7 @@ export default function CustomersScreen() {
                 <View style={styles.statBox}>
                   <UserCheck size={16} color="#453332" />
                   <Text style={styles.statBoxText}>
-                    Total Orders: <Text style={{ fontFamily: "WorkSans_600SemiBold" }}>{selectedCustomer.ordersCount}</Text>
+                    Total Orders: <Text style={{ fontFamily: "InstrumentSans-SemiBold" }}>{selectedCustomer.ordersCount}</Text>
                   </Text>
                 </View>
               </View>
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
     color: "#1A1110",
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: "100%",
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     color: "#1A1110",
   },
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -402,13 +402,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#1A1110",
     marginBottom: 4,
   },
   customerPhone: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#7A7265",
   },
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   ordersBadgeText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#7A3A3E",
   },
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#8A7550",
   },
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   modalTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#453332",
   },
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.1)",
   },
   statBoxText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
   },
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   measActionBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#FFFFFF",
   },

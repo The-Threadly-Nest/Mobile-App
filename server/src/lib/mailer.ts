@@ -21,7 +21,7 @@ async function sendEmail({ to, subject, text, html }: { to: string; subject: str
   });
   if (!response.ok) {
     const result = await response.json().catch(() => null) as { message?: string } | null;
-    console.error(JSON.stringify({ event: "email_delivery_failed", provider: "resend", status: response.status }));
+    console.error(`Email delivery failed. Resend returned HTTP ${response.status}.`);
     throw Object.assign(new Error(result?.message || "Email delivery failed."), { status: 502 });
   }
 }
@@ -91,5 +91,58 @@ export async function sendStaffInviteEmail({ to, name, fashionHouseName, tempPas
     text: `Hi ${name}, you have been added as a staff member at ${fashionHouseName}. Open ${BRAND_NAME}, choose Log In, and use your staff email and temporary password.`,
     html: emailShell(`<p>Hi <strong>${escapeHtml(name)}</strong>,</p><p>You have been added as a staff member at <strong>${escapeHtml(fashionHouseName)}</strong>.</p>${credentials}
       <ol style="font-size:13px;line-height:1.7;padding-left:20px;"><li>Open <strong>${BRAND_NAME}</strong>.</li><li>Select <strong>Log In</strong>.</li><li>Enter your staff email and temporary password.</li><li>Set your new private password.</li></ol>`),
+  });
+}
+
+export async function sendWaitlistVerificationEmail(to: string, code: string) {
+  return sendEmail({
+    to,
+    subject: "Verify your email for the Owuja waitlist",
+    text: `Your Owuja verification code is ${code}. Enter it on the waitlist page. It expires in 10 minutes. If you did not request this, ignore this email.`,
+    html: emailShell(`<p>Enter this code on the waitlist page to verify your email:</p><p style="font-size:32px;letter-spacing:8px;font-weight:bold;text-align:center;">${escapeHtml(code)}</p><p>This code expires in 10 minutes. If you did not request this, ignore this email.</p>`),
+  });
+}
+
+export async function sendWaitlistConfirmationEmail({
+  to,
+  name,
+  audience,
+  referralCode,
+  unsubscribeToken,
+}: {
+  to: string;
+  name: string;
+  audience: "customer" | "fashion_house";
+  referralCode: string;
+  unsubscribeToken: string;
+}) {
+  const publicUrl = (process.env.WAITLIST_PUBLIC_URL || "https://owuja.com").replace(/\/$/, "");
+  const referralUrl = `${publicUrl}/?ref=${encodeURIComponent(referralCode)}`;
+  const unsubscribeUrl = `${publicUrl}/unsubscribe.html?token=${encodeURIComponent(unsubscribeToken)}`;
+  const audienceLine = audience === "fashion_house"
+    ? "We will contact you when fashion house onboarding opens."
+    : "We will contact you when early customer access opens.";
+
+  return sendEmail({
+    to,
+    subject: `You're on the ${BRAND_NAME} waitlist`,
+    text: `Hi ${name}, your place on the ${BRAND_NAME} waitlist is confirmed. ${audienceLine} Share your referral link: ${referralUrl}`,
+    html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(name)}</strong>,</p>
+      <p style="font-size:14px;line-height:1.6;">Your place on the ${BRAND_NAME} waitlist is confirmed. ${audienceLine}</p>
+      <p style="font-size:14px;line-height:1.6;">Know someone who would enjoy ${BRAND_NAME}? Share your personal link:</p>
+      <p style="text-align:center;"><a href="${escapeHtml(referralUrl)}" style="display:inline-block;padding:12px 24px;background:#453332;color:#FFFFFF;text-decoration:none;border-radius:999px;font-weight:bold;">Share ${BRAND_NAME}</a></p>
+      <p style="font-size:11px;text-align:center;margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="color:#746765;">Leave the waitlist</a></p>`),
+  });
+}
+
+export async function sendWaitlistInviteEmail({ to, name }: { to: string; name: string }) {
+  const inviteUrl = process.env.WAITLIST_INVITE_URL || "https://owuja.com/download";
+  return sendEmail({
+    to,
+    subject: `Your ${BRAND_NAME} invitation is ready`,
+    text: `Hi ${name}, your invitation to join ${BRAND_NAME} is ready. Continue here: ${inviteUrl}`,
+    html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(name)}</strong>,</p>
+      <p style="font-size:14px;line-height:1.6;">Your invitation to join ${BRAND_NAME} is ready.</p>
+      <p style="text-align:center;"><a href="${escapeHtml(inviteUrl)}" style="display:inline-block;padding:12px 28px;background:#F96951;color:#FFFFFF;text-decoration:none;border-radius:999px;font-weight:bold;">Join ${BRAND_NAME}</a></p>`),
   });
 }

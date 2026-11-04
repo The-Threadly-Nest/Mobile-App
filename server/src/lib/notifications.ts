@@ -1,4 +1,5 @@
-import { prisma } from "./prisma";
+import { identityPrisma as prisma } from "./prisma";
+import { appLogger, logFailure } from "../core/logging";
 
 export async function sendNotificationToUser(userId: string, title: string, body: string, data?: any) {
   try {
@@ -8,11 +9,11 @@ export async function sendNotificationToUser(userId: string, title: string, body
     });
 
     if (!user?.pushToken) {
-      console.log(`[push-notification] Skipped — no pushToken for user ${userId}`);
+      appLogger.debug("Notification skipped because this account has no registered device.");
       return;
     }
 
-    console.log(`[push-notification] Sending to user ${userId}: "${title}"`);
+    appLogger.debug("Sending a notification to the account's registered device.");
 
     const res = await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
@@ -30,20 +31,22 @@ export async function sendNotificationToUser(userId: string, title: string, body
       }),
     });
 
+    if (!res.ok) throw new Error(`Notification provider returned HTTP ${res.status}`);
     const json = await res.json() as any;
-    const ticket = json?.data?.[0];
+    const ticket = Array.isArray(json?.data) ? json.data[0] : json?.data;
+    if (!ticket || !["ok", "error"].includes(ticket.status)) throw new Error("Notification provider returned an unexpected response");
     if (ticket?.status === "error") {
-      console.warn("[push-notification] Expo delivery error:", ticket.message, ticket.details);
+      appLogger.warn("The notification provider did not accept the notification. Delivery settings may need attention.");
       // Stale/unregistered token — clear it so future sends don't keep failing silently
       if (ticket.details?.error === "DeviceNotRegistered") {
-        console.warn(`[push-notification] Clearing stale pushToken for user ${userId}`);
-        await prisma.user.update({ where: { id: userId }, data: { pushToken: null } });
+        appLogger.warn("The registered notification device is no longer available. Its old registration is being cleared.");
+        await prisma.user.updateMany({ where: { id: userId, pushToken: user.pushToken }, data: { pushToken: null } });
       }
     } else {
-      console.log(`[push-notification] Delivered successfully to user ${userId}`);
+      appLogger.debug("The notification provider accepted the notification for delivery.");
     }
   } catch (err) {
-    console.warn("[push-notification] Failed to send push notification:", err);
+    logFailure("The notification could not be sent.", err);
   }
 }
 
@@ -57,6 +60,6 @@ export async function sendNotificationToAdmin(fashionHouseId: string, title: str
       await sendNotificationToUser(fh.adminId, title, body, data);
     }
   } catch (err) {
-    console.warn("[push-notification] Failed to send admin push notification:", err);
+    logFailure("The fashion house owner could not be notified.", err);
   }
 }

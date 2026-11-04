@@ -184,7 +184,7 @@ export default function TabsLayout() {
         },
         tabBarItemStyle: { height: 54 },
         tabBarLabelStyle: {
-          fontFamily: "WorkSans_600SemiBold",
+          fontFamily: "InstrumentSans-SemiBold",
           fontSize: 12,
           marginTop: 2,
         },

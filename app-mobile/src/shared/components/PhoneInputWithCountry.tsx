@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   label: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginBottom: 4,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   codeText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#000000",
   },
@@ -233,14 +233,14 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#000000",
     paddingVertical: 0,
     height: "100%",
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#D32F2F",
     marginTop: 4,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#3B0508",
   },
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3B0508",
   },
@@ -306,12 +306,12 @@ const styles = StyleSheet.create({
   },
   itemName: {
     flex: 1,
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
     color: "#3B0508",
   },
   itemCode: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#453332",
   },

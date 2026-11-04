@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 10,
     color: "#3A2E1A",
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },
   actions: {
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: "#453332",
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },
   pressed: {

@@ -206,14 +206,14 @@ export default function InvoiceDetailScreen() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Hedvig Letters Serif:opsz,wght@9..144,600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
         <style>
           @page { size: A4 portrait; margin: 0; }
           * { box-sizing: border-box; margin: 0; padding: 0; }
           html, body {
             height: 100%;
             background-color: #FFFFFF;
-            font-family: 'Work Sans', sans-serif;
+            font-family: 'Instrument Sans', sans-serif;
             color: #1A1110;
           }
           .page-container {
@@ -229,7 +229,7 @@ export default function InvoiceDetailScreen() {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-20deg);
-            font-family: 'Fraunces', serif;
+            font-family: 'Hedvig Letters Serif', serif;
             font-size: 38px;
             font-weight: 700;
             color: #453332;
@@ -267,7 +267,7 @@ export default function InvoiceDetailScreen() {
             background-color: #453332;
             border: 1.5px solid #C4A763;
             color: #FFFFFF;
-            font-family: 'Fraunces', serif;
+            font-family: 'Hedvig Letters Serif', serif;
             font-size: 22px;
             font-weight: 700;
             display: flex;
@@ -275,7 +275,7 @@ export default function InvoiceDetailScreen() {
             justify-content: center;
           }
           .atelier-name {
-            font-family: 'Fraunces', serif;
+            font-family: 'Hedvig Letters Serif', serif;
             font-size: 24px;
             font-weight: 700;
             color: #453332;
@@ -349,7 +349,7 @@ export default function InvoiceDetailScreen() {
             margin-top: 6px;
           }
           .total-label, .total-amount {
-            font-family: 'Fraunces', serif;
+            font-family: 'Hedvig Letters Serif', serif;
             font-size: 22px;
             font-weight: 700;
             color: #453332;
@@ -627,7 +627,7 @@ export default function InvoiceDetailScreen() {
           ) : null}
           {invoiceError ? (
             <View style={{ backgroundColor: "#FDECEC", borderRadius: 12, padding: 12, marginBottom: 16 }}>
-              <Text style={{ fontFamily: "WorkSans_500Medium", color: "#9B1C1C", textAlign: "center" }}>
+              <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#9B1C1C", textAlign: "center" }}>
                 {invoiceError}
               </Text>
             </View>
@@ -649,7 +649,7 @@ export default function InvoiceDetailScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "Fraunces-Bold",
+                    fontFamily: "HedvigLettersSerif-Regular",
                     fontSize: 26,
                     color: "#453332",
                     transform: [{ rotate: "-20deg" }],
@@ -688,7 +688,7 @@ export default function InvoiceDetailScreen() {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "Fraunces-Bold", fontSize: 20, color: "#FFFFFF" }}>
+                      <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#FFFFFF" }}>
                         {invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A"}
                       </Text>
                     </View>
@@ -731,7 +731,7 @@ export default function InvoiceDetailScreen() {
                 <View style={[styles.infoCol, { alignItems: "flex-end" }]}>
                   <Text style={styles.fieldLabel}>ORDER & DATE</Text>
                   <Text style={styles.fieldValue}>{invoice.orderNumber}</Text>
-                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#7A7265", marginTop: 2 }}>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#7A7265", marginTop: 2 }}>
                     {invoice.date}
                   </Text>
                 </View>
@@ -758,12 +758,12 @@ export default function InvoiceDetailScreen() {
               {/* Tax & Breakdown Calculation Row */}
               <View style={{ marginTop: 14, marginBottom: 12, zIndex: 1 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>Subtotal</Text>
-                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#8A7550" }}>Subtotal</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 14, color: "#8A7550" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
-                  <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#8A7550" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
                 </View>
               </View>
 
@@ -787,7 +787,7 @@ export default function InvoiceDetailScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "WorkSans_600SemiBold",
+                    fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
                     color: "#8A7550",
                     letterSpacing: 0.8,
@@ -799,23 +799,23 @@ export default function InvoiceDetailScreen() {
                 </Text>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
                   <View>
-                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BANK</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332" }}>{invoice.bankName || "Not configured"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BANK</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>{invoice.bankName || "Not configured"}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>ACCOUNT NO.</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountNumber || "—"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>ACCOUNT NO.</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountNumber || "—"}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BENEFICIARY</Text>
-                    <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountName || "—"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BENEFICIARY</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountName || "—"}</Text>
                   </View>
                 </View>
               </View>
 
               {/* Footer Tag */}
               <View style={{ marginTop: 16, alignItems: "center", zIndex: 1 }}>
-                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#453332", textAlign: "center" }}>
+                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#453332", textAlign: "center" }}>
                   Owuja
                 </Text>
               </View>
@@ -945,7 +945,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
     color: "#1A1110",
@@ -970,13 +970,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   atelierName: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
     marginBottom: 4,
   },
   invoiceSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#7A7265",
   },
@@ -994,14 +994,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fieldLabel: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
     color: "#8A8275",
     letterSpacing: 0.5,
     marginBottom: 6,
   },
   fieldValue: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#453332",
   },
@@ -1020,14 +1020,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   itemName: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     color: "#1A1110",
     flex: 1,
     paddingRight: 12,
   },
   itemPrice: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#1A1110",
   },
@@ -1043,12 +1043,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalLabel: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
   totalAmount: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
@@ -1066,7 +1066,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(74, 8, 12, 0.12)",
   },
   statusText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
   },
   pendingText: {
@@ -1092,7 +1092,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   primaryBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#FFFFFF",
   },
@@ -1107,7 +1107,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   outlineBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#453332",
   },
@@ -1122,7 +1122,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.12)",
   },
   secondaryBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#453332",
   },
@@ -1150,12 +1150,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   modalTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#1A1110",
   },
   modalSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#7A7265",
     marginBottom: 20,
@@ -1180,13 +1180,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   optionTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#1A1110",
     marginBottom: 2,
   },
   optionDesc: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#7A7265",
   },

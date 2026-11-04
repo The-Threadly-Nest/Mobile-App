@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     right: 20,
   },
   heroName: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#FFFFFF",
     marginBottom: 4,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   heroRatingText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#FFFFFF",
     marginLeft: 4,
@@ -405,13 +405,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   statValue: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 15,
     color: "#1A150E",
     marginBottom: 4,
   },
   statLabel: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 10,
     color: "#6B5E4C",
     letterSpacing: 0.6,
@@ -432,18 +432,18 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     color: "#453332",
     letterSpacing: 1.2,
   },
   viewAllText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
   },
   aboutText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
     lineHeight: 22,
@@ -478,12 +478,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   catalogTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3A2E1A",
   },
   catalogPrice: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#453332",
     marginTop: 2,
@@ -498,13 +498,13 @@ const styles = StyleSheet.create({
     borderColor: "#EBE0D3",
   },
   emptyCatalogTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#3A2E1A",
     marginBottom: 4,
   },
   emptyCatalogSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
     textAlign: "center",
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   reviewName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#1A150E",
   },
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   reviewText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#4A4235",
     lineHeight: 20,
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   seeAllText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#3A2E1A",
   },
@@ -573,7 +573,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bookingBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
   },

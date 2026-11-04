@@ -52,6 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  WaitlistEntry: 'WaitlistEntry',
+  RateLimitBucket: 'RateLimitBucket',
   FashionHouse: 'FashionHouse',
   Customer: 'Customer',
   Measurement: 'Measurement',
@@ -98,11 +100,58 @@ export const UserScalarFieldEnum = {
   pushToken: 'pushToken',
   resetTokenHash: 'resetTokenHash',
   resetTokenExpiresAt: 'resetTokenExpiresAt',
+  resetTokenPurpose: 'resetTokenPurpose',
+  resetTokenAttempts: 'resetTokenAttempts',
+  resetTokenSentAt: 'resetTokenSentAt',
+  emailVerifiedAt: 'emailVerifiedAt',
+  emailVerificationHash: 'emailVerificationHash',
+  emailVerificationExpiresAt: 'emailVerificationExpiresAt',
+  emailVerificationAttempts: 'emailVerificationAttempts',
+  emailVerificationSentAt: 'emailVerificationSentAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const WaitlistEntryScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  audience: 'audience',
+  businessName: 'businessName',
+  phone: 'phone',
+  city: 'city',
+  instagram: 'instagram',
+  interests: 'interests',
+  source: 'source',
+  referralCode: 'referralCode',
+  referredBy: 'referredBy',
+  status: 'status',
+  consentedAt: 'consentedAt',
+  confirmationSentAt: 'confirmationSentAt',
+  verifiedAt: 'verifiedAt',
+  verificationHash: 'verificationHash',
+  verificationExpiresAt: 'verificationExpiresAt',
+  verificationAttempts: 'verificationAttempts',
+  verificationSentAt: 'verificationSentAt',
+  invitedAt: 'invitedAt',
+  joinedAt: 'joinedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WaitlistEntryScalarFieldEnum = (typeof WaitlistEntryScalarFieldEnum)[keyof typeof WaitlistEntryScalarFieldEnum]
+
+
+export const RateLimitBucketScalarFieldEnum = {
+  key: 'key',
+  hits: 'hits',
+  resetAt: 'resetAt'
+} as const
+
+export type RateLimitBucketScalarFieldEnum = (typeof RateLimitBucketScalarFieldEnum)[keyof typeof RateLimitBucketScalarFieldEnum]
 
 
 export const FashionHouseScalarFieldEnum = {

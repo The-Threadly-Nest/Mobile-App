@@ -10,10 +10,10 @@ const styles: Record<Variant, { container: string; text: string }> = {
 };
 
 /**
- * Button label text uses "body-semibold" (Work Sans), NOT the display
- * (Fraunces) font — buttons are a dense, frequently-repeated UI element
+ * Button label text uses "body-semibold" (Instrument Sans), NOT the display
+ * (Hedvig Letters Serif) font — buttons are a dense, frequently-repeated UI element
  * where the sans font's small-size legibility matters more than the
- * serif's editorial character. Fraunces is reserved for headlines only.
+ * serif's editorial character. Hedvig Letters Serif is reserved for headlines only.
  */
 export function Button({
   label,

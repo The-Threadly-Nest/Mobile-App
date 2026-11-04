@@ -399,13 +399,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   atelierTag: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
     marginBottom: 4,
   },
   greetingTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     lineHeight: 34,
     color: "#453332",
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EBE0D3",
   },
   tabText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
   },
   activeTabText: {
@@ -470,7 +470,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -478,17 +478,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerNameText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3A2E1A",
     marginBottom: 2,
   },
   orderNumberText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     color: "#3A2E1A",
   },
   garmentSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
   },
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   statusLabelText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     color: "#453332",
     marginBottom: 14,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   actionBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#FFFFFF",
     letterSpacing: 0.2,

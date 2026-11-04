@@ -181,14 +181,14 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
     color: "#1A1110",
     letterSpacing: -0.2,
   },
   subtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 21,
     color: "#4A4E51",
@@ -217,13 +217,13 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   floatingLabel: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#4A4E51",
   },
   input: {
     height: "100%",
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     color: "#1A1110",
   },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   errorText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#DC2626",
     marginTop: -4,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   sendBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
     letterSpacing: 0.2,

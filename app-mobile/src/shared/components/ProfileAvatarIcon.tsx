@@ -37,7 +37,7 @@ export function ProfileAvatarIcon({ size = 60, name }: ProfileAvatarIconProps) {
       </Svg>
       <Text
         style={{
-          fontFamily: "Fraunces-Bold",
+          fontFamily: "HedvigLettersSerif-Regular",
           fontSize,
           color: "#FFFFFF",
           textAlign: "center",

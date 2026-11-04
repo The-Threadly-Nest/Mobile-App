@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   title: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 32,
     color: "#1A1110",
   },
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EBE7E1",
   },
   filterChipText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
   },
   filterChipTextActive: {
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   customerName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#1A1110",
     flex: 1,
@@ -465,11 +465,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
   },
   orderNumber: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#1A1110",
     marginTop: 2,
@@ -479,14 +479,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   itemText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     flex: 1,
     marginRight: 8,
   },
   assignedText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
   },
@@ -495,13 +495,13 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   emptyText: {
-    fontFamily: "Fraunces-SemiBold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
     marginBottom: 6,
   },
   emptySubText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#8A7550",
   },

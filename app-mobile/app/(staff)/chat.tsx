@@ -716,7 +716,7 @@ export default function StaffChatScreen() {
                             />
                           </View>
                           {/* Duration */}
-                          <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: isMe ? "rgba(255,255,255,0.85)" : "#8A7550", flexShrink: 0 }}>
+                          <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: isMe ? "rgba(255,255,255,0.85)" : "#8A7550", flexShrink: 0 }}>
                             {formatDuration(msg.audioDuration || 0)}
                           </Text>
                         </Pressable>
@@ -925,12 +925,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerNameText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
   headerSubtitleText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginTop: 2,
@@ -958,13 +958,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitleText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
     marginBottom: 6,
   },
   emptySubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
     textAlign: "center",
@@ -978,14 +978,14 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   timeHeaderText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
     color: "#8A7550",
     letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   senderNameText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#3A2E1A",
     marginLeft: 4,
@@ -1009,7 +1009,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
   },
@@ -1028,7 +1028,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   statusText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 10,
     color: "#8A7550",
   },
@@ -1066,7 +1066,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   recordingTimerText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3A2E1A",
     minWidth: 42,
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   pausePillText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3A2E1A",
   },
@@ -1129,7 +1129,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
     height: "100%",

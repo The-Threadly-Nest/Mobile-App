@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(58, 46, 26, 0.05)",
   },
   headerTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3A2E1A",
   },
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   badgeText: {
-    fontFamily: "WorkSans_700Bold",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 11,
     color: "#FFFFFF",
     letterSpacing: 0.5,
@@ -298,19 +298,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   garmentTitle: {
-    fontFamily: "Fraunces_700Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 22,
     color: "#453332",
     marginBottom: 6,
   },
   garmentPrice: {
-    fontFamily: "WorkSans_700Bold",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 20,
     color: "#C4A763",
     marginBottom: 8,
   },
   garmentSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#8A7550",
     lineHeight: 20,
@@ -340,18 +340,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   vendorLabel: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#8A7550",
     letterSpacing: 0.5,
   },
   vendorName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#3A2E1A",
   },
   vendorLocation: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginTop: 2,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     borderColor: "#C4A763",
   },
   viewProfileText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#453332",
   },
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   specsTitle: {
-    fontFamily: "WorkSans_700Bold",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 12,
     color: "#3A2E1A",
     letterSpacing: 0.5,
@@ -397,12 +397,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   specHeading: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3A2E1A",
   },
   specDetail: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
     marginTop: 2,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bookBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
     color: "#FFFFFF",
   },

@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: 'Fraunces-SemiBold',
+    fontFamily: 'HedvigLettersSerif-Regular',
     color: '#1A1110',
   },
   iconBtn: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   fashionHouseTopName: {
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 12,
     color: '#453332',
     letterSpacing: 1,
@@ -413,13 +413,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   productName: {
-    fontFamily: 'Fraunces-Regular',
+    fontFamily: 'HedvigLettersSerif-Regular',
     fontSize: 14,
     color: '#1A1110',
     marginBottom: 4,
   },
   priceText: {
-    fontFamily: 'Fraunces-SemiBold',
+    fontFamily: 'HedvigLettersSerif-Regular',
     fontSize: 16,
     color: '#1A1110',
   },
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     // Fits neatly within screen bounds
   },
   optionLabel: {
-    fontFamily: 'WorkSans_500Medium',
+    fontFamily: 'InstrumentSans-Medium',
     fontSize: 14,
     color: '#1A1110',
     marginBottom: 12,
@@ -512,13 +512,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   descriptionHeader: {
-    fontFamily: 'WorkSans_500Medium',
+    fontFamily: 'InstrumentSans-Medium',
     fontSize: 14,
     color: '#453332',
     marginBottom: 8,
   },
   descriptionBody: {
-    fontFamily: 'WorkSans_400Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 12,
     lineHeight: 24,
     color: '#554E4A',
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontFamily: 'WorkSans_600SemiBold',
+    fontFamily: 'InstrumentSans-SemiBold',
     marginLeft: 6,
   },
   btnIcon: {

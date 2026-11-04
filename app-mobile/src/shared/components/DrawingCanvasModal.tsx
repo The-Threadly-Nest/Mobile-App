@@ -347,7 +347,7 @@ export default function DrawingCanvasModal({
               >
                 <Text
                   style={{
-                    fontFamily: "WorkSans_600SemiBold",
+                    fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
                     color: title === chip ? "#FFFFFF" : "#3A2E1A",
                   }}
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   guideBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#453332",
   },
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#D32F2F",
     marginTop: 4,

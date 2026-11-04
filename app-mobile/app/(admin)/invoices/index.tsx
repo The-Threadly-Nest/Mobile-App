@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
     color: "#1A1110",
@@ -226,13 +226,13 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
   invoiceNumber: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#000000",
     marginBottom: 6,
   },
   clientDate: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#7A7265",
   },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   amount: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#000000",
     marginBottom: 6,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#D8EED7",
   },
   statusText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
   },
   pendingText: {

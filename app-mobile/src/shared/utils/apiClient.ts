@@ -131,7 +131,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     }
 
     // 2. Global interception: Unauthorized (401) session expiry
-    if (errorDetail.status === 401) {
+    if (errorDetail.status === 401 && token && useAuthStore.getState().token === token) {
       console.warn("[API Client] Session expired. Force logging out...");
       logout();
       const now = Date.now();

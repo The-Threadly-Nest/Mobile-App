@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   headerTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
     color: "#453332",
   },
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   drawBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#FFFFFF",
   },
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   introSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
     color: "#8A7550",
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   promotedText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#FFFFFF",
   },
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   cardTitle: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#3A2E1A",
     textAlign: "center",
@@ -470,13 +470,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
     marginBottom: 4,
   },
   emptySubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
     color: "#8A7550",
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#453332",
   },
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#D32F2F",
     marginTop: 6,

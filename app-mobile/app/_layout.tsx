@@ -7,32 +7,17 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import AppAlert from "@/shared/components/AppAlert";
 import AppErrorBoundary from "@/shared/components/AppErrorBoundary";
-import {
-  WorkSans_300Light,
-  WorkSans_400Regular,
-  WorkSans_500Medium,
-  WorkSans_600SemiBold,
-} from "@expo-google-fonts/work-sans";
 import * as SplashScreen from "expo-splash-screen";
 
 SplashScreen.preventAutoHideAsync();
 
-/**
- * Fraunces is NOT on Expo's pre-packaged Google Fonts list the way
- * Work Sans is, so it's loaded manually from local .ttf files.
- * Download the weights you need from fonts.google.com/specimen/Fraunces
- * and drop them in assets/fonts/ — see README "Font Setup" section.
- */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    WorkSans_300Light,
-    WorkSans_400Regular,
-    WorkSans_500Medium,
-    WorkSans_600SemiBold,
-    "Fraunces-Bold": require("../assets/fonts/Fraunces-Bold.ttf"),
-    "Fraunces-SemiBold": require("../assets/fonts/Fraunces-Bold.ttf"),
-    "Fraunces-Regular": require("../assets/fonts/Fraunces-Regular.ttf"),
     "InstrumentSans-Regular": require("../assets/fonts/InstrumentSans-Regular.ttf"),
+    "InstrumentSans-Medium": require("../assets/fonts/InstrumentSans-Medium.ttf"),
+    "InstrumentSans-SemiBold": require("../assets/fonts/InstrumentSans-SemiBold.ttf"),
+    "InstrumentSans-Bold": require("../assets/fonts/InstrumentSans-Bold.ttf"),
+    "HedvigLettersSerif-Regular": require("../assets/fonts/HedvigLettersSerif-Regular.ttf"),
   });
 
   const onLayoutRootView = useCallback(async () => {

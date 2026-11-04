@@ -838,7 +838,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontFamily: "Fraunces-Bold", fontSize: 22, color: "#1A1110" },
+  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 22, color: "#1A1110" },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
@@ -854,7 +854,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   guideBtnActive: { backgroundColor: "#453332" },
-  guideBtnText: { fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#453332" },
+  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#453332" },
   centeredModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.45)",
@@ -923,9 +923,9 @@ const styles = StyleSheet.create({
   chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
   chipActive: { backgroundColor: "#453332" },
   chipInactive: { backgroundColor: "#E4D5B7" },
-  chipText: { fontFamily: "WorkSans_600SemiBold", fontSize: 11 },
+  chipText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11 },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#D32F2F",
     marginTop: 4,
@@ -976,7 +976,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   landscapeErrorText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#B91C1C",
     textAlign: "center",
@@ -1094,7 +1094,7 @@ const styles = StyleSheet.create({
     borderColor: "#453332",
   },
   panelBtnLabel: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#453332",
   },

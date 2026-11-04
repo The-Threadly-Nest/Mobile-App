@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 20,
     color: "#3B0508",
   },
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   fieldLabel: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#453332",
     marginBottom: 8,
@@ -262,13 +262,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   placeholderTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3B0508",
     marginBottom: 2,
   },
   placeholderSub: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "rgba(74, 8, 12, 0.6)",
   },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   loadingText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#453332",
   },
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
   },
   changeBadgeText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#FFFFFF",
   },
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 52,
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
     color: "#3B0508",
     borderWidth: 1,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#D32F2F",
     marginBottom: 16,
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   submitBtnText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 20,
     color: "#FFFFFF",
   },

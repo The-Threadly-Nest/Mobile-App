@@ -23,6 +23,14 @@ model User {
   pushToken           String?
   resetTokenHash      String?
   resetTokenExpiresAt DateTime?
+  resetTokenPurpose   String?
+  resetTokenAttempts  Int       @default(0)
+  resetTokenSentAt    DateTime?
+  emailVerifiedAt     DateTime?
+  emailVerificationHash String?
+  emailVerificationExpiresAt DateTime?
+  emailVerificationAttempts Int @default(0)
+  emailVerificationSentAt DateTime?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -42,6 +50,47 @@ model User {
   @@index([fashionHouseId])
   @@index([fashionHouseId, role])
   @@map("users")
+}
+
+model WaitlistEntry {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  name             String
+  audience         String
+  businessName     String?
+  phone            String?
+  city             String?
+  instagram        String?
+  interests        String?
+  source           String?
+  referralCode     String   @unique
+  referredBy       String?
+  status           String   @default("waiting")
+  consentedAt      DateTime
+  confirmationSentAt DateTime?
+  verifiedAt       DateTime?
+  verificationHash String?
+  verificationExpiresAt DateTime?
+  verificationAttempts Int @default(0)
+  verificationSentAt DateTime?
+  invitedAt        DateTime?
+  joinedAt         DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([audience, status, createdAt])
+  @@index([status, createdAt])
+  @@index([referredBy])
+  @@map("waitlist_entries")
+}
+
+model RateLimitBucket {
+  key     String   @id
+  hits    Int
+  resetAt DateTime
+
+  @@index([resetAt])
+  @@map("rate_limit_buckets")
 }
 
 model FashionHouse {

@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   badgeText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#C4A763",
     backgroundColor: "#453332",
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   titleText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 15,
     color: "#453332",
     flex: 1,
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   messageText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
     color: "#3A2E1A",
@@ -168,12 +168,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   stepNumberText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     color: "#FFFFFF",
   },
   stepItemText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#3A2E1A",
     flex: 1,
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   secondaryBtnText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#8A7550",
   },
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   primaryBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#FFFFFF",
   },

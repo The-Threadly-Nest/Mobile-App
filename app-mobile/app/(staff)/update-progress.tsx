@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitleText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 22,
     color: "#453332",
   },
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -317,17 +317,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerNameText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3A2E1A",
     marginBottom: 2,
   },
   orderNumberText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     color: "#3A2E1A",
   },
   garmentSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
   },
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   stagesHeadline: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
     marginBottom: 16,
@@ -417,19 +417,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   completedLabelText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     color: "#3A2E1A",
   },
   activeLabelText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     color: "#453332",
   },
   upcomingLabelText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     color: "#8A7550",
   },
   activeSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginTop: 2,
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   noteLabelText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     color: "#3A2E1A",
     marginBottom: 8,
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E4D5B7",
     padding: 14,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
     height: 96,
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   submitBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
     letterSpacing: 0.2,

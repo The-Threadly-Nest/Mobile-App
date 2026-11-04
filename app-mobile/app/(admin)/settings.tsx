@@ -321,7 +321,7 @@ export default function AdminSettingsScreen() {
                         zIndex: 10,
                       }}
                     >
-                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#FFFFFF" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#FFFFFF" }}>
                         {item.badge}
                       </Text>
                     </View>
@@ -373,10 +373,10 @@ export default function AdminSettingsScreen() {
             {/* Modal Header */}
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <View>
-                <Text style={{ fontFamily: "Fraunces-SemiBold", fontSize: 20, color: "#453332" }}>
+                <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#453332" }}>
                   Fitting Time Slots
                 </Text>
-                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#8A7550" }}>
+                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#8A7550" }}>
                   Manage available slots for AI booking assistant
                 </Text>
               </View>
@@ -390,14 +390,14 @@ export default function AdminSettingsScreen() {
 
             {/* Add New Slot Form */}
             <View style={{ backgroundColor: "#FFFFFF", padding: 14, borderRadius: 16, borderWidth: 1, borderColor: "#E4D5B7", marginBottom: 16 }}>
-              <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A", marginBottom: 10 }}>
+              <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3A2E1A", marginBottom: 10 }}>
                 Add New Fitting Slot
               </Text>
               <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
                 <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
                   <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
-                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}
+                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3A2E1A" }}
                     placeholder="YYYY-MM-DD"
                     placeholderTextColor="#A09075"
                     value={newSlotDate}
@@ -407,7 +407,7 @@ export default function AdminSettingsScreen() {
                 <View style={{ flex: 1, flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 10, paddingHorizontal: 10, height: 42, borderWidth: 1, borderColor: "#E4D5B7" }}>
                   <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
-                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3A2E1A" }}
+                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3A2E1A" }}
                     placeholder="HH:MM"
                     placeholderTextColor="#A09075"
                     value={newSlotTime}
@@ -431,7 +431,7 @@ export default function AdminSettingsScreen() {
                 {addingSlot ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
-                  <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#FFFFFF" }}>
+                  <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>
                     + Add Slot
                   </Text>
                 )}
@@ -439,7 +439,7 @@ export default function AdminSettingsScreen() {
             </View>
 
             {/* List of Existing Slots */}
-            <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A", marginBottom: 10 }}>
+            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3A2E1A", marginBottom: 10 }}>
               Active Slots ({slotsList.length})
             </Text>
 
@@ -447,7 +447,7 @@ export default function AdminSettingsScreen() {
               {loadingSlots ? (
                 <ActivityIndicator color="#453332" style={{ marginVertical: 20 }} />
               ) : slotsList.length === 0 ? (
-                <Text style={{ fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 16 }}>
+                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 16 }}>
                   No fitting slots configured yet. Add your first slot above!
                 </Text>
               ) : (
@@ -468,16 +468,16 @@ export default function AdminSettingsScreen() {
                   >
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                       <Calendar size={16} color="#453332" />
-                      <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3A2E1A" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3A2E1A" }}>
                         {slot.label || `${slot.date} · ${slot.time}`}
                       </Text>
                       {slot.booked ? (
                         <View style={{ backgroundColor: "#FDE8E8", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#D32F2F" }}>Booked</Text>
+                          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#D32F2F" }}>Booked</Text>
                         </View>
                       ) : (
                         <View style={{ backgroundColor: "#E8F5E9", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                          <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#2E7D32" }}>Available</Text>
+                          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2E7D32" }}>Available</Text>
                         </View>
                       )}
                     </View>
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   screenTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     color: "#1A1110",
     marginBottom: 16,
@@ -544,18 +544,18 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
     color: "#FFFFFF",
   },
   accountName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#1A1110",
     marginBottom: 2,
   },
   accountEmail: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
   },
@@ -596,13 +596,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEE2E2",
   },
   cardTitle: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#1A1110",
     marginBottom: 4,
   },
   cardSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#7A7265",
   },

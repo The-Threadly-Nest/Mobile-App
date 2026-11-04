@@ -105,7 +105,7 @@ export default function AdminOnboardingSlidesScreen() {
             {/* Headline */}
             <Text
               style={{
-                fontFamily: "Fraunces-SemiBold",
+                fontFamily: "HedvigLettersSerif-Regular",
                 fontSize: 24,
                 lineHeight: 32,
                 color: "#FFFFFF",
@@ -118,7 +118,7 @@ export default function AdminOnboardingSlidesScreen() {
             {/* Subtitle */}
             <Text
               style={{
-                fontFamily: "WorkSans_400Regular",
+                fontFamily: "InstrumentSans-Regular",
                 fontSize: 14,
                 lineHeight: 20,
                 color: "rgba(255,255,255,0.85)",
@@ -168,7 +168,7 @@ export default function AdminOnboardingSlidesScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "WorkSans_600SemiBold",
+                    fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 15,
                     color: "#FFFFFF",
                     letterSpacing: 0.2,
@@ -195,7 +195,7 @@ export default function AdminOnboardingSlidesScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "WorkSans_600SemiBold",
+                      fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 15,
                       color: "#FFFFFF",
                       letterSpacing: 0.2,
@@ -222,7 +222,7 @@ export default function AdminOnboardingSlidesScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "WorkSans_600SemiBold",
+                      fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 15,
                       color: "#FFFFFF",
                       letterSpacing: 0.2,
@@ -296,7 +296,7 @@ export default function AdminOnboardingSlidesScreen() {
         {/* Headline */}
         <Text
           style={{
-            fontFamily: "Fraunces-SemiBold",
+            fontFamily: "HedvigLettersSerif-Regular",
             fontSize: 32,
             lineHeight: 40,
             color: "#FFFFFF",
@@ -310,7 +310,7 @@ export default function AdminOnboardingSlidesScreen() {
         {/* Subtitle */}
         <Text
           style={{
-            fontFamily: "WorkSans_400Regular",
+            fontFamily: "InstrumentSans-Regular",
             fontSize: 20,
             lineHeight: 28,
             color: "rgba(255,255,255,0.80)",
@@ -360,7 +360,7 @@ export default function AdminOnboardingSlidesScreen() {
           >
             <Text
               style={{
-                fontFamily: "WorkSans_600SemiBold",
+                fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 16,
                 color: "#FFFFFF",
                 letterSpacing: 0.2,
@@ -387,7 +387,7 @@ export default function AdminOnboardingSlidesScreen() {
             >
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
                   color: "#FFFFFF",
                   letterSpacing: 0.2,
@@ -412,7 +412,7 @@ export default function AdminOnboardingSlidesScreen() {
             >
               <Text
                 style={{
-                  fontFamily: "WorkSans_600SemiBold",
+                  fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
                   color: "#FFFFFF",
                   letterSpacing: 0.2,

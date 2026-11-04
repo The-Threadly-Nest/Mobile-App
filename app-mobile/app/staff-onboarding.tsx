@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   headline: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     lineHeight: 36,
     color: "#FFFFFF",
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
     color: "rgba(255, 255, 255, 0.85)",
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   skipBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
   },
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   nextBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
   },

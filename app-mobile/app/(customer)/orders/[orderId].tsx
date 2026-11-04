@@ -216,8 +216,8 @@ export default function CustomerOrderDetailScreen() {
               <Text
                 style={[
                   styles.dateText,
-                  isDeclined && { color: "#DC2626", fontFamily: "WorkSans_600SemiBold" },
-                  isCancelled && { color: "#453332", fontFamily: "WorkSans_600SemiBold" },
+                  isDeclined && { color: "#DC2626", fontFamily: "InstrumentSans-SemiBold" },
+                  isCancelled && { color: "#453332", fontFamily: "InstrumentSans-SemiBold" },
                 ]}
                 numberOfLines={1}
               >
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F0EBE1",
   },
-  headerTitle: { fontFamily: "Fraunces-SemiBold", fontSize: 24, color: "#1A1110" },
+  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#1A1110" },
   scrollContent: { paddingHorizontal: 20, paddingVertical: 14, paddingBottom: 32 },
   compactHeroCard: {
     backgroundColor: "#FFFFFF",
@@ -380,11 +380,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#453332",
   },
-  orderBadgeText: { fontFamily: "WorkSans_600SemiBold", fontSize: 11, color: "#453332" },
-  fhNameText: { fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#8A7550", flexShrink: 1, marginLeft: 6 },
-  garmentTitleText: { fontFamily: "WorkSans_700Bold", fontSize: 16, color: "#3B0508", marginBottom: 4 },
+  orderBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#453332" },
+  fhNameText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#8A7550", flexShrink: 1, marginLeft: 6 },
+  garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 16, color: "#3B0508", marginBottom: 4 },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  dateText: { fontFamily: "WorkSans_500Medium", fontSize: 12, color: "#8A7550", flexShrink: 1 },
+  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#8A7550", flexShrink: 1 },
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
@@ -404,22 +404,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 14,
   },
-  cardHeadline: { fontFamily: "WorkSans_700Bold", fontSize: 15, color: "#453332" },
+  cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#453332" },
   timelineContainer: { paddingLeft: 4 },
   stepRow: { flexDirection: "row", minHeight: 52 },
   indicatorCol: { alignItems: "center", width: 26, marginRight: 12 },
   circle: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   circleDone: { backgroundColor: "#453332" },
   circlePending: { backgroundColor: "#EBE6DC" },
-  circleNumber: { fontFamily: "WorkSans_600SemiBold", fontSize: 10, color: "#8A7550" },
+  circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#8A7550" },
   connector: { width: 2, flex: 1, marginVertical: 3 },
   connectorDone: { backgroundColor: "#453332" },
   connectorPending: { backgroundColor: "#EBE6DC" },
   stepInfoCol: { flex: 1, paddingBottom: 14 },
-  stepLabel: { fontFamily: "WorkSans_600SemiBold", fontSize: 13.5, color: "#3B0508" },
-  stepLabelCurrent: { color: "#453332", fontFamily: "WorkSans_700Bold" },
+  stepLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13.5, color: "#3B0508" },
+  stepLabelCurrent: { color: "#453332", fontFamily: "InstrumentSans-Bold" },
   stepLabelPending: { color: "#A0A0A0" },
-  stepDesc: { fontFamily: "WorkSans_400Regular", fontSize: 11.5, color: "#8A7550", marginTop: 1 },
+  stepDesc: { fontFamily: "InstrumentSans-Regular", fontSize: 11.5, color: "#8A7550", marginTop: 1 },
   actionButtonRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   pillBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14.5,
     color: "#FFFFFF",
   },
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pillBtnSecondaryText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14.5,
     color: "#453332",
   },

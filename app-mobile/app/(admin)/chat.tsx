@@ -724,7 +724,7 @@ export default function AdminStaffChatScreen() {
                             />
                           </View>
                           {/* Duration */}
-                          <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: isMe ? "rgba(255,255,255,0.85)" : "#8A7550", flexShrink: 0 }}>
+                          <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: isMe ? "rgba(255,255,255,0.85)" : "#8A7550", flexShrink: 0 }}>
                             {formatDuration(msg.audioDuration || 0)}
                           </Text>
                         </Pressable>
@@ -928,12 +928,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   headerNameText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
   headerSubtitleText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginTop: 2,
@@ -977,12 +977,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#C4A763",
   },
   pillAvatarText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     color: "#453332",
   },
   pillNameText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#3A2E1A",
   },
@@ -996,7 +996,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   pillBadgeText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#FFFFFF",
   },
@@ -1023,7 +1023,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitleText: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#453332",
   },
@@ -1031,7 +1031,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   senderNameText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     color: "#3A2E1A",
     marginLeft: 4,
@@ -1055,7 +1055,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
   },
@@ -1074,7 +1074,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   statusText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 10,
     color: "#8A7550",
   },
@@ -1113,7 +1113,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   timeHeaderText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#8A7550",
     textAlign: "center",
@@ -1124,7 +1124,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   recordingTimerText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#3A2E1A",
     minWidth: 42,
@@ -1152,7 +1152,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   pausePillText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3A2E1A",
   },
@@ -1187,7 +1187,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#3A2E1A",
     height: "100%",
@@ -1261,17 +1261,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   listAvatarText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
   },
   listStaffName: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 16,
     color: "#453332",
   },
   listStaffSubtitle: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#8A7550",
     marginTop: 2,

@@ -465,7 +465,7 @@ export default function AdminOnboardingScreen() {
                     ]}
                   >
                     <Plus size={14} color="#453332" />
-                    <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: "#3B0508" }}>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#3B0508" }}>
                       {preset.date} · {preset.time}
                     </Text>
                   </Pressable>
@@ -511,7 +511,7 @@ export default function AdminOnboardingScreen() {
                   <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
                     disableFullscreenUI={true}
-                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
+                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
                     placeholder="Date (YYYY-MM-DD)"
                     placeholderTextColor="#8A7550"
                     value={newSlotDate}
@@ -534,7 +534,7 @@ export default function AdminOnboardingScreen() {
                   <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
                   <TextInput
                     disableFullscreenUI={true}
-                    style={{ flex: 1, fontFamily: "WorkSans_400Regular", fontSize: 13, color: "#3B0508" }}
+                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
                     placeholder="Time (HH:MM)"
                     placeholderTextColor="#8A7550"
                     value={newSlotTime}
@@ -560,7 +560,7 @@ export default function AdminOnboardingScreen() {
                 ]}
               >
                 <Plus size={16} color="#FFFFFF" />
-                <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 14, color: "#FFFFFF" }}>
+                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" }}>
                   Add Slot
                 </Text>
               </Pressable>
@@ -568,7 +568,7 @@ export default function AdminOnboardingScreen() {
               {/* Active Slots list */}
               {slotsList.length > 0 ? (
                 <View style={{ marginTop: 4 }}>
-                  <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#453332", marginBottom: 8 }}>
+                  <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332", marginBottom: 8 }}>
                     Configured Fitting Slots ({slotsList.length})
                   </Text>
                   {slotsList.map((slot) => (
@@ -589,7 +589,7 @@ export default function AdminOnboardingScreen() {
                     >
                       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                         <Calendar size={15} color="#453332" />
-                        <Text style={{ fontFamily: "WorkSans_600SemiBold", fontSize: 13, color: "#3B0508" }}>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3B0508" }}>
                           {slot.label || `${slot.date} · ${slot.time}`}
                         </Text>
                       </View>
@@ -599,7 +599,7 @@ export default function AdminOnboardingScreen() {
                         style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, padding: 4 }]}
                       >
                         {slot.booked ? (
-                          <Text style={{ fontFamily: "WorkSans_500Medium", fontSize: 12, color: "#8A7550" }}>
+                          <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#8A7550" }}>
                             Booked
                           </Text>
                         ) : (
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   stepBadge: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
     color: "#453332",
@@ -691,13 +691,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   headline: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     color: "#3B0508",
     marginBottom: 8,
   },
   subtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     color: "rgba(74, 8, 12, 0.75)",
     marginBottom: 24,
@@ -722,12 +722,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   logoPlaceholderText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3B0508",
   },
   logoSubtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "rgba(74, 8, 12, 0.6)",
   },
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logoUploadingText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#453332",
   },
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   logoChangeText: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
     color: "#FFFFFF",
   },
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontFamily: "Fraunces-SemiBold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 15,
     color: "#3B0508",
     marginBottom: 8,
@@ -780,13 +780,13 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     height: 56,
     paddingHorizontal: 16,
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
     color: "#3B0508",
     backgroundColor: "#FFFFFF",
   },
   charCount: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
     color: "rgba(74, 8, 12, 0.45)",
     textAlign: "right",
@@ -817,17 +817,17 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.35)",
   },
   pillTextSelected: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#FFFFFF",
   },
   pillTextUnselected: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#3B0508",
   },
   errorText: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#D32F2F",
     marginBottom: 16,
@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   nextBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",
   },

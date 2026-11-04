@@ -20,8 +20,20 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  resetTokenAttempts: number | null
+  emailVerificationAttempts: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  resetTokenAttempts: number | null
+  emailVerificationAttempts: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -36,6 +48,14 @@ export type UserMinAggregateOutputType = {
   pushToken: string | null
   resetTokenHash: string | null
   resetTokenExpiresAt: Date | null
+  resetTokenPurpose: string | null
+  resetTokenAttempts: number | null
+  resetTokenSentAt: Date | null
+  emailVerifiedAt: Date | null
+  emailVerificationHash: string | null
+  emailVerificationExpiresAt: Date | null
+  emailVerificationAttempts: number | null
+  emailVerificationSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +72,14 @@ export type UserMaxAggregateOutputType = {
   pushToken: string | null
   resetTokenHash: string | null
   resetTokenExpiresAt: Date | null
+  resetTokenPurpose: string | null
+  resetTokenAttempts: number | null
+  resetTokenSentAt: Date | null
+  emailVerifiedAt: Date | null
+  emailVerificationHash: string | null
+  emailVerificationExpiresAt: Date | null
+  emailVerificationAttempts: number | null
+  emailVerificationSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,11 +96,29 @@ export type UserCountAggregateOutputType = {
   pushToken: number
   resetTokenHash: number
   resetTokenExpiresAt: number
+  resetTokenPurpose: number
+  resetTokenAttempts: number
+  resetTokenSentAt: number
+  emailVerifiedAt: number
+  emailVerificationHash: number
+  emailVerificationExpiresAt: number
+  emailVerificationAttempts: number
+  emailVerificationSentAt: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type UserAvgAggregateInputType = {
+  resetTokenAttempts?: true
+  emailVerificationAttempts?: true
+}
+
+export type UserSumAggregateInputType = {
+  resetTokenAttempts?: true
+  emailVerificationAttempts?: true
+}
 
 export type UserMinAggregateInputType = {
   id?: true
@@ -86,6 +132,14 @@ export type UserMinAggregateInputType = {
   pushToken?: true
   resetTokenHash?: true
   resetTokenExpiresAt?: true
+  resetTokenPurpose?: true
+  resetTokenAttempts?: true
+  resetTokenSentAt?: true
+  emailVerifiedAt?: true
+  emailVerificationHash?: true
+  emailVerificationExpiresAt?: true
+  emailVerificationAttempts?: true
+  emailVerificationSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +156,14 @@ export type UserMaxAggregateInputType = {
   pushToken?: true
   resetTokenHash?: true
   resetTokenExpiresAt?: true
+  resetTokenPurpose?: true
+  resetTokenAttempts?: true
+  resetTokenSentAt?: true
+  emailVerifiedAt?: true
+  emailVerificationHash?: true
+  emailVerificationExpiresAt?: true
+  emailVerificationAttempts?: true
+  emailVerificationSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +180,14 @@ export type UserCountAggregateInputType = {
   pushToken?: true
   resetTokenHash?: true
   resetTokenExpiresAt?: true
+  resetTokenPurpose?: true
+  resetTokenAttempts?: true
+  resetTokenSentAt?: true
+  emailVerifiedAt?: true
+  emailVerificationHash?: true
+  emailVerificationExpiresAt?: true
+  emailVerificationAttempts?: true
+  emailVerificationSentAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -161,6 +231,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -191,6 +273,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -207,9 +291,19 @@ export type UserGroupByOutputType = {
   pushToken: string | null
   resetTokenHash: string | null
   resetTokenExpiresAt: Date | null
+  resetTokenPurpose: string | null
+  resetTokenAttempts: number
+  resetTokenSentAt: Date | null
+  emailVerifiedAt: Date | null
+  emailVerificationHash: string | null
+  emailVerificationExpiresAt: Date | null
+  emailVerificationAttempts: number
+  emailVerificationSentAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -244,6 +338,14 @@ export type UserWhereInput = {
   pushToken?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  resetTokenPurpose?: Prisma.StringNullableFilter<"User"> | string | null
+  resetTokenAttempts?: Prisma.IntFilter<"User"> | number
+  resetTokenSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationHash?: Prisma.StringNullableFilter<"User"> | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
+  emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   fashionHouseOwned?: Prisma.XOR<Prisma.FashionHouseNullableScalarRelationFilter, Prisma.FashionHouseWhereInput> | null
@@ -272,6 +374,14 @@ export type UserOrderByWithRelationInput = {
   pushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetTokenPurpose?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetTokenAttempts?: Prisma.SortOrder
+  resetTokenSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
+  emailVerificationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   fashionHouseOwned?: Prisma.FashionHouseOrderByWithRelationInput
@@ -303,6 +413,14 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   pushToken?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  resetTokenPurpose?: Prisma.StringNullableFilter<"User"> | string | null
+  resetTokenAttempts?: Prisma.IntFilter<"User"> | number
+  resetTokenSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationHash?: Prisma.StringNullableFilter<"User"> | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
+  emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   fashionHouseOwned?: Prisma.XOR<Prisma.FashionHouseNullableScalarRelationFilter, Prisma.FashionHouseWhereInput> | null
@@ -331,11 +449,21 @@ export type UserOrderByWithAggregationInput = {
   pushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrderInput | Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetTokenPurpose?: Prisma.SortOrderInput | Prisma.SortOrder
+  resetTokenAttempts?: Prisma.SortOrder
+  resetTokenSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
+  emailVerificationSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -353,6 +481,14 @@ export type UserScalarWhereWithAggregatesInput = {
   pushToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  resetTokenPurpose?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  resetTokenAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  resetTokenSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  emailVerificationHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  emailVerificationAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  emailVerificationSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -368,6 +504,14 @@ export type UserCreateInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -396,6 +540,14 @@ export type UserUncheckedCreateInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -422,6 +574,14 @@ export type UserUpdateInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -450,6 +610,14 @@ export type UserUncheckedUpdateInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -477,6 +645,14 @@ export type UserCreateManyInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -492,6 +668,14 @@ export type UserUpdateManyMutationInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -508,6 +692,14 @@ export type UserUncheckedUpdateManyInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -524,8 +716,21 @@ export type UserCountOrderByAggregateInput = {
   pushToken?: Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrder
+  resetTokenPurpose?: Prisma.SortOrder
+  resetTokenAttempts?: Prisma.SortOrder
+  resetTokenSentAt?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
+  emailVerificationHash?: Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
+  emailVerificationSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  resetTokenAttempts?: Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -540,6 +745,14 @@ export type UserMaxOrderByAggregateInput = {
   pushToken?: Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrder
+  resetTokenPurpose?: Prisma.SortOrder
+  resetTokenAttempts?: Prisma.SortOrder
+  resetTokenSentAt?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
+  emailVerificationHash?: Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
+  emailVerificationSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -556,8 +769,21 @@ export type UserMinOrderByAggregateInput = {
   pushToken?: Prisma.SortOrder
   resetTokenHash?: Prisma.SortOrder
   resetTokenExpiresAt?: Prisma.SortOrder
+  resetTokenPurpose?: Prisma.SortOrder
+  resetTokenAttempts?: Prisma.SortOrder
+  resetTokenSentAt?: Prisma.SortOrder
+  emailVerifiedAt?: Prisma.SortOrder
+  emailVerificationHash?: Prisma.SortOrder
+  emailVerificationExpiresAt?: Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
+  emailVerificationSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  resetTokenAttempts?: Prisma.SortOrder
+  emailVerificationAttempts?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -594,6 +820,14 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -809,6 +1043,14 @@ export type UserCreateWithoutFashionHouseOwnedInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouse?: Prisma.FashionHouseCreateNestedOneWithoutStaffInput
@@ -836,6 +1078,14 @@ export type UserUncheckedCreateWithoutFashionHouseOwnedInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   delegatedOrders?: Prisma.OrderUncheckedCreateNestedManyWithoutStaffInput
@@ -866,6 +1116,14 @@ export type UserCreateWithoutFashionHouseInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -892,6 +1150,14 @@ export type UserUncheckedCreateWithoutFashionHouseInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -939,6 +1205,14 @@ export type UserUpdateWithoutFashionHouseOwnedInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneWithoutStaffNestedInput
@@ -966,6 +1240,14 @@ export type UserUncheckedUpdateWithoutFashionHouseOwnedInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   delegatedOrders?: Prisma.OrderUncheckedUpdateManyWithoutStaffNestedInput
@@ -1011,6 +1293,14 @@ export type UserScalarWhereInput = {
   pushToken?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenHash?: Prisma.StringNullableFilter<"User"> | string | null
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  resetTokenPurpose?: Prisma.StringNullableFilter<"User"> | string | null
+  resetTokenAttempts?: Prisma.IntFilter<"User"> | number
+  resetTokenSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerifiedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationHash?: Prisma.StringNullableFilter<"User"> | string | null
+  emailVerificationExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFilter<"User"> | number
+  emailVerificationSentAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
 }
@@ -1026,6 +1316,14 @@ export type UserCreateWithoutDelegatedOrdersInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1053,6 +1351,14 @@ export type UserUncheckedCreateWithoutDelegatedOrdersInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1094,6 +1400,14 @@ export type UserUpdateWithoutDelegatedOrdersInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1121,6 +1435,14 @@ export type UserUncheckedUpdateWithoutDelegatedOrdersInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1146,6 +1468,14 @@ export type UserCreateWithoutBookingsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1173,6 +1503,14 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1214,6 +1552,14 @@ export type UserUpdateWithoutBookingsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1241,6 +1587,14 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1266,6 +1620,14 @@ export type UserCreateWithoutChatEscalationsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1293,6 +1655,14 @@ export type UserUncheckedCreateWithoutChatEscalationsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1334,6 +1704,14 @@ export type UserUpdateWithoutChatEscalationsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1361,6 +1739,14 @@ export type UserUncheckedUpdateWithoutChatEscalationsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1386,6 +1772,14 @@ export type UserCreateWithoutPreferenceInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1413,6 +1807,14 @@ export type UserUncheckedCreateWithoutPreferenceInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1454,6 +1856,14 @@ export type UserUpdateWithoutPreferenceInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1481,6 +1891,14 @@ export type UserUncheckedUpdateWithoutPreferenceInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1506,6 +1924,14 @@ export type UserCreateWithoutMoodBoardSketchesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1533,6 +1959,14 @@ export type UserUncheckedCreateWithoutMoodBoardSketchesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1574,6 +2008,14 @@ export type UserUpdateWithoutMoodBoardSketchesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1601,6 +2043,14 @@ export type UserUncheckedUpdateWithoutMoodBoardSketchesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1626,6 +2076,14 @@ export type UserCreateWithoutChatSessionsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1653,6 +2111,14 @@ export type UserUncheckedCreateWithoutChatSessionsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1694,6 +2160,14 @@ export type UserUpdateWithoutChatSessionsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1721,6 +2195,14 @@ export type UserUncheckedUpdateWithoutChatSessionsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1746,6 +2228,14 @@ export type UserCreateWithoutSentDirectMessagesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1773,6 +2263,14 @@ export type UserUncheckedCreateWithoutSentDirectMessagesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1803,6 +2301,14 @@ export type UserCreateWithoutReceivedDirectMessagesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -1830,6 +2336,14 @@ export type UserUncheckedCreateWithoutReceivedDirectMessagesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -1871,6 +2385,14 @@ export type UserUpdateWithoutSentDirectMessagesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1898,6 +2420,14 @@ export type UserUncheckedUpdateWithoutSentDirectMessagesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1934,6 +2464,14 @@ export type UserUpdateWithoutReceivedDirectMessagesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -1961,6 +2499,14 @@ export type UserUncheckedUpdateWithoutReceivedDirectMessagesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -1986,6 +2532,14 @@ export type UserCreateWithoutDirectMessageThreadStatesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -2013,6 +2567,14 @@ export type UserUncheckedCreateWithoutDirectMessageThreadStatesInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -2054,6 +2616,14 @@ export type UserUpdateWithoutDirectMessageThreadStatesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -2081,6 +2651,14 @@ export type UserUncheckedUpdateWithoutDirectMessageThreadStatesInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -2106,6 +2684,14 @@ export type UserCreateWithoutDirectMessageDeletionsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseCreateNestedOneWithoutAdminInput
@@ -2133,6 +2719,14 @@ export type UserUncheckedCreateWithoutDirectMessageDeletionsInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedCreateNestedOneWithoutAdminInput
@@ -2174,6 +2768,14 @@ export type UserUpdateWithoutDirectMessageDeletionsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -2201,6 +2803,14 @@ export type UserUncheckedUpdateWithoutDirectMessageDeletionsInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -2226,6 +2836,14 @@ export type UserCreateManyFashionHouseInput = {
   pushToken?: string | null
   resetTokenHash?: string | null
   resetTokenExpiresAt?: Date | string | null
+  resetTokenPurpose?: string | null
+  resetTokenAttempts?: number
+  resetTokenSentAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
+  emailVerificationHash?: string | null
+  emailVerificationExpiresAt?: Date | string | null
+  emailVerificationAttempts?: number
+  emailVerificationSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2241,6 +2859,14 @@ export type UserUpdateWithoutFashionHouseInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUpdateOneWithoutAdminNestedInput
@@ -2267,6 +2893,14 @@ export type UserUncheckedUpdateWithoutFashionHouseInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouseOwned?: Prisma.FashionHouseUncheckedUpdateOneWithoutAdminNestedInput
@@ -2293,6 +2927,14 @@ export type UserUncheckedUpdateManyWithoutFashionHouseInput = {
   pushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  resetTokenPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  resetTokenSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerificationExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emailVerificationAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  emailVerificationSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2412,6 +3054,14 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
+  resetTokenPurpose?: boolean
+  resetTokenAttempts?: boolean
+  resetTokenSentAt?: boolean
+  emailVerifiedAt?: boolean
+  emailVerificationHash?: boolean
+  emailVerificationExpiresAt?: boolean
+  emailVerificationAttempts?: boolean
+  emailVerificationSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   fashionHouseOwned?: boolean | Prisma.User$fashionHouseOwnedArgs<ExtArgs>
@@ -2441,6 +3091,14 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
+  resetTokenPurpose?: boolean
+  resetTokenAttempts?: boolean
+  resetTokenSentAt?: boolean
+  emailVerifiedAt?: boolean
+  emailVerificationHash?: boolean
+  emailVerificationExpiresAt?: boolean
+  emailVerificationAttempts?: boolean
+  emailVerificationSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   fashionHouse?: boolean | Prisma.User$fashionHouseArgs<ExtArgs>
@@ -2458,6 +3116,14 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
+  resetTokenPurpose?: boolean
+  resetTokenAttempts?: boolean
+  resetTokenSentAt?: boolean
+  emailVerifiedAt?: boolean
+  emailVerificationHash?: boolean
+  emailVerificationExpiresAt?: boolean
+  emailVerificationAttempts?: boolean
+  emailVerificationSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   fashionHouse?: boolean | Prisma.User$fashionHouseArgs<ExtArgs>
@@ -2475,11 +3141,19 @@ export type UserSelectScalar = {
   pushToken?: boolean
   resetTokenHash?: boolean
   resetTokenExpiresAt?: boolean
+  resetTokenPurpose?: boolean
+  resetTokenAttempts?: boolean
+  resetTokenSentAt?: boolean
+  emailVerifiedAt?: boolean
+  emailVerificationHash?: boolean
+  emailVerificationExpiresAt?: boolean
+  emailVerificationAttempts?: boolean
+  emailVerificationSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "passwordHash" | "name" | "role" | "fashionHouseId" | "active" | "pushToken" | "resetTokenHash" | "resetTokenExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "googleId" | "passwordHash" | "name" | "role" | "fashionHouseId" | "active" | "pushToken" | "resetTokenHash" | "resetTokenExpiresAt" | "resetTokenPurpose" | "resetTokenAttempts" | "resetTokenSentAt" | "emailVerifiedAt" | "emailVerificationHash" | "emailVerificationExpiresAt" | "emailVerificationAttempts" | "emailVerificationSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouseOwned?: boolean | Prisma.User$fashionHouseOwnedArgs<ExtArgs>
   fashionHouse?: boolean | Prisma.User$fashionHouseArgs<ExtArgs>
@@ -2530,6 +3204,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     pushToken: string | null
     resetTokenHash: string | null
     resetTokenExpiresAt: Date | null
+    resetTokenPurpose: string | null
+    resetTokenAttempts: number
+    resetTokenSentAt: Date | null
+    emailVerifiedAt: Date | null
+    emailVerificationHash: string | null
+    emailVerificationExpiresAt: Date | null
+    emailVerificationAttempts: number
+    emailVerificationSentAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -2978,6 +3660,14 @@ export interface UserFieldRefs {
   readonly pushToken: Prisma.FieldRef<"User", 'String'>
   readonly resetTokenHash: Prisma.FieldRef<"User", 'String'>
   readonly resetTokenExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly resetTokenPurpose: Prisma.FieldRef<"User", 'String'>
+  readonly resetTokenAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly resetTokenSentAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly emailVerifiedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly emailVerificationHash: Prisma.FieldRef<"User", 'String'>
+  readonly emailVerificationExpiresAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly emailVerificationAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly emailVerificationSentAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

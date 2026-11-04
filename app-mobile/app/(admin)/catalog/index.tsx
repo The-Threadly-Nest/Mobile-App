@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 20,
     color: "#3B0508",
   },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   addBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
     color: "#FFFFFF",
   },
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   subtext: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     color: "#8A7550",
     marginBottom: 20,
@@ -284,13 +284,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   emptyTitle: {
-    fontFamily: "Fraunces-Bold",
+    fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
     color: "#3B0508",
     marginBottom: 6,
   },
   emptySub: {
-    fontFamily: "WorkSans_400Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#8A7550",
     textAlign: "center",
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   emptyActionBtnText: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#FFFFFF",
   },
@@ -339,13 +339,13 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   cardName: {
-    fontFamily: "WorkSans_600SemiBold",
+    fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
     color: "#3B0508",
     marginBottom: 4,
   },
   cardPrice: {
-    fontFamily: "WorkSans_500Medium",
+    fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
     color: "#C4A763",
   },

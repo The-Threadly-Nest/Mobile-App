@@ -634,7 +634,7 @@ export default function BookingChatScreen() {
                 return (
                   <View key={index} style={{ flexDirection: "row", alignItems: "center", marginVertical: 24, paddingHorizontal: 12 }}>
                     <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
-                    <Text style={{ marginHorizontal: 16, fontFamily: "WorkSans_400Regular", fontSize: 12, color: "#453332", letterSpacing: 2, textTransform: "uppercase" }}>
+                    <Text style={{ marginHorizontal: 16, fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#453332", letterSpacing: 2, textTransform: "uppercase" }}>
                       ENDED
                     </Text>
                     <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
@@ -673,7 +673,7 @@ export default function BookingChatScreen() {
                   >
                     <Text
                       style={{
-                        fontFamily: "WorkSans_400Regular",
+                        fontFamily: "InstrumentSans-Regular",
                         fontSize: 15,
                         lineHeight: 22,
                         color: isUser ? "#453332" : "#FFFFFF",
@@ -707,7 +707,7 @@ export default function BookingChatScreen() {
                         >
                           <Text
                             style={{
-                              fontFamily: "WorkSans_500Medium",
+                              fontFamily: "InstrumentSans-Medium",
                               fontSize: 13,
                               color: "#453332",
                               textAlign: "center",
