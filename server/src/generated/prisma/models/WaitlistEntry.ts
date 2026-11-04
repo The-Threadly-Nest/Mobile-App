@@ -40,6 +40,7 @@ export type WaitlistEntryMinAggregateOutputType = {
   name: string | null
   audience: string | null
   businessName: string | null
+  teamSize: string | null
   phone: string | null
   city: string | null
   instagram: string | null
@@ -67,6 +68,7 @@ export type WaitlistEntryMaxAggregateOutputType = {
   name: string | null
   audience: string | null
   businessName: string | null
+  teamSize: string | null
   phone: string | null
   city: string | null
   instagram: string | null
@@ -94,6 +96,7 @@ export type WaitlistEntryCountAggregateOutputType = {
   name: number
   audience: number
   businessName: number
+  teamSize: number
   phone: number
   city: number
   instagram: number
@@ -131,6 +134,7 @@ export type WaitlistEntryMinAggregateInputType = {
   name?: true
   audience?: true
   businessName?: true
+  teamSize?: true
   phone?: true
   city?: true
   instagram?: true
@@ -158,6 +162,7 @@ export type WaitlistEntryMaxAggregateInputType = {
   name?: true
   audience?: true
   businessName?: true
+  teamSize?: true
   phone?: true
   city?: true
   instagram?: true
@@ -185,6 +190,7 @@ export type WaitlistEntryCountAggregateInputType = {
   name?: true
   audience?: true
   businessName?: true
+  teamSize?: true
   phone?: true
   city?: true
   instagram?: true
@@ -299,6 +305,7 @@ export type WaitlistEntryGroupByOutputType = {
   name: string
   audience: string
   businessName: string | null
+  teamSize: string | null
   phone: string | null
   city: string | null
   instagram: string | null
@@ -349,6 +356,7 @@ export type WaitlistEntryWhereInput = {
   name?: Prisma.StringFilter<"WaitlistEntry"> | string
   audience?: Prisma.StringFilter<"WaitlistEntry"> | string
   businessName?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  teamSize?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   phone?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   city?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   instagram?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
@@ -376,6 +384,7 @@ export type WaitlistEntryOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   audience?: Prisma.SortOrder
   businessName?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamSize?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   city?: Prisma.SortOrderInput | Prisma.SortOrder
   instagram?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -407,6 +416,7 @@ export type WaitlistEntryWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"WaitlistEntry"> | string
   audience?: Prisma.StringFilter<"WaitlistEntry"> | string
   businessName?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  teamSize?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   phone?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   city?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   instagram?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
@@ -433,6 +443,7 @@ export type WaitlistEntryOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   audience?: Prisma.SortOrder
   businessName?: Prisma.SortOrderInput | Prisma.SortOrder
+  teamSize?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   city?: Prisma.SortOrderInput | Prisma.SortOrder
   instagram?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -468,6 +479,7 @@ export type WaitlistEntryScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
   audience?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
   businessName?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
+  teamSize?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   city?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   instagram?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
@@ -495,6 +507,7 @@ export type WaitlistEntryCreateInput = {
   name: string
   audience: string
   businessName?: string | null
+  teamSize?: string | null
   phone?: string | null
   city?: string | null
   instagram?: string | null
@@ -522,6 +535,7 @@ export type WaitlistEntryUncheckedCreateInput = {
   name: string
   audience: string
   businessName?: string | null
+  teamSize?: string | null
   phone?: string | null
   city?: string | null
   instagram?: string | null
@@ -549,6 +563,7 @@ export type WaitlistEntryUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   audience?: Prisma.StringFieldUpdateOperationsInput | string
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -576,6 +591,7 @@ export type WaitlistEntryUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   audience?: Prisma.StringFieldUpdateOperationsInput | string
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -603,6 +619,7 @@ export type WaitlistEntryCreateManyInput = {
   name: string
   audience: string
   businessName?: string | null
+  teamSize?: string | null
   phone?: string | null
   city?: string | null
   instagram?: string | null
@@ -630,6 +647,7 @@ export type WaitlistEntryUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   audience?: Prisma.StringFieldUpdateOperationsInput | string
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -657,6 +675,7 @@ export type WaitlistEntryUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   audience?: Prisma.StringFieldUpdateOperationsInput | string
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  teamSize?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instagram?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -684,6 +703,7 @@ export type WaitlistEntryCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   audience?: Prisma.SortOrder
   businessName?: Prisma.SortOrder
+  teamSize?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   city?: Prisma.SortOrder
   instagram?: Prisma.SortOrder
@@ -715,6 +735,7 @@ export type WaitlistEntryMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   audience?: Prisma.SortOrder
   businessName?: Prisma.SortOrder
+  teamSize?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   city?: Prisma.SortOrder
   instagram?: Prisma.SortOrder
@@ -742,6 +763,7 @@ export type WaitlistEntryMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   audience?: Prisma.SortOrder
   businessName?: Prisma.SortOrder
+  teamSize?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   city?: Prisma.SortOrder
   instagram?: Prisma.SortOrder
@@ -775,6 +797,7 @@ export type WaitlistEntrySelect<ExtArgs extends runtime.Types.Extensions.Interna
   name?: boolean
   audience?: boolean
   businessName?: boolean
+  teamSize?: boolean
   phone?: boolean
   city?: boolean
   instagram?: boolean
@@ -802,6 +825,7 @@ export type WaitlistEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types
   name?: boolean
   audience?: boolean
   businessName?: boolean
+  teamSize?: boolean
   phone?: boolean
   city?: boolean
   instagram?: boolean
@@ -829,6 +853,7 @@ export type WaitlistEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   name?: boolean
   audience?: boolean
   businessName?: boolean
+  teamSize?: boolean
   phone?: boolean
   city?: boolean
   instagram?: boolean
@@ -856,6 +881,7 @@ export type WaitlistEntrySelectScalar = {
   name?: boolean
   audience?: boolean
   businessName?: boolean
+  teamSize?: boolean
   phone?: boolean
   city?: boolean
   instagram?: boolean
@@ -877,7 +903,7 @@ export type WaitlistEntrySelectScalar = {
   updatedAt?: boolean
 }
 
-export type WaitlistEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "audience" | "businessName" | "phone" | "city" | "instagram" | "interests" | "source" | "referralCode" | "referredBy" | "status" | "consentedAt" | "confirmationSentAt" | "verifiedAt" | "verificationHash" | "verificationExpiresAt" | "verificationAttempts" | "verificationSentAt" | "invitedAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["waitlistEntry"]>
+export type WaitlistEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "audience" | "businessName" | "teamSize" | "phone" | "city" | "instagram" | "interests" | "source" | "referralCode" | "referredBy" | "status" | "consentedAt" | "confirmationSentAt" | "verifiedAt" | "verificationHash" | "verificationExpiresAt" | "verificationAttempts" | "verificationSentAt" | "invitedAt" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["waitlistEntry"]>
 
 export type $WaitlistEntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WaitlistEntry"
@@ -888,6 +914,7 @@ export type $WaitlistEntryPayload<ExtArgs extends runtime.Types.Extensions.Inter
     name: string
     audience: string
     businessName: string | null
+    teamSize: string | null
     phone: string | null
     city: string | null
     instagram: string | null
@@ -1335,6 +1362,7 @@ export interface WaitlistEntryFieldRefs {
   readonly name: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly audience: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly businessName: Prisma.FieldRef<"WaitlistEntry", 'String'>
+  readonly teamSize: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly phone: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly city: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly instagram: Prisma.FieldRef<"WaitlistEntry", 'String'>

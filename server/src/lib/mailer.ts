@@ -118,7 +118,7 @@ export async function sendWaitlistConfirmationEmail({
 }) {
   const publicUrl = (process.env.WAITLIST_PUBLIC_URL || "https://owuja.com").replace(/\/$/, "");
   const referralUrl = `${publicUrl}/?ref=${encodeURIComponent(referralCode)}`;
-  const unsubscribeUrl = `${publicUrl}/unsubscribe.html?token=${encodeURIComponent(unsubscribeToken)}`;
+  const unsubscribeUrl = `${publicUrl}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
   const audienceLine = audience === "fashion_house"
     ? "We will contact you when fashion house onboarding opens."
     : "We will contact you when early customer access opens.";

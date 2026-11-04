@@ -7,7 +7,7 @@
   --color-owuja-teal: #1b9aaa;
   --color-owuja-muted: #746765;
   --font-sans: "Instrument Sans", Arial, sans-serif;
-  --font-display: "Hedvig Letters Serif", Georgia, serif;
+  --font-display: "Hedvig Letters Serif";
 }
 
 @font-face {
@@ -46,6 +46,11 @@
   font-display: swap;
 }
 
+.serif-semibold {
+  -webkit-text-stroke: 0.35px currentColor;
+  paint-order: stroke fill;
+}
+
 :root {
   --brown: #453332;
   --coral: #f96951;
@@ -70,10 +75,10 @@ button { cursor: pointer; }
 .waitlist-shell { min-height: 100vh; display: grid; grid-template-columns: minmax(320px, 0.86fr) minmax(520px, 1.14fr); }
 .brand-panel { min-height: 100vh; padding: 52px clamp(34px, 6vw, 88px); color: var(--white); background: var(--coral); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
 .brand-panel::after { content: ""; position: absolute; width: 420px; height: 420px; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; right: -230px; bottom: 8%; box-shadow: 0 0 0 64px rgba(255,255,255,.08), 0 0 0 128px rgba(255,255,255,.05); }
-.wordmark { color: inherit; font-family: "Hedvig Letters Serif", Georgia, serif; font-size: 34px; text-decoration: none; position: relative; z-index: 1; }
+.wordmark { color: inherit; font-family: "Hedvig Letters Serif"; font-size: 34px; text-decoration: none; position: relative; z-index: 1; }
 .wordmark.dark { color: var(--brown); }
 .brand-copy { position: relative; z-index: 1; max-width: 560px; }
-.brand-copy h1 { font-family: "Hedvig Letters Serif", Georgia, serif; font-size: clamp(46px, 6vw, 82px); line-height: .98; letter-spacing: -.035em; margin: 18px 0 24px; font-weight: 400; }
+.brand-copy h1 { font-family: "Hedvig Letters Serif"; font-size: clamp(46px, 6vw, 82px); line-height: .98; letter-spacing: -.035em; margin: 18px 0 24px; font-weight: 400; }
 .brand-copy > p:last-child { font-size: 18px; line-height: 1.65; max-width: 500px; }
 .eyebrow { margin: 0; font-size: 12px; letter-spacing: .18em; font-weight: 700; }
 .eyebrow.coral { color: var(--coral); }
@@ -81,7 +86,7 @@ button { cursor: pointer; }
 
 .form-panel { display: grid; place-items: center; padding: 56px clamp(24px, 6vw, 96px); }
 .form-wrap { width: min(680px, 100%); }
-.form-wrap h2, .success-panel h2 { font-family: "Hedvig Letters Serif", Georgia, serif; font-size: clamp(34px, 4vw, 50px); line-height: 1.08; font-weight: 400; letter-spacing: -.025em; margin: 12px 0; }
+.form-wrap h2, .success-panel h2 { font-family: "Hedvig Letters Serif"; font-size: clamp(34px, 4vw, 50px); line-height: 1.08; font-weight: 400; letter-spacing: -.025em; margin: 12px 0; }
 .intro { color: var(--muted); line-height: 1.6; margin: 0 0 30px; }
 .audience-picker { border: 0; padding: 0; margin: 0 0 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .audience-picker legend { font-weight: 600; margin-bottom: 10px; grid-column: 1 / -1; }
@@ -113,7 +118,7 @@ button { cursor: pointer; }
 
 .admin-body { background: #f7f5f4; }
 .login-card { width: min(440px, calc(100% - 32px)); margin: 8vh auto; background: var(--white); border-radius: 24px; padding: 34px; box-shadow: 0 18px 55px rgba(69,51,50,.1); }
-.login-card h1 { font-family: "Hedvig Letters Serif", Georgia, serif; font-weight: 400; font-size: 38px; margin: 10px 0 26px; }
+.login-card h1 { font-family: "Hedvig Letters Serif"; font-weight: 400; font-size: 38px; margin: 10px 0 26px; }
 .login-card .eyebrow { margin-top: 30px; }
 .admin-shell { width: min(1440px, calc(100% - 40px)); margin: 0 auto 50px; }
 .admin-header { height: 104px; display: flex; justify-content: space-between; align-items: center; }
@@ -123,7 +128,7 @@ button { cursor: pointer; }
 .summary-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 18px; }
 .summary-grid article { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
 .summary-grid span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 10px; }
-.summary-grid strong { font-family: "Hedvig Letters Serif", Georgia, serif; font-weight: 400; font-size: 32px; }
+.summary-grid strong { font-family: "Hedvig Letters Serif"; font-weight: 400; font-size: 32px; }
 .admin-card { background: var(--white); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; }
 .toolbar { padding: 18px; display: flex; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); }
 .tabs { display: flex; gap: 4px; background: #f2eeec; padding: 4px; border-radius: 999px; }

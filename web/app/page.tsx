@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { api, errorMessage } from "../lib/api";
-import type { Audience, JoinWaitlistInput, MessageResponse, VerifyResponse } from "../lib/waitlist-types";
+import type { Audience, JoinWaitlistInput, JoinWaitlistResponse } from "../lib/waitlist-types";
 
 const SHOPPING_INTERESTS = [
   "Bridal",
@@ -191,13 +191,11 @@ const FAQS = [
 
 export default function WaitlistPage() {
   const [audience, setAudience] = useState<Audience>("customer");
-  const [step, setStep] = useState<"join" | "verify" | "success">("join");
-  const [email, setEmail] = useState("");
-  const [details, setDetails] = useState<JoinWaitlistInput | null>(null);
+  const [step, setStep] = useState<"join" | "success">("join");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [referral, setReferral] = useState("");
-  const [resendAt, setResendAt] = useState(0);
+  const [city, setCity] = useState("Lagos");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(["Bridal", "Aso-Ebi"]);
 
   // Desktop - 2 state: Feature tab and FAQ accordion
@@ -221,12 +219,18 @@ export default function WaitlistPage() {
 
     const form = new FormData(event.currentTarget);
     const value = (name: string) => String(form.get(name) ?? "");
+    const submittedCity = (city === "Other" ? value("otherCity") : city).trim();
+    if (city === "Other" && submittedCity.length < 2) {
+      setMessage("Please enter your city name.");
+      setBusy(false);
+      return;
+    }
 
     const data: JoinWaitlistInput = {
       name: value("name"),
       email: value("email"),
       audience,
-      city: value("city"),
+      city: submittedCity,
       phone: value("phone"),
       website: value("website"),
       consent: form.get("consent") === "on",
@@ -234,7 +238,6 @@ export default function WaitlistPage() {
         ? {
             businessName: value("businessName"),
             teamSize: value("teamSize"),
-            interests: `Team: ${value("teamSize") || "Just me"}`,
           }
         : {
             interests: selectedInterests.join(", "),
@@ -243,56 +246,12 @@ export default function WaitlistPage() {
     };
 
     try {
-      await api<MessageResponse>("/api/waitlist", {
+      const response = await api<JoinWaitlistResponse>("/api/waitlist", {
         method: "POST",
         body: JSON.stringify(data),
       });
-      setDetails(data);
-      setEmail(data.email.trim().toLowerCase());
-      setStep("verify");
-      setResendAt(Date.now() + 60000);
-    } catch (error) {
-      setMessage(errorMessage(error));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function verify(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage("");
-    setBusy(true);
-
-    const code = new FormData(event.currentTarget).get("code");
-    try {
-      const result = await api<VerifyResponse>("/api/waitlist/verify", {
-        method: "POST",
-        body: JSON.stringify({ email, code }),
-      });
-      setReferral(`${window.location.origin}/?ref=${encodeURIComponent(result.referralCode)}`);
+      setReferral(response.referralCode ? `${window.location.origin}/?ref=${encodeURIComponent(response.referralCode)}` : "");
       setStep("success");
-    } catch (error) {
-      setMessage(errorMessage(error));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function resend() {
-    if (!details) return;
-    if (Date.now() < resendAt) {
-      setMessage("Please wait one minute before requesting another code.");
-      return;
-    }
-    setBusy(true);
-    setMessage("");
-    try {
-      await api<MessageResponse>("/api/waitlist", {
-        method: "POST",
-        body: JSON.stringify(details),
-      });
-      setResendAt(Date.now() + 60000);
-      setMessage("Check your email for your new code.");
     } catch (error) {
       setMessage(errorMessage(error));
     } finally {
@@ -325,7 +284,7 @@ export default function WaitlistPage() {
             <p className="text-[13px] font-medium tracking-[1.3px] text-[#f96951] sm:text-[15px]">
               OPENING FIRST IN LAGOS &amp; ABUJA · EARLY 2027
             </p>
-            <h1 className="font-['Hedvig_Letters_Serif',Georgia,serif] text-4xl font-semibold leading-[1.08] text-[#453332] sm:text-5xl lg:text-[54px]">
+            <h1 className="font-['Hedvig_Letters_Serif'] serif-semibold text-4xl font-normal leading-[1.08] text-[#453332] sm:text-5xl lg:text-[54px]">
               Your fashion business, all in one place.
             </h1>
             <p className="text-[17px] leading-relaxed text-[#404040] sm:text-[19px]">
@@ -349,7 +308,7 @@ export default function WaitlistPage() {
           <div className="flex flex-col gap-3 rounded-2xl bg-[#faf7f5] p-5">
             <div className="flex items-baseline justify-between">
               <div>
-                <span className="font-['Hedvig_Letters_Serif',Georgia,serif] text-3xl font-semibold text-[#f96951]">
+                <span className="font-['Hedvig_Letters_Serif'] serif-semibold text-3xl font-normal text-[#f96951]">
                   1,284
                 </span>
                 <span className="ml-2 text-[15px] text-[#404040]">people waiting</span>
@@ -388,7 +347,7 @@ export default function WaitlistPage() {
                 {/* Card Title & Intro */}
                 <div className="mb-6 flex flex-col gap-2">
                   <div className="flex flex-col gap-1.5">
-                    <h2 className="font-['Hedvig_Letters_Serif',Georgia,serif] text-2xl font-semibold text-[#453332]">
+                    <h2 className="font-['Hedvig_Letters_Serif'] serif-semibold text-2xl font-normal text-[#453332]">
                       Reserve your spot
                     </h2>
                     <p className="text-[16px] text-[#404040]">
@@ -471,7 +430,8 @@ export default function WaitlistPage() {
                       <div className="relative">
                         <select
                           name="city"
-                          defaultValue="Lagos"
+                          value={city}
+                          onChange={(event) => setCity(event.target.value)}
                           className="h-[56px] w-full appearance-none rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 pr-14 text-[16px] text-black outline-none focus:border-[#453332] focus:bg-white"
                         >
                           {CITIES.map((c) => (
@@ -484,6 +444,22 @@ export default function WaitlistPage() {
                       </div>
                     </label>
                   </div>
+
+                  {city === "Other" && (
+                    <label className="flex flex-col gap-1.5">
+                      <span className="text-[14px] font-semibold text-[#453332]">Your city</span>
+                      <input
+                        name="otherCity"
+                        type="text"
+                        autoComplete="address-level2"
+                        required
+                        minLength={2}
+                        maxLength={100}
+                        placeholder="Enter your city name"
+                        className="h-[56px] w-full rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
+                      />
+                    </label>
+                  )}
 
                   {/* Designer-specific inputs (Node 65:4850 & Node 76:5740) */}
                   {audience === "fashion_house" ? (
@@ -572,7 +548,7 @@ export default function WaitlistPage() {
                       disabled={busy}
                       className="w-full rounded-[36px] bg-[#453332] py-3.5 text-[20px] font-medium text-white transition hover:bg-[#342625] disabled:opacity-50"
                     >
-                      {busy ? "Sending code..." : "Join the waitlist"}
+                      {busy ? "Joining..." : "Join the waitlist"}
                     </button>
                     <p className="text-center text-[12px] text-[#404040]">
                       We only use your details to contact you about Owuja.
@@ -582,80 +558,19 @@ export default function WaitlistPage() {
               </>
             )}
 
-            {/* Verification Step */}
-            {step === "verify" && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <p className="text-[12px] font-bold uppercase tracking-wider text-[#f96951]">
-                    VERIFY YOUR EMAIL
-                  </p>
-                  <h2 className="font-['Hedvig_Letters_Serif',Georgia,serif] text-2xl font-semibold text-[#453332]">
-                    Check your inbox
-                  </h2>
-                  <p className="text-[14px] text-[#746765]">
-                    Enter the six-digit code sent to <strong className="text-[#453332]">{email}</strong>. It expires in 10 minutes.
-                  </p>
-                </div>
-
-                <form onSubmit={verify} className="flex flex-col gap-4">
-                  <input
-                    name="code"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    pattern="[0-9]{6}"
-                    minLength={6}
-                    maxLength={6}
-                    required
-                    autoFocus
-                    placeholder="123456"
-                    className="rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-4 py-3 text-center font-mono text-2xl tracking-[6px] text-[#453332] outline-none focus:bg-white focus:border-[#453332]"
-                  />
-                  <button
-                    type="submit"
-                    disabled={busy}
-                    className="w-full rounded-[36px] bg-[#453332] py-3 text-[16px] font-medium text-white transition hover:bg-[#342625] disabled:opacity-50"
-                  >
-                    {busy ? "Verifying..." : "Verify email"}
-                  </button>
-                </form>
-
-                <div className="flex justify-between pt-2">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={resend}
-                    className="text-[13px] font-semibold text-[#453332] hover:underline"
-                  >
-                    Resend code
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => {
-                      setStep("join");
-                      setMessage("");
-                    }}
-                    className="text-[13px] font-semibold text-[#453332] hover:underline"
-                  >
-                    Change email
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* Success Step */}
             {step === "success" && (
               <div className="flex flex-col items-center gap-4 py-6 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#f96951] text-2xl text-white">
                   ✓
                 </div>
-                <h2 className="font-['Hedvig_Letters_Serif',Georgia,serif] text-3xl font-semibold text-[#453332]">
+                <h2 className="font-['Hedvig_Letters_Serif'] serif-semibold text-3xl font-normal text-[#453332]">
                   You’re on the list!
                 </h2>
                 <p className="max-w-md text-[14px] text-[#746765]">
-                  Your email has been verified. Share your unique link below to move up the list:
+                  Thanks for your interest in Owuja. We'll be in touch when early access opens.
                 </p>
-                <div className="flex w-full gap-2">
+                {referral && <div className="flex w-full gap-2">
                   <input
                     value={referral}
                     readOnly
@@ -675,7 +590,7 @@ export default function WaitlistPage() {
                   >
                     Copy
                   </button>
-                </div>
+                </div>}
               </div>
             )}
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import WaitlistAdmin from "../../components/WaitlistAdmin";
 
 export const metadata: Metadata = {
-  title: "Owuja administration",
+  title: "Owuja",
   robots: { index: false, follow: false },
 };
 

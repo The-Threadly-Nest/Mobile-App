@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "packages": { "node": "22" },
+  "buildAptPackages": ["openssl", "ca-certificates"],
+  "exclude": [".env", ".env.*", "node_modules", "dist", "*.log", "scratch", ".git"],
+  "steps": {
+    "install": { "commands": ["npm ci --include=dev"] },
+    "build": { "commands": ["npm run prisma:generate && npm run build"] }
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "aptPackages": ["openssl", "ca-certificates"]
+  }
+}

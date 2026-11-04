@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "packages": { "node": "22" },
+  "exclude": [".env", ".env.*", "node_modules", ".next", "*.log", "*.tsbuildinfo", ".git"],
+  "steps": {
+    "install": { "commands": ["npm ci --include=dev"] },
+    "build": { "commands": ["npm run build"] }
+  },
+  "deploy": {
+    "startCommand": "npm start -- --hostname ::"
+  }
+}

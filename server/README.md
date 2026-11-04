@@ -13,11 +13,11 @@ NestJS 11, TypeScript, Prisma and PostgreSQL. The backend is a modular monolith:
 - `src/schemas`: Zod input contracts with readable field validation messages.
 - `src/lib`: shared infrastructure and existing domain rules.
 
-The 87 existing feature endpoints retain their methods and `/api/...` paths. Health remains at `/health`; API documentation remains at `/api-docs`. The old Express router files have been replaced by Nest controllers and injectable services.
+There are 86 current feature endpoints under `/api/...`; the obsolete web waitlist verification endpoint was removed intentionally. Health remains at `/health`; API documentation remains at `/api-docs`. The old Express router files have been replaced by Nest controllers and injectable services.
 
 ## Request handling
 
-All 87 feature endpoints use Nest controllers, typed inputs and native guards. Feature services accept validated data and account identity, return values, and use the injected database service. They no longer accept Express requests, responses or callbacks. The old handler bridge and authentication/validation middleware have been removed.
+All 86 feature endpoints use Nest controllers, typed inputs and native guards. Feature services accept validated data and account identity, return values, and use the injected database service. They no longer accept Express requests, responses or callbacks. The old handler bridge and authentication/validation middleware have been removed.
 
 Endpoint DTO contracts live beside each feature. The input pipe validates and strips unknown body fields; account identity comes only from the session guard. Multipart audio uses Nest's file interceptor with the existing 20 MB limit. A response interceptor preserves dynamic status codes and collection pagination headers without services writing HTTP responses.
 
@@ -43,7 +43,8 @@ Configure `.env` from `.env.example`. `DATABASE_URL` and `JWT_SECRET` are requir
 ## Run
 
 - Development: `npm run dev` starts Nest in watch mode.
-- Railway / other long-running host: `npm run build`, then `npm start`.
+- Railway: use the checked-in Railpack configuration and [deployment guide](../RAILWAY.md). The pre-deploy step applies migrations and provisions a restricted runtime login on the new Railway database.
+- Other long-running host: generate Prisma Client, run `npm run build`, then `npm start`.
 - Vercel: `api/index.ts` initializes and caches the same Nest application per warm instance. Keep the existing Vercel rewrite configuration.
 
 `PORT` defaults to 4000. `TRUST_PROXY_HOPS` defaults to 0 for direct access; configure it to the actual proxy chain when deployed. `ALLOWED_ORIGIN` accepts a single origin, comma-separated origins or `*`.
@@ -61,7 +62,7 @@ The row-policy SQL is in `20261103010000_database_row_policies`. Queries set the
 
 `tests/database-rls.test.ts` is an opt-in rollback-only policy test (`SECURITY_TEST_DATABASE_URL`). `tests/rls-runtime.test.ts` is an opt-in test of the actual Neon development login/API (`RUN_RLS_RUNTIME_TEST=true`); it removes its temporary records afterward. Neither should target Railway production.
 
-Do not use `db push --force-reset` on this configured database: it deletes records and removes custom policies. A fresh Railway deployment still needs the previously discussed migration-baseline repair; the old index-first migration history is not a fresh-database baseline.
+Do not use `db push --force-reset` on this configured database: it deletes records and removes custom policies. `0_initial_schema` now supplies the previously missing core-table migration for a fresh empty Railway database. Existing Neon/db-push databases must be separately reviewed and baselined before replaying migration history. No existing database was changed when preparing deployment.
 
 ## Commerce contracts carried over
 

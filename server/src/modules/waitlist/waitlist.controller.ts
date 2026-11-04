@@ -17,14 +17,6 @@ export class WaitlistController {
     return this.service.post(input);
   }
 
-  @Post("verify")
-  @HttpCode(200)
-  @UseGuards(EndpointRateGuard)
-  @RateLimit("waitlist", 10, 3600000, false)
-  postVerify(@RequestInput(waitlistInputs.postVerify) input: WaitlistInput<"postVerify">) {
-    return this.service.postVerify(input);
-  }
-
   @Post("unsubscribe")
   @HttpCode(200)
   postUnsubscribe(@RequestInput(waitlistInputs.postUnsubscribe) input: WaitlistInput<"postUnsubscribe">) {

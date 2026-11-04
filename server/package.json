@@ -9,6 +9,8 @@
     "start": "node dist/src/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:provision": "node deployment/provision-runtime.mjs",
     "test": "node --import tsx --test tests/*.test.ts",
     "email:test": "node scripts/send-test-emails.mjs",
     "typecheck": "tsc --noEmit --incremental false"

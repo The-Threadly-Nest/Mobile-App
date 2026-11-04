@@ -7,8 +7,15 @@ export const joinWaitlistSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email address.").max(254),
   audience: z.enum(["customer", "fashion_house"]),
   businessName: optionalText(120),
+  teamSize: z.enum(["Just me", "2-5 people", "6-10 people", "11+ people"]).optional(),
   phone: optionalText(30),
-  city: optionalText(100),
+  city: z.string().trim().max(100, "Keep your city name to 100 characters or fewer.")
+    .refine((value) => !value || (
+      value.length >= 2 && /\p{L}/u.test(value)
+      && /^[\p{L}\p{N}][\p{L}\p{M}\p{N} .,'’()\-]*$/u.test(value)
+      && value.toLowerCase() !== "other"
+    ), "Please enter a valid city name.")
+    .optional().transform((value) => value || undefined),
   instagram: optionalText(100),
   interests: optionalText(500),
   source: optionalText(100),
@@ -41,9 +48,4 @@ export const inviteWaitlistSchema = z.object({
 
 export const unsubscribeWaitlistSchema = z.object({
   token: z.string().min(20).max(2000),
-});
-
-export const verifyWaitlistSchema = z.object({
-  email: z.string().trim().toLowerCase().email().max(254),
-  code: z.string().regex(/^\d{6}$/, "Enter the six-digit code from your email."),
 });

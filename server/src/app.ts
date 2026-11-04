@@ -14,6 +14,7 @@ import { swaggerSpec } from "./utils/swagger";
 import { appLogger } from "./core/logging";
 import { runDatabaseRequest } from "./core/database/database-context";
 import { verifyDatabaseSecurity } from "./core/database/security-preflight";
+import { proxyIdentity } from "./core/http/proxy-identity";
 
 let application: Promise<NestExpressApplication> | undefined;
 
@@ -30,6 +31,9 @@ async function bootstrapApplication(): Promise<NestExpressApplication> {
   if (process.env.NODE_ENV === "production" && process.env.JWT_SECRET.length < 32) {
     throw new Error("Production JWT_SECRET must contain at least 32 random characters.");
   }
+  if (process.env.WEB_PROXY_SECRET && process.env.WEB_PROXY_SECRET.length < 32) {
+    throw new Error("WEB_PROXY_SECRET must contain at least 32 random characters.");
+  }
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false, abortOnError: false });
   try {
     const proxyHops = Number(process.env.TRUST_PROXY_HOPS ?? "0");
@@ -37,6 +41,7 @@ async function bootstrapApplication(): Promise<NestExpressApplication> {
     app.set("trust proxy", proxyHops);
     app.set("etag", false);
     app.disable("x-powered-by");
+    app.use(proxyIdentity);
     app.use((_req: Request, _res: Response, next: NextFunction) => runDatabaseRequest(next));
     app.use((req: Request, res: Response, next: NextFunction) => {
       const startedAt = Date.now();

@@ -58,6 +58,7 @@ model WaitlistEntry {
   name             String
   audience         String
   businessName     String?
+  teamSize         String?
   phone            String?
   city             String?
   instagram        String?
@@ -234,8 +235,8 @@ model AvailableSlot {
   fashionHouseId String
   date           String
   time           String
-  startsAt       DateTime?
-  endsAt         DateTime?
+  startsAt       DateTime? @db.Timestamptz(6)
+  endsAt         DateTime? @db.Timestamptz(6)
   durationMinutes Int    @default(60)
   active         Boolean  @default(true)
   booked         Boolean  @default(false)

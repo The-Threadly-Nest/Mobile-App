@@ -4,14 +4,10 @@ import { routeParam } from "../../core/http/route-param";
 import type { WaitlistInput } from "./waitlist.dto";
 import { result, rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
-import { randomBytes, randomInt, createHmac } from "crypto";
+import { randomBytes } from "crypto";
 import jwt from "jsonwebtoken";
 
-import { sendWaitlistConfirmationEmail, sendWaitlistInviteEmail, sendWaitlistVerificationEmail } from "../../lib/mailer";
-
-function codeHash(email: string, code: string, secret: string) {
-  return createHmac("sha256", secret).update(`waitlist:${email}:${code}`).digest("hex");
-}
+import { sendWaitlistConfirmationEmail, sendWaitlistInviteEmail } from "../../lib/mailer";
 
 @Injectable()
 export class WaitlistService {
@@ -21,14 +17,15 @@ export class WaitlistService {
     try {
       const secret = process.env.JWT_SECRET;
       if (!secret) throw Object.assign(new Error("Server misconfiguration."), { status: 500 });
-      const publicMessage = "Check your inbox for your six-digit verification code.";
+      const publicMessage = "Thanks for your interest in Owuja. We'll be in touch when early access opens.";
       if (input.body.website) {
         return result({ message: publicMessage }, 202);
       }
 
       const existing = await this.database.identityClient.waitlistEntry.findUnique({ where: { email: input.body.email } });
       if (existing) {
-        await this.sendCode(existing, secret);
+        // Do not disclose an existing person's referral code, overwrite their
+        // details, or resubscribe someone who has opted out.
         return result({ message: publicMessage }, 202);
       }
 
@@ -39,6 +36,7 @@ export class WaitlistService {
           name: input.body.name,
           audience: input.body.audience,
           businessName: input.body.audience === "fashion_house" ? input.body.businessName : null,
+          teamSize: input.body.audience === "fashion_house" ? input.body.teamSize : null,
           phone: input.body.phone,
           city: input.body.city,
           instagram: input.body.audience === "fashion_house" ? input.body.instagram : null,
@@ -50,58 +48,27 @@ export class WaitlistService {
         },
       });
 
-      await this.sendCode(entry, secret);
-      return result({ message: publicMessage }, 202);
-    } catch (error) {
-      if ((error as { code?: string }).code === "P2002") {
-        return result({ message: "Check your inbox for your six-digit verification code." }, 202);
-      }
-      throw error;
-    }
-  }
-
-  async postVerify(input: WaitlistInput<"postVerify">) {
-    try {
-      const secret = process.env.JWT_SECRET;
-      if (!secret) throw Object.assign(new Error("Server misconfiguration."), { status: 500 });
-      const entry = await this.database.identityClient.waitlistEntry.findUnique({ where: { email: input.body.email } });
-      const invalid = () => rejectRequest({ error: "Invalid or expired code. Request a new code if needed." }, 400);
-      if (!entry || entry.status === "unsubscribed" || !entry.verificationHash) return invalid();
-      const attempt = await this.database.identityClient.waitlistEntry.updateMany({
-        where: { id: entry.id, verificationHash: entry.verificationHash, verificationExpiresAt: { gt: new Date() }, verificationAttempts: { lt: 5 } },
-        data: { verificationAttempts: { increment: 1 } },
-      });
-      if (!attempt.count || codeHash(entry.email, input.body.code, secret) !== entry.verificationHash) return invalid();
-      const verified = await this.database.identityClient.waitlistEntry.updateMany({
-        where: { id: entry.id, verificationHash: entry.verificationHash, status: { not: "unsubscribed" }, verificationExpiresAt: { gt: new Date() } },
-        data: { verifiedAt: entry.verifiedAt || new Date(), verificationHash: null, verificationExpiresAt: null },
-      });
-      if (!verified.count) return invalid();
       const unsubscribeToken = jwt.sign(
         { email: entry.email, purpose: "waitlist_unsubscribe" },
         secret,
-        { algorithm: "HS256", expiresIn: "365d" }
+        { algorithm: "HS256", expiresIn: "365d" },
       );
-      if (!entry.confirmationSentAt) await sendWaitlistConfirmationEmail({
-        to: entry.email,
-        name: entry.name,
-        audience: entry.audience as "customer" | "fashion_house",
-        referralCode: entry.referralCode,
-        unsubscribeToken,
-      }).then(() => this.database.identityClient.waitlistEntry.update({
-        where: { id: entry.id },
-        data: { confirmationSentAt: new Date() },
-      })).catch((error) => {
-        logFailure("Waitlist verification succeeded, but the confirmation email could not be sent.", error);
-      });
-
-      return {
-        message: "Your email is verified. You're on the Owuja waitlist.",
-        referralCode: entry.referralCode,
-      };
+      try {
+        await sendWaitlistConfirmationEmail({
+          to: entry.email, name: entry.name,
+          audience: entry.audience as "customer" | "fashion_house",
+          referralCode: entry.referralCode, unsubscribeToken,
+        });
+        await this.database.identityClient.waitlistEntry.update({
+          where: { id: entry.id }, data: { confirmationSentAt: new Date() },
+        });
+      } catch (error) {
+        logFailure("You're on the waitlist, but we couldn't send the welcome email.", error);
+      }
+      return result({ message: publicMessage, referralCode: entry.referralCode }, 202);
     } catch (error) {
-      if (error instanceof jwt.JsonWebTokenError) {
-        return rejectRequest({ error: "This verification link is invalid or has expired. Submit the waitlist form again to request another." }, 400);
+      if ((error as { code?: string }).code === "P2002") {
+        return result({ message: "Thanks for your interest in Owuja. We'll be in touch when early access opens." }, 202);
       }
       throw error;
     }
@@ -192,7 +159,7 @@ export class WaitlistService {
   async postAdminInvite(input: WaitlistInput<"postAdminInvite">) {
 
     const entries = await this.database.identityClient.waitlistEntry.findMany({
-      where: { id: { in: input.body.ids }, verifiedAt: { not: null }, status: { in: ["waiting", "invited"] } },
+      where: { id: { in: input.body.ids }, status: { in: ["waiting", "invited"] } },
     });
 
     const delivered: string[] = [];
@@ -212,22 +179,6 @@ export class WaitlistService {
 
     return { delivered, failed };
 
-  }
-
-  private async sendCode(entry: { id: string; email: string; status: string }, secret: string) {
-    if (entry.status === "unsubscribed") return;
-    const code = String(randomInt(0, 1000000)).padStart(6, "0");
-    const now = new Date();
-    const claimed = await this.database.identityClient.waitlistEntry.updateMany({
-      where: {
-        id: entry.id, OR: [
-          { verificationSentAt: null },
-          { verificationSentAt: { lt: new Date(now.getTime() - 60000) } },
-        ]
-      },
-      data: { verificationHash: codeHash(entry.email, code, secret), verificationExpiresAt: new Date(now.getTime() + 600000), verificationAttempts: 0, verificationSentAt: now },
-    });
-    if (claimed.count) await sendWaitlistVerificationEmail(entry.email, code);
   }
 
   private async createReferralCode(): Promise<string> {

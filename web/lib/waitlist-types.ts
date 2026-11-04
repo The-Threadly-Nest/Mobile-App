@@ -24,6 +24,7 @@ export interface WaitlistEntry {
   name: string;
   audience: Audience;
   businessName: string | null;
+  teamSize: string | null;
   city: string | null;
   status: WaitlistStatus;
   verifiedAt: string | null;
@@ -37,5 +38,5 @@ export interface WaitlistResponse {
 }
 
 export interface MessageResponse { message: string }
-export interface VerifyResponse extends MessageResponse { referralCode: string }
+export interface JoinWaitlistResponse extends MessageResponse { referralCode?: string }
 export interface InviteResponse { delivered: string[]; failed: string[] }

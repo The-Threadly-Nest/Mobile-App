@@ -1913,6 +1913,7 @@ export const WaitlistEntryScalarFieldEnum = {
   name: 'name',
   audience: 'audience',
   businessName: 'businessName',
+  teamSize: 'teamSize',
   phone: 'phone',
   city: 'city',
   instagram: 'instagram',

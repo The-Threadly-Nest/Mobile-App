@@ -6,7 +6,7 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
   const port = Number(process.env.PORT ?? "4000");
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT must be a valid TCP port.");
-  await app.listen(port, "0.0.0.0");
+  await app.listen(port, "::");
   Logger.log(`Owuja API is ready and listening on port ${port}.`, "Bootstrap");
 }
 
