@@ -23,6 +23,9 @@ Keep `RAILPACK_PRUNE_DEPS=false` on the API: the pre-deploy command needs the
 installed Prisma CLI. Do not set a Dockerfile path. Remove old custom build/start
 overrides if they conflict with the commands above. Build steps install from the
 lockfiles, generate Prisma Client on Linux, and compile the applications.
+Railpack's native Node install/build steps are intentionally retained so its
+manifest, lockfile and source-copy commands are not replaced. The API's npm
+`prebuild` hook generates Prisma Client before TypeScript compilation.
 
 ## Private variables
 

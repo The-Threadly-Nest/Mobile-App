@@ -4,6 +4,7 @@
   "main": "dist/src/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "prebuild": "prisma generate",
     "build": "tsc",
     "vercel-build": "prisma generate",
     "start": "node dist/src/index.js",
