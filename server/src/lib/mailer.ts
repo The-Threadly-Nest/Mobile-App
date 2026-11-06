@@ -145,12 +145,12 @@ export async function sendWaitlistConfirmationEmail({
   const paragraphs = designer ? [
     "Thanks for joining the Owuja waitlist.",
     "You put care into every piece you make. Running your business should leave you more time for that craft.",
-    "We're building one place to showcase your work, connect with customers, manage orders, save measurements, organise your team and send invoices—without switching between separate tools.",
+    "We're building one place to showcase your work, connect with customers, manage orders, save measurements, organise your team and send invoices, without switching between separate tools.",
     "We'll email you when early access opens and keep you updated as we prepare to launch.",
     "We're glad you're here.",
   ] : [
     "Thanks for joining Owuja.",
-    "Finding a designer for your next outfit should feel exciting, not complicated. We're building a place where you can discover designers, explore their work, order custom pieces and keep track of your order—all in one place.",
+    "Finding a designer for your next outfit should feel exciting, not complicated. We're building a place where you can discover designers, explore their work, order custom pieces and keep track of your order, all in one place.",
     "You're now on our waitlist. We'll email you when early access opens, along with updates as we get ready to launch.",
     "We look forward to helping you find your next favourite designer.",
   ];
