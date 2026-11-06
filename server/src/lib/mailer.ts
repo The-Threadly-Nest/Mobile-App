@@ -26,7 +26,14 @@ async function sendEmail({ to, subject, text, html }: { to: string; subject: str
   }
 }
 
-function emailShell(content: string): string {
+function emailShell(content: string, logoUrl?: string): string {
+  if (logoUrl) {
+    return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px 16px;color:#453332;background:#FFFFFF;">
+      <p style="margin:0 0 28px;"><img src="${escapeHtml(logoUrl)}" alt="Owuja" width="150" style="display:block;width:150px;max-width:100%;height:auto;" /></p>
+      ${content}
+      <p style="font-size:12px;color:#746765;margin:24px 0 0;">Need help? Reply to this email or contact support@owuja.com.</p>
+    </div>`;
+  }
   return `<div style="font-family:Arial,sans-serif;max-width:460px;margin:0 auto;padding:24px;border:1px solid #4A080C;border-radius:12px;color:#3A2E1A;">
     <h1 style="font-size:22px;color:#4A080C;font-family:Georgia,serif;letter-spacing:1px;margin:0 0 20px;text-align:center;">OWUJA</h1>
     ${content}
@@ -119,19 +126,34 @@ export async function sendWaitlistConfirmationEmail({
   const publicUrl = (process.env.WAITLIST_PUBLIC_URL || "https://owuja.com").replace(/\/$/, "");
   const referralUrl = `${publicUrl}/?ref=${encodeURIComponent(referralCode)}`;
   const unsubscribeUrl = `${publicUrl}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`;
-  const audienceLine = audience === "fashion_house"
-    ? "We will contact you when fashion house onboarding opens."
-    : "We will contact you when early customer access opens.";
+  const firstName = name.trim().split(/\s+/)[0] || "there";
+  const designer = audience === "fashion_house";
+  const paragraphs = designer ? [
+    "Thanks for joining the Owuja waitlist.",
+    "You put care into every piece you make. Running your business should leave you more time for that craft.",
+    "We're building one place to showcase your work, connect with customers, manage orders, save measurements, organise your team and send invoices—without switching between separate tools.",
+    "We'll email you when early access opens and keep you updated as we prepare to launch.",
+    "We're glad you're here.",
+  ] : [
+    "Thanks for joining Owuja.",
+    "Finding a designer for your next outfit should feel exciting, not complicated. We're building a place where you can discover designers, explore their work, order custom pieces and keep track of your order—all in one place.",
+    "You're now on our waitlist. We'll email you when early access opens, along with updates as we get ready to launch.",
+    "We look forward to helping you find your next favourite designer.",
+  ];
+  const tagline = designer ? "Your fashion business, all in one place." : "Where thread meets the market.";
 
   return sendEmail({
     to,
-    subject: `You're on the ${BRAND_NAME} waitlist`,
-    text: `Hi ${name}, your place on the ${BRAND_NAME} waitlist is confirmed. ${audienceLine} Share your referral link: ${referralUrl}`,
-    html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(name)}</strong>,</p>
-      <p style="font-size:14px;line-height:1.6;">Your place on the ${BRAND_NAME} waitlist is confirmed. ${audienceLine}</p>
+    subject: designer ? "Your next chapter in fashion starts with Owuja" : "You're on the Owuja waitlist",
+    text: [`Hi ${firstName},`, ...paragraphs, `The Owuja team\n${tagline}`,
+      `Know someone who would enjoy Owuja? Share your personal link: ${referralUrl}`,
+      `Leave the waitlist: ${unsubscribeUrl}`].join("\n\n"),
+    html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(firstName)}</strong>,</p>
+      ${paragraphs.map(paragraph => `<p style="font-size:14px;line-height:1.6;">${escapeHtml(paragraph)}</p>`).join("\n")}
+      <p style="font-size:14px;line-height:1.6;">The Owuja team<br /><em>${escapeHtml(tagline)}</em></p>
       <p style="font-size:14px;line-height:1.6;">Know someone who would enjoy ${BRAND_NAME}? Share your personal link:</p>
-      <p style="text-align:center;"><a href="${escapeHtml(referralUrl)}" style="display:inline-block;padding:12px 24px;background:#453332;color:#FFFFFF;text-decoration:none;border-radius:999px;font-weight:bold;">Share ${BRAND_NAME}</a></p>
-      <p style="font-size:11px;text-align:center;margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="color:#746765;">Leave the waitlist</a></p>`),
+      <p><a href="${escapeHtml(referralUrl)}" style="color:#453332;text-decoration:underline;">Share ${BRAND_NAME}</a></p>
+      <p style="font-size:11px;margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="color:#746765;">Leave the waitlist</a></p>`, `${publicUrl}/assets/email-logo.png`),
   });
 }
 
