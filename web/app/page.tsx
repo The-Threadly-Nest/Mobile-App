@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
-import { api, errorMessage } from "../lib/api";
+import { api, ApiError, errorMessage } from "../lib/api";
 import { createSubmissionLock } from "../lib/submission-lock";
+import { WAITLIST_RECEIPT_KEY, parseWaitlistReceipt } from "../lib/waitlist-receipt";
 import type { Audience, JoinWaitlistInput, JoinWaitlistResponse, WaitlistStats } from "../lib/waitlist-types";
 
 const HERO_TITLE = "Your fashion business, all in one place.";
@@ -118,6 +119,36 @@ function InstagramIcon({ className = "size-4" }: { className?: string }) {
   );
 }
 
+function ArrowRightIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M8.91 19.92L15.43 13.4C16.2 12.63 16.2 11.37 15.43 10.6L8.91 4.08"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeMiterlimit="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ArrowLeftIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path
+        d="M15.09 19.92L8.57 13.4C7.8 12.63 7.8 11.37 8.57 10.6L15.09 4.08"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeMiterlimit="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const SHOPPER_FEATURES = [
   {
     title: "Find your designer",
@@ -192,7 +223,7 @@ const FAQS = [
 
 export default function WaitlistPage() {
   const [audience, setAudience] = useState<Audience>("customer");
-  const [step, setStep] = useState<"join" | "success">("join");
+  const [step, setStep] = useState<"join" | "success" | "already">("join");
   const [busy, setBusy] = useState(false);
   const submissionLock = useRef(createSubmissionLock());
   const [message, setMessage] = useState("");
@@ -200,6 +231,16 @@ export default function WaitlistPage() {
   const [city, setCity] = useState("Lagos");
   const [selectedInterests, setSelectedInterests] = useState<string[]>(["Bridal", "Aso-Ebi"]);
   const [copied, setCopied] = useState(false);
+
+  // 3-step progressive form state
+  const [formStep, setFormStep] = useState<1 | 2 | 3>(1);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otherCity, setOtherCity] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [teamSize, setTeamSize] = useState("Just me");
+  const [stepError, setStepError] = useState("");
 
   // Typewriter animation state
   const [typedTitle, setTypedTitle] = useState("");
@@ -224,6 +265,57 @@ export default function WaitlistPage() {
   const [featuresAudience, setFeaturesAudience] = useState<"shoppers" | "designers">("shoppers");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const restore = () => {
+      try {
+        const receipt = parseWaitlistReceipt(localStorage.getItem(WAITLIST_RECEIPT_KEY));
+        if (!receipt) return;
+        submissionLock.current.complete();
+        setStep("already");
+        if (receipt.referralCode) setReferral(`${window.location.origin}/?ref=${encodeURIComponent(receipt.referralCode)}`);
+      } catch { /* Browser storage may be unavailable; the backend still blocks duplicates. */ }
+    };
+    restore();
+    window.addEventListener("storage", restore);
+    return () => window.removeEventListener("storage", restore);
+  }, []);
+
+  useEffect(() => {
+    if (!showModal) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialogRef.current?.focus();
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowModal(false);
+        setFormStep(1);
+        setStepError("");
+      }
+      if (event.key !== "Tab") return;
+      const controls = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex="0"]') ?? []).filter(element => element.getClientRects().length);
+      const first = controls[0], last = controls[controls.length - 1];
+      if (!first) { event.preventDefault(); return; }
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialogRef.current)) {
+        event.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener("keydown", keyboard);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", keyboard);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [showModal]);
+
+  function rememberRegistration(referralCode?: string) {
+    try { localStorage.setItem(WAITLIST_RECEIPT_KEY, JSON.stringify({ version: 1, ...(referralCode ? { referralCode } : {}) })); }
+    catch { /* Keep the current-page lock even if browser storage is blocked. */ }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -285,31 +377,90 @@ export default function WaitlistPage() {
     setOpenFaqIndex((prev) => (prev === index ? null : index));
   }
 
+  function handleStep1Next() {
+    setStepError("");
+    setFormStep(2);
+  }
+
+  function handleStep2Next() {
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      setStepError("Please enter your full name (at least 2 letters).");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
+      setStepError("Please enter a valid email address.");
+      return;
+    }
+    if (city === "Other" && (!otherCity.trim() || otherCity.trim().length < 2)) {
+      setStepError("Please enter your city name.");
+      return;
+    }
+    setStepError("");
+    setFormStep(3);
+  }
+
+  function handleStepBack() {
+    setStepError("");
+    setFormStep((prev) => (prev === 3 ? 2 : 1));
+  }
+
   async function join(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (step !== "join" || !submissionLock.current.start()) return;
 
     const form = new FormData(event.currentTarget);
     const value = (name: string) => String(form.get(name) ?? "");
-    const submittedCity = (city === "Other" ? value("otherCity") : city).trim();
+
+    const submittedName = (value("name") || fullName).trim();
+    const submittedEmail = (value("email") || email).trim();
+    const submittedPhone = (value("phone") || phone).trim();
+    const submittedOtherCity = (value("otherCity") || otherCity).trim();
+    const submittedCity = (city === "Other" ? submittedOtherCity : city).trim();
+    const submittedBusinessName = (value("businessName") || businessName).trim();
+    const submittedTeamSize = (value("teamSize") || teamSize).trim();
+
+    if (!submittedName || submittedName.length < 2) {
+      setStepError("Please enter your full name.");
+      setFormStep(2);
+      submissionLock.current.retry();
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!submittedEmail || !emailRegex.test(submittedEmail)) {
+      setStepError("Please enter a valid email address.");
+      setFormStep(2);
+      submissionLock.current.retry();
+      return;
+    }
+
     if (city === "Other" && submittedCity.length < 2) {
-      setMessage("Please enter your city name.");
+      setStepError("Please enter your city name.");
+      setFormStep(2);
+      submissionLock.current.retry();
+      return;
+    }
+
+    if (audience === "fashion_house" && submittedBusinessName.length < 2) {
+      setStepError("Please enter your fashion house name.");
+      setFormStep(3);
       submissionLock.current.retry();
       return;
     }
 
     const data: JoinWaitlistInput = {
-      name: value("name"),
-      email: value("email"),
+      name: submittedName,
+      email: submittedEmail,
       audience,
       city: submittedCity,
-      phone: value("phone"),
+      phone: submittedPhone,
       website: value("website"),
       consent: form.get("consent") === "on",
       ...(audience === "fashion_house"
         ? {
-          businessName: value("businessName"),
-          teamSize: value("teamSize"),
+          businessName: submittedBusinessName,
+          teamSize: submittedTeamSize,
         }
         : {
           interests: selectedInterests.join(", "),
@@ -318,20 +469,32 @@ export default function WaitlistPage() {
     };
 
     setMessage("");
+    setStepError("");
     setBusy(true);
     try {
       const response = await api<JoinWaitlistResponse>("/api/waitlist", {
         method: "POST",
         body: JSON.stringify(data),
       });
-      if (!response || typeof response.message !== "string") {
+      if (!response || typeof response.message !== "string" || !response.referralCode || !/^[A-F0-9]{10}$/.test(response.referralCode)) {
         throw new Error("We couldn't confirm your signup. Please try again.");
       }
       submissionLock.current.complete();
+      rememberRegistration(response.referralCode);
       setReferral(response.referralCode ? `${window.location.origin}/?ref=${encodeURIComponent(response.referralCode)}` : "");
       setStep("success");
+      setShowModal(true);
       void refreshStats();
     } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        submissionLock.current.complete();
+        rememberRegistration();
+        setReferral("");
+        setMessage("");
+        setStep("already");
+        setShowModal(true);
+        return;
+      }
       submissionLock.current.retry();
       setMessage(errorMessage(error));
     } finally {
@@ -341,233 +504,353 @@ export default function WaitlistPage() {
 
   const activeFeatures = featuresAudience === "shoppers" ? SHOPPER_FEATURES : DESIGNER_FEATURES;
 
-  // Shared form card content (used both in mobile inline & desktop popup modal)
+  // Shared form card content (3-step progressive wizard)
   function renderWaitlistForm() {
     return (
-      <>
-        {/* Card Title & Intro */}
-        <div className="mb-6 flex flex-col gap-2">
-          <div className="flex flex-col gap-1.5">
-            <h2 className="font-['Hedvig_Letters_Serif'] serif-semibold text-2xl font-normal text-[#453332]">
-              Reserve your spot
-            </h2>
-            <p className="text-[16px] text-[#404040]">
-              It takes about a minute. Choose how you’ll use Owuja.
-            </p>
+      <div className="flex flex-col lg:[&_input:not([type=checkbox])]:h-11 lg:[&_select]:h-11">
+        {/* Step Indicator & Progress Bar */}
+        <div className="mb-5 flex flex-col gap-2 lg:hidden">
+          <div className="flex items-center justify-between">
+            <span className="font-['Instrument_Sans',sans-serif] text-[13px] font-semibold uppercase tracking-wider text-[#f96951]">
+              Step {formStep} of 3
+            </span>
+            <span className="text-[13px] font-medium text-[#746765]">
+              {formStep === 1
+                ? "Role"
+                : formStep === 2
+                  ? "Your info"
+                  : audience === "fashion_house"
+                    ? "Atelier details"
+                    : "Style preferences"}
+            </span>
           </div>
-          <p className="pt-2 text-[16px] font-semibold text-black">
-            I am a...
-          </p>
-
-          {/* Role Switcher Cards (Node 35:3331) */}
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setAudience("customer")}
-              className={`flex flex-col items-start rounded-[12px] p-3 text-left transition ${audience === "customer"
-                ? "border border-[#453332] bg-[rgba(249,105,81,0.15)]"
-                : "border-[0.5px] border-[#453332] bg-[#dfdfdf] hover:border-[#453332]"
-                }`}
-            >
-              <span className="text-[16px] font-semibold text-[#453332]">Shopper</span>
-              <span className="text-[14px] text-[#404040]">I want custom fashion</span>
-            </button>
-
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setAudience("fashion_house")}
-              className={`flex flex-col items-start rounded-[12px] p-3 text-left transition ${audience === "fashion_house"
-                ? "border border-[#453332] bg-[rgba(249,105,81,0.15)]"
-                : "border-[0.5px] border-[#453332] bg-[#dfdfdf] hover:border-[#453332]"
-                }`}
-            >
-              <span className="text-[16px] font-semibold text-[#453332]">Designer</span>
-              <span className="text-[14px] text-[#404040]">I run a fashion business</span>
-            </button>
+          <div className="flex items-center gap-1.5">
+            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${formStep >= 1 ? "bg-[#453332]" : "bg-[#dfdfdf]"}`} />
+            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${formStep >= 2 ? "bg-[#453332]" : "bg-[#dfdfdf]"}`} />
+            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${formStep >= 3 ? "bg-[#453332]" : "bg-[#dfdfdf]"}`} />
           </div>
         </div>
 
-        <form onSubmit={join} aria-busy={busy} className="flex flex-col gap-4 sm:gap-5">
+        <form onSubmit={join} aria-busy={busy} className="flex flex-col">
           <fieldset disabled={busy} className="contents">
-          {/* Input Fields Grid (Node 52:3522 & Node 60:4268) */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] font-semibold text-[#453332]">Full name</span>
-              <input
-                name="name"
-                required
-                minLength={2}
-                placeholder="e.g. Chiamaka Okafor"
-                className="h-[56px] w-full rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
-              />
-            </label>
+            {/* ── STEP 1: ROLE SELECTION ── */}
+            <div className={`${formStep === 1 ? "flex" : "hidden"} flex-col gap-5 lg:flex lg:mb-4 lg:gap-3`}>
+              <div className="flex flex-col gap-1.5">
+                <h2 className="font-['Hedvig_Letters_Serif'] text-2xl font-normal text-[#453332] sm:text-[28px]">
+                  How will you use Owuja?
+                </h2>
+                <p className="text-[15px] text-[#404040] lg:hidden">
+                  Choose how you want to join. Takes less than a minute.
+                </p>
+              </div>
 
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] font-semibold text-[#453332]">Email</span>
-              <input
-                name="email"
-                type="email"
-                required
-                placeholder="you@xmail.com"
-                className="h-[56px] w-full rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
-              />
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] font-semibold text-[#453332]">WhatsApp number</span>
-              <input
-                name="phone"
-                type="tel"
-                placeholder="0803 847 1289"
-                className="h-[56px] w-full rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
-              />
-            </label>
-
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] font-semibold text-[#453332]">City</span>
-              <div className="relative">
-                <select
-                  name="city"
-                  value={city}
-                  onChange={(event) => setCity(event.target.value)}
-                  className="h-[56px] w-full appearance-none rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 pr-14 text-[16px] text-black outline-none focus:border-[#453332] focus:bg-white"
+              {/* Role Cards */}
+              <div className="grid w-full grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setAudience("customer")}
+                  aria-pressed={audience === "customer"}
+                  className={`flex min-h-[110px] flex-col items-start justify-between gap-2.5 rounded-[14px] p-4 text-left transition active:scale-[0.99] lg:min-h-0 lg:p-3.5 ${audience === "customer"
+                    ? "border-2 border-[#453332] bg-[rgba(249,105,81,0.15)] shadow-sm"
+                    : "border border-[#453332]/25 bg-[#dfdfdf]/70 hover:border-[#453332] hover:bg-[#dfdfdf]"
+                    }`}
                 >
-                  {CITIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDownIcon className="pointer-events-none absolute right-6 top-1/2 size-6 -translate-y-1/2 text-[#453332]" />
+                  <div className="flex w-full items-center justify-between">
+                    <span className="text-[16px] font-semibold text-[#453332]">Shopper</span>
+                    {audience === "customer" && <TickIcon className="size-5 shrink-0 text-[#453332]" />}
+                  </div>
+                  <span className="text-[13px] leading-snug text-[#404040]">
+                    I want custom fashion made just for me
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setAudience("fashion_house")}
+                  aria-pressed={audience === "fashion_house"}
+                  className={`flex min-h-[110px] flex-col items-start justify-between gap-2.5 rounded-[14px] p-4 text-left transition active:scale-[0.99] lg:min-h-0 lg:p-3.5 ${audience === "fashion_house"
+                    ? "border-2 border-[#453332] bg-[rgba(249,105,81,0.15)] shadow-sm"
+                    : "border border-[#453332]/25 bg-[#dfdfdf]/70 hover:border-[#453332] hover:bg-[#dfdfdf]"
+                    }`}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="text-[16px] font-semibold text-[#453332]">Designer</span>
+                    {audience === "fashion_house" && <TickIcon className="size-5 shrink-0 text-[#453332]" />}
+                  </div>
+                  <span className="text-[13px] leading-snug text-[#404040]">
+                    I run a fashion brand and make clothes
+                  </span>
+                </button>
               </div>
-            </label>
-          </div>
 
-          {city === "Other" && (
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[14px] font-semibold text-[#453332]">Your city</span>
-              <input
-                name="otherCity"
-                type="text"
-                autoComplete="address-level2"
-                required
-                minLength={2}
-                maxLength={100}
-                placeholder="Enter your city name"
-                className="h-[56px] w-full rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
-              />
-            </label>
-          )}
 
-          {/* Designer-specific inputs (Node 65:4850 & Node 76:5740) */}
-          {audience === "fashion_house" ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-[14px] font-semibold text-[#453332]">Fashion house name</span>
-                <input
-                  name="businessName"
-                  required
-                  maxLength={120}
-                  placeholder="e.g. Adaeze Couture"
-                  className="h-[56px] w-full rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
-                />
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span className="text-[14px] font-semibold text-[#453332]">Team size</span>
-                <div className="relative">
-                  <select
-                    name="teamSize"
-                    defaultValue="Just me"
-                    className="h-[56px] w-full appearance-none rounded-[8px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-6 pr-14 text-[16px] text-black outline-none focus:border-[#453332] focus:bg-white"
-                  >
-                    {TEAM_SIZES.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDownIcon className="pointer-events-none absolute right-6 top-1/2 size-6 -translate-y-1/2 text-[#453332]" />
-                </div>
-              </label>
+              {/* Step 1 Continue Button */}
+              <div className="pt-2 lg:hidden">
+                <button
+                  type="button"
+                  onClick={handleStep1Next}
+                  className="group flex h-[54px] w-full items-center justify-center gap-2 rounded-full bg-[#453332] text-[17px] font-semibold text-white shadow-md transition hover:bg-[#342625] active:scale-[0.99]"
+                >
+                  <span>Continue</span>
+                  <ArrowRightIcon className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
+                </button>
+              </div>
             </div>
-          ) : (
-            /* Customer shopping interest chips (Node 43:3402 & 60:4289) */
-            <div className="flex flex-col gap-3">
-              <span className="text-[16px] font-semibold tracking-[-0.32px] text-[#453332]">
-                What are you shopping for? (optional)
-              </span>
-              <div className="flex flex-wrap gap-2.5">
-                {SHOPPING_INTERESTS.map((item) => {
-                  const active = selectedInterests.includes(item);
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => toggleInterest(item)}
-                      className={`flex h-[48px] items-center gap-2 rounded-[64px] px-4 py-3 text-[16px] transition ${active
-                        ? "bg-[#453332] text-white"
-                        : "border-[0.5px] border-[#453332] bg-transparent text-[#453332] hover:bg-[#453332]/5"
-                        }`}
+
+            {/* ── STEP 2: CONTACT DETAILS ── */}
+            <div className={`${formStep === 2 ? "flex" : "hidden"} flex-col gap-4 sm:gap-5 lg:flex lg:mb-4 lg:gap-3`}>
+              <div className="flex flex-col gap-1.5 lg:hidden">
+                <h2 className="font-['Hedvig_Letters_Serif'] text-2xl font-normal text-[#453332] sm:text-[28px]">
+                  Your contact details
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[14px] font-semibold text-[#453332]">Full name *</span>
+                  <input
+                    name="name"
+                    value={fullName}
+                    onChange={(e) => {
+                      setFullName(e.target.value);
+                      if (stepError) setStepError("");
+                    }}
+                    placeholder="e.g. Chiamaka Okafor"
+                    className="h-[54px] w-full rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[14px] font-semibold text-[#453332]">Email *</span>
+                  <input
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (stepError) setStepError("");
+                    }}
+                    placeholder="you@email.com"
+                    className="h-[54px] w-full rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
+                  />
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[14px] font-semibold text-[#453332]">
+                    WhatsApp number <span className="text-[12px] font-normal text-[#746765]">(optional)</span>
+                  </span>
+                  <input
+                    name="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="0803 847 1289"
+                    className="h-[54px] w-full rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
+                  />
+                </label>
+
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[14px] font-semibold text-[#453332]">City</span>
+                  <div className="relative">
+                    <select
+                      name="city"
+                      value={city}
+                      onChange={(event) => setCity(event.target.value)}
+                      className="h-[54px] w-full appearance-none rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 pr-12 text-[16px] text-black outline-none focus:border-[#453332] focus:bg-white"
                     >
-                      {active && <TickIcon className="size-4 shrink-0 text-white" />}
-                      <span>{item}</span>
-                    </button>
-                  );
-                })}
+                      {CITIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDownIcon className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[#453332]" />
+                  </div>
+                </label>
+              </div>
+
+              {city === "Other" && (
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[14px] font-semibold text-[#453332]">Your city *</span>
+                  <input
+                    name="otherCity"
+                    type="text"
+                    value={otherCity}
+                    onChange={(e) => setOtherCity(e.target.value)}
+                    placeholder="Enter your city name"
+                    className="h-[54px] w-full rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
+                  />
+                </label>
+              )}
+
+              {stepError && formStep === 2 && (
+                <p className="rounded-lg bg-red-50 p-3 text-[13px] font-medium text-red-700" role="alert">
+                  {stepError}
+                </p>
+              )}
+
+              {/* Step 2 Navigation Buttons */}
+              <div className="flex items-center gap-3 pt-2 lg:hidden">
+                <button
+                  type="button"
+                  onClick={handleStepBack}
+                  className="group flex h-[54px] items-center justify-center gap-1.5 rounded-full border border-[#453332]/30 bg-transparent px-5 text-[15px] font-semibold text-[#453332] transition hover:bg-[#453332]/5 active:scale-[0.98]"
+                >
+                  <ArrowLeftIcon className="size-4 shrink-0 transition-transform duration-200 group-hover:-translate-x-1" />
+                  <span>Back</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStep2Next}
+                  className="group flex h-[54px] flex-1 items-center justify-center gap-2 rounded-full bg-[#453332] text-[17px] font-semibold text-white shadow-md transition hover:bg-[#342625] active:scale-[0.99]"
+                >
+                  <span>Continue</span>
+                  <ArrowRightIcon className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
+                </button>
               </div>
             </div>
-          )}
 
-          {/* Honeypot for spam bots */}
-          <label className="visually-hidden" aria-hidden="true">
-            Website
-            <input name="website" tabIndex={-1} autoComplete="off" />
-          </label>
+            {/* ── STEP 3: PREFERENCES / BRAND INFO & SUBMIT ── */}
+            <div className={`${formStep === 3 ? "flex" : "hidden"} flex-col gap-4 sm:gap-5 lg:flex lg:gap-3`}>
+              <div className="flex flex-col gap-1.5 lg:hidden">
+                <h2 className="font-['Hedvig_Letters_Serif'] text-2xl font-normal text-[#453332] sm:text-[28px]">
+                  {audience === "fashion_house" ? "Your brand" : "Your style"}
+                </h2>
+              </div>
 
-          {/* Consent Checkbox (Node 60:4308) */}
-          <label className="mt-1 flex items-start gap-2.5 text-[12px] leading-relaxed text-[#404040]">
-            <input
-              name="consent"
-              type="checkbox"
-              required
-              defaultChecked
-              className="mt-0.5 h-4 w-4 rounded accent-[#453332]"
-            />
-            <span>
-              Send me launch updates and early access news. No spam, unsubscribe anytime.
-            </span>
-          </label>
+              {/* Designer specific fields */}
+              {audience === "fashion_house" ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[14px] font-semibold text-[#453332]">Fashion house name *</span>
+                    <input
+                      name="businessName"
+                      value={businessName}
+                      onChange={(e) => {
+                        setBusinessName(e.target.value);
+                        if (stepError) setStepError("");
+                      }}
+                      maxLength={120}
+                      placeholder="e.g. Adaeze Couture"
+                      className="h-[54px] w-full rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 text-[16px] text-[#404040] placeholder:text-[#404040]/70 outline-none focus:border-[#453332] focus:bg-white"
+                    />
+                  </label>
 
-          {/* Submit Button (Node 60:4312) */}
-          <div className="flex flex-col gap-2 pt-1">
-            <button
-              type="submit"
-              disabled={busy}
-              className="w-full rounded-[36px] bg-[#453332] py-3.5 text-[20px] font-medium text-white transition hover:bg-[#342625] disabled:opacity-50"
-            >
-              {busy ? "Joining..." : "Join the waitlist"}
-            </button>
-            <p className="text-center text-[12px] text-[#404040]">
-              We only use your details to contact you about Owuja.
-            </p>
-          </div>
+                  <label className="flex flex-col gap-1.5">
+                    <span className="text-[14px] font-semibold text-[#453332]">Team size</span>
+                    <div className="relative">
+                      <select
+                        name="teamSize"
+                        value={teamSize}
+                        onChange={(e) => setTeamSize(e.target.value)}
+                        className="h-[54px] w-full appearance-none rounded-[10px] border-[0.5px] border-[#453332] bg-[#dfdfdf] px-5 pr-12 text-[16px] text-black outline-none focus:border-[#453332] focus:bg-white"
+                      >
+                        {TEAM_SIZES.map((size) => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDownIcon className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-[#453332]" />
+                    </div>
+                  </label>
+                </div>
+              ) : (
+                /* Customer interest chips */
+                <div className="flex flex-col gap-2.5">
+                  <span className="text-[14px] font-semibold text-[#453332]">
+                    Select styles you wear <span className="text-[12px] font-normal text-[#746765]">(tap all that apply)</span>
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {SHOPPING_INTERESTS.map((item) => {
+                      const active = selectedInterests.includes(item);
+                      return (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => toggleInterest(item)}
+                          className={`flex h-[42px] items-center gap-1.5 rounded-full px-4 text-[14px] transition active:scale-95 ${active
+                            ? "bg-[#453332] text-white shadow-sm"
+                            : "border border-[#453332]/30 bg-transparent text-[#453332] hover:bg-[#453332]/5"
+                            }`}
+                        >
+                          {active && <TickIcon className="size-3.5 shrink-0 text-white" />}
+                          <span>{item}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Honeypot for spam bots */}
+              <label className="visually-hidden" aria-hidden="true">
+                Website
+                <input name="website" tabIndex={-1} autoComplete="off" />
+              </label>
+
+              {/* Consent Checkbox */}
+              <label className="mt-1 flex items-start gap-2.5 text-[12px] leading-relaxed text-[#404040]">
+                <input
+                  name="consent"
+                  type="checkbox"
+                  required
+                  defaultChecked
+                  className="mt-0.5 h-4 w-4 rounded accent-[#453332]"
+                />
+                <span>
+                  Send me launch updates and early access news. No spam, unsubscribe anytime.
+                </span>
+              </label>
+
+              {stepError && formStep === 3 && (
+                <p className="rounded-lg bg-red-50 p-3 text-[13px] font-medium text-red-700" role="alert">
+                  {stepError}
+                </p>
+              )}
+
+              {/* Step 3 Navigation Buttons */}
+              <div className="flex flex-col gap-2 pt-1">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={handleStepBack}
+                    className="group flex h-[54px] items-center justify-center gap-1.5 rounded-full border border-[#453332]/30 bg-transparent px-5 text-[15px] font-semibold text-[#453332] transition hover:bg-[#453332]/5 disabled:opacity-50 active:scale-[0.98] lg:hidden"
+                  >
+                    <ArrowLeftIcon className="size-4 shrink-0 transition-transform duration-200 group-hover:-translate-x-1" />
+                    <span>Back</span>
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={busy}
+                    className="group flex h-[54px] flex-1 items-center justify-center gap-2 rounded-full bg-[#453332] text-[17px] font-semibold text-white shadow-md transition hover:bg-[#342625] disabled:opacity-50 active:scale-[0.99]"
+                  >
+                    <span>{busy ? "Joining..." : "Join waitlist"}</span>
+                    {!busy && (
+                      <ArrowRightIcon className="size-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-center text-[12px] text-[#746765]">
+                  Your details stay private.
+                </p>
+              </div>
+            </div>
           </fieldset>
         </form>
-      </>
+      </div>
     );
   }
 
   // Shared confirmation view matching reference design
   function renderSuccessContent() {
-    const displayReferral =
-      referral ||
-      (typeof window !== "undefined"
-        ? `${window.location.origin}/?ref=OWUJA`
-        : "https://owuja.com/?ref=OWUJA");
+    const displayReferral = referral;
 
     return (
       <div className="flex flex-col items-center gap-5 py-5 text-center">
@@ -578,96 +861,97 @@ export default function WaitlistPage() {
 
         <div className="flex flex-col gap-2">
           <h2 className="font-['Hedvig_Letters_Serif'] text-[28px] font-normal leading-tight text-[#453332] sm:text-[32px]">
-            You&apos;re on the waitlist
+            {step === "already" ? "You're already on the waitlist" : "You're on the waitlist"}
           </h2>
           <p className="mx-auto max-w-sm text-[15px] font-medium leading-relaxed text-[#746765]">
-            You&apos;ve successfully secured your spot. Excited?
-            <br />
-            Feel free to refer your friends!
+            {step === "already" ? "No need to register again. We'll be in touch when early access opens." : "Your spot is saved. We'll be in touch when early access opens."}
           </p>
         </div>
 
-        {/* Guaranteed Referral Link with One-Click Copy */}
-        <div className="flex w-full max-w-[430px] items-center justify-between rounded-full border border-black/10 bg-[#f4f4f4] p-1.5 pl-5 shadow-inner">
-          <input
-            type="text"
-            readOnly
-            value={displayReferral}
-            onClick={async (e) => {
-              (e.target as HTMLInputElement).select();
-              await navigator.clipboard.writeText(displayReferral);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            className="w-full cursor-pointer bg-transparent text-[14px] text-[#453332] outline-none"
-          />
-          <button
-            type="button"
-            onClick={async () => {
-              await navigator.clipboard.writeText(displayReferral);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            title="Copy referral link"
-            className={`flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition ${copied
-              ? "bg-[#25D366] text-white"
-              : "bg-[#1a1a1a] text-white hover:bg-black"
-              }`}
-          >
-            {copied ? (
-              <>
-                <TickIcon className="h-3.5 w-3.5" />
-                <span>Copied</span>
-              </>
-            ) : (
-              <>
-                <CopyIcon className="h-3.5 w-3.5 text-white" />
-                <span>Copy</span>
-              </>
-            )}
-          </button>
-        </div>
+        {displayReferral && <>
+          {/* Only show a real referral code issued to this browser. */}
+          <div className="flex w-full max-w-[430px] items-center justify-between rounded-full border border-black/10 bg-[#f4f4f4] p-1.5 pl-5 shadow-inner">
+            <input
+              type="text"
+              aria-label="Your referral link"
+              readOnly
+              value={displayReferral}
+              onClick={async (e) => {
+                (e.target as HTMLInputElement).select();
+                await navigator.clipboard.writeText(displayReferral);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-[14px] text-[#453332] outline-none"
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                await navigator.clipboard.writeText(displayReferral);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              title="Copy referral link"
+              className={`flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition ${copied
+                ? "bg-[#25D366] text-white"
+                : "bg-[#1a1a1a] text-white hover:bg-black"
+                }`}
+            >
+              {copied ? (
+                <>
+                  <TickIcon className="h-3.5 w-3.5" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="h-3.5 w-3.5 text-white" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
 
-        {/* "Or" separator */}
-        <p className="text-[14px] font-medium text-[#746765]">Or</p>
+          {/* "Or" separator */}
+          <p className="text-[14px] font-medium text-[#746765]">Or</p>
 
-        {/* Social Share & Follow Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {/* X (Twitter) */}
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("I just joined the Owuja waitlist — the marketplace for custom African fashion. Join me!")}&url=${encodeURIComponent(displayReferral)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-[42px] items-center gap-2 rounded-full bg-[#1c1c1c] px-5 text-[14px] font-medium text-white transition hover:bg-black"
-          >
-            <XIcon className="h-3.5 w-3.5 fill-current" />
-            <span>Share</span>
-          </a>
+          {/* Social Share & Follow Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {/* X (Twitter) */}
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("I just joined the Owuja waitlist — the marketplace for custom African fashion. Join me!")}&url=${encodeURIComponent(displayReferral)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-[42px] items-center gap-2 rounded-full bg-[#1c1c1c] px-5 text-[14px] font-medium text-white transition hover:bg-black"
+            >
+              <XIcon className="h-3.5 w-3.5 fill-current" />
+              <span>Share</span>
+            </a>
 
-          {/* WhatsApp */}
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent("I just joined the Owuja waitlist — custom African fashion, all in one place. Join me: " + displayReferral)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-[42px] items-center gap-2 rounded-full bg-[#25D366] px-5 text-[14px] font-medium text-white transition hover:bg-[#20bd5a]"
-          >
-            <WhatsAppIcon className="h-4 w-4 fill-current" />
-            <span>Share</span>
-          </a>
+            {/* WhatsApp */}
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent("I just joined the Owuja waitlist — custom African fashion, all in one place. Join me: " + displayReferral)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-[42px] items-center gap-2 rounded-full bg-[#25D366] px-5 text-[14px] font-medium text-white transition hover:bg-[#20bd5a]"
+            >
+              <WhatsAppIcon className="h-4 w-4 fill-current" />
+              <span>Share</span>
+            </a>
 
-          {/* Instagram Button */}
-          <a
-            href="https://www.instagram.com/useowuja?xtok=MTluNDdiaHdsZWVuMg%3D%3D"
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-[42px] items-center gap-2 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] px-5 text-[14px] font-medium text-white shadow-sm transition hover:opacity-95"
-          >
-            <InstagramIcon className="h-4 w-4" />
-            <span>Instagram</span>
-          </a>
-        </div>
+            {/* Instagram Button */}
+            <a
+              href="https://www.instagram.com/useowuja?xtok=MTluNDdiaHdsZWVuMg%3D%3D"
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-[42px] items-center gap-2 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] px-5 text-[14px] font-medium text-white shadow-sm transition hover:opacity-95"
+            >
+              <InstagramIcon className="h-4 w-4" />
+              <span>Instagram</span>
+            </a>
+          </div>
 
-        {/* Follow us on Instagram direct link */}
+          {/* Follow us on Instagram direct link */}
+        </>}
         <div className="pt-2 text-[14px] text-[#746765]">
           Follow us on Instagram:{" "}
           <a
@@ -686,32 +970,25 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen bg-white text-[#453332]">
       {/* Header with Official Logo */}
-      <header className="mx-auto flex w-full max-w-[1440px] items-center justify-between px-6 py-6 sm:px-12 lg:px-24">
+      <header className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-4 px-5 py-5 sm:px-12 sm:py-6 lg:px-24">
         <a href="/" className="flex items-center gap-2">
-          <img src="/assets/logo.svg" alt="Owuja" className="h-9 w-auto" />
-        </a>
-        {/* Mobile: scroll to form | Desktop: open modal */}
-        <a
-          href="#reserve"
-          className="flex h-[48px] items-center justify-center rounded-[36px] bg-[#453332] px-[20px] py-[12px] font-['Instrument_Sans',sans-serif] text-[20px] font-medium text-white transition hover:bg-[#342625] lg:hidden"
-        >
-          Join waitlist
+          <img src="/assets/logo.svg" alt="Owuja" className="h-7 w-auto sm:h-9" />
         </a>
         <button
           type="button"
           onClick={() => setShowModal(true)}
-          className="hidden h-[48px] items-center justify-center rounded-[36px] bg-[#453332] px-[20px] py-[12px] font-['Instrument_Sans',sans-serif] text-[20px] font-medium text-white transition hover:bg-[#342625] lg:flex"
+          className="flex min-h-11 shrink-0 items-center justify-center rounded-full bg-[#453332] px-5 py-3 font-['Instrument_Sans',sans-serif] text-[15px] sm:text-[18px] font-medium text-white transition hover:bg-[#342625]"
         >
-          Join waitlist
+          {step === "join" ? "Join waitlist" : "View your spot"}
         </button>
       </header>
 
       {/* Main Hero & Form Grid Layout (Desktop - 1) */}
-      <main className="mx-auto grid max-w-[1440px] grid-cols-1 gap-12 px-6 pb-20 pt-16 sm:px-12 lg:gap-16 lg:px-24">
+      <main className="mx-auto grid min-w-0 max-w-[1440px] grid-cols-1 gap-10 px-5 pb-12 pt-9 sm:gap-12 sm:px-12 sm:pb-20 sm:pt-16 lg:gap-16 lg:px-24">
         {/* Centered Hero Section */}
-        <section className="flex flex-col items-center gap-9 text-center">
-          <div className="flex flex-col gap-4 lg:max-w-2xl">
-            <h1 className="font-['Hedvig_Letters_Serif'] serif-semibold text-4xl font-normal leading-[1.08] text-[#453332] sm:text-5xl lg:text-[54px] min-h-[85px] sm:min-h-[110px] lg:min-h-[125px]">
+        <section className="flex min-w-0 flex-col items-center gap-6 text-center sm:gap-9">
+          <div className="flex w-full max-w-[360px] flex-col items-center justify-center sm:max-w-3xl">
+            <h1 className="relative w-full font-['Hedvig_Letters_Serif'] serif-semibold text-center text-[clamp(2rem,8.5vw,2.5rem)] font-normal leading-[1.12] tracking-[-0.025em] text-[#453332] sm:text-5xl lg:text-[54px] sm:min-h-[110px] lg:min-h-[125px]">
               <span className="sr-only">{HERO_TITLE}</span>
               <span aria-hidden="true">{typedTitle}</span>
               <span
@@ -719,9 +996,6 @@ export default function WaitlistPage() {
                 className="inline-block w-[3px] h-[0.9em] ml-1.5 bg-[#f96951] align-baseline animate-pulse"
               />
             </h1>
-            <p className="text-[17px] leading-relaxed text-[#404040] sm:text-[19px]">
-              Sell clothes, retain clients, and manage operations in one place with Owuja. Designers track orders, chats, measurements, staff, and invoices, while shoppers browse and order custom pieces.
-            </p>
           </div>
 
           {/* Gliding Ticker in a Straight Line */}
@@ -751,32 +1025,36 @@ export default function WaitlistPage() {
 
           {/* Progress / Spots Left (Transparent bg, left-spaced, animated) */}
           <div className="flex w-full flex-col gap-3 px-1 lg:max-w-2xl">
-            <div className="flex items-baseline justify-between text-left">
-              <div className="flex items-baseline gap-3">
-                <span className="font-['Hedvig_Letters_Serif'] serif-semibold text-3xl sm:text-4xl font-normal text-[#f96951]">
+            <div className="flex items-baseline justify-between gap-3 text-left sm:gap-4">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 sm:gap-3">
+                <span className="font-['Hedvig_Letters_Serif'] serif-semibold text-2xl tabular-nums sm:text-4xl font-normal text-[#f96951]">
                   {stats ? stats.registered.toLocaleString() : "—"}
                 </span>
-                <span className="text-[15px] sm:text-[16px] text-[#404040]">registered · 5,000 spaces</span>
+                <span className="text-[13px] sm:text-[16px] text-[#404040]">registered<span className="hidden sm:inline"> · 5,000 spaces</span></span>
               </div>
-              <span className="text-[14px] font-medium text-[#746765]">
+              <span className="shrink-0 text-[12px] text-[#746765] sm:hidden">of 5,000 spaces</span>
+              <span className="hidden text-[14px] font-medium text-[#746765] sm:inline">
                 {stats ? `${Math.max(0, stats.capacity - stats.registered).toLocaleString()} founding spots left` : statsUnavailable ? "Count temporarily unavailable" : "Loading registrations…"}
               </span>
             </div>
-            <div role="progressbar" aria-label="Founding member registrations" aria-valuemin={0} aria-valuemax={5000} aria-valuenow={stats ? Math.min(5000, stats.registered) : undefined} className="h-3 w-full overflow-hidden rounded-[36px] bg-[#dfdfdf]">
+            <div role="progressbar" aria-label="Founding member registrations" aria-valuemin={0} aria-valuemax={5000} aria-valuenow={stats ? Math.min(5000, stats.registered) : undefined} className="h-2 w-full overflow-hidden rounded-full bg-[#dfdfdf] sm:h-3">
               <div
                 className="h-full rounded-[36px] bg-[#f96951] transition-all duration-1000 ease-out"
                 style={{ width: `${progressWidth}%` }}
               />
             </div>
+            <p className="text-left text-[12px] leading-relaxed text-[#746765] sm:hidden" role="status">
+              {stats ? `${Math.max(0, stats.capacity - stats.registered).toLocaleString()} founding spots left` : statsUnavailable ? "Count temporarily unavailable" : "Loading registrations…"}
+            </p>
           </div>
 
-          {/* Desktop: Prominent Join us CTA button */}
+          {/* Prominent Join us CTA button (visible on all screens) */}
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="group hidden lg:inline-flex h-[68px] items-center justify-center gap-3 rounded-[40px] bg-[#453332] px-14 text-[24px] font-semibold text-white shadow-xl shadow-[#453332]/30 transition-all duration-300 hover:scale-105 hover:bg-[#342625] hover:shadow-2xl hover:shadow-[#453332]/45 active:scale-95"
+            className="group inline-flex h-[60px] sm:h-[68px] items-center justify-center gap-3 rounded-[40px] bg-[#453332] px-10 sm:px-14 text-[20px] sm:text-[24px] font-semibold text-white shadow-xl shadow-[#453332]/30 transition-all duration-300 hover:scale-105 hover:bg-[#342625] hover:shadow-2xl hover:shadow-[#453332]/45 active:scale-95"
           >
-            <span>Join us</span>
+            <span>{step === "join" ? "Join us" : "View your spot"}</span>
             <svg
               className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
               viewBox="0 0 24 24"
@@ -793,26 +1071,6 @@ export default function WaitlistPage() {
               />
             </svg>
           </button>
-        </section>
-
-        {/* Mobile View: Inline Form Section (hidden on desktop) */}
-        <section id="reserve" className="flex flex-col lg:hidden">
-          <div className="rounded-[16px] bg-transparent p-0 shadow-none">
-            {step === "join" ? renderWaitlistForm() : renderSuccessContent()}
-
-            {/* Error / Success Feedback */}
-            {message && (
-              <p
-                className={`mt-4 rounded-lg p-3 text-[13px] ${message.includes("copied") || message.includes("Check your email")
-                  ? "bg-emerald-50 text-emerald-800"
-                  : "bg-red-50 text-red-700"
-                  }`}
-                role="status"
-              >
-                {message}
-              </p>
-            )}
-          </div>
         </section>
       </main>
 
@@ -993,13 +1251,20 @@ export default function WaitlistPage() {
          ───────────────────────────────────────────────────────────── */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 hidden items-center justify-center bg-black/35 p-4 backdrop-blur-md transition-all lg:flex"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-md transition-all"
           onClick={() => {
             setShowModal(false);
+            setFormStep(1);
+            setStepError("");
           }}
         >
           <div
-            className="no-scrollbar relative max-h-[90vh] w-full max-w-[560px] overflow-y-auto rounded-[24px] border border-white/60 bg-white/80 p-6 shadow-2xl shadow-[#453332]/25 backdrop-blur-xl sm:p-8"
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={step === "join" ? "Join the waitlist" : step === "already" ? "You're already on the waitlist" : "Waitlist registration confirmed"}
+            tabIndex={-1}
+            className="no-scrollbar relative max-h-[min(85dvh,760px)] w-full max-w-[520px] overflow-y-auto rounded-[24px] border border-white/60 bg-white p-5 pt-14 shadow-2xl shadow-[#453332]/25 outline-none sm:p-6 sm:pt-14"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Glass Close Button */}
@@ -1007,6 +1272,8 @@ export default function WaitlistPage() {
               type="button"
               onClick={() => {
                 setShowModal(false);
+                setFormStep(1);
+                setStepError("");
               }}
               className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full border border-white/50 bg-white/60 text-[#453332] shadow-sm backdrop-blur-sm transition hover:bg-white hover:shadow"
               aria-label="Close"

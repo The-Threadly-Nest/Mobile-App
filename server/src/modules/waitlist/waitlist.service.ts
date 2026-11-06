@@ -40,7 +40,7 @@ export class WaitlistService {
         } else {
           appLogger.log("Waitlist signup already exists. No duplicate welcome email was sent.");
         }
-        return result({ message: publicMessage }, 202);
+        return rejectRequest({ error: "You're already on the waitlist. We'll be in touch when early access opens.", code: "ALREADY_REGISTERED" }, 409);
       }
 
       const referralCode = await this.createReferralCode();
@@ -67,7 +67,7 @@ export class WaitlistService {
       return result({ message: publicMessage, referralCode: entry.referralCode }, 202);
     } catch (error) {
       if ((error as { code?: string }).code === "P2002") {
-        return result({ message: "Thanks for your interest in Owuja. We'll be in touch when early access opens." }, 202);
+        return rejectRequest({ error: "You're already on the waitlist. We'll be in touch when early access opens.", code: "ALREADY_REGISTERED" }, 409);
       }
       throw error;
     }

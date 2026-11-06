@@ -30,6 +30,13 @@ test("redesigned waitlist signup", async (t) => {
     name: "Test Designer", email: " Designer@Example.invalid ", audience: "fashion_house",
     businessName: "Test Atelier", teamSize: "2-5 people", city: "Lagos", consent: true, ...extra,
   });
+  const alreadyRegistered = (error: any) => {
+    assert.equal(error.getStatus(), 409);
+    assert.equal(error.getResponse().code, "ALREADY_REGISTERED");
+    assert.match(error.getResponse().error, /already on the waitlist/);
+    assert.equal(error.getResponse().referralCode, undefined);
+    return true;
+  };
   function fixture(existing: any = null) {
     sent = [];
     const created: any[] = [];
@@ -64,19 +71,18 @@ test("redesigned waitlist signup", async (t) => {
   });
   await t.test("duplicate or unsubscribed emails are not overwritten or mailed again", async () => {
     const { service, created, updates } = fixture({ status: "unsubscribed", referralCode: "PRIVATE" });
-    const response = await service.post({ body: payload() });
-    assert.equal(response.data.referralCode, undefined);
+    await assert.rejects(service.post({ body: payload() }), alreadyRegistered);
     assert.equal(created.length + updates.length + sent.length, 0);
   });
   await t.test("an existing registration with a sent welcome email is not mailed twice", async () => {
     const { service, created, updates } = fixture({ status: "waiting", confirmationSentAt: new Date() });
-    await service.post({ body: payload() });
+    await assert.rejects(service.post({ body: payload() }), alreadyRegistered);
     assert.equal(created.length + updates.length + sent.length, 0);
   });
   await t.test("an unsent welcome email retries using saved details, not replacement signup details", async () => {
     const existing = { id: "saved-id", email: "saved@example.invalid", name: "Original Name", audience: "customer", referralCode: "SAVEDCODE", status: "waiting", confirmationSentAt: null, createdAt: new Date("2026-11-01T10:00:00Z") };
     const { service, created, updates } = fixture(existing);
-    const response = await service.post({ body: payload() });
+    await assert.rejects(service.post({ body: payload() }), alreadyRegistered);
     assert.equal(created.length, 0);
     assert.equal(sent[0].to, existing.email);
     assert.equal(sent[0].name, existing.name);
@@ -84,9 +90,8 @@ test("redesigned waitlist signup", async (t) => {
     assert.equal(sent[0].referralCode, existing.referralCode);
     assert.equal(sent[0].idempotencyKey, "waitlist-welcome/saved-id");
     assert.equal(updates.length, 1);
-    assert.equal(response.data.referralCode, undefined);
     const token = sent[0].unsubscribeToken;
-    await service.post({ body: payload() });
+    await assert.rejects(service.post({ body: payload() }), alreadyRegistered);
     assert.equal(sent[1].unsubscribeToken, token);
   });
   await t.test("email failures keep the registration and leave it eligible for retry", async () => {
@@ -109,10 +114,11 @@ test("redesigned waitlist signup", async (t) => {
   await t.test("concurrent duplicate signup returns a friendly response", async () => {
     const { service, store } = fixture();
     store.create = async () => { throw Object.assign(new Error("duplicate"), { code: "P2002" }); };
-    const response = await service.post({ body: payload() });
-    assert.equal(response.status, 202);
-    assert.doesNotMatch(response.data.message, /code|verif/i);
+    await assert.rejects(service.post({ body: payload() }), alreadyRegistered);
     assert.equal(sent.length, 0);
+  });
+  await t.test("duplicate checks normalize email case and surrounding whitespace", () => {
+    assert.equal(payload({ email: "  PERSON@Example.COM  " }).email, "person@example.com");
   });
   await t.test("server rejects invalid team sizes, missing consent and missing business names", () => {
     for (const extra of [{ teamSize: "100000" }, { consent: false }, { businessName: "" }]) {
