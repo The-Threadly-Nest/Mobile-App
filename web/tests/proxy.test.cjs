@@ -91,4 +91,16 @@ test('Railway web proxy protections', async (t) => {
     assert.equal(response.status, 500);
     assert.doesNotMatch(await response.text(), /database|stack trace/);
   });
+  await t.test('public waitlist stats reach the backend without exposing admin data', async () => {
+    global.fetch = async (url, options) => {
+      assert.equal(url.pathname, '/api/waitlist/stats');
+      assert.equal(options.method, 'GET');
+      return new Response(JSON.stringify({ registered: 12, capacity: 5000, remaining: 4988 }), { status: 200 });
+    };
+    const req = new NextRequest('https://example.invalid/api/waitlist/stats', { headers: { 'X-Real-IP': '192.0.2.1' } });
+    const response = await send(req, ['waitlist', 'stats']);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { registered: 12, capacity: 5000, remaining: 4988 });
+    assert.equal(response.headers.get('Cache-Control'), 'no-store');
+  });
 });

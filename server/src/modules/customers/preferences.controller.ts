@@ -4,13 +4,15 @@ import { RequestInput } from "../../core/http/endpoint-input";
 import { preferencesInputs, type PreferencesInput } from "./preferences.dto";
 
 import { SessionGuard } from "../../core/auth/access.guards";
+import { EndpointRateGuard, RateLimit } from "../../core/http/endpoint-rate.guard";
 
 @Controller("api/preferences")
 export class PreferencesController {
   constructor(@Inject(PreferencesService) private readonly service: PreferencesService) { }
 
   @Post("")
-  @UseGuards(SessionGuard)
+  @UseGuards(SessionGuard, EndpointRateGuard)
+  @RateLimit("profile-settings", 120, 3600000, true)
   @HttpCode(200)
   post(@RequestInput(preferencesInputs.post) input: PreferencesInput<"post">) {
     return this.service.post(input);

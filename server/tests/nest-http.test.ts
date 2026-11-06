@@ -48,6 +48,7 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
       findMany: async (args: any) => { lastWhere = args.where; return rows; },
       create: async ({ data }: any) => ({ id: houseId, ...data }),
       findFirst: async ({ where }: any) => { lastWhere = where; return null; },
+      findUnique: async () => null,
     },
   } };
   Object.assign(database, { identityClient: database.client });
@@ -87,8 +88,8 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
-    await t.test("all 86 current feature routes are registered and protected where expected", async () => {
-      assert.equal(routes.length, 86);
+    await t.test("all 87 current feature routes are registered and protected where expected", async () => {
+      assert.equal(routes.length, 87);
       assert.equal((await send("/api/waitlist/verify", undefined, {}, "POST")).status, 404);
       for (const route of routes) {
         const response = await send(route.url, undefined, ["GET", "HEAD"].includes(route.verb) ? undefined : {}, route.verb);
@@ -163,6 +164,28 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
       const response = await fetch(base + "/api/catalog", { headers: { Authorization: "Bearer not-a-valid-token" } });
       assert.equal(response.status, 401);
       assert.match((await response.json() as any).error, /Please log in again/);
+    });
+    await t.test("every feature route handles admin, staff, customer and anonymous requests without leaking internals", async (matrix) => {
+      let requests = 0;
+      for (const route of routes) {
+        for (const role of [undefined, "admin", "staff", "customer"]) {
+          // Each case tests authorization/validation, not exhaustion of a shared limiter.
+          app.get(EndpointRateGuard).buckets.clear();
+          const response = await send(route.url, role, ["GET", "HEAD"].includes(route.verb) ? undefined : {}, route.verb);
+          const body = await response.text();
+          requests++;
+          const label = `${role ?? "anonymous"}: ${route.verb} ${route.url}`;
+          assert.ok(response.status < 500, `${label}: unexpected HTTP ${response.status}`);
+          assert.doesNotMatch(body, /PrismaClient|node_modules|\bat \w+.*\.(?:js|ts):\d+|postgres(?:ql)?:\/\//, label);
+          if (route.guards.includes(SessionGuard)) {
+            if (!role) assert.equal(response.status, 401, label);
+            else if ((route.guards.includes(RolesGuard) && !route.roles?.includes(role)) ||
+              (route.guards.includes(PlatformAdminGuard) && role !== "admin")) assert.equal(response.status, 403, label);
+            else assert.notEqual(response.status, 401, label);
+          }
+        }
+      }
+      matrix.diagnostic(`${routes.length} routes × 4 identities = ${requests} HTTP contract checks. Services are mocked except catalog; not end-to-end business-flow coverage.`);
     });
   } finally {
     await app.close();

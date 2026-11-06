@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   View,
   Text,
+  Image,
   TextInput,
   Pressable,
   StyleSheet,
@@ -15,7 +16,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Eye, EyeOff } from "lucide-react-native";
 import Svg, { Path } from "react-native-svg";
-import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
@@ -152,19 +152,13 @@ export default function SignupScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Top Header */}
-          <View style={[styles.header, isLandscape && { marginBottom: 16, marginTop: 0 }]}>
-            <Pressable
-              onPress={() => {
-                if (router.canGoBack()) router.back();
-                else router.replace(role === "admin" ? "/admin-onboarding" : "/onboarding");
-              }}
-              style={({ pressed }) => [
-                styles.backBtn,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <BackArrowIcon size={20} color="#3B0508" />
-            </Pressable>
+          <View style={[styles.header, isLandscape && { marginBottom: 20, marginTop: 0 }]}>
+            <Image
+              source={require("../../assets/owuja-logo.png")}
+              style={[styles.logo, isLandscape && { width: 90, height: 28.5 }]}
+              resizeMode="contain"
+              accessibilityLabel="Owuja Logo"
+            />
             <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>Create Account</Text>
           </View>
 
@@ -350,21 +344,15 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    marginBottom: 36,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginBottom: 32,
     marginTop: 0,
+    gap: 20,
   },
-  backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "transparent",
+  logo: {
+    width: 104,
+    height: 33,
   },
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",

@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from "react";
-import { View, Text, Image, Animated } from "react-native";
+import React, { useEffect, useRef, useCallback } from "react";
+import { View, Image, Pressable, Animated, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import Svg, { Circle } from "react-native-svg";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { ApiError, apiFetch } from "@/shared/utils/apiClient";
@@ -10,31 +10,52 @@ import { NavigationBar } from "expo-navigation-bar";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 
 export default function SplashScreen() {
+  const insets = useSafeAreaInsets();
   const token = useAuthStore((state) => state.token);
   const role = useAuthStore((state) => state.role);
   const isVerified = useAuthStore((state) => state.isVerified);
   const onboardingCompleted = useAuthStore((state) => state.onboardingCompleted);
   const email = useAuthStore((state) => state.email);
-  const progress = useRef(new Animated.Value(0)).current;
 
+  const hasNavigatedRef = useRef(false);
+  const isUnauthorizedRef = useRef(false);
+  const pulseOpacity = useRef(new Animated.Value(0.6)).current;
+
+  // Gentle breathing pulse animation for "Tap to continue"
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseOpacity, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseOpacity, {
+          toValue: 0.4,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseOpacity]);
+
+  // Preload role data and configure status/navigation bars
   useEffect(() => {
     NavigationBar.setStyle("light");
 
-    let isUnauthorized = false;
-
-    // Helper to fetch with 401 handling
     const fetchSafe = async (endpoint: string) => {
       try {
         return await apiFetch<any>(endpoint, { silent: true });
       } catch (error) {
         if (error instanceof ApiError && error.details.status === 401) {
-          isUnauthorized = true;
+          isUnauthorizedRef.current = true;
         }
         return null;
       }
     };
 
-    // Preload role-based application data into local device storage during splash screen
     const preloadData = async () => {
       if (!token || !role) return;
       try {
@@ -72,141 +93,91 @@ export default function SplashScreen() {
     };
 
     preloadData();
+  }, [token, role, email]);
 
-    // Animate progress bar from 0% to 100% over 4 seconds
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: 4000,
-      useNativeDriver: false, // width animation requires layout reflow
-    }).start(async () => {
-      const currentToken = useAuthStore.getState().token;
-      const currentRole = useAuthStore.getState().role;
-      const currentIsVerified = useAuthStore.getState().isVerified;
-      const currentOnboarding = useAuthStore.getState().onboardingCompleted;
-      const currentEmail = useAuthStore.getState().email;
+  // Navigation transition
+  const handleContinue = useCallback(async () => {
+    if (hasNavigatedRef.current) return;
+    hasNavigatedRef.current = true;
 
-      // Navigate once the progress bar is completely filled
-      if (currentToken && currentRole && !isUnauthorized) {
-        await registerPushToken(currentToken);
-        if (currentRole === "admin") {
-          if (!currentIsVerified) {
-            router.replace({ pathname: "/(auth)/verify", params: { email: currentEmail } });
-          } else if (!currentOnboarding) {
-            router.replace("/(admin)/onboarding");
-          } else {
-            router.replace("/(admin)/dashboard");
-          }
-        } else if (currentRole === "staff") {
-          router.replace("/(staff)/dashboard");
+    const currentToken = useAuthStore.getState().token;
+    const currentRole = useAuthStore.getState().role;
+    const currentIsVerified = useAuthStore.getState().isVerified;
+    const currentOnboarding = useAuthStore.getState().onboardingCompleted;
+    const currentEmail = useAuthStore.getState().email;
+
+    if (currentToken && currentRole && !isUnauthorizedRef.current) {
+      await registerPushToken(currentToken);
+      if (currentRole === "admin") {
+        if (!currentIsVerified) {
+          router.replace({ pathname: "/(auth)/verify", params: { email: currentEmail } });
+        } else if (!currentOnboarding) {
+          router.replace("/(admin)/onboarding");
         } else {
-          router.replace("/(customer)/browse");
+          router.replace("/(admin)/dashboard");
         }
+      } else if (currentRole === "staff") {
+        router.replace("/(staff)/dashboard");
       } else {
-        router.replace("/(auth)/role-select");
+        router.replace("/(customer)/browse");
       }
-    });
-  }, [token, role, isVerified, onboardingCompleted, email]);
-
-  const fillWidth = "0%" as const;
-  const spin = "0deg" as const;
+    } else {
+      router.replace("/(auth)/role-select");
+    }
+  }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" }}>
+    <Pressable onPress={handleContinue} style={styles.container}>
       <StatusBar style="light" />
-      {/* Main Content Container */}
-      <View className="items-center justify-center gap-6">
 
-        {/* Circle Logo Container */}
-        <View style={{ width: 200, height: 200, alignItems: "center", justifyContent: "center" }}>
-
-          {/* Spinning outer dotted circle */}
-          <Animated.View
-            style={{
-              display: "none",
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: 200,
-              height: 200,
-              transform: [{ rotate: spin }],
-            }}
-          >
-            <Svg width={200} height={200} viewBox="0 0 200 200">
-              <Circle
-                cx={100}
-                cy={100}
-                r={98}
-                stroke="#C4A763"
-                strokeWidth={2}
-                strokeDasharray={[2, 6]}
-                strokeLinecap="round"
-                fill="none"
-              />
-            </Svg>
-          </Animated.View>
-
-          {/* Static inner solid circle */}
-          <Svg
-            width={200}
-            height={200}
-            viewBox="0 0 200 200"
-            style={{ position: "absolute", left: 0, top: 0, display: "none" }}
-          >
-            <Circle
-              cx={100}
-              cy={100}
-              r={80}
-              stroke="#C4A763"
-              strokeWidth={2}
-              fill="none"
-            />
-          </Svg>
-
-          <Image
-            source={require("../assets/splash-icon-dark.png")}
-            style={{ width: 200, height: 200 }}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Text and progress wrapper — full screen width so text-center is relative to screen */}
-        <View style={{ width: "100%", alignItems: "center", gap: 36 }}>
-          {/* Text wrapper */}
-          <View style={{ width: "100%", alignItems: "center", gap: 8 }}>
-            {/* The Threadly Nest */}
-            <Text
-              style={{
-                width: "100%",
-                textAlign: "center",
-                fontFamily: "InstrumentSans-Regular",
-                fontSize: 44,
-                lineHeight: 52,
-                color: "#FFFFFF",
-                includeFontPadding: false,
-              }}
-            >
-              Owuja
-            </Text>
-            {/* Tagline */}
-            <Text
-              style={{ display: "none", width: "100%", textAlign: "center", letterSpacing: 1.5 }}
-              className="font-body-semibold text-[11px] text-gold uppercase"
-            >
-              A HUB FOR FASHION.
-            </Text>
-          </View>
-
-          {/* Progress bar track */}
-          <View
-            style={{ display: "none", backgroundColor: "rgba(196, 167, 99, 0.25)", width: 200, height: 4, borderRadius: 36, overflow: "hidden" }}
-          >
-            {/* Progress bar fill */}
-            <Animated.View
-              style={{ width: fillWidth, height: "100%", backgroundColor: "#C4A763", borderRadius: 36 }}
-            />
-          </View>
-        </View>
+      {/* Optical Center: Owuja Logo (Node 95:8800) */}
+      <View style={styles.logoWrapper}>
+        <Image
+          source={require("../assets/splash-logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+          accessibilityLabel="Owuja Logo"
+        />
       </View>
-    </View>
+
+      {/* Bottom Action: Tap to continue (Node 95:8801) */}
+      <View style={[styles.bottomWrapper, { paddingBottom: Math.max(insets.bottom + 16, 44) }]}>
+        <Animated.Text style={[styles.tapText, { opacity: pulseOpacity }]}>
+          Tap to continue
+        </Animated.Text>
+      </View>
+    </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#453332",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+  },
+  logo: {
+    width: 200,
+    height: 63,
+  },
+  bottomWrapper: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tapText: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 16,
+    lineHeight: 20,
+    color: "#FFFFFF",
+    textAlign: "center",
+    letterSpacing: 0,
+  },
+});

@@ -9,7 +9,7 @@ import { apiFetch, escalationsApi } from "@/shared/utils/apiClient";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
-  return <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
+  return <View style={{ width: 36, height: 36, borderRadius: 18, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
 }
 
 // ─── Local Tray Notification for Admin Customer Inquiries & Escalations ───────

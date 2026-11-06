@@ -12,6 +12,8 @@
     "prisma:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:provision": "node deployment/provision-runtime.mjs",
+    "seed:dev": "node deployment/dev-seed.cjs",
+    "test:dev-users": "node deployment/test-dev-users.cjs",
     "test": "node --import tsx --test tests/*.test.ts",
     "email:test": "node scripts/send-test-emails.mjs",
     "typecheck": "tsc --noEmit --incremental false"

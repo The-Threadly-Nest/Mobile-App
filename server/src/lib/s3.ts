@@ -31,7 +31,7 @@ interface PresignedUrlResponse {
   fileUrl: string;
 }
 
-function getPublicFileUrl(key: string): string {
+export function getPublicFileUrl(key: string): string {
   const baseUrl = R2_PUBLIC_URL ? R2_PUBLIC_URL.replace(/\/$/, "") : `${R2_ENDPOINT}/${R2_BUCKET_NAME}`;
   return `${baseUrl}/${key}`;
 }

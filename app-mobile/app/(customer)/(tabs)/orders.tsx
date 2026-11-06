@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, ScrollView, Text, Pressable, ActivityIndicator, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
 import { apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
@@ -18,25 +18,29 @@ export default function CustomerOrdersScreen() {
 
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState("");
+  const [reload, setReload] = useState(0);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"active" | "completed" | "declined">("active");
   const storeOrders = useOrdersStore((s) => s.orders);
   const setStoreOrders = useOrdersStore((s) => s.setOrders);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     let mounted = true;
     async function fetchCustomerOrders() {
+      setLoading(true);
+      setError("");
       try {
         const result = await apiFetchCollectionPage<OrderItem>(
           "/api/orders/my-orders?page=1&limit=50",
           { silent: true }
-        ).catch(() => null);
+        );
         if (mounted && result) {
           setStoreOrders(result.items);
           setNextPage(result.nextPage);
         }
       } catch (err) {
-        console.log("Could not fetch server orders:", err);
+        if (mounted) setError(err instanceof Error ? err.message : "We couldn't load your orders. Please try again.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -46,7 +50,7 @@ export default function CustomerOrdersScreen() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [reload, setStoreOrders]));
 
   const loadMoreOrders = async () => {
     if (!nextPage || loadingMore) return;
@@ -60,6 +64,8 @@ export default function CustomerOrdersScreen() {
       result.items.forEach((order) => byId.set(order.id, order));
       setStoreOrders(Array.from(byId.values()));
       setNextPage(result.nextPage);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "We couldn't load more orders. Please try again.");
     } finally {
       setLoadingMore(false);
     }
@@ -86,7 +92,7 @@ export default function CustomerOrdersScreen() {
         className="flex-1 px-4"
         style={{ paddingTop: 36 }}
         contentContainerStyle={[
-          { paddingBottom: 64, gap: 12 },
+          { paddingBottom: 110, gap: 12 },
           isLandscape && { maxWidth: 840, alignSelf: "center", width: "100%", paddingHorizontal: 16 },
         ]}
         showsVerticalScrollIndicator={false}
@@ -146,6 +152,9 @@ export default function CustomerOrdersScreen() {
         </View>
 
         {/* Orders List */}
+        {error ? <Pressable onPress={() => setReload(value => value + 1)} className="p-4 rounded-xl bg-red-50">
+          <Text className="font-body text-red-800">{error} Tap to retry.</Text>
+        </Pressable> : null}
         {loading && displayedOrders.length === 0 ? (
           <View className="py-16 items-center justify-center">
             <ActivityIndicator size="large" color="#453332" />

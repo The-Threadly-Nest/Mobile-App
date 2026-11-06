@@ -9,7 +9,7 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
-  return <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
+  return <View style={{ width: 36, height: 36, borderRadius: 18, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
 }
 
 // ─── Schedule a local tray notification for a new incoming chat message ───────

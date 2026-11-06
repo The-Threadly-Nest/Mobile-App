@@ -326,6 +326,8 @@ export const CustomerPreferenceScalarFieldEnum = {
   timeline: 'timeline',
   phone: 'phone',
   location: 'location',
+  photoKey: 'photoKey',
+  savedCatalogIds: 'savedCatalogIds',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

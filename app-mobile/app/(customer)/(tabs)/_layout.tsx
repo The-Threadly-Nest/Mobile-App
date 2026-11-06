@@ -6,6 +6,7 @@ import { View } from "react-native";
 import Svg, { Path, Circle } from "react-native-svg";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
+import { Heart } from "lucide-react-native";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
   return (
@@ -14,6 +15,7 @@ function FloatingTabIcon({ focused, children }: { focused: boolean; children: Re
         width: 36,
         height: 36,
         borderRadius: 18,
+        overflow: "hidden",
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: focused ? "#F96951" : "transparent",
@@ -202,6 +204,16 @@ export default function TabsLayout() {
         options={{
           title: "My Orders",
           tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><OrdersTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
+        }}
+      />
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          title: "Favorites",
+          tabBarAccessibilityLabel: "Favorites",
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}>
+            <Heart size={24} color={String(color)} fill={focused ? String(color) : "none"} strokeWidth={1.5} />
+          </FloatingTabIcon>,
         }}
       />
       <Tabs.Screen

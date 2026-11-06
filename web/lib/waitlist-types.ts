@@ -39,4 +39,5 @@ export interface WaitlistResponse {
 
 export interface MessageResponse { message: string }
 export interface JoinWaitlistResponse extends MessageResponse { referralCode?: string }
+export interface WaitlistStats { registered: number; capacity: number; remaining: number }
 export interface InviteResponse { delivered: string[]; failed: string[] }

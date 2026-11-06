@@ -9,6 +9,14 @@ import { SessionGuard, PlatformAdminGuard } from "../../core/auth/access.guards"
 export class WaitlistController {
   constructor(@Inject(WaitlistService) private readonly service: WaitlistService) { }
 
+  @Get("stats")
+  @HttpCode(200)
+  @UseGuards(EndpointRateGuard)
+  @RateLimit("waitlist-stats", 120, 60000, false)
+  getStats() {
+    return this.service.getStats();
+  }
+
   @Post("")
   @HttpCode(200)
   @UseGuards(EndpointRateGuard)

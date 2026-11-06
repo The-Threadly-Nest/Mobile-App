@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Pressable,
@@ -10,9 +10,10 @@ import {
   TextInput,
   ActivityIndicator,
   Image,
+  Linking,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import {
   Users,
   Ruler,
@@ -36,6 +37,8 @@ import {
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi, slotsApi, staffApi } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { ProfileDesignHeader, ProfileDesignIcon, ProfileMenuGroups } from "@/shared/components/ProfileDesign";
+import AdminProfileEditScreen from "./profile-edit";
 
 export default function AdminSettingsScreen() {
   const { width, height } = useWindowDimensions();
@@ -57,6 +60,7 @@ export default function AdminSettingsScreen() {
 
   // Fitting slots state & management
   const [showSlotsModal, setShowSlotsModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [slotsList, setSlotsList] = useState<any[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [newSlotDate, setNewSlotDate] = useState("");
@@ -106,7 +110,7 @@ export default function AdminSettingsScreen() {
     }
   };
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     async function loadData() {
       if (!token) return;
       try {
@@ -139,7 +143,7 @@ export default function AdminSettingsScreen() {
       }
     }
     loadData();
-  }, [token]);
+  }, [token]));
 
   const emailPrefix = email ? email.split("@")[0] : "";
   const fallbackName = emailPrefix
@@ -215,21 +219,21 @@ export default function AdminSettingsScreen() {
       title: "Fitting Slots",
       subtitle: "Manage AI booking times",
       icon: Calendar,
-      onPress: () => router.push("/(admin)/profile-edit" as any),
+      onPress: () => { setShowSlotsModal(true); void fetchSlots(); },
     },
     {
       id: "settings",
       title: "Settings",
       subtitle: "Store & profile",
       icon: Settings,
-      onPress: () => router.push("/(admin)/profile-edit" as any),
+      onPress: () => setShowSettingsModal(true),
     },
     {
       id: "notifications",
       title: "Notifications",
       subtitle: "Alerts & updates",
       icon: Bell,
-      onPress: () => showAlert("Notifications", "Push notifications for new bookings and order updates are active."),
+      onPress: () => void Linking.openSettings().catch(() => showAlert("Notification settings", "Open your device settings to manage Owuja notification permissions.")),
     },
     {
       id: "support",
@@ -257,39 +261,14 @@ export default function AdminSettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Screen Header */}
-        <Text style={styles.screenTitle}>More</Text>
+        <ProfileDesignHeader balance="Unavailable" />
 
-        {/* 1. Account & Atelier Card at the TOP */}
-        <Pressable
-          onPress={() => router.push("/(admin)/profile-edit" as any)}
-          style={({ pressed }) => [
-            styles.accountCard,
-            { opacity: pressed ? 0.92 : 1 },
-          ]}
-        >
-          {shopLogo ? (
-            <Image source={{ uri: shopLogo }} style={[styles.avatar, { borderWidth: 1.5, borderColor: "#C4A763" }]} resizeMode="cover" />
-          ) : (
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {displayTitle.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
-          <View style={{ flex: 1 }}>
-            <Text style={styles.accountName} numberOfLines={1}>
-              {displayTitle}
-            </Text>
-            <Text style={styles.accountEmail} numberOfLines={1}>
-              {email || "admin@owuja.com"}
-            </Text>
-          </View>
-          <ChevronRight size={18} color="#8A7550" />
-        </Pressable>
+        <ProfileMenuGroups>
 
         {/* 2. Unified 2-Column Grid */}
-        <View style={styles.gridContainer}>
-          {ALL_GRID_ITEMS.map((item: any) => {
+
+          {[...ALL_GRID_ITEMS.filter(item => item.id === "settings"),
+            ...ALL_GRID_ITEMS.filter(item => item.id !== "settings")].map((item: any) => {
             const IconComponent = item.icon;
             return (
               <Pressable
@@ -302,7 +281,9 @@ export default function AdminSettingsScreen() {
               >
                 {/* Squircle Icon Container */}
                 <View style={styles.iconContainer}>
-                  <IconComponent size={22} color="#1A1110" />
+                  {item.id === "settings" ? <ProfileDesignIcon name="settings" />
+                    : item.id === "support" ? <ProfileDesignIcon name="reviews" />
+                    : <IconComponent size={21.2217} strokeWidth={1.4} color="#F96951" />}
                   {item.badge ? (
                     <View
                       style={{
@@ -329,12 +310,13 @@ export default function AdminSettingsScreen() {
                 </View>
 
                 {/* Card Text Content */}
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.cardTitle}>{item.title}</Text>
                   {item.subtitle ? (
                     <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
                   ) : null}
                 </View>
+                <ProfileDesignIcon name="chevron" />
               </Pressable>
             );
           })}
@@ -349,19 +331,26 @@ export default function AdminSettingsScreen() {
             ]}
           >
             <View style={[styles.iconContainer, styles.logoutIconContainer]}>
-              <LogOut size={22} color="#DC2626" />
+              <ProfileDesignIcon name="logout" />
             </View>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={[styles.cardTitle, { color: "#DC2626" }]}>Log Out</Text>
               <Text style={styles.cardSubtitle}>Sign out
 
               </Text>
             </View>
+            <ProfileDesignIcon name="chevron" />
           </Pressable>
-        </View>
+        </ProfileMenuGroups>
       </ScrollView>
 
       {/* Fitting Slots Management Modal */}
+      <Modal visible={showSettingsModal} animationType="slide" onRequestClose={() => setShowSettingsModal(false)}>
+        {showSettingsModal && <AdminProfileEditScreen onClose={() => {
+          setShowSettingsModal(false);
+          setBusinessName(useAuthStore.getState().shopName || "");
+        }} />}
+      </Modal>
       <Modal
         visible={showSlotsModal}
         transparent={true}
@@ -505,9 +494,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 36,
-    paddingBottom: 40,
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 120,
   },
   landscapeContainer: {
     maxWidth: 680,
@@ -522,17 +511,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   accountCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 15,
+    marginHorizontal: 0,
     padding: 18,
-    marginBottom: 20,
+    marginBottom: 0,
     flexDirection: "row",
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   avatar: {
     width: 48,
@@ -560,40 +550,39 @@ const styles = StyleSheet.create({
     color: "#8A7550",
   },
   gridContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    paddingHorizontal: 24,
+    gap: 14,
   },
   gridCard: {
-    width: "48%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    padding: 18,
-    marginBottom: 16,
-    minHeight: 140,
-    justifyContent: "space-between",
+    width: "100%",
+    backgroundColor: "#F6F6F6",
+    borderRadius: 15,
+    padding: 15,
+    minHeight: 78,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   logoutGridCard: {
-    borderWidth: 1,
-    borderColor: "rgba(220, 38, 38, 0.2)",
+    borderWidth: 0,
   },
   iconContainer: {
     width: 44,
     height: 44,
-    borderRadius: 14,
-    backgroundColor: "#E4E1DB",
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
+    marginBottom: 0,
     position: "relative",
   },
   logoutIconContainer: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: "#FFFFFF",
   },
   cardTitle: {
     fontFamily: "InstrumentSans-SemiBold",

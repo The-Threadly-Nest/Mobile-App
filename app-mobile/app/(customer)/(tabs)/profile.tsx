@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { formatMonthYear } from "@/shared/utils/formatters";
-import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions, Modal } from "react-native";
+import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions, Modal, Linking, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import Svg, { Path, Circle } from "react-native-svg";
@@ -12,11 +12,13 @@ import { useAppDataStore } from "@/stores/useAppDataStore";
 import { ProfileAvatarIcon } from "@/shared/components/ProfileAvatarIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
+import { ProfileDesignHeader, ProfileDesignIcon, ProfileMenuGroups } from "@/shared/components/ProfileDesign";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 // List Icon Components
 function MeasurementIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z" />
       <Path d="m14.5 12.5 2-2" />
       <Path d="m11.5 9.5 2-2" />
@@ -28,7 +30,7 @@ function MeasurementIcon() {
 
 function MessagesIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
     </Svg>
   );
@@ -36,7 +38,7 @@ function MessagesIcon() {
 
 function OrdersIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M12 3L2.5 7.5V16.5L12 21L21.5 16.5V7.5L12 3Z" />
       <Path d="M12 12L2.5 7.5" />
       <Path d="M12 12V21" />
@@ -47,7 +49,7 @@ function OrdersIcon() {
 
 function FavoritesIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </Svg>
   );
@@ -55,7 +57,7 @@ function FavoritesIcon() {
 
 function NotificationsIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
       <Path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </Svg>
@@ -64,7 +66,7 @@ function NotificationsIcon() {
 
 function SettingsIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Circle cx="12" cy="12" r="3" />
       <Path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </Svg>
@@ -73,7 +75,7 @@ function SettingsIcon() {
 
 function LogOutIcon() {
   return (
-    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#1F1F1F" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#F96951" strokeWidth={1.4} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M14 5A7 7 0 1 0 14 19" />
       <Path d="M10 12H21" />
       <Path d="M17 8l4 4-4 4" />
@@ -82,6 +84,10 @@ function LogOutIcon() {
 }
 
 export default function CustomerProfileScreen() {
+  const { showAlert } = useAppAlert();
+  const [savingContact, setSavingContact] = useState(false);
+  const [showSavedItems, setShowSavedItems] = useState(false);
+  const [savedItems, setSavedItems] = useState<{ id: string; name: string; imageUrl: string }[]>([]);
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
@@ -105,6 +111,7 @@ export default function CustomerProfileScreen() {
   const [loadingMeasurements, setLoadingMeasurements] = useState<boolean>(false);
 
   // Edit Personal Info state
+  const [showPersonalInfo, setShowPersonalInfo] = useState(false);
   const [isEditingInfo, setIsEditingInfo] = useState<boolean>(false);
   const [tempPhone, setTempPhone] = useState<string>(storedPhone || "");
   const [tempLocation, setTempLocation] = useState<string>(storedLocation || "Lagos, Nigeria");
@@ -132,6 +139,7 @@ export default function CustomerProfileScreen() {
     try {
       const prefs = await apiFetch<any>("/api/preferences", { silent: true }).catch(() => null);
       if (prefs) {
+        setSavedItems(prefs.savedItems || []);
         if (Array.isArray(prefs.favorites)) setFavoritesCount(prefs.favorites.length);
         if (prefs.avgGiven !== undefined) setAvgGiven(Number(prefs.avgGiven).toFixed(1));
         if (prefs.phone) setPhone(prefs.phone);
@@ -190,19 +198,21 @@ export default function CustomerProfileScreen() {
     const newPhone = tempPhone.trim();
     const newLocation = tempLocation.trim() || "Lagos, Nigeria";
 
-    setPhone(newPhone);
-    setLocation(newLocation);
-    setIsEditingInfo(false);
-
+    if (savingContact) return;
+    setSavingContact(true);
     try {
       await apiFetch("/api/preferences", {
         method: "POST",
         body: JSON.stringify({ phone: newPhone, location: newLocation }),
         silent: true,
       });
-    } catch (e) {
-      console.log("Could not sync preferences to server:", e);
-    }
+      setPhone(newPhone);
+      setLocation(newLocation);
+      setIsEditingInfo(false);
+      setShowPersonalInfo(false);
+    } catch (error) {
+      showAlert("Couldn't save settings", error instanceof Error ? error.message : "Please try again.");
+    } finally { setSavingContact(false); }
   };
 
   const handleAutoDetectLocation = async () => {
@@ -226,13 +236,6 @@ export default function CustomerProfileScreen() {
         const country = place.country || "Nigeria";
         const formatted = `${city}, ${country}`;
         setTempLocation(formatted);
-        setLocation(formatted);
-
-        apiFetch("/api/preferences", {
-          method: "POST",
-          body: JSON.stringify({ location: formatted }),
-          silent: true,
-        }).catch(() => {});
       }
     } catch (e) {
       console.log("Profile auto detect error:", e);
@@ -244,85 +247,153 @@ export default function CustomerProfileScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
       <ScrollView
-        className="flex-1 px-4"
-        style={{ paddingTop: 36 }}
+        className="flex-1"
         contentContainerStyle={[
-          { paddingBottom: 64 },
+          { paddingBottom: 110 },
           isLandscape && { maxWidth: 840, alignSelf: "center", width: "100%", paddingHorizontal: 16 },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Avatar & Name Header */}
-        <View className="items-center mb-6">
-          <View className="mb-3" style={{ position: 'relative' }}>
-            <ProfileAvatarIcon size={64} name={customerName} />
+        <ProfileDesignHeader />
+
+        <ProfileMenuGroups>
+          {/* Settings */}
+          <Pressable onPress={() => { setIsEditingInfo(true); setShowPersonalInfo(true); }} className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]">
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <ProfileDesignIcon name="settings" />
+            </View>
+            <Text className="font-body text-[14px] text-black flex-1">
+              Settings
+            </Text>
+            <ProfileDesignIcon name="chevron" />
+          </Pressable>
+
+          {/* Measurement */}
+          <Pressable
+            onPress={() => setIsMeasurementsModalVisible(true)}
+            className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
+          >
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <MeasurementIcon />
+            </View>
+            <View className="flex-1">
+              <Text className="font-body text-[14px] text-black">
+                Measurement
+              </Text>
+              <Text className="font-body text-[13px] text-[#8A7550] mt-0.5">
+                {savedSetsCount} saved {savedSetsCount === 1 ? "set" : "sets"}
+              </Text>
+            </View>
+            <ProfileDesignIcon name="chevron" />
+          </Pressable>
+
+          {/* My Messages */}
+          <Pressable
+            onPress={() => {
+              // Opening the inbox does not mark every thread read. The backend
+              // updates unread counts when the actual conversation is read.
+              router.push("/(customer)/messages" as const);
+            }}
+            className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
+          >
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <MessagesIcon />
+            </View>
+            <Text className="font-body text-[14px] text-black flex-1">My Messages</Text>
             {totalUnread > 0 && (
               <View
                 style={{
-                  position: 'absolute',
-                  top: -2,
-                  right: -2,
                   backgroundColor: '#453332',
-                  minWidth: 18,
-                  height: 18,
-                  borderRadius: 9,
-                  paddingHorizontal: 4,
+                  minWidth: 22,
+                  height: 22,
+                  borderRadius: 11,
+                  paddingHorizontal: 6,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderWidth: 2,
-                  borderColor: '#FFFFFF',
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 9, fontFamily: 'InstrumentSans-Bold' }}>
+                <Text style={{ color: '#FFFFFF', fontSize: 11, fontFamily: 'InstrumentSans-Bold' }}>
                   {totalUnread > 99 ? '99+' : totalUnread}
                 </Text>
               </View>
             )}
-          </View>
-          <Text className="font-display font-semibold text-[24px] text-black">
-            {customerName}
-          </Text>
-          <Text className="font-body text-[14px] text-[#8A7550] mt-0.5">
-            {memberSinceText}
-          </Text>
-        </View>
+            <ProfileDesignIcon name="chevron" />
+          </Pressable>
 
-        {/* 3 Stat Cards Container */}
-        <View className="flex-row items-center justify-between gap-2.5 mb-6">
-          <View className="flex-1 h-[70px] bg-white rounded-xl items-center justify-center shadow-sm">
-            <Text className="font-display font-semibold text-[24px] text-black leading-tight">
-              {ordersCount}
-            </Text>
-            <Text className="font-body text-[14px] text-[#646464] uppercase mt-0.5">
-              ORDERS
-            </Text>
-          </View>
 
-          <View className="flex-1 h-[70px] bg-white rounded-xl items-center justify-center shadow-sm">
-            <Text className="font-display font-semibold text-[24px] text-black leading-tight">
-              {favoritesCount}
+          {/* Favorite Houses */}
+          <Pressable onPress={() => setShowSavedItems(true)} className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]">
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <FavoritesIcon />
+            </View>
+            <Text className="font-body text-[14px] text-black flex-1">
+              Saved Items
             </Text>
-            <Text className="font-body text-[14px] text-[#646464] uppercase mt-0.5">
-              FAVORITES
-            </Text>
-          </View>
+            <ProfileDesignIcon name="chevron" />
+          </Pressable>
 
-          <View className="flex-1 h-[70px] bg-white rounded-xl items-center justify-center shadow-sm">
-            <Text className="font-display font-semibold text-[24px] text-black leading-tight">
-              {avgGiven}
+          {/* Notifications */}
+          <Pressable onPress={() => void Linking.openSettings().catch(() => showAlert("Notification settings", "Open your device settings to manage Owuja notification permissions."))} className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]">
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <NotificationsIcon />
+            </View>
+            <Text className="font-body text-[14px] text-black flex-1">
+              Notifications
             </Text>
-            <Text className="font-body text-[14px] text-[#646464] uppercase mt-0.5">
-              AVG. GIVEN
-            </Text>
-          </View>
-        </View>
+            <ProfileDesignIcon name="chevron" />
+          </Pressable>
 
+          {/* Log Out */}
+          <Pressable
+            onPress={() => {
+              logout();
+              router.replace("/(auth)/login");
+            }}
+            className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
+          >
+            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <ProfileDesignIcon name="logout" />
+            </View>
+            <Text className="font-body text-[14px] text-black flex-1">
+              Log Out
+            </Text>
+            <ProfileDesignIcon name="chevron" />
+          </Pressable>
+        </ProfileMenuGroups>
+      </ScrollView>
+
+      <Modal visible={showSavedItems} animationType="slide" onRequestClose={() => setShowSavedItems(false)}>
+        <SafeAreaView className="flex-1 bg-white px-6">
+          <View className="flex-row items-center justify-between py-5">
+            <Text className="font-body text-xl text-[#453332]">Saved Items</Text>
+            <Pressable accessibilityLabel="Close saved items" onPress={() => setShowSavedItems(false)}><X size={24} color="#453332" /></Pressable>
+          </View>
+          <ScrollView>
+            {!savedItems.length && <Text className="font-body text-[#646464]">Tap the heart on a catalog item to save it here.</Text>}
+            {savedItems.map(item => <Pressable key={item.id} className="flex-row items-center gap-4 p-4 mb-3 bg-[#F6F6F6] rounded-2xl" onPress={() => {
+              setShowSavedItems(false);
+              router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } });
+            }}>
+              <Image source={{ uri: item.imageUrl }} style={{ width: 60, height: 70, borderRadius: 8 }} />
+              <Text className="flex-1 font-body text-[#453332]">{item.name}</Text>
+              <ProfileDesignIcon name="chevron" />
+            </Pressable>)}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+      <Modal visible={showPersonalInfo} animationType="slide" onRequestClose={() => setShowPersonalInfo(false)}>
+        <SafeAreaView className="flex-1 bg-white">
+          <Pressable accessibilityLabel="Close personal information" onPress={() => { setShowPersonalInfo(false); setIsEditingInfo(false); }} className="self-end p-5"><X size={24} color="#453332" /></Pressable>
+          <ScrollView keyboardShouldPersistTaps="handled">
         {/* Contact & Location Details Card */}
-        <View className="bg-white rounded-2xl p-4 mb-6 shadow-sm border border-[#F0EBE1]">
+        <View className="bg-[#F6F6F6] rounded-2xl p-4 mb-4 mx-6">
           <View className="flex-row items-center justify-between mb-3">
-            <Text className="font-body font-semibold text-[15px] text-[#453332]">
-              Personal Information
-            </Text>
+            <View className="flex-row items-center flex-1">
+              <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+                <ProfileDesignIcon name="personal" />
+              </View>
+              <Text className="font-body text-[15px] text-[#333333]">Personal Info</Text>
+            </View>
             {!isEditingInfo ? (
               <Pressable
                 onPress={() => setIsEditingInfo(true)}
@@ -334,10 +405,11 @@ export default function CustomerProfileScreen() {
             ) : (
               <Pressable
                 onPress={handleSaveContactInfo}
+                disabled={savingContact}
                 className="flex-row items-center bg-[#453332] px-3.5 py-1.5 rounded-full"
               >
                 <Check size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
-                <Text className="font-body text-[12px] text-white font-medium">Save</Text>
+                <Text className="font-body text-[12px] text-white font-medium">{savingContact ? "Saving..." : "Save"}</Text>
               </Pressable>
             )}
           </View>
@@ -411,119 +483,9 @@ export default function CustomerProfileScreen() {
           )}
         </View>
 
-        {/* Navigation List Items */}
-        <View className="gap-3 px-1">
-          {/* Measurement */}
-          <Pressable
-            onPress={() => setIsMeasurementsModalVisible(true)}
-            className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]"
-          >
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <MeasurementIcon />
-            </View>
-            <View className="flex-1">
-              <Text className="font-body text-[14px] text-black">
-                Measurement
-              </Text>
-              <Text className="font-body text-[13px] text-[#8A7550] mt-0.5">
-                {savedSetsCount} saved {savedSetsCount === 1 ? "set" : "sets"}
-              </Text>
-            </View>
-          </Pressable>
-
-          {/* My Messages */}
-          <Pressable
-            onPress={() => {
-              // Clear badge immediately on navigation
-              setTotalUnread(0);
-              setUnreadMessageCount(0);
-              router.push("/(customer)/messages" as const);
-            }}
-            className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]"
-          >
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <MessagesIcon />
-            </View>
-            <Text className="font-body text-[14px] text-black flex-1">My Messages</Text>
-            {totalUnread > 0 && (
-              <View
-                style={{
-                  backgroundColor: '#453332',
-                  minWidth: 22,
-                  height: 22,
-                  borderRadius: 11,
-                  paddingHorizontal: 6,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text style={{ color: '#FFFFFF', fontSize: 11, fontFamily: 'InstrumentSans-Bold' }}>
-                  {totalUnread > 99 ? '99+' : totalUnread}
-                </Text>
-              </View>
-            )}
-          </Pressable>
-
-          {/* My Orders */}
-          <Pressable
-            onPress={() => router.push("/(customer)/(tabs)/orders")}
-            className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]"
-          >
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <OrdersIcon />
-            </View>
-            <Text className="font-body text-[14px] text-black flex-1">
-              My Orders
-            </Text>
-          </Pressable>
-
-          {/* Favorite Houses */}
-          <Pressable className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]">
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <FavoritesIcon />
-            </View>
-            <Text className="font-body text-[14px] text-black flex-1">
-              Favorite Houses
-            </Text>
-          </Pressable>
-
-          {/* Notifications */}
-          <Pressable className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]">
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <NotificationsIcon />
-            </View>
-            <Text className="font-body text-[14px] text-black flex-1">
-              Notifications
-            </Text>
-          </Pressable>
-
-          {/* Settings */}
-          <Pressable className="flex-row items-center py-2.5 border-b border-dashed border-[#E5E0D5]">
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <SettingsIcon />
-            </View>
-            <Text className="font-body text-[14px] text-black flex-1">
-              Settings
-            </Text>
-          </Pressable>
-
-          {/* Log Out */}
-          <Pressable
-            onPress={() => {
-              logout();
-              router.replace("/(auth)/login");
-            }}
-            className="flex-row items-center py-2.5"
-          >
-            <View className="w-11 h-11 bg-[#EBE7DF] rounded-xl items-center justify-center mr-3.5">
-              <LogOutIcon />
-            </View>
-            <Text className="font-body text-[14px] text-black flex-1">
-              Log Out
-            </Text>
-          </Pressable>
-        </View>
-      </ScrollView>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
 
       {/* Measurements Details Modal */}
       <Modal

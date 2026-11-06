@@ -13,6 +13,13 @@ import { sendWaitlistConfirmationEmail, sendWaitlistInviteEmail } from "../../li
 export class WaitlistService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) { }
 
+  async getStats() {
+    // Aggregate only: never expose emails, names or referral codes publicly.
+    const registered = await this.database.identityClient.waitlistEntry.count();
+    const capacity = 5000;
+    return { registered, capacity, remaining: Math.max(0, capacity - registered) };
+  }
+
   async post(input: WaitlistInput<"post">) {
     try {
       const secret = process.env.JWT_SECRET;

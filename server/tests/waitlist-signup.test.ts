@@ -2,6 +2,14 @@ import "reflect-metadata";
 import assert from "node:assert/strict";
 import test from "node:test";
 
+test("public waitlist progress uses real registration totals with a 5000-space target", async () => {
+  const { WaitlistService } = require("../dist/src/modules/waitlist/waitlist.service");
+  for (const registered of [0, 1, 4999, 5000, 5001]) {
+    const service = new WaitlistService({ identityClient: { waitlistEntry: { count: async () => registered } } });
+    assert.deepEqual(await service.getStats(), { registered, capacity: 5000, remaining: Math.max(0, 5000 - registered) });
+  }
+});
+
 const { WaitlistService } = require("../dist/src/modules/waitlist/waitlist.service");
 const { joinWaitlistSchema } = require("../dist/src/schemas/waitlist.schema");
 const mailer = require("../dist/src/lib/mailer");

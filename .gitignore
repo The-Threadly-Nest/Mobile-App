@@ -25,6 +25,12 @@ scratch/
 **/scratch/
 server/scratch/
 
+# Development user testing & seed scripts
+server/deployment/test-dev-users.cjs
+server/deployment/dev-seed.cjs
+server/deployment/DEV_TESTING.md
+server/tests/profile-integration.test.ts
+
 # Automated regression tests are committed and run in CI.
 
 # OS / Editor temporary files & caches

@@ -32,7 +32,7 @@ const SPECIALIZATIONS = [
   "Alterations & Fitting",
 ];
 
-export default function AdminProfileEditScreen() {
+export default function AdminProfileEditScreen({ onClose }: { onClose?: () => void } = {}) {
   const { showAlert } = useAppAlert();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -224,7 +224,8 @@ export default function AdminProfileEditScreen() {
       setStoredShopName(shopName.trim());
 
       showAlert("Success", "Your profile & business info have been updated.");
-      setTimeout(() => router.push("/(admin)/settings" as any), 1400);
+      if (onClose) onClose();
+      else router.push("/(admin)/settings" as any);
     } catch (err: any) {
       showAlert("Update Failed", err.message || "Could not update profile.");
     } finally {
@@ -249,7 +250,7 @@ export default function AdminProfileEditScreen() {
           }}
         >
           <Pressable
-            onPress={() => router.push("/(admin)/settings" as any)}
+            onPress={() => onClose ? onClose() : router.push("/(admin)/settings" as any)}
             style={{
               width: 36,
               height: 36,

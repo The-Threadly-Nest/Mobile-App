@@ -319,6 +319,8 @@ model CustomerPreference {
   timeline  String
   phone     String?
   location  String?
+  photoKey  String?
+  savedCatalogIds String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

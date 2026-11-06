@@ -36,7 +36,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   const { path } = await context.params;
   const route = path.join("/");
   const allowed = (request.method === "POST" && ["auth/login", "waitlist", "waitlist/unsubscribe", "waitlist/admin/invite"].includes(route))
-    || (request.method === "GET" && route === "waitlist/admin")
+    || (request.method === "GET" && ["waitlist/admin", "waitlist/stats"].includes(route))
     || (request.method === "PATCH" && /^waitlist\/admin\/[a-f0-9-]{36}\/status$/.test(route));
   if (!allowed) return failure("Not found.", 404);
   if (!process.env.API_BASE_URL) return failure("We can't reach the waitlist right now. Please try again shortly.", 503);
