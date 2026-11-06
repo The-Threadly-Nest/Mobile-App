@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { logFailure } from "../../core/logging";
+import { appLogger, logFailure } from "../../core/logging";
 import { routeParam } from "../../core/http/route-param";
 import type { WaitlistInput } from "./waitlist.dto";
 import { result, rejectRequest } from "../../core/http/endpoint-result";
@@ -26,6 +26,7 @@ export class WaitlistService {
       if (!secret) throw Object.assign(new Error("Server misconfiguration."), { status: 500 });
       const publicMessage = "Thanks for your interest in Owuja. We'll be in touch when early access opens.";
       if (input.body.website) {
+        appLogger.log("Waitlist request ignored by the spam check; no email was sent.");
         return result({ message: publicMessage }, 202);
       }
 
@@ -33,6 +34,12 @@ export class WaitlistService {
       if (existing) {
         // Do not disclose an existing person's referral code, overwrite their
         // details, or resubscribe someone who has opted out.
+        if (existing.status === "waiting" && !existing.confirmationSentAt) {
+          appLogger.log("Waitlist signup already exists, but its welcome email is unsent. Retrying now.");
+          await this.sendConfirmation(existing, secret);
+        } else {
+          appLogger.log("Waitlist signup already exists. No duplicate welcome email was sent.");
+        }
         return result({ message: publicMessage }, 202);
       }
 
@@ -55,29 +62,39 @@ export class WaitlistService {
         },
       });
 
-      const unsubscribeToken = jwt.sign(
-        { email: entry.email, purpose: "waitlist_unsubscribe" },
-        secret,
-        { algorithm: "HS256", expiresIn: "365d" },
-      );
-      try {
-        await sendWaitlistConfirmationEmail({
-          to: entry.email, name: entry.name,
-          audience: entry.audience as "customer" | "fashion_house",
-          referralCode: entry.referralCode, unsubscribeToken,
-        });
-        await this.database.identityClient.waitlistEntry.update({
-          where: { id: entry.id }, data: { confirmationSentAt: new Date() },
-        });
-      } catch (error) {
-        logFailure("You're on the waitlist, but we couldn't send the welcome email.", error);
-      }
+      appLogger.log("Waitlist registration and referral code saved. Sending the welcome email now.");
+      await this.sendConfirmation(entry, secret);
       return result({ message: publicMessage, referralCode: entry.referralCode }, 202);
     } catch (error) {
       if ((error as { code?: string }).code === "P2002") {
         return result({ message: "Thanks for your interest in Owuja. We'll be in touch when early access opens." }, 202);
       }
       throw error;
+    }
+  }
+
+  private async sendConfirmation(entry: {
+    id: string; email: string; name: string; audience: string; referralCode: string; createdAt?: Date;
+  }, secret: string): Promise<void> {
+    // Stable payload on retry: Resend requires the same body for an idempotency key.
+    const issuedAt = Math.floor((entry.createdAt ?? new Date()).getTime() / 1000);
+    const unsubscribeToken = jwt.sign(
+      { email: entry.email, purpose: "waitlist_unsubscribe", iat: issuedAt },
+      secret, { algorithm: "HS256", expiresIn: "365d" },
+    );
+    try {
+      await sendWaitlistConfirmationEmail({
+        to: entry.email, name: entry.name,
+        audience: entry.audience as "customer" | "fashion_house",
+        referralCode: entry.referralCode, unsubscribeToken,
+        idempotencyKey: `waitlist-welcome/${entry.id}`,
+      });
+      appLogger.log("Resend accepted the waitlist welcome email. Inbox delivery can be checked in Resend.");
+      await this.database.identityClient.waitlistEntry.update({
+        where: { id: entry.id }, data: { confirmationSentAt: new Date() },
+      });
+    } catch (error) {
+      logFailure("Waitlist registration is saved, but the welcome email could not be completed. Check the email settings or provider; a repeated signup can retry an unsent email.", error);
     }
   }
 

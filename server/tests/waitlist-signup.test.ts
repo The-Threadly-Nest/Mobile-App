@@ -68,6 +68,39 @@ test("redesigned waitlist signup", async (t) => {
     assert.equal(response.data.referralCode, undefined);
     assert.equal(created.length + updates.length + sent.length, 0);
   });
+  await t.test("an existing registration with a sent welcome email is not mailed twice", async () => {
+    const { service, created, updates } = fixture({ status: "waiting", confirmationSentAt: new Date() });
+    await service.post({ body: payload() });
+    assert.equal(created.length + updates.length + sent.length, 0);
+  });
+  await t.test("an unsent welcome email retries using saved details, not replacement signup details", async () => {
+    const existing = { id: "saved-id", email: "saved@example.invalid", name: "Original Name", audience: "customer", referralCode: "SAVEDCODE", status: "waiting", confirmationSentAt: null, createdAt: new Date("2026-11-01T10:00:00Z") };
+    const { service, created, updates } = fixture(existing);
+    const response = await service.post({ body: payload() });
+    assert.equal(created.length, 0);
+    assert.equal(sent[0].to, existing.email);
+    assert.equal(sent[0].name, existing.name);
+    assert.equal(sent[0].audience, "customer");
+    assert.equal(sent[0].referralCode, existing.referralCode);
+    assert.equal(sent[0].idempotencyKey, "waitlist-welcome/saved-id");
+    assert.equal(updates.length, 1);
+    assert.equal(response.data.referralCode, undefined);
+    const token = sent[0].unsubscribeToken;
+    await service.post({ body: payload() });
+    assert.equal(sent[1].unsubscribeToken, token);
+  });
+  await t.test("email failures keep the registration and leave it eligible for retry", async () => {
+    const { service, created, updates } = fixture();
+    const send = mailer.sendWaitlistConfirmationEmail;
+    mailer.sendWaitlistConfirmationEmail = async () => { throw Object.assign(new Error("private provider error"), { code: "EMAIL_PROVIDER_403" }); };
+    try {
+      const response = await service.post({ body: payload() });
+      assert.equal(response.status, 202);
+      assert.equal(created.length, 1);
+      assert.equal(updates.length, 0);
+      assert.doesNotMatch(JSON.stringify(response), /provider|private|403/);
+    } finally { mailer.sendWaitlistConfirmationEmail = send; }
+  });
   await t.test("honeypot does not save a signup or send email", async () => {
     const { service, created } = fixture();
     await service.post({ body: payload({ website: "spam.invalid" }) });

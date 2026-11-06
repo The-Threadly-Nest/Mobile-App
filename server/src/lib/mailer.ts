@@ -10,29 +10,41 @@ function escapeHtml(value: string): string {
   })[character] || character);
 }
 
-async function sendEmail({ to, subject, text, html }: { to: string; subject: string; text: string; html: string }) {
+async function sendEmail({ to, subject, text, html, idempotencyKey }: { to: string; subject: string; text: string; html: string; idempotencyKey?: string }) {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw Object.assign(new Error("Transactional email is not configured."), { status: 503 });
+  if (!apiKey) throw Object.assign(new Error("Transactional email is not configured."), { status: 503, code: "EMAIL_NOT_CONFIGURED" });
 
   const response = await fetch(RESEND_API_URL, {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}) },
     body: JSON.stringify({ from: getSender(), reply_to: getReplyTo(), to: [to], subject, text, html }),
+    signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
     const result = await response.json().catch(() => null) as { message?: string } | null;
     console.error(`Email delivery failed. Resend returned HTTP ${response.status}.`);
-    throw Object.assign(new Error(result?.message || "Email delivery failed."), { status: 502 });
+    const hint = response.status === 401 ? "Check the backend RESEND_API_KEY."
+      : response.status === 403 ? "Check that the sender domain is verified and the API key permits sending."
+      : response.status === 429 ? "The email provider's sending limit was reached."
+      : "Check the email request and sender settings in Resend.";
+    console.error(`Email was not accepted. ${hint}`);
+    throw Object.assign(new Error(result?.message || "Email delivery failed."), { status: 502, code: `EMAIL_PROVIDER_${response.status}` });
   }
 }
 
 function emailShell(content: string, logoUrl?: string): string {
   if (logoUrl) {
-    return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px 16px;color:#453332;background:#FFFFFF;">
+    const fontUrl = new URL("fonts/InstrumentSans-Regular.ttf", logoUrl).href;
+    const boldFontUrl = new URL("fonts/InstrumentSans-Bold.ttf", logoUrl).href;
+    return `<!doctype html><html><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+      <style>@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400;src:url('${escapeHtml(fontUrl)}') format('truetype');}
+      @font-face{font-family:'Instrument Sans';font-style:normal;font-weight:700;src:url('${escapeHtml(boldFontUrl)}') format('truetype');}</style>
+      </head><body style="margin:0;background:#FFFFFF;color:#000000;">
+      <div style="font-family:'Instrument Sans',Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px 16px;color:#000000;background:#FFFFFF;">
       <p style="margin:0 0 28px;"><img src="${escapeHtml(logoUrl)}" alt="Owuja" width="150" style="display:block;width:150px;max-width:100%;height:auto;" /></p>
       ${content}
-      <p style="font-size:12px;color:#746765;margin:24px 0 0;">Need help? Reply to this email or contact support@owuja.com.</p>
-    </div>`;
+      <p style="font-size:12px;color:#000000;margin:24px 0 0;">Need help? Reply to this email or contact support@owuja.com.</p>
+    </div></body></html>`;
   }
   return `<div style="font-family:Arial,sans-serif;max-width:460px;margin:0 auto;padding:24px;border:1px solid #4A080C;border-radius:12px;color:#3A2E1A;">
     <h1 style="font-size:22px;color:#4A080C;font-family:Georgia,serif;letter-spacing:1px;margin:0 0 20px;text-align:center;">OWUJA</h1>
@@ -116,12 +128,14 @@ export async function sendWaitlistConfirmationEmail({
   audience,
   referralCode,
   unsubscribeToken,
+  idempotencyKey,
 }: {
   to: string;
   name: string;
   audience: "customer" | "fashion_house";
   referralCode: string;
   unsubscribeToken: string;
+  idempotencyKey?: string;
 }) {
   const publicUrl = (process.env.WAITLIST_PUBLIC_URL || "https://owuja.com").replace(/\/$/, "");
   const referralUrl = `${publicUrl}/?ref=${encodeURIComponent(referralCode)}`;
@@ -145,15 +159,16 @@ export async function sendWaitlistConfirmationEmail({
   return sendEmail({
     to,
     subject: designer ? "Your next chapter in fashion starts with Owuja" : "You're on the Owuja waitlist",
+    idempotencyKey,
     text: [`Hi ${firstName},`, ...paragraphs, `The Owuja team\n${tagline}`,
       `Know someone who would enjoy Owuja? Share your personal link: ${referralUrl}`,
-      `Leave the waitlist: ${unsubscribeUrl}`].join("\n\n"),
+      `Unsubscribe: ${unsubscribeUrl}`].join("\n\n"),
     html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(firstName)}</strong>,</p>
       ${paragraphs.map(paragraph => `<p style="font-size:14px;line-height:1.6;">${escapeHtml(paragraph)}</p>`).join("\n")}
       <p style="font-size:14px;line-height:1.6;">The Owuja team<br /><em>${escapeHtml(tagline)}</em></p>
       <p style="font-size:14px;line-height:1.6;">Know someone who would enjoy ${BRAND_NAME}? Share your personal link:</p>
-      <p><a href="${escapeHtml(referralUrl)}" style="color:#453332;text-decoration:underline;">Share ${BRAND_NAME}</a></p>
-      <p style="font-size:11px;margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="color:#746765;">Leave the waitlist</a></p>`, `${publicUrl}/assets/email-logo.png`),
+      <p><a href="${escapeHtml(referralUrl)}" style="color:#000000;text-decoration:underline;">Share ${BRAND_NAME}</a></p>
+      <p style="margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="display:inline-block;padding:10px 20px;border:1px solid #000000;border-radius:999px;background:#FFFFFF;color:#000000;font-family:'Instrument Sans',Arial,sans-serif;font-size:12px;line-height:1.4;text-decoration:none;">Unsubscribe</a></p>`, `${publicUrl}/assets/email-logo.png`),
   });
 }
 

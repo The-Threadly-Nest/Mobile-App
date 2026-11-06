@@ -9,8 +9,10 @@ test("waitlist welcome emails use audience-specific copy and safe links", async 
   process.env.RESEND_API_KEY = "email-test-only-not-a-real-key";
   process.env.WAITLIST_PUBLIC_URL = "https://example.invalid/";
   const sent: any[] = [];
+  const headers: any[] = [];
   global.fetch = async (_url: any, options: any) => {
     sent.push(JSON.parse(options.body));
+    headers.push(options.headers);
     return new Response("{}", { status: 200 });
   };
   t.after(() => {
@@ -18,7 +20,7 @@ test("waitlist welcome emails use audience-specific copy and safe links", async 
     for (const name of names) if (previous[name] === undefined) delete process.env[name]; else process.env[name] = previous[name];
   });
   const send = (audience: string, name = "Chiamaka Okafor") => sendWaitlistConfirmationEmail({
-    to: "person@example.invalid", name, audience, referralCode: "AB12CD34EF", unsubscribeToken: "test-token&value",
+    to: "person@example.invalid", name, audience, referralCode: "AB12CD34EF", unsubscribeToken: "test-token&value", idempotencyKey: "waitlist-welcome/fixture-id",
   });
   await t.test("customers receive the discovery and custom-fashion welcome", async () => {
     await send("customer");
@@ -28,6 +30,8 @@ test("waitlist welcome emails use audience-specific copy and safe links", async 
     assert.match(email.text, /discover designers/);
     assert.match(email.text, /Where thread meets the market/);
     assert.doesNotMatch(email.text, /organise your team/);
+    assert.equal(headers.at(-1)["Idempotency-Key"], "waitlist-welcome/fixture-id");
+    assert.equal(email.idempotencyKey, undefined);
   });
   await t.test("designers receive the fashion-business welcome", async () => {
     await send("fashion_house");
@@ -48,7 +52,21 @@ test("waitlist welcome emails use audience-specific copy and safe links", async 
   await t.test("both welcome emails use the actual logo without a boxed template", () => {
     for (const email of sent) {
       assert.match(email.html, /<img src="https:\/\/example\.invalid\/assets\/email-logo\.png" alt="Owuja"/);
-      assert.doesNotMatch(email.html, /border:|border-radius:|<h1/);
+      const wrapper = email.html.match(/<div style="([^"]+)"/)?.[1];
+      assert.ok(wrapper);
+      assert.doesNotMatch(wrapper, /border:|border-radius:/);
+      assert.doesNotMatch(email.html, /<h1/);
+    }
+  });
+  await t.test("body uses black Instrument Sans text and only a rounded Unsubscribe button", () => {
+    for (const email of sent) {
+      assert.match(email.html, /font-family:'Instrument Sans',Arial,sans-serif/);
+      assert.match(email.html, /https:\/\/example\.invalid\/assets\/fonts\/InstrumentSans-Regular\.ttf/);
+      assert.match(email.html, /color:#000000/);
+      assert.doesNotMatch(email.html, /color:#(?:453332|746765)|Leave the waitlist/);
+      assert.doesNotMatch(email.text, /Leave the waitlist/);
+      assert.match(email.html, /<a href="https:\/\/example\.invalid\/unsubscribe\?[^\"]+" style="[^\"]*border-radius:999px[^\"]*">Unsubscribe<\/a>/);
+      assert.match(email.text, /Unsubscribe: https:/);
     }
   });
   await t.test("HTML escapes names and blank names have a friendly fallback", async () => {
