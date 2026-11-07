@@ -64,7 +64,6 @@ export default function PrivacyPage() {
           <section aria-labelledby="rights">
             <h2 id="rights">7. Your choices and rights</h2>
             <p>Use the unsubscribe link in a waitlist email to stop updates, or contact <a href="mailto:support@owuja.com">support@owuja.com</a>. Depending on applicable law, you can request access, correction, deletion, restriction, portability, or object to certain processing. We may need to verify your identity before acting. If a request cannot be fulfilled in full, we will explain why.</p>
-            <p className="mt-3">You can also complain to the <a href="https://ndpc.gov.ng/" rel="noreferrer">Nigeria Data Protection Commission</a> or another competent data-protection authority. This policy does not limit your statutory rights.</p>
           </section>
           <section aria-labelledby="children">
             <h2 id="children">8. Children</h2>
