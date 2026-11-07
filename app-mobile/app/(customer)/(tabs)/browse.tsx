@@ -102,22 +102,21 @@ export default function BrowseScreen() {
   const scrollRef = React.useRef<ScrollView>(null);
   const catalogOffset = React.useRef(0);
   const fashionHouseScrollRef = React.useRef<ScrollView>(null);
-  const carouselOffset = React.useRef(0);
-  const isCarouselInteracting = React.useRef(false);
-
-  useEffect(() => {
-    if (fashionHouses.length <= 1) return;
-    const interval = setInterval(() => {
-      if (isCarouselInteracting.current || !fashionHouseScrollRef.current) return;
-      carouselOffset.current += 0.8;
-      const singleSetWidth = fashionHouses.length * (68 + 16);
-      if (carouselOffset.current >= singleSetWidth) {
-        carouselOffset.current = 0;
-      }
-      fashionHouseScrollRef.current.scrollTo({ x: carouselOffset.current, animated: false });
+  const houseMotion = React.useRef({ offset: 0, viewport: 0, content: 0, direction: 1, resumeAt: 0 });
+  // Animate the real row back and forth; never clone records to fill the strip.
+  useFocusEffect(useCallback(() => {
+    const timer = setInterval(() => {
+      const motion = houseMotion.current;
+      const maxOffset = Math.max(0, motion.content - motion.viewport);
+      if (!maxOffset || Date.now() < motion.resumeAt || AppState.currentState !== "active") return;
+      const next = Math.max(0, Math.min(maxOffset, motion.offset + 0.8 * motion.direction));
+      if (next === maxOffset) motion.direction = -1;
+      else if (next === 0) motion.direction = 1;
+      motion.offset = next;
+      fashionHouseScrollRef.current?.scrollTo({ x: next, animated: false });
     }, 25);
-    return () => clearInterval(interval);
-  }, [fashionHouses]);
+    return () => clearInterval(timer);
+  }, []));
   const normalizeCategory = (value: string) => {
     const category = value.toLowerCase().replace(/[ _-]/g, "");
     return ({ tshirt: "T-Shirt", tshirts: "T-Shirt", pant: "Pant", pants: "Pant", dress: "Dress", dresses: "Dress", jacket: "Jacket", jackets: "Jacket" } as Record<string, string>)[category] || value;
@@ -129,7 +128,7 @@ export default function BrowseScreen() {
         "/api/fashion-houses?limit=20",
         { silent: true }
       );
-      setFashionHouses(res.items); setHousesError("");
+      setFashionHouses([...new Map(res.items.map(house => [house.id, house])).values()]); setHousesError("");
     } catch {
       setHousesError("We couldn't load fashion houses. Pull down to retry.");
     }
@@ -253,14 +252,24 @@ export default function BrowseScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.fashionHousesCarousel}
-            onTouchStart={() => { isCarouselInteracting.current = true; }}
-            onTouchEnd={() => { isCarouselInteracting.current = false; }}
-            onScrollBeginDrag={() => { isCarouselInteracting.current = true; }}
-            onScrollEndDrag={() => { isCarouselInteracting.current = false; }}
+            onLayout={event => { houseMotion.current.viewport = event.nativeEvent.layout.width; }}
+            onContentSizeChange={width => {
+              const motion = houseMotion.current;
+              motion.content = width;
+              motion.offset = Math.min(motion.offset, Math.max(0, width - motion.viewport));
+            }}
+            onTouchStart={() => { houseMotion.current.resumeAt = Number.POSITIVE_INFINITY; }}
+            onTouchEnd={() => { houseMotion.current.resumeAt = Date.now() + 3000; }}
+            onTouchCancel={() => { houseMotion.current.resumeAt = Date.now() + 3000; }}
+            onScrollBeginDrag={() => { houseMotion.current.resumeAt = Number.POSITIVE_INFINITY; }}
+            onScrollEndDrag={() => { houseMotion.current.resumeAt = Date.now() + 3000; }}
+            onMomentumScrollEnd={() => { houseMotion.current.resumeAt = Date.now() + 3000; }}
+            onScroll={event => { houseMotion.current.offset = Math.max(0, event.nativeEvent.contentOffset.x); }}
+            scrollEventThrottle={16}
           >
-            {[...fashionHouses, ...fashionHouses, ...fashionHouses].map((house, idx) => (
+            {fashionHouses.map((house) => (
               <Pressable
-                key={`${house.id}-${idx}`}
+                key={house.id}
                 onPress={() => {
                   router.push({
                     pathname: "/(customer)/fashion-house/[fashionHouseId]",
@@ -600,7 +609,7 @@ const styles = StyleSheet.create({
   fashionHouseName: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
-    color: "#1A1110",
+    color: "#000000",
     textAlign: "center",
     marginTop: 6,
     maxWidth: 68,

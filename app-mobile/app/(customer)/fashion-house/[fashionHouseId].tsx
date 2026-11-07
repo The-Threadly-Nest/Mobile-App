@@ -338,14 +338,17 @@ export default function FashionHouseScreen() {
               })
             }
           >
-            <Text style={[styles.bookingBtnText, { color: '#453332' }]}>Message</Text>
+            <Text style={[styles.bookingBtnText, { color: '#000000' }]}>Message</Text>
           </Pressable>
 
           <Pressable
             style={({ pressed }) => [styles.bookingBtn, { flex: 1.4, opacity: pressed ? 0.9 : 1 }]}
-            onPress={() => scrollRef.current?.scrollTo({ y: portfolioOffset.current, animated: true })}
+            onPress={() => router.push({
+              pathname: "/(customer)/chat/[fashionHouseId]",
+              params: { fashionHouseId: targetId, fashionHouseName: displayName },
+            })}
           >
-            <Text style={styles.bookingBtnText}>Browse styles</Text>
+            <Text style={styles.bookingBtnText}>Book an appointment</Text>
           </Pressable>
         </View>
         </View>
@@ -407,7 +410,7 @@ const styles = StyleSheet.create({
   displayName: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#1A150E",
+    color: "#000000",
     marginBottom: 6,
   },
   heroRatingRow: {
@@ -417,13 +420,13 @@ const styles = StyleSheet.create({
   heroRatingScore: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#1A150E",
+    color: "#000000",
     marginLeft: 6,
   },
   heroOrdersCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#787676",
+    color: "#000000",
     marginLeft: 4,
   },
   statsCard: {
@@ -443,13 +446,13 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 15,
-    color: "#1A150E",
+    color: "#000000",
     marginBottom: 4,
   },
   statLabel: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 10,
-    color: "#6B5E4C",
+    color: "#000000",
     letterSpacing: 0.6,
   },
   statDivider: {
@@ -469,18 +472,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
     letterSpacing: 1.2,
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3A2E1A",
+    color: "#000000",
   },
   aboutText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3A2E1A",
+    color: "#000000",
     lineHeight: 22,
   },
   portfolioGrid: {
@@ -515,12 +518,12 @@ const styles = StyleSheet.create({
   catalogTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#3A2E1A",
+    color: "#000000",
   },
   catalogPrice: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
     marginTop: 2,
   },
   emptyCatalogCard: {
@@ -535,13 +538,13 @@ const styles = StyleSheet.create({
   emptyCatalogTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 4,
   },
   emptyCatalogSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
     textAlign: "center",
   },
   reviewsCard: {
@@ -574,7 +577,7 @@ const styles = StyleSheet.create({
   reviewName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#1A150E",
+    color: "#000000",
   },
   reviewStars: {
     flexDirection: "row",
@@ -582,7 +585,7 @@ const styles = StyleSheet.create({
   reviewText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#4A4235",
+    color: "#000000",
     lineHeight: 20,
   },
   seeAllBtn: {
@@ -595,7 +598,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#3A2E1A",
+    color: "#000000",
   },
   bookingBtn: {
     backgroundColor: "#453332",

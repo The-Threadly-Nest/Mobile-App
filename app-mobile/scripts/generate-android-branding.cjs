@@ -8,6 +8,7 @@ const sharp = require(require.resolve('sharp', { paths: [root, path.resolve(root
 const check = process.argv.includes('--check');
 const res = path.join(root, 'android/app/src/main/res');
 const background = '#F96951';
+const splashBackground = '#FFFFFF';
 const densities = [['mdpi', 1], ['hdpi', 1.5], ['xhdpi', 2], ['xxhdpi', 3], ['xxxhdpi', 4]];
 
 async function output(file, bytes) {
@@ -34,9 +35,9 @@ async function main() {
   assert.equal(config.android.adaptiveIcon.foregroundImage, './assets/adaptive-icon.png');
   assert.equal(config.android.adaptiveIcon.backgroundColor, background);
   const splash = config.plugins.find(plugin => Array.isArray(plugin) && plugin[0] === 'expo-splash-screen')[1].android;
-  assert.equal(splash.image, './assets/adaptive-icon.png');
-  assert.equal(splash.backgroundColor, background);
-  assert.equal(splash.imageWidth, 288);
+  assert.equal(splash.image, './assets/splash-icon-dark.png');
+  assert.equal(splash.backgroundColor, splashBackground);
+  assert.equal(splash.imageWidth, 160);
 
   for (const [density, scale] of densities) {
     const dir = path.join(res, 'mipmap-' + density);
@@ -50,7 +51,9 @@ async function main() {
     const circle = Buffer.from(`<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white"/></svg>`);
     const round = await sharp(legacy).ensureAlpha().composite([{ input: circle, blend: 'dest-in' }]).webp({ lossless: true }).toBuffer();
     await output(path.join(dir, 'ic_launcher_round.webp'), round);
-    const launch = await sharp(padded).resize(288 * scale, 288 * scale).png().toBuffer();
+    const launch = await sharp(path.join(root, 'assets/splash-icon-dark.png'))
+      .resize(160 * scale, 160 * scale, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .extend({ top: 64 * scale, bottom: 64 * scale, left: 64 * scale, right: 64 * scale, background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
     await output(path.join(res, 'drawable-' + density, 'splashscreen_logo.png'), launch);
     // Duplicate PNG/WebP basenames would make Android resource compilation fail.
     const files = await fs.readdir(dir);
@@ -66,7 +69,8 @@ async function main() {
   }
   assert.match(await fs.readFile(path.join(res, 'values/strings.xml'), 'utf8'), /<string name="app_name">Owuja<\/string>/);
   const colors = await fs.readFile(path.join(res, 'values/colors.xml'), 'utf8');
-  for (const name of ['iconBackground', 'splashscreen_background']) assert.ok(colors.includes(`<color name="${name}">${background}</color>`));
+  assert.ok(colors.includes(`<color name="iconBackground">${background}</color>`));
+  assert.ok(colors.includes(`<color name="splashscreen_background">${splashBackground}</color>`));
   console.log('Branding configuration, adaptive XML, dimensions and exact asset contents verified.');
 }
 main().catch(error => { console.error(error.message); process.exitCode = 1; });

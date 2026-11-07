@@ -8,9 +8,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-brand.png",
+      "image": "./assets/splash-icon-dark.png",
       "resizeMode": "contain",
-      "backgroundColor": "#453332"
+      "backgroundColor": "#FFFFFF"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -54,13 +54,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-brand.png",
-          "backgroundColor": "#453332",
+          "image": "./assets/splash-icon-dark.png",
+          "imageWidth": 160,
+          "backgroundColor": "#FFFFFF",
           "resizeMode": "contain",
           "android": {
-            "image": "./assets/adaptive-icon.png",
-            "imageWidth": 288,
-            "backgroundColor": "#F96951"
+            "image": "./assets/splash-icon-dark.png",
+            "imageWidth": 160,
+            "backgroundColor": "#FFFFFF"
           }
         }
       ],

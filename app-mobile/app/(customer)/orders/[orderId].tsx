@@ -31,6 +31,7 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { alertEmitter } from "@/shared/utils/alertEmitter";
 import { useOrdersStore } from "@/stores/useOrdersStore";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 const STAGES = [
   { key: "booked", label: "Appointment Booked", desc: "Fitting session scheduled" },
@@ -159,7 +160,7 @@ export default function CustomerOrderDetailScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#453332" />
+          <BackArrowIcon size={24} color="#3B0508" />
         </Pressable>
         <Text style={styles.headerTitle}>Order Tracking</Text>
       </View>
@@ -171,14 +172,8 @@ export default function CustomerOrderDetailScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />
         }
       >
-        {/* Compact Hero Card */}
-        <View
-          style={[
-            styles.compactHeroCard,
-            isDeclined && { borderColor: "#FECDD3", backgroundColor: "#FFF5F5" },
-            isCancelled && { borderColor: "#E5DFD5", backgroundColor: "#FFFFFF" },
-          ]}
-        >
+        {/* Unboxed Hero Section */}
+        <View style={styles.heroSection}>
           <CachedImage
             source={{ uri: coverImage }}
             style={styles.compactImage}
@@ -229,7 +224,7 @@ export default function CustomerOrderDetailScreen() {
 
         {/* Production Progress Stepper (Active orders) */}
         {!isEnded && (
-          <View style={styles.card}>
+          <View style={styles.progressSection}>
             <View style={styles.cardHeaderRow}>
               <Text style={styles.cardHeadline}>Production Progress</Text>
               {loading && <ActivityIndicator size="small" color="#453332" />}
@@ -334,8 +329,8 @@ export default function CustomerOrderDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
-    height: 52,
-    marginTop: 36,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 14,
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
@@ -345,31 +340,20 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#F0EBE1",
   },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#1A1110" },
-  scrollContent: { paddingHorizontal: 20, paddingVertical: 14, paddingBottom: 32 },
-  compactHeroCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 12,
-    marginBottom: 14,
+  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#3B0508" },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
+  heroSection: {
+    paddingBottom: 16,
+    marginBottom: 20,
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#F0EBE1",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F4EEE5",
   },
-  compactImage: { width: 76, height: 76, borderRadius: 12 },
+  compactImage: { width: 80, height: 80, borderRadius: 14 },
   compactContent: { flex: 1, marginLeft: 14, justifyContent: "center" },
   badgeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
   orderBadge: {
@@ -385,26 +369,16 @@ const styles = StyleSheet.create({
   garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 16, color: "#3B0508", marginBottom: 4 },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#8A7550", flexShrink: 1 },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: "#F0EBE1",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
+  progressSection: {
+    marginBottom: 24,
   },
   cardHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 14,
+    marginBottom: 16,
   },
-  cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#453332" },
+  cardHeadline: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#3B0508" },
   timelineContainer: { paddingLeft: 4 },
   stepRow: { flexDirection: "row", minHeight: 52 },
   indicatorCol: { alignItems: "center", width: 26, marginRight: 12 },

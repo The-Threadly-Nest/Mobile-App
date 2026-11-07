@@ -1,14 +1,16 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react-native";
+import { Check, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import CachedImage from "@/shared/components/CachedImage";
 import { CartItem, useCartStore } from "@/stores/useCartStore";
 import { formatCurrency } from "@/shared/utils/formatters";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { createIdempotencyKey } from "@/shared/utils/idempotency";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface CartGroup {
   fashionHouseId: string;
@@ -24,6 +26,8 @@ export default function CartScreen() {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const clearFashionHouse = useCartStore((state) => state.clearFashionHouse);
   const clearCart = useCartStore((state) => state.clearCart);
+  const { showConfirm, showAlert } = useAppAlert();
+  const [successOrder, setSuccessOrder] = useState<{ vendorName: string; total: number } | null>(null);
   const [placingOrderFor, setPlacingOrderFor] = useState<string | null>(null);
   const checkoutKeysRef = useRef<Record<string, { key: string; signature: string }>>({});
   const checkoutBusy = useRef(false);
@@ -50,7 +54,7 @@ export default function CartScreen() {
 
   const placeOrder = async (group: CartGroup) => {
     if (!group.fashionHouseId) {
-      Alert.alert("Fashion House unavailable", "Remove this item and add it again from the marketplace.");
+      showAlert("Fashion House unavailable", "Remove this item and add it again from the marketplace.");
       return;
     }
     if (checkoutBusy.current) return;
@@ -75,9 +79,10 @@ export default function CartScreen() {
       });
       delete checkoutKeysRef.current[group.fashionHouseId];
       clearFashionHouse(group.fashionHouseId);
-      Alert.alert("Order placed", `${group.vendorName} has received your order.`, [
-        { text: "View My Orders", onPress: () => router.replace("/(customer)/(tabs)/orders") },
-      ]);
+      setSuccessOrder({
+        vendorName: group.vendorName,
+        total: group.subtotal,
+      });
     } catch {
       // apiFetch presents the server error. Keep the same key so a retry cannot duplicate the order.
     } finally {
@@ -87,20 +92,21 @@ export default function CartScreen() {
   };
 
   const confirmClear = () => {
-    Alert.alert("Clear cart?", "This removes every item currently in your cart.", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Clear", style: "destructive", onPress: clearCart },
-    ]);
+    showConfirm("Clear cart?", "This removes every item currently in your cart.", {
+      confirmLabel: "Clear",
+      cancelLabel: "Cancel",
+      onConfirm: clearCart,
+    });
   };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} activeOpacity={0.75}>
-          <BackArrowIcon size={20} color="#3A2E1A" />
+          <BackArrowIcon size={24} color="#3B0508" />
         </TouchableOpacity>
         <View style={styles.headerTitleGroup}>
-          <Text style={styles.headerTitle}>Your Cart</Text>
+          <Text style={styles.headerTitle}>My Cart</Text>
           <Text style={styles.headerSubtitle}>{totalItems} item{totalItems === 1 ? "" : "s"}</Text>
         </View>
         {items.length > 0 ? (
@@ -122,7 +128,7 @@ export default function CartScreen() {
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 20) + 24 }]}>
           {groups.map((group) => (
-            <View key={group.fashionHouseId || group.vendorName} style={styles.groupCard}>
+            <View key={group.fashionHouseId || group.vendorName} style={styles.groupSection}>
               <View style={styles.groupHeader}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.groupLabel}>FASHION HOUSE</Text>
@@ -178,25 +184,73 @@ export default function CartScreen() {
           {groups.length > 1 ? <Text style={styles.multiHouseNote}>Each fashion house is ordered separately. Place one group at a time.</Text> : null}
         </ScrollView>
       )}
+
+      {/* Styled Order Placed Success Modal */}
+      <Modal
+        visible={successOrder !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSuccessOrder(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconCircle}>
+              <Check size={28} color="#FFFFFF" strokeWidth={2.5} />
+            </View>
+            <Text style={styles.modalTitle}>Order Placed!</Text>
+            <Text style={styles.modalSubtitle}>
+              {successOrder?.vendorName} has received your order. You can track its progress in your orders tab.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.modalPrimaryBtn}
+              activeOpacity={0.85}
+              onPress={() => {
+                setSuccessOrder(null);
+                router.replace("/(customer)/(tabs)/orders");
+              }}
+            >
+              <Text style={styles.modalPrimaryBtnText}>View My Orders</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalSecondaryBtn}
+              activeOpacity={0.7}
+              onPress={() => {
+                setSuccessOrder(null);
+                router.replace("/(customer)/(tabs)/browse");
+              }}
+            >
+              <Text style={styles.modalSecondaryBtnText}>Continue Shopping</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
-  header: { height: 64, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "rgba(74, 8, 12, 0.10)" },
-  headerButton: { width: 42, height: 42, borderRadius: 21, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 14,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  headerButton: { width: 44, height: 44, alignItems: "flex-start", justifyContent: "center" },
   headerTitleGroup: { flex: 1, alignItems: "center" },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#3B0508" },
-  headerSubtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#8A7550", marginTop: 1 },
-  clearButton: { width: 42, alignItems: "flex-end", paddingVertical: 10 },
-  clearText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#9A2C32" },
-  content: { padding: 16, gap: 16 },
-  groupCard: { backgroundColor: "#FFFFFF", borderRadius: 20, borderWidth: 1, borderColor: "#E8DDCD", padding: 16 },
-  groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#F0E9DF" },
+  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#3B0508" },
+  headerSubtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#8A7550", marginTop: 2 },
+  clearButton: { width: 44, height: 44, alignItems: "flex-end", justifyContent: "center" },
+  clearText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#9A2C32" },
+  content: { paddingHorizontal: 20, paddingBottom: 40 },
+  groupSection: { marginBottom: 28 },
+  groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#F0E9DF" },
   groupLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 9, letterSpacing: 1, color: "#8A7550" },
-  groupName: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 17, color: "#3B0508", marginTop: 2 },
-  groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#453332" },
+  groupName: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#3B0508", marginTop: 2 },
+  groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#453332" },
   itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#F4EEE5" },
   itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#EBE0D3" },
   itemImageContent: { width: "100%", height: "100%", borderRadius: 14 },
@@ -212,9 +266,9 @@ const styles = StyleSheet.create({
   continueButton: { minHeight: 50, borderRadius: 25, backgroundColor: "#453332", alignItems: "center", justifyContent: "center", paddingHorizontal: 18, marginTop: 14 },
   continueButtonDisabled: { opacity: 0.6 },
   continueButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF", textAlign: "center" },
-  totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4 },
-  totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#3A2E1A" },
-  totalPrice: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 21, color: "#453332" },
+  totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 12, paddingBottom: 4 },
+  totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#3A2E1A" },
+  totalPrice: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#3B0508" },
   multiHouseNote: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#8A7550", textAlign: "center", paddingHorizontal: 20 },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 36 },
   emptyIcon: { width: 68, height: 68, borderRadius: 34, backgroundColor: "#EBE0D3", alignItems: "center", justifyContent: "center", marginBottom: 18 },
@@ -222,4 +276,73 @@ const styles = StyleSheet.create({
   emptyBody: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#8A7550", textAlign: "center", marginTop: 8, marginBottom: 24 },
   browseButton: { height: 52, borderRadius: 26, backgroundColor: "#453332", alignItems: "center", justifyContent: "center", paddingHorizontal: 30 },
   browseButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(30, 20, 20, 0.55)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 28,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  modalIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#453332",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 18,
+  },
+  modalTitle: {
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 24,
+    color: "#3B0508",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#746765",
+    textAlign: "center",
+    marginBottom: 24,
+    paddingHorizontal: 4,
+  },
+  modalPrimaryBtn: {
+    width: "100%",
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#453332",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalPrimaryBtnText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 14,
+    color: "#FFFFFF",
+  },
+  modalSecondaryBtn: {
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  modalSecondaryBtnText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 13,
+    color: "#8A7550",
+  },
 });

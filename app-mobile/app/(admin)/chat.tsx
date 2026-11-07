@@ -34,6 +34,7 @@ import {
 } from "lucide-react-native";
 import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from "expo-audio";
 import * as ImagePicker from "expo-image-picker";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch, staffApi } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
@@ -908,7 +909,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingTop: 36,
+    paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 12,
     gap: 12,
     backgroundColor: "#FFFFFF",

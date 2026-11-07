@@ -19,7 +19,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import {
   MoreVertical,
-  Star,
   Image as ImageIcon,
   Paperclip,
   Camera,
@@ -35,6 +34,7 @@ import {
 } from 'lucide-react-native';
 import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
+import { SCREEN_TOP_SPACING } from '@/shared/utils/screenSpacing';
 import { apiFetch } from '../../../src/shared/utils/apiClient';
 import { createIdempotencyKey } from '@/shared/utils/idempotency';
 import { uploadFile } from '@/shared/utils/upload';
@@ -759,24 +759,10 @@ export default function CustomerDirectChatScreen() {
                 </Text>
               </View>
             )}
-            <View
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                width: 9,
-                height: 9,
-                borderRadius: 4.5,
-                backgroundColor: '#22C55E',
-                borderWidth: 1.5,
-                borderColor: '#FFFFFF',
-              }}
-            />
           </View>
 
           <View style={styles.headerInfoCol}>
             <Text style={styles.headerNameText} numberOfLines={1}>{displayName}</Text>
-            <Text style={styles.headerSubtitleText}>Online</Text>
           </View>
         </View>
 
@@ -810,55 +796,6 @@ export default function CustomerDirectChatScreen() {
             </View>
           ) : (
             <View>
-              {/* Recipient Profile Hero Card from Figma */}
-              <View style={styles.heroProfileCard}>
-                <View style={{ position: 'relative', alignSelf: 'center', marginBottom: 12 }}>
-                  {resolvedFashionHouseLogo ? (
-                    <Image
-                      source={{ uri: resolvedFashionHouseLogo }}
-                      style={{ width: 92, height: 92, borderRadius: 46 }}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View
-                      style={{
-                        width: 92,
-                        height: 92,
-                        borderRadius: 46,
-                        backgroundColor: '#453332',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Text style={{ fontFamily: 'HedvigLettersSerif-Regular', fontSize: 34, color: '#FFFFFF' }}>
-                        {displayName.charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                  )}
-                  <View
-                    style={{
-                      position: 'absolute',
-                      bottom: 2,
-                      right: 2,
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      backgroundColor: '#22C55E',
-                      borderWidth: 2.5,
-                      borderColor: '#FFFFFF',
-                    }}
-                  />
-                </View>
-
-                <Text style={styles.heroNameText}>{displayName}</Text>
-                <Text style={styles.heroRoleText}>Fashion House & Bespoke Tailoring</Text>
-
-                <View style={styles.heroReviewsRow}>
-                  <Star size={13} color="#FF7B07" fill="#FF7B07" />
-                  <Text style={styles.heroRatingText}>4.8</Text>
-                  <Text style={styles.heroReviewsText}>154 Reviews · 3 Years Experience</Text>
-                </View>
-              </View>
 
               {renderTranscriptSection()}
               {hasMoreEarlier ? (
@@ -1159,7 +1096,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 12,
     backgroundColor: '#FFFFFF',
     gap: 8,
   },
@@ -1183,41 +1121,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#9F9F9F',
     marginTop: 1,
-  },
-  heroProfileCard: {
-    alignItems: 'center',
-    paddingVertical: 20,
-    marginBottom: 8,
-  },
-  heroNameText: {
-    fontFamily: 'InstrumentSans-SemiBold',
-    fontSize: 17,
-    color: '#000000',
-    textAlign: 'center',
-  },
-  heroRoleText: {
-    fontFamily: 'InstrumentSans-Regular',
-    fontSize: 12,
-    color: '#656565',
-    textAlign: 'center',
-    marginTop: 3,
-  },
-  heroReviewsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    marginTop: 6,
-  },
-  heroRatingText: {
-    fontFamily: 'InstrumentSans-SemiBold',
-    fontSize: 11,
-    color: '#FF7B07',
-  },
-  heroReviewsText: {
-    fontFamily: 'InstrumentSans-Regular',
-    fontSize: 11,
-    color: '#656565',
   },
   timeHeaderContainer: {
     alignItems: 'center',

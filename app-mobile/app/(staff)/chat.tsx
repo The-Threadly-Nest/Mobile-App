@@ -36,6 +36,7 @@ import BottomAnchoredChatScrollView from "@/shared/components/BottomAnchoredChat
 import MessageDeleteMenu from "@/shared/components/MessageDeleteMenu";
 import { apiFetch } from "@/shared/utils/apiClient";
 import * as ImagePicker from "expo-image-picker";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
@@ -900,7 +901,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 12,
     gap: 12,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(228, 213, 183, 0.4)",
