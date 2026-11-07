@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -11,10 +11,15 @@ import {
   Platform,
   Image,
   useWindowDimensions,
+  Keyboard,
 } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Check, Store, MapPin, Sparkles, Camera, UploadCloud, ArrowLeft, Calendar, Clock, Trash2, Plus } from "lucide-react-native";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
+import { BookingScheduleForm, DEFAULT_BOOKING_SCHEDULE, bookingScheduleError } from "@/shared/components/BookingScheduleForm";
+import type { WeeklyBookingSchedule } from "@/shared/utils/apiClient";
+import { Check, Store, MapPin, Sparkles, Camera, UploadCloud, Calendar, Clock, Trash2, Plus } from "lucide-react-native";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import * as ImagePicker from "expo-image-picker";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi } from "@/shared/utils/apiClient";
@@ -31,32 +36,12 @@ const SPECIALIZATION_CATEGORIES = [
   "Alterations & Fitting",
 ];
 
-type OnboardingSlot = {
-  id: string;
-  date: string;
-  time: string;
-  booked: boolean;
-  label?: string;
-};
-
-const formatLocalDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-const getUpcomingDate = (daysAhead: number) => {
-  const date = new Date();
-  date.setDate(date.getDate() + daysAhead);
-  return formatLocalDate(date);
-};
-
 export default function AdminOnboardingScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
   const [step, setStep] = useState<number>(1);
+  const [bookingSchedule, setBookingSchedule] = useState<WeeklyBookingSchedule>(DEFAULT_BOOKING_SCHEDULE);
   const [shopName, setShopName] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
@@ -65,16 +50,29 @@ export default function AdminOnboardingScreen() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Bespoke Suits"]);
   const [currency, setCurrency] = useState<string>("NGN");
   const [timezone, setTimezone] = useState<string>("Africa/Lagos");
-  const [slotDurationMinutes, setSlotDurationMinutes] = useState<string>("60");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
-  // Fitting slots state
-  const [slotsList, setSlotsList] = useState<OnboardingSlot[]>([]);
-  const [newSlotDate, setNewSlotDate] = useState<string>("");
-  const [newSlotTime, setNewSlotTime] = useState<string>("");
+
+  const scrollRef = useRef<ScrollView>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => setKeyboardHeight(e.endCoordinates.height)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardHeight(0)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
   const setStoredShopName = useAuthStore((s) => s.setShopName);
@@ -84,6 +82,7 @@ export default function AdminOnboardingScreen() {
       try {
         const data = await adminApi.getProfile();
         if (data?.fashionHouse) {
+          if (data.fashionHouse.bookingSchedule) setBookingSchedule(data.fashionHouse.bookingSchedule);
           if (data.fashionHouse.shopName) setShopName(data.fashionHouse.shopName);
           if (data.fashionHouse.location) setLocation(data.fashionHouse.location);
           if (data.fashionHouse.phone) setPhone(data.fashionHouse.phone);
@@ -92,10 +91,6 @@ export default function AdminOnboardingScreen() {
           if (data.fashionHouse.categories?.length) setSelectedCategories(data.fashionHouse.categories);
           if (data.fashionHouse.currency) setCurrency(data.fashionHouse.currency);
           if (data.fashionHouse.timezone) setTimezone(data.fashionHouse.timezone);
-          if (data.fashionHouse.slotDurationMinutes) setSlotDurationMinutes(String(data.fashionHouse.slotDurationMinutes));
-          if (Array.isArray(data.fashionHouse.availableSlots)) {
-            setSlotsList(data.fashionHouse.availableSlots);
-          }
         }
       } catch (err) {
         console.warn("Could not pre-fill profile data:", err);
@@ -104,36 +99,6 @@ export default function AdminOnboardingScreen() {
 
     loadProfile();
   }, []);
-
-  const handleAddSlot = (dateStr?: string, timeStr?: string) => {
-    const dateToUse = dateStr || newSlotDate.trim();
-    const timeToUse = timeStr || newSlotTime.trim();
-
-    if (!dateToUse || !timeToUse) {
-      setError("Please enter both slot date and time.");
-      return;
-    }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateToUse) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(timeToUse)) {
-      setError("Use YYYY-MM-DD for the date and HH:MM (24-hour time) for the time.");
-      return;
-    }
-    if (slotsList.some((slot) => slot.date === dateToUse && slot.time === timeToUse)) {
-      setError("That fitting slot has already been added.");
-      return;
-    }
-
-    setError("");
-    setSlotsList((prev) => [
-      ...prev,
-      { id: `new-${Date.now()}-${prev.length}`, date: dateToUse, time: timeToUse, booked: false },
-    ]);
-    if (!dateStr) setNewSlotDate("");
-    if (!timeStr) setNewSlotTime("");
-  };
-
-  const handleDeleteSlot = (slotId: string) => {
-    setSlotsList((prev) => prev.filter((slot) => slot.id !== slotId));
-  };
 
   const toggleCategory = (cat: string) => {
     if (selectedCategories.includes(cat)) {
@@ -198,13 +163,11 @@ export default function AdminOnboardingScreen() {
 
   const handleSubmitOnboarding = async () => {
     setError("");
-    if (slotsList.length === 0) {
-      setError("Please add at least one fitting slot.");
-      return;
-    }
-    const duration = Number(slotDurationMinutes);
+    const scheduleError = bookingScheduleError(bookingSchedule);
+    if (scheduleError) { setError(scheduleError); return; }
+    const duration = bookingSchedule.durationMinutes;
     if (!timezone.trim() || !Number.isInteger(duration) || duration < 15 || duration > 480) {
-      setError("Enter a valid timezone and a slot duration between 15 and 480 minutes.");
+      setError("Choose a valid timezone and fitting duration.");
       return;
     }
     setLoading(true);
@@ -219,7 +182,7 @@ export default function AdminOnboardingScreen() {
         currency,
         timezone: timezone.trim(),
         slotDurationMinutes: duration,
-        availableSlots: slotsList.map(({ date, time }) => ({ date, time })),
+        bookingSchedule,
       });
 
       setOnboardingCompleted(true);
@@ -235,16 +198,18 @@ export default function AdminOnboardingScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
-        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 20}
+        behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
         style={{ flex: 1 }}
       >
-        <ScrollView
+        <KeyboardAwareScrollView
+          ref={scrollRef}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
-          automaticallyAdjustKeyboardInsets={true}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
+            { paddingBottom: keyboardHeight > 0 ? 60 : 40 },
             isLandscape && {
               paddingTop: 4,
               paddingBottom: 16,
@@ -253,28 +218,11 @@ export default function AdminOnboardingScreen() {
               width: "100%",
             },
           ]}
-          showsVerticalScrollIndicator={false}
         >
           {/* Top Progress Bar */}
           <View style={[styles.progressTrack, isLandscape && { marginBottom: 8 }]}>
             <View style={[styles.progressFill, { width: `${(step / 4) * 100}%` }]} />
           </View>
-
-          {/* Back Arrow (shown on steps > 1) */}
-          {step > 1 && (
-            <View style={[styles.topBackHeader, isLandscape && { height: 32, marginBottom: 6 }]}>
-              <Pressable
-                onPress={() => setStep((s) => s - 1)}
-                style={({ pressed }) => [
-                  styles.topBackBtn,
-                  isLandscape && { width: 32, height: 32, borderRadius: 16 },
-                  { opacity: pressed ? 0.7 : 1 },
-                ]}
-              >
-                <ArrowLeft size={isLandscape ? 16 : 18} color="#3B0508" />
-              </Pressable>
-            </View>
-          )}
 
           {/* Step Badge */}
           <Text style={[styles.stepBadge, isLandscape && { marginBottom: 10 }]}>FASHION OWNER SETUP · STEP {step} OF 4</Text>
@@ -434,215 +382,43 @@ export default function AdminOnboardingScreen() {
               </View>
               <Text style={[styles.headline, isLandscape && { fontSize: 22, marginBottom: 4 }]}>Fitting & Booking Slots</Text>
               <Text style={[styles.subtext, isLandscape && { fontSize: 13, lineHeight: 18, marginBottom: 14 }]}>
-                Set up appointment time slots for your AI assistant & clients to schedule consultations.
+                Choose the days and hours clients can book.
               </Text>
 
-              {/* Quick Presets */}
-              <Text style={[styles.label, { fontSize: 13, marginBottom: 8 }]}>Quick Preset Slots</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-                {[
-                  { date: getUpcomingDate(1), time: "10:00" },
-                  { date: getUpcomingDate(2), time: "14:00" },
-                  { date: getUpcomingDate(3), time: "11:00" },
-                  { date: getUpcomingDate(4), time: "15:00" },
-                ].map((preset, idx) => (
-                  <Pressable
-                    key={idx}
-                    onPress={() => handleAddSlot(preset.date, preset.time)}
-                    style={({ pressed }) => [
-                      {
-                        backgroundColor: "#FFFFFF",
-                        borderWidth: 1,
-                        borderColor: "rgba(74, 8, 12, 0.2)",
-                        borderRadius: 20,
-                        paddingHorizontal: 12,
-                        paddingVertical: 8,
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 6,
-                        opacity: pressed ? 0.8 : 1,
-                      },
-                    ]}
-                  >
-                    <Plus size={14} color="#453332" />
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#3B0508" }}>
-                      {preset.date} · {preset.time}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              <Text style={[styles.label, { fontSize: 13, marginBottom: 8 }]}>Scheduling Rules</Text>
-              <View style={{ flexDirection: "row", gap: 10, marginBottom: 14 }}>
-                <TextInput
-                  style={{ flex: 2, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(74, 8, 12, 0.25)", height: 46, paddingHorizontal: 12, color: "#3B0508" }}
-                  placeholder="Timezone, e.g. Africa/Lagos"
-                  placeholderTextColor="#8A7550"
-                  value={timezone}
-                  onChangeText={setTimezone}
-                  autoCapitalize="none"
-                />
-                <TextInput
-                  style={{ flex: 1, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(74, 8, 12, 0.25)", height: 46, paddingHorizontal: 12, color: "#3B0508" }}
-                  placeholder="Minutes"
-                  placeholderTextColor="#8A7550"
-                  value={slotDurationMinutes}
-                  onChangeText={setSlotDurationMinutes}
-                  keyboardType="number-pad"
-                />
-              </View>
-
-              {/* Custom Slot Input */}
-              <Text style={[styles.label, { fontSize: 13, marginBottom: 8 }]}>Add Custom Slot</Text>
-              <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: 12,
-                    paddingHorizontal: 10,
-                    height: 46,
-                    borderWidth: 1,
-                    borderColor: "rgba(74, 8, 12, 0.25)",
-                  }}
-                >
-                  <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
-                  <TextInput
-                    disableFullscreenUI={true}
-                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="Date (YYYY-MM-DD)"
-                    placeholderTextColor="#8A7550"
-                    value={newSlotDate}
-                    onChangeText={setNewSlotDate}
-                  />
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: 12,
-                    paddingHorizontal: 10,
-                    height: 46,
-                    borderWidth: 1,
-                    borderColor: "rgba(74, 8, 12, 0.25)",
-                  }}
-                >
-                  <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
-                  <TextInput
-                    disableFullscreenUI={true}
-                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="Time (HH:MM)"
-                    placeholderTextColor="#8A7550"
-                    value={newSlotTime}
-                    onChangeText={setNewSlotTime}
-                  />
-                </View>
-              </View>
-
-              <Pressable
-                onPress={() => handleAddSlot()}
-                style={({ pressed }) => [
-                  {
-                    backgroundColor: "#453332",
-                    height: 44,
-                    borderRadius: 12,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    marginBottom: 16,
-                    opacity: pressed ? 0.85 : 1,
-                  },
-                ]}
-              >
-                <Plus size={16} color="#FFFFFF" />
-                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" }}>
-                  Add Slot
-                </Text>
-              </Pressable>
-
-              {/* Active Slots list */}
-              {slotsList.length > 0 ? (
-                <View style={{ marginTop: 4 }}>
-                  <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332", marginBottom: 8 }}>
-                    Configured Fitting Slots ({slotsList.length})
-                  </Text>
-                  {slotsList.map((slot) => (
-                    <View
-                      key={slot.id}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        backgroundColor: "#FFFFFF",
-                        paddingHorizontal: 12,
-                        paddingVertical: 10,
-                        borderRadius: 12,
-                        marginBottom: 8,
-                        borderWidth: 1,
-                        borderColor: "rgba(0,0,0,0.06)",
-                      }}
-                    >
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                        <Calendar size={15} color="#453332" />
-                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3B0508" }}>
-                          {slot.label || `${slot.date} · ${slot.time}`}
-                        </Text>
-                      </View>
-                      <Pressable
-                        onPress={() => handleDeleteSlot(slot.id)}
-                        disabled={slot.booked}
-                        style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, padding: 4 }]}
-                      >
-                        {slot.booked ? (
-                          <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#8A7550" }}>
-                            Booked
-                          </Text>
-                        ) : (
-                          <Trash2 size={16} color="#D32F2F" />
-                        )}
-                      </Pressable>
-                    </View>
-                  ))}
-                </View>
-              ) : null}
+              <BookingScheduleForm value={bookingSchedule} onChange={setBookingSchedule} timezone={timezone} onTimezoneChange={setTimezone} disabled={loading} />
             </View>
           )}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        </ScrollView>
 
-        {/* Bottom Actions Pinned to Bottom */}
-        <View style={[styles.actionRow, isLandscape && { paddingTop: 6, paddingBottom: 12 }]}>
-          {step < 4 ? (
-            <Pressable
-              onPress={handleNext}
-              style={[styles.nextBtn, isLandscape && { height: 44, borderRadius: 22 }]}
-            >
-              <Text style={styles.nextBtnText}>Continue</Text>
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={handleSubmitOnboarding}
-              disabled={loading || uploadingLogo}
-              style={[
-                styles.nextBtn,
-                isLandscape && { height: 44, borderRadius: 22 },
-                { opacity: loading || uploadingLogo ? 0.8 : 1 },
-              ]}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text style={styles.nextBtnText}>Complete Setup</Text>
-              )}
-            </Pressable>
-          )}
-        </View>
+          {/* Bottom Actions positioned inside ScrollView so they don't cover cards when typing */}
+          <View style={[styles.actionRow, isLandscape && { paddingTop: 6, paddingBottom: 12 }]}>
+            {step < 4 ? (
+              <Pressable
+                onPress={handleNext}
+                style={[styles.nextBtn, isLandscape && { height: 44, borderRadius: 22 }]}
+              >
+                <Text style={styles.nextBtnText}>Continue</Text>
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={handleSubmitOnboarding}
+                disabled={loading || uploadingLogo}
+                style={[
+                  styles.nextBtn,
+                  isLandscape && { height: 44, borderRadius: 22 },
+                  { opacity: loading || uploadingLogo ? 0.8 : 1 },
+                ]}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.nextBtnText}>Complete Setup</Text>
+                )}
+              </Pressable>
+            )}
+          </View>
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -655,7 +431,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 40,
   },
   progressTrack: {
@@ -855,10 +631,8 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 20,
-    backgroundColor: "#FFFFFF",
+    marginTop: 24,
+    marginBottom: 20,
   },
   nextBtn: {
     width: "100%",
@@ -871,6 +645,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   nextBtnText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+  addSlotBtn: {
+    width: "100%",
+    maxWidth: 380,
+    alignSelf: "center",
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#453332",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  addSlotBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#FFFFFF",

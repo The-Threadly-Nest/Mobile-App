@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Asset } from "expo-asset";
 import { SvgUri } from "react-native-svg";
 import { ProfilePhoto } from "./ProfilePhoto";
+import { SCREEN_TOP_SPACING } from "../utils/screenSpacing";
 
 const icons = {
   back: require("../../../assets/profile/back.svg"),
@@ -52,10 +53,23 @@ export function ProfileDesignHeader({ balance }: {
 }
 
 const styles = StyleSheet.create({
-  header: { backgroundColor: "#FFFFFF",
-    paddingHorizontal: 24, paddingTop: 20, paddingBottom: 16, marginBottom: 8, alignItems: "center" },
-  profileTitle: { alignSelf: "stretch", textAlign: "center", fontFamily: "InstrumentSans-SemiBold", fontSize: 24,
-    color: "#453332", marginTop: 0, marginBottom: 8 },
+  header: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 24,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 16,
+    marginBottom: 8,
+    alignItems: "center",
+  },
+  profileTitle: {
+    alignSelf: "flex-start",
+    textAlign: "left",
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 26,
+    color: "#3B0508",
+    marginTop: 0,
+    marginBottom: 16,
+  },
   name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#453332", textAlign: "center", marginTop: 12 },
   subtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#453332", textAlign: "center", marginTop: 6 },
 });

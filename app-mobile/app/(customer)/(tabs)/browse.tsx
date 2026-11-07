@@ -27,7 +27,9 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { apiFetch, apiFetchCollectionPage, ApiError } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { loadCatalogFavorites, saveCatalogFavorite } from "@/shared/utils/catalogFavorites";
 import { formatCurrency } from "@/shared/utils/formatters";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 interface ProductCardItem {
   id: string;
@@ -113,19 +115,17 @@ export default function BrowseScreen() {
   useFocusEffect(useCallback(() => {
     void loadCatalog();
     let active = true;
-    apiFetch<{ savedCatalogIds: string[] }>("/api/preferences", { silent: true })
-      .then(profile => { if (active) setFavorites(Object.fromEntries((profile.savedCatalogIds || []).map(id => [id, true]))); })
-      .catch(err => { if (active && err instanceof ApiError && err.details.status === 404) setFavorites({}); });
+    loadCatalogFavorites()
+      .then(profile => { if (active) setFavorites(Object.fromEntries(profile.savedCatalogIds.map(id => [id, true]))); })
+      .catch(err => { if (active) setError(err instanceof Error ? err.message : "We couldn't load your saved items."); });
     return () => { active = false; };
   }, [loadCatalog]));
   async function toggleFavorite(id: string) {
     if (favoriteLock.current) return;
     favoriteLock.current = true;
     setSavingFavorite(true);
-    const updated = { ...favorites, [id]: !favorites[id] };
     try {
-      const saved = await apiFetch<{ savedCatalogIds: string[] }>("/api/preferences", { method: "POST", body: JSON.stringify({ savedCatalogIds: Object.keys(updated).filter(key => updated[key]) }), silent: true });
-      if (!Array.isArray(saved.savedCatalogIds)) throw new Error("The server hasn't enabled saved items yet. Please update the backend and try again.");
+      const saved = await saveCatalogFavorite(id, !favorites[id]);
       setFavorites(Object.fromEntries(saved.savedCatalogIds.map(key => [key, true])));
     } catch (err) { showAlert("Couldn't save item", err instanceof Error ? err.message : "Please try again."); }
     finally { favoriteLock.current = false; setSavingFavorite(false); }
@@ -149,15 +149,24 @@ export default function BrowseScreen() {
             <Text style={styles.greetingSub}>Hello, Welcome 👋</Text>
             <Text style={styles.greetingName}>{userName ? userName.split(" ")[0] : "there"}</Text>
           </View>
-          <View style={styles.headerActionsPill}>
-            <Pressable accessibilityRole="button" accessibilityLabel={`Notifications, ${unreadCount} unread messages`}
-              onPress={() => router.push("/(customer)/messages")} style={styles.bellButton}>
-              <Bell size={18} color="#1E1E1E" />
-              {unreadCount > 0 && <View style={{ position: "absolute", top: -4, right: -5, backgroundColor: "#F96951", borderRadius: 10, minWidth: 18, paddingHorizontal: 4, height: 18, alignItems: "center", justifyContent: "center" }}>
-                <Text style={{ color: "white", fontSize: 10, fontFamily: "InstrumentSans-SemiBold" }}>{unreadCount > 99 ? "99+" : unreadCount}</Text>
-              </View>}
-            </Pressable>
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Notifications, ${unreadCount} unread messages`}
+            onPress={() => router.push("/(customer)/messages")}
+            style={({ pressed }) => [
+              styles.bellButton,
+              { opacity: pressed ? 0.75 : 1 },
+            ]}
+          >
+            <Bell size={20} color="#1E1E1E" />
+            {unreadCount > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Text>
+              </View>
+            )}
+          </Pressable>
         </View>
 
         {notificationsError ? <Text style={{ color: "#646464", fontSize: 12, marginBottom: 12 }}>{notificationsError}</Text> : null}
@@ -311,7 +320,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingTop: 36,
+    paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 110, // Generous clearance for the 3-tab floating navigation bar
   },
   headerRow: {
@@ -331,27 +340,40 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#000000",
   },
-  headerActionsPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    gap: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
   bellButton: {
     position: "relative",
-    padding: 4,
-    minWidth: 44,
-    minHeight: 44,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.06)",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  unreadBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: "#F96951",
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    paddingHorizontal: 3,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+  },
+  unreadBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 9,
+    fontFamily: "InstrumentSans-Bold",
   },
   bellBadgeDot: {
     position: "absolute",

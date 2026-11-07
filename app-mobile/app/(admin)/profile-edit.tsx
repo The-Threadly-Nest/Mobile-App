@@ -11,6 +11,9 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
+import { BookingScheduleForm, bookingScheduleError } from "@/shared/components/BookingScheduleForm";
+import type { WeeklyBookingSchedule } from "@/shared/utils/apiClient";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Upload, Check, Calendar, Clock, Trash2, Plus } from "lucide-react-native";
@@ -32,10 +35,11 @@ const SPECIALIZATIONS = [
   "Alterations & Fitting",
 ];
 
-export default function AdminProfileEditScreen({ onClose }: { onClose?: () => void } = {}) {
+export default function AdminProfileEditScreen({ onClose, embedded = false }: { onClose?: () => void; embedded?: boolean } = {}) {
   const { showAlert } = useAppAlert();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [bookingSchedule, setBookingSchedule] = useState<WeeklyBookingSchedule | null>(null);
 
   // Form states
   const [shopName, setShopName] = useState("");
@@ -55,9 +59,6 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
   // Fitting slots state
   const [slotsList, setSlotsList] = useState<any[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
-  const [newSlotDate, setNewSlotDate] = useState("");
-  const [newSlotTime, setNewSlotTime] = useState("");
-  const [addingSlot, setAddingSlot] = useState(false);
 
   const setStoreName = useAuthStore((s) => s.setName);
   const setStoredShopName = useAuthStore((s) => s.setShopName);
@@ -82,6 +83,7 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
         const res = await adminApi.getProfile();
         if (res?.fashionHouse) {
           const house = res.fashionHouse;
+          setBookingSchedule(house.bookingSchedule || null);
           setShopName(house.shopName || house.name || "");
           setLocation(house.location || "");
           setPhone(house.phone || "");
@@ -113,37 +115,6 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
     loadProfile();
     fetchSlots();
   }, []);
-
-  const handleAddSlot = async (dateStr?: string, timeStr?: string) => {
-    const dateToUse = dateStr || newSlotDate.trim();
-    const timeToUse = timeStr || newSlotTime.trim();
-
-    if (!dateToUse || !timeToUse) {
-      showAlert("Missing Fields", "Use YYYY-MM-DD for the date and HH:MM for the time.");
-      return;
-    }
-    setAddingSlot(true);
-    try {
-      const created = await slotsApi.createSlot(dateToUse, timeToUse, Number(slotDurationMinutes));
-      setSlotsList((prev) => [...prev, created]);
-      if (!dateStr) setNewSlotDate("");
-      if (!timeStr) setNewSlotTime("");
-      showAlert("Slot Added", `Fitting slot for ${created.date} at ${created.time} is now available.`);
-    } catch (err: any) {
-      showAlert("Add Failed", err?.message || "Could not add fitting slot.");
-    } finally {
-      setAddingSlot(false);
-    }
-  };
-
-  const handleDeleteSlot = async (slotId: string) => {
-    try {
-      await slotsApi.deleteSlot(slotId);
-      setSlotsList((prev) => prev.filter((s) => s.id !== slotId));
-    } catch (err: any) {
-      showAlert("Error", err?.message || "Could not delete slot.");
-    }
-  };
 
   const handlePickLogo = async () => {
     try {
@@ -193,9 +164,13 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
       showAlert("Payment Details", "Enter a bank name, a 10-digit account number, and the account name.");
       return;
     }
-    const duration = Number(slotDurationMinutes);
+    if (bookingSchedule) {
+      const scheduleError = bookingScheduleError(bookingSchedule);
+      if (scheduleError) { showAlert("Fitting availability", scheduleError); return; }
+    }
+    const duration = bookingSchedule?.durationMinutes ?? Number(slotDurationMinutes);
     if (!timezone.trim() || !Number.isInteger(duration) || duration < 15 || duration > 480) {
-      showAlert("Scheduling Rules", "Enter a valid timezone and a duration between 15 and 480 minutes.");
+      showAlert("Scheduling Rules", "Choose a valid timezone and fitting duration.");
       return;
     }
 
@@ -217,7 +192,7 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
         accountName: accountName.trim() || undefined,
         timezone: timezone.trim(),
         slotDurationMinutes: duration,
-        availableSlots: slotsList.map(({ date, time }) => ({ date, time })),
+        ...(bookingSchedule ? { bookingSchedule } : { availableSlots: slotsList.map(({ date, time }) => ({ date, time })) }),
       };
 
       await adminApi.completeOnboarding(payload);
@@ -234,14 +209,14 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={embedded ? [] : ["top"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={embedded ? undefined : Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 20}
       >
         {/* Header */}
-        <View
+        {!embedded && <View
           style={{
             height: 52,
             paddingHorizontal: 20,
@@ -271,17 +246,17 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
           >
             Profile & Business Info
           </Text>
-        </View>
+        </View>}
 
         {loading ? (
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : (
-          <ScrollView
+          <KeyboardAwareScrollView keyboardGap={110}
             automaticallyAdjustKeyboardInsets={true}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 36, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: embedded ? 0 : 24, paddingTop: embedded ? 0 : 36, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
             {/* Brand Logo Card */}
@@ -574,198 +549,10 @@ export default function AdminProfileEditScreen({ onClose }: { onClose?: () => vo
               })}
             </View>
 
-            {/* Fitting Slots Management Section */}
-            <View
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 20,
-                padding: 18,
-                borderWidth: 1,
-                borderColor: "rgba(74, 8, 12, 0.12)",
-                marginBottom: 24,
-              }}
-            >
-              <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
-                <Calendar size={18} color="#453332" style={{ marginRight: 8 }} />
-                <Text
-                  style={{
-                    fontFamily: "HedvigLettersSerif-Regular",
-                    fontSize: 16,
-                    color: "#3B0508",
-                  }}
-                >
-                  Fitting Slots & Availability
-                </Text>
-              </View>
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-Regular",
-                  fontSize: 12,
-                  color: "#8A7550",
-                  marginBottom: 14,
-                }}
-              >
-                Configure open slots for AI assistant & client appointment bookings.
-              </Text>
-
-              <View style={{ flexDirection: "row", gap: 10, marginBottom: 12 }}>
-                <TextInput
-                  style={{ flex: 2, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(0,0,0,0.08)", height: 44, paddingHorizontal: 10, color: "#3B0508" }}
-                  placeholder="Timezone, e.g. Africa/Lagos"
-                  placeholderTextColor="#B0966C"
-                  value={timezone}
-                  onChangeText={setTimezone}
-                  autoCapitalize="none"
-                />
-                <TextInput
-                  style={{ flex: 1, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "rgba(0,0,0,0.08)", height: 44, paddingHorizontal: 10, color: "#3B0508" }}
-                  placeholder="Minutes"
-                  placeholderTextColor="#B0966C"
-                  value={slotDurationMinutes}
-                  onChangeText={setSlotDurationMinutes}
-                  keyboardType="number-pad"
-                />
-              </View>
-
-              {/* Input for new slot */}
-              <View style={{ flexDirection: "row", gap: 10, marginBottom: 10 }}>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: 12,
-                    paddingHorizontal: 10,
-                    height: 44,
-                    borderWidth: 1,
-                    borderColor: "rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <Calendar size={14} color="#8A7550" style={{ marginRight: 6 }} />
-                  <TextInput
-                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="YYYY-MM-DD"
-                    placeholderTextColor="#B0966C"
-                    value={newSlotDate}
-                    onChangeText={setNewSlotDate}
-                  />
-                </View>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    backgroundColor: "#FFFFFF",
-                    borderRadius: 12,
-                    paddingHorizontal: 10,
-                    height: 44,
-                    borderWidth: 1,
-                    borderColor: "rgba(0,0,0,0.08)",
-                  }}
-                >
-                  <Clock size={14} color="#8A7550" style={{ marginRight: 6 }} />
-                  <TextInput
-                    style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#3B0508" }}
-                    placeholder="HH:MM"
-                    placeholderTextColor="#B0966C"
-                    value={newSlotTime}
-                    onChangeText={setNewSlotTime}
-                  />
-                </View>
-              </View>
-
-              <Pressable
-                onPress={() => handleAddSlot()}
-                disabled={addingSlot}
-                style={({ pressed }) => [
-                  {
-                    backgroundColor: "#453332",
-                    height: 42,
-                    borderRadius: 12,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                    marginBottom: 16,
-                    opacity: pressed || addingSlot ? 0.85 : 1,
-                  },
-                ]}
-              >
-                {addingSlot ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Plus size={16} color="#FFFFFF" />
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>
-                      Add Slot
-                    </Text>
-                  </>
-                )}
-              </Pressable>
-
-              {/* Active Slots list */}
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-SemiBold",
-                  fontSize: 13,
-                  color: "#453332",
-                  marginBottom: 10,
-                }}
-              >
-                Configured Slots ({slotsList.length})
-              </Text>
-
-              {loadingSlots ? (
-                <ActivityIndicator color="#453332" style={{ marginVertical: 12 }} />
-              ) : slotsList.length === 0 ? (
-                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#8A7550", textAlign: "center", marginVertical: 12 }}>
-                  No fitting slots added yet. Add your first slot above.
-                </Text>
-              ) : (
-                slotsList.map((slot) => (
-                  <View
-                    key={slot.id}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      backgroundColor: "#FFFFFF",
-                      paddingHorizontal: 12,
-                      paddingVertical: 10,
-                      borderRadius: 12,
-                      marginBottom: 8,
-                      borderWidth: 1,
-                      borderColor: "rgba(0,0,0,0.06)",
-                    }}
-                  >
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Calendar size={15} color="#453332" />
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#3B0508" }}>
-                        {slot.label || `${slot.date} · ${slot.time}`}
-                      </Text>
-                      {slot.booked ? (
-                        <View style={{ backgroundColor: "#FDE8E8", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#D32F2F" }}>Booked</Text>
-                        </View>
-                      ) : (
-                        <View style={{ backgroundColor: "#E8F5E9", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 }}>
-                          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2E7D32" }}>Available</Text>
-                        </View>
-                      )}
-                    </View>
-
-                    <Pressable
-                      onPress={() => handleDeleteSlot(slot.id)}
-                      style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1, padding: 4 }]}
-                    >
-                      <Trash2 size={16} color="#D32F2F" />
-                    </Pressable>
-                  </View>
-                ))
-              )}
-            </View>
-          </ScrollView>
+            <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 18, color: "#453332", marginBottom: 16 }}>Fitting availability</Text>
+            <BookingScheduleForm value={bookingSchedule} onChange={setBookingSchedule} timezone={timezone} onTimezoneChange={setTimezone} disabled={saving} />
+            {!bookingSchedule && <Text style={{ color: "#746765", marginBottom: 20 }}>{slotsList.length} existing dated slots. Choose working days above to switch to a weekly schedule.</Text>}
+          </KeyboardAwareScrollView>
         )}
 
         {/* Pinned Bottom Action Button */}

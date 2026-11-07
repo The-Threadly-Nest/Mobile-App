@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, useWindowDimensions, ScrollView } fr
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { User, Store, CheckCircle2 } from "lucide-react-native";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 export default function RoleSelectScreen() {
   const { width, height } = useWindowDimensions();
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 24,
     justifyContent: "flex-start",
   },

@@ -20,6 +20,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
 
 export default function SignupScreen() {
   const { width, height } = useWindowDimensions();
@@ -136,7 +137,7 @@ export default function SignupScreen() {
         behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView
+        <KeyboardAwareScrollView
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
           contentContainerStyle={[
@@ -327,7 +328,7 @@ export default function SignupScreen() {
               Policy.
             </Text>
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

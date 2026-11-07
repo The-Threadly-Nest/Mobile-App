@@ -8,6 +8,8 @@ import { getOwnFashionHouseId } from "../../core/auth/account-identity";
 
 import { isUniqueConstraintError } from "../../lib/idempotency";
 import { isAvailabilityConflictError, serializeSlot, slotsOverlap, zonedDateTimeToUtc } from "../../lib/availability";
+import { isValidTimeZone } from "../../lib/availability";
+import { replaceWeeklyAvailability } from "../../lib/booking-schedule";
 
 // List Available Slots (Admin/Staff only)
 
@@ -20,6 +22,25 @@ import { isAvailabilityConflictError, serializeSlot, slotsOverlap, zonedDateTime
 @Injectable()
 export class SlotsService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) { }
+
+  async getSchedule(input: SlotsInput<"getSchedule">) {
+    return this.database.client.fashionHouse.findUniqueOrThrow({ where: { id: getOwnFashionHouseId(input) }, select: { bookingSchedule: true, timezone: true, slotDurationMinutes: true } });
+  }
+
+  async putSchedule(input: SlotsInput<"putSchedule">) {
+    if (!isValidTimeZone(input.body.timezone)) return rejectRequest({ error: "Choose a valid timezone, such as Africa/Lagos." }, 400);
+    try {
+      const fhId = getOwnFashionHouseId(input);
+      return await this.database.client.$transaction(async tx => {
+        // Serialize concurrent schedule changes for this house before replacing slots.
+        await tx.fashionHouse.update({ where: { id: fhId }, data: { slotDurationMinutes: input.body.schedule.durationMinutes } });
+        return replaceWeeklyAvailability(tx, fhId, input.body.schedule, input.body.timezone);
+      }, { timeout: 15000 });
+    } catch (error) {
+      if (isAvailabilityConflictError(error) || isUniqueConstraintError(error)) return rejectRequest({ error: "Availability changed while saving. Please refresh and try again. Existing bookings are safe." }, 409);
+      throw error;
+    }
+  }
 
   async get(input: SlotsInput<"get">) {
 

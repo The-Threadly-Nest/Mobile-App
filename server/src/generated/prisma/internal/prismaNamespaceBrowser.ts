@@ -170,6 +170,7 @@ export const FashionHouseScalarFieldEnum = {
   currency: 'currency',
   timezone: 'timezone',
   slotDurationMinutes: 'slotDurationMinutes',
+  bookingSchedule: 'bookingSchedule',
   onboardingCompleted: 'onboardingCompleted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -406,6 +407,14 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const JsonNullValueInput = {

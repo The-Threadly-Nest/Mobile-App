@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { bookingScheduleSchema } from "./slots.schema";
 
 const onboardingSlotSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
@@ -26,8 +27,10 @@ export const adminOnboardingSchema = z.object({
   accountName: z.string().trim().min(2).max(100).optional(),
   availableSlots: z
     .array(onboardingSlotSchema)
-    .min(1, "Add at least one fitting slot")
-    .max(100, "You can add up to 100 fitting slots"),
+    .max(100, "You can add up to 100 fitting slots").default([]),
+  bookingSchedule: bookingScheduleSchema.optional(),
+}).refine(value => Boolean(value.bookingSchedule) || value.availableSlots.length > 0, {
+  message: "Choose your working days and hours, or add a fitting slot.", path: ["bookingSchedule"],
 });
 
 export const paymentDetailsSchema = z.object({

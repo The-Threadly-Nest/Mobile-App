@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, Modal, TextInput, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { router, useFocusEffect } from "expo-router";
 import { Plus, Trash2, Calendar, Clock, X } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -273,7 +274,7 @@ export default function AdminDashboard() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={["top"]}>
       <ScrollView
         contentContainerStyle={[
-          { paddingHorizontal: 24, paddingTop: 36, paddingBottom: 40 },
+          { paddingHorizontal: 24, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 40 },
           isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}

@@ -12,7 +12,8 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Svg, { Path, Rect, Circle, G } from "react-native-svg";
-import { ArrowLeft, Undo2, RotateCcw, Check, User, Grid, Eraser, Pen, HelpCircle } from "lucide-react-native";
+import { Undo2, RotateCcw, Check, User, Grid, Eraser, Pen, HelpCircle } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { Input } from "@/shared/components/Input";
 import { Button } from "@/shared/components/Button";
 import FlowMessageCard from "@/shared/components/FlowMessageCard";
@@ -510,7 +511,7 @@ export default function AdminDrawScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => [styles.floatBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <ArrowLeft size={16} color="#453332" />
+              <BackArrowIcon size={16} color="#453332" />
             </Pressable>
 
             <View style={styles.floatDivider} />
@@ -602,7 +603,7 @@ export default function AdminDrawScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <ArrowLeft size={20} color="#000000" />
+            <BackArrowIcon size={20} color="#000000" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketchpad</Text>
         </View>

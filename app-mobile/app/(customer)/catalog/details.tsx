@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
+import { loadCatalogFavorites, saveCatalogFavorite } from '@/shared/utils/catalogFavorites';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
@@ -17,6 +18,7 @@ import { useCartStore } from '../../../src/stores/useCartStore';
 import { apiFetch } from '../../../src/shared/utils/apiClient';
 import { formatCurrency } from '../../../src/shared/utils/formatters';
 import { useAppAlert } from '../../../src/shared/hooks/useAppAlert';
+import BackArrowIcon from '@/shared/components/BackArrowIcon';
 
 function CustomBrushIcon({ width = 22, height = 22, color = '#FFFFFF' }: { width?: number; height?: number; color?: string }) {
   return (
@@ -81,9 +83,34 @@ export default function ProductDetailsScreen() {
   const [selectedColor, setSelectedColor] = useState<string>('#434164');
   const [quantity, setQuantity] = useState<number>(1);
   const [isLiked, setIsLiked] = useState(false);
+  const [savingFavorite, setSavingFavorite] = useState(false);
+  const favoriteBusy = useRef(false);
 
   const addItemToCart = useCartStore((state) => state.addItem);
   const { showAlert, showConfirm } = useAppAlert();
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    setIsLiked(false);
+    loadCatalogFavorites().then(profile => {
+      if (active) setIsLiked(profile.savedCatalogIds.includes(params.id));
+    }).catch(error => {
+      if (active) showAlert("Couldn't load favorites", error instanceof Error ? error.message : "Please try again.");
+    });
+    return () => { active = false; };
+  }, [params.id, showAlert]));
+
+  async function toggleFavorite() {
+    if (!params.id || favoriteBusy.current) return;
+    favoriteBusy.current = true;
+    setSavingFavorite(true);
+    try {
+      const profile = await saveCatalogFavorite(params.id, !isLiked);
+      setIsLiked(profile.savedCatalogIds.includes(params.id));
+    } catch (error) {
+      showAlert("Couldn't save item", error instanceof Error ? error.message : "Please try again.");
+    } finally { favoriteBusy.current = false; setSavingFavorite(false); }
+  }
 
   const name = item?.name || params.initialName || 'Catalog item';
   const rawPrice = item?.price ?? (params.initialPrice ? parseFloat(params.initialPrice) : 0);
@@ -178,7 +205,7 @@ export default function ProductDetailsScreen() {
       <View style={[styles.header, { paddingTop: 36 }]}>
         <View style={styles.headerLeftGroup}>
           <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#1A1110" />
+            <BackArrowIcon size={24} color="#1A1110" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Details</Text>
         </View>
@@ -215,7 +242,7 @@ export default function ProductDetailsScreen() {
             <Text style={styles.productName}>{name}</Text>
             <Text style={styles.priceText}>{formatCurrency(price)}</Text>
           </View>
-          <TouchableOpacity onPress={() => setIsLiked(!isLiked)} style={styles.heartBtn}>
+          <TouchableOpacity onPress={() => { void toggleFavorite(); }} disabled={savingFavorite} accessibilityRole="button" accessibilityLabel={isLiked ? "Remove from favorites" : "Save to favorites"} accessibilityState={{ selected: isLiked, disabled: savingFavorite }} style={styles.heartBtn}>
             <Ionicons
               name={isLiked ? 'heart' : 'heart-outline'}
               size={24}

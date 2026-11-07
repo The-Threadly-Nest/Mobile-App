@@ -109,6 +109,7 @@ model FashionHouse {
   currency            String   @default("NGN")
   timezone            String   @default("Africa/Lagos")
   slotDurationMinutes Int      @default(60)
+  bookingSchedule     Json?
   onboardingCompleted Boolean  @default(false)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt

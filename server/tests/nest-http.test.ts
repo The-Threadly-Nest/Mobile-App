@@ -88,8 +88,8 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
-    await t.test("all 87 current feature routes are registered and protected where expected", async () => {
-      assert.equal(routes.length, 87);
+    await t.test("all 89 current feature routes are registered and protected where expected", async () => {
+      assert.equal(routes.length, 89);
       assert.equal((await send("/api/waitlist/verify", undefined, {}, "POST")).status, 404);
       for (const route of routes) {
         const response = await send(route.url, undefined, ["GET", "HEAD"].includes(route.verb) ? undefined : {}, route.verb);
@@ -97,6 +97,18 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
         if (route.guards.includes(SessionGuard)) assert.equal(response.status, 401, `${route.verb} ${route.url}`);
         else assert.notEqual(response.status, 404, `${route.verb} ${route.url}`);
       }
+    });
+    await t.test("weekly schedule routes are admin-only and validate whole-hour durations", async () => {
+      const schedule = { days: [1, 3, 5], startTime: "09:00", endTime: "17:00", durationMinutes: 120, blockedDates: [] };
+      for (const role of ["staff", "customer"]) {
+        assert.equal((await send("/api/slots/schedule", role)).status, 403);
+        assert.equal((await send("/api/slots/schedule", role, { schedule, timezone: "Africa/Lagos" }, "PUT")).status, 403);
+      }
+      assert.equal((await send("/api/slots/schedule", "admin")).status, 200);
+      assert.equal((await send("/api/slots/schedule", "admin", { schedule, timezone: "Africa/Lagos" }, "PUT")).status, 200);
+      const invalid = await send("/api/slots/schedule", "admin", { schedule: { ...schedule, durationMinutes: 90 }, timezone: "Africa/Lagos" }, "PUT");
+      assert.equal(invalid.status, 400);
+      assert.doesNotMatch(await invalid.text(), /PrismaClient|ZodError/);
     });
     await t.test("pagination keeps the array body and paging headers", async () => {
       const response = await send("/api/catalog?page=1&limit=2", "admin");

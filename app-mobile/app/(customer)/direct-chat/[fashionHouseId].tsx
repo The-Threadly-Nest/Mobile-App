@@ -16,7 +16,12 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
+import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import {
+  Phone,
+  MoreVertical,
+  Star,
+  Image as ImageIcon,
   Paperclip,
   Camera,
   Smile,
@@ -31,7 +36,6 @@ import {
 } from 'lucide-react-native';
 import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
-import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import { apiFetch } from '../../../src/shared/utils/apiClient';
 import { createIdempotencyKey } from '@/shared/utils/idempotency';
 import { uploadFile } from '@/shared/utils/upload';
@@ -724,38 +728,78 @@ export default function CustomerDirectChatScreen() {
             if (router.canGoBack()) router.back();
             else router.replace('/(customer)/(tabs)/browse' as any);
           }}
-          style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={8}
+          style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.6 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#453332" />
+          <BackArrowIcon size={26} color="#000000" />
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
-          {resolvedFashionHouseLogo ? (
-            <Image
-              source={{ uri: resolvedFashionHouseLogo }}
-              style={{ width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: 'rgba(74,8,12,0.15)' }}
-              resizeMode="cover"
-            />
-          ) : (
+          <View style={{ position: 'relative' }}>
+            {resolvedFashionHouseLogo ? (
+              <Image
+                source={{ uri: resolvedFashionHouseLogo }}
+                style={{ width: 36, height: 36, borderRadius: 18 }}
+                resizeMode="cover"
+              />
+            ) : (
+              <View
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: '#453332',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontFamily: 'HedvigLettersSerif-Regular', fontSize: 16, color: '#FFFFFF' }}>
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+            )}
             <View
               style={{
-                width: 38,
-                height: 38,
-                borderRadius: 19,
-                backgroundColor: '#453332',
-                alignItems: 'center',
-                justifyContent: 'center',
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                width: 9,
+                height: 9,
+                borderRadius: 4.5,
+                backgroundColor: '#22C55E',
+                borderWidth: 1.5,
+                borderColor: '#FFFFFF',
               }}
-            >
-              <Text style={{ fontFamily: 'HedvigLettersSerif-Regular', fontSize: 16, color: '#FFFFFF' }}>
-                {displayName.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-          )}
-          <View style={styles.headerInfoCol}>
-            <Text style={styles.headerNameText}>{displayName}</Text>
-            <Text style={styles.headerSubtitleText}>Direct Support Chat</Text>
+            />
           </View>
+
+          <View style={styles.headerInfoCol}>
+            <Text style={styles.headerNameText} numberOfLines={1}>{displayName}</Text>
+            <Text style={styles.headerSubtitleText}>Online</Text>
+          </View>
+        </View>
+
+        {/* Right Action Icons: Phone & More */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Call Support"
+            hitSlop={8}
+            onPress={() => showAlert("Phone Call", `Voice contact for ${displayName} is connected through direct support.`)}
+            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Phone size={20} color="#000000" />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="More options"
+            hitSlop={8}
+            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
+          >
+            <MoreVertical size={20} color="#000000" />
+          </Pressable>
         </View>
       </View>
 
@@ -776,6 +820,56 @@ export default function CustomerDirectChatScreen() {
             </View>
           ) : (
             <View>
+              {/* Recipient Profile Hero Card from Figma */}
+              <View style={styles.heroProfileCard}>
+                <View style={{ position: 'relative', alignSelf: 'center', marginBottom: 12 }}>
+                  {resolvedFashionHouseLogo ? (
+                    <Image
+                      source={{ uri: resolvedFashionHouseLogo }}
+                      style={{ width: 92, height: 92, borderRadius: 46 }}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View
+                      style={{
+                        width: 92,
+                        height: 92,
+                        borderRadius: 46,
+                        backgroundColor: '#453332',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{ fontFamily: 'HedvigLettersSerif-Regular', fontSize: 34, color: '#FFFFFF' }}>
+                        {displayName.charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                  )}
+                  <View
+                    style={{
+                      position: 'absolute',
+                      bottom: 2,
+                      right: 2,
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      backgroundColor: '#22C55E',
+                      borderWidth: 2.5,
+                      borderColor: '#FFFFFF',
+                    }}
+                  />
+                </View>
+
+                <Text style={styles.heroNameText}>{displayName}</Text>
+                <Text style={styles.heroRoleText}>Fashion House & Bespoke Tailoring</Text>
+
+                <View style={styles.heroReviewsRow}>
+                  <Star size={13} color="#FF7B07" fill="#FF7B07" />
+                  <Text style={styles.heroRatingText}>4.8</Text>
+                  <Text style={styles.heroReviewsText}>154 Reviews · 3 Years Experience</Text>
+                </View>
+              </View>
+
               {renderTranscriptSection()}
               {hasMoreEarlier ? (
                 <Pressable
@@ -892,17 +986,16 @@ export default function CustomerDirectChatScreen() {
                             </Pressable>
                           ) : null}
                         </View>
-                        {isMe ? <SentTail /> : <ReceivedTail />}
                       </Pressable>
 
                       {/* Timestamp row — shown for both sent and received */}
-                      <View style={[styles.statusRow, !isMe && { alignSelf: 'flex-start' }]}>
+                      <View style={[styles.statusRow, isMe ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]}>
                         <Text style={styles.statusText}>{timeStr}</Text>
                         {isMe && (
                           msg.id.startsWith('temp-') ? (
                             <Check size={14} color="#8A7550" />
                           ) : msg.isRead ? (
-                            <CheckCheck size={14} color="#453332" />
+                            <CheckCheck size={14} color="#C4A763" />
                           ) : (
                             <Check size={14} color="#8A7550" />
                           )
@@ -992,13 +1085,12 @@ export default function CustomerDirectChatScreen() {
             <>
               <View style={styles.textInputWrapper}>
                 <Pressable
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setShowEmojiPicker((prev) => !prev);
-                  }}
+                  onPress={startRecording}
+                  accessibilityRole="button"
+                  accessibilityLabel="Hold and Speak"
                   style={styles.composerIconBtn}
                 >
-                  <Smile size={21} color={showEmojiPicker ? '#453332' : '#8A7550'} />
+                  <Mic size={20} color="#8A7550" />
                 </Pressable>
                 <TextInput
                   style={styles.textInput}
@@ -1008,26 +1100,32 @@ export default function CustomerDirectChatScreen() {
                   onSubmitEditing={handleSend}
                   submitBehavior="submit"
                   returnKeyType="send"
-                  placeholder="Message"
-                  placeholderTextColor="#8A7550"
+                  placeholder="Hold and Speak"
+                  placeholderTextColor="#AFAFAF"
                 />
                 <Pressable
                   onPress={() => void handlePickImage('library')}
                   disabled={uploadingImage}
+                  accessibilityRole="button"
+                  accessibilityLabel="Attach photo from gallery"
                   style={styles.composerIconBtn}
                 >
                   {uploadingImage ? (
                     <ActivityIndicator size="small" color="#8A7550" />
                   ) : (
-                    <Paperclip size={20} color="#8A7550" />
+                    <ImageIcon size={20} color="#8A7550" />
                   )}
                 </Pressable>
                 <Pressable
-                  onPress={() => void handlePickImage('camera')}
-                  disabled={uploadingImage}
+                  onPress={() => {
+                    Keyboard.dismiss();
+                    setShowEmojiPicker((prev) => !prev);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Open emoji picker"
                   style={styles.composerIconBtn}
                 >
-                  <Camera size={20} color="#8A7550" />
+                  <Smile size={20} color={showEmojiPicker ? '#453332' : '#8A7550'} />
                 </Pressable>
               </View>
 
@@ -1035,25 +1133,17 @@ export default function CustomerDirectChatScreen() {
                 <Pressable
                   onPress={handleSend}
                   disabled={!inputText.trim() || sending}
+                  accessibilityRole="button"
+                  accessibilityLabel="Send message"
                   style={({ pressed }) => [
                     styles.sendBtn,
                     (!inputText.trim() || sending) && styles.sendBtnDisabled,
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Send size={20} color="#FFFFFF" />
+                  <Send size={19} color="#FFFFFF" />
                 </Pressable>
-              ) : (
-                <Pressable
-                  onPress={startRecording}
-                  style={({ pressed }) => [
-                    styles.sendBtn,
-                    { opacity: pressed ? 0.85 : 1 },
-                  ]}
-                >
-                  <Mic size={20} color="#FFFFFF" />
-                </Pressable>
-              )}
+              ) : null}
             </>
           )}
         </View>
@@ -1075,34 +1165,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  timeHeaderContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 14,
-    marginBottom: 14,
-  },
-  timeHeaderText: {
-    fontFamily: 'InstrumentSans-Medium',
-    fontSize: 13,
-    color: '#8A7550',
-    textAlign: 'center',
-  },
   headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    marginTop: 36,
-    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
+    gap: 8,
   },
-  headerBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E4D5B7',
-    backgroundColor: '#FFFFFF',
+  backBtn: {
+    padding: 6,
+    marginLeft: -4,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1111,15 +1186,62 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerNameText: {
-    fontFamily: 'HedvigLettersSerif-Regular',
-    fontSize: 18,
-    color: '#453332',
+    fontFamily: 'InstrumentSans-SemiBold',
+    fontSize: 15,
+    color: '#000000',
   },
   headerSubtitleText: {
     fontFamily: 'InstrumentSans-Regular',
+    fontSize: 11,
+    color: '#9F9F9F',
+    marginTop: 1,
+  },
+  heroProfileCard: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    marginBottom: 8,
+  },
+  heroNameText: {
+    fontFamily: 'InstrumentSans-SemiBold',
+    fontSize: 17,
+    color: '#000000',
+    textAlign: 'center',
+  },
+  heroRoleText: {
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 12,
-    color: '#8A7550',
-    marginTop: 2,
+    color: '#656565',
+    textAlign: 'center',
+    marginTop: 3,
+  },
+  heroReviewsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginTop: 6,
+  },
+  heroRatingText: {
+    fontFamily: 'InstrumentSans-SemiBold',
+    fontSize: 11,
+    color: '#FF7B07',
+  },
+  heroReviewsText: {
+    fontFamily: 'InstrumentSans-Regular',
+    fontSize: 11,
+    color: '#656565',
+  },
+  timeHeaderContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  timeHeaderText: {
+    fontFamily: 'InstrumentSans-Medium',
+    fontSize: 11,
+    color: '#AFAFAF',
+    textAlign: 'center',
   },
   scrollContent: {
     flexGrow: 1,
@@ -1245,18 +1367,24 @@ const styles = StyleSheet.create({
     maxWidth: '82%',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 18,
-    overflow: 'visible',
+    borderRadius: 16,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1.5 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   sentBubble: {
     alignSelf: 'flex-end',
     backgroundColor: '#453332',
-    borderBottomRightRadius: 4,
+    borderTopRightRadius: 4,
   },
   receivedBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(74, 8, 12, 0.25)',
-    borderBottomLeftRadius: 4,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   bubbleText: {
     fontFamily: 'InstrumentSans-Regular',
@@ -1267,20 +1395,19 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   receivedText: {
-    color: '#453332',
+    color: '#000000',
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    alignSelf: 'flex-end',
     marginTop: 4,
-    marginRight: 2,
+    marginHorizontal: 2,
   },
   statusText: {
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 10,
-    color: '#8A7550',
+    color: '#656565',
   },
   sendingIndicatorContainer: {
     alignSelf: 'flex-start',
@@ -1372,11 +1499,12 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E4D5B7',
+    borderColor: '#E2E2E2',
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    gap: 4,
   },
   textInput: {
     flex: 1,

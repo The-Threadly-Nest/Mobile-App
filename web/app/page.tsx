@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
 import { api, ApiError, errorMessage } from "../lib/api";
 import { createSubmissionLock } from "../lib/submission-lock";
-import { WAITLIST_RECEIPT_KEY, parseWaitlistReceipt } from "../lib/waitlist-receipt";
+import { WAITLIST_RECEIPT_KEY, parseWaitlistReceipt, mergeWaitlistReceipt } from "../lib/waitlist-receipt";
 import type { Audience, JoinWaitlistInput, JoinWaitlistResponse, WaitlistStats } from "../lib/waitlist-types";
 
 const HERO_TITLE = "Your fashion business, all in one place.";
@@ -313,8 +313,11 @@ export default function WaitlistPage() {
   }, [showModal]);
 
   function rememberRegistration(referralCode?: string) {
-    try { localStorage.setItem(WAITLIST_RECEIPT_KEY, JSON.stringify({ version: 1, ...(referralCode ? { referralCode } : {}) })); }
-    catch { /* Keep the current-page lock even if browser storage is blocked. */ }
+    try {
+      const receipt = mergeWaitlistReceipt(localStorage.getItem(WAITLIST_RECEIPT_KEY), referralCode);
+      localStorage.setItem(WAITLIST_RECEIPT_KEY, JSON.stringify(receipt));
+      return receipt.referralCode;
+    } catch { return referralCode; /* Keep the current-page lock even if browser storage is blocked. */ }
   }
 
   useEffect(() => {
@@ -488,8 +491,8 @@ export default function WaitlistPage() {
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         submissionLock.current.complete();
-        rememberRegistration();
-        setReferral("");
+        const savedCode = rememberRegistration();
+        if (savedCode) setReferral(`${window.location.origin}/?ref=${encodeURIComponent(savedCode)}`);
         setMessage("");
         setStep("already");
         setShowModal(true);
@@ -799,13 +802,16 @@ export default function WaitlistPage() {
                   name="consent"
                   type="checkbox"
                   required
-                  defaultChecked
                   className="mt-0.5 h-4 w-4 rounded accent-[#453332]"
                 />
                 <span>
                   Send me launch updates and early access news. No spam, unsubscribe anytime.
                 </span>
               </label>
+
+              <p className="text-[12px] leading-relaxed text-[#746765]">
+                See how we use your details in our <a href="/privacy" target="_blank" rel="noreferrer" className="font-medium text-[#453332] underline underline-offset-4">Privacy Policy</a>.
+              </p>
 
               {stepError && formStep === 3 && (
                 <p className="rounded-lg bg-red-50 p-3 text-[13px] font-medium text-red-700" role="alert">

@@ -14,6 +14,8 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
 import { ProfileDesignHeader, ProfileDesignIcon, ProfileMenuGroups } from "@/shared/components/ProfileDesign";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { ProfileSettingsPopup } from "@/shared/components/ProfileSettingsPopup";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
 
 // List Icon Components
 function MeasurementIcon() {
@@ -140,7 +142,7 @@ export default function CustomerProfileScreen() {
       const prefs = await apiFetch<any>("/api/preferences", { silent: true }).catch(() => null);
       if (prefs) {
         setSavedItems(prefs.savedItems || []);
-        if (Array.isArray(prefs.favorites)) setFavoritesCount(prefs.favorites.length);
+        setFavoritesCount(Array.isArray(prefs.savedItems) ? prefs.savedItems.length : 0);
         if (prefs.avgGiven !== undefined) setAvgGiven(Number(prefs.avgGiven).toFixed(1));
         if (prefs.phone) setPhone(prefs.phone);
         if (prefs.location) setLocation(prefs.location);
@@ -381,12 +383,10 @@ export default function CustomerProfileScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
-      <Modal visible={showPersonalInfo} animationType="slide" onRequestClose={() => setShowPersonalInfo(false)}>
-        <SafeAreaView className="flex-1 bg-white">
-          <Pressable accessibilityLabel="Close personal information" onPress={() => { setShowPersonalInfo(false); setIsEditingInfo(false); }} className="self-end p-5"><X size={24} color="#453332" /></Pressable>
-          <ScrollView keyboardShouldPersistTaps="handled">
+      <ProfileSettingsPopup visible={showPersonalInfo} onClose={() => { setShowPersonalInfo(false); setIsEditingInfo(false); }}>
+          <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Contact & Location Details Card */}
-        <View className="bg-[#F6F6F6] rounded-2xl p-4 mb-4 mx-6">
+        <View className="bg-[#F6F6F6] rounded-2xl p-4 mb-4">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center flex-1">
               <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
@@ -483,9 +483,8 @@ export default function CustomerProfileScreen() {
           )}
         </View>
 
-          </ScrollView>
-        </SafeAreaView>
-      </Modal>
+          </KeyboardAwareScrollView>
+      </ProfileSettingsPopup>
 
       {/* Measurements Details Modal */}
       <Modal

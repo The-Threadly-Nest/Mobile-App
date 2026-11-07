@@ -195,6 +195,15 @@ export async function apiFetchCollectionPage<T>(
   return { items, page, hasMore, nextPage };
 }
 
+export interface WeeklyBookingSchedule {
+  days: number[];
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  blockedDates: string[];
+  generatedThrough?: string;
+}
+
 export interface AdminOnboardingPayload {
   shopName: string;
   location: string;
@@ -208,7 +217,8 @@ export interface AdminOnboardingPayload {
   bankName?: string;
   accountNumber?: string;
   accountName?: string;
-  availableSlots: Array<{
+  bookingSchedule?: WeeklyBookingSchedule;
+  availableSlots?: Array<{
     date: string;
     time: string;
   }>;
@@ -314,6 +324,8 @@ export const measurementsApi = {
 };
 
 export const slotsApi = {
+  getSchedule: async () => apiFetch<{ bookingSchedule: WeeklyBookingSchedule | null; timezone: string; slotDurationMinutes: number }>("/api/slots/schedule", { silent: true }),
+  saveSchedule: async (schedule: WeeklyBookingSchedule, timezone: string) => apiFetch<{ schedule: WeeklyBookingSchedule; created: number; skippedBooked: number }>("/api/slots/schedule", { method: "PUT", body: JSON.stringify({ schedule, timezone }), silent: true }),
   getSlots: async () => apiFetch<any[]>("/api/slots", { silent: true }),
   createSlot: async (date: string, time: string, durationMinutes?: number) =>
     apiFetch<any>("/api/slots", {

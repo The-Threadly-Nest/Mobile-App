@@ -4,6 +4,7 @@ import { rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
 
 import { isAvailabilityConflictError, isValidTimeZone, slotsOverlap, zonedDateTimeToUtc } from "../../lib/availability";
+import { replaceWeeklyAvailability } from "../../lib/booking-schedule";
 
 // Lightweight figures used by the dashboard's background refresh. Keep this
 // separate from the settings summary so polling does not repeatedly calculate
@@ -159,7 +160,7 @@ export class FashionHouseAdminService {
 
   async putOnboarding(input: FashionHouseAdminInput<"putOnboarding">) {
     try {
-      const { availableSlots, ...profile } = input.body;
+      const { availableSlots, bookingSchedule, ...profile } = input.body;
       if (!isValidTimeZone(profile.timezone)) {
         return rejectRequest({ error: "Select a valid timezone for your fashion house." }, 400);
       }
@@ -193,6 +194,11 @@ export class FashionHouseAdminService {
             onboardingCompleted: true,
           },
         });
+
+        if (bookingSchedule) {
+          await replaceWeeklyAvailability(tx, fashionHouse.id, bookingSchedule, profile.timezone, now);
+          return tx.fashionHouse.findUniqueOrThrow({ where: { id: fashionHouse.id }, include: { availableSlots: { where: { startsAt: { gt: now } }, orderBy: { startsAt: "asc" } } } });
+        }
 
         const protectedSlots = await tx.availableSlot.findMany({
           where: { fashionHouseId: fashionHouse.id, booked: true, startsAt: { not: null } },

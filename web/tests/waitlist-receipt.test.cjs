@@ -9,7 +9,13 @@ const compiled = new Module(filename, module);
 compiled._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
 }).outputText, filename);
-const { parseWaitlistReceipt } = compiled.exports;
+const { parseWaitlistReceipt, mergeWaitlistReceipt } = compiled.exports;
+
+test('a duplicate response preserves the referral already issued to this browser', () => {
+  assert.deepEqual(mergeWaitlistReceipt('{"version":1,"referralCode":"AB12CD34EF"}'), { version: 1, referralCode: 'AB12CD34EF' });
+  assert.deepEqual(mergeWaitlistReceipt(null), { version: 1 });
+  assert.deepEqual(mergeWaitlistReceipt('{"version":1,"referralCode":"AB12CD34EF"}', '123456ABCD'), { version: 1, referralCode: '123456ABCD' });
+});
 
 test('a completed signup can be restored after refresh with its real referral', () => {
   assert.deepEqual(parseWaitlistReceipt('{"version":1,"referralCode":"AB12CD34EF"}'), { version: 1, referralCode: 'AB12CD34EF' });

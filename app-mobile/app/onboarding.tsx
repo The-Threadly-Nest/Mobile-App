@@ -10,7 +10,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NavigationBar } from "expo-navigation-bar";
 import { router } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
 
 const slides = [
   {
@@ -54,15 +53,6 @@ export default function OnboardingScreen() {
     router.push({ pathname: "/(auth)/signup", params: { role: "customer" } });
   };
 
-  const handleBack = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((i) => i - 1);
-    } else {
-      if (router.canGoBack()) router.back();
-      else router.replace("/(auth)/role-select");
-    }
-  };
-
   if (isLandscape) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: "#2A0406" }} edges={["top", "bottom", "left", "right"]}>
@@ -77,27 +67,6 @@ export default function OnboardingScreen() {
             >
               <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.15)" }]} />
             </ImageBackground>
-
-            {/* Back Button */}
-            <Pressable
-              onPress={handleBack}
-              style={{
-                position: "absolute",
-                top: 12,
-                left: 12,
-                width: 38,
-                height: 38,
-                borderRadius: 19,
-                borderWidth: 1,
-                borderColor: "rgba(255,255,255,0.6)",
-                backgroundColor: "rgba(0,0,0,0.3)",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 10,
-              }}
-            >
-              <ArrowLeft size={18} color="#FFFFFF" />
-            </Pressable>
           </View>
 
           {/* Right Column: Slide Text, Dots & Action Buttons */}
@@ -262,26 +231,6 @@ export default function OnboardingScreen() {
           backgroundColor: "rgba(0,0,0,0.50)",
         }}
       />
-
-      {/* Back button — top-left */}
-      <Pressable
-        onPress={handleBack}
-        style={{
-          position: "absolute",
-          top: 60,
-          left: 24,
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.5)",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 10,
-        }}
-      >
-        <ArrowLeft size={20} color="#FFFFFF" />
-      </Pressable>
 
       {/* Bottom content */}
       <View

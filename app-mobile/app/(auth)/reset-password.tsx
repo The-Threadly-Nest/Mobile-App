@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
@@ -84,7 +85,7 @@ export default function ResetPasswordScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white px-6 justify-center">
+    <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: "white" }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 80, justifyContent: "center" }}>
       <Pressable onPress={handleBack} className="absolute top-14 left-6">
         <BackArrowIcon size={20} color="#453332" />
       </Pressable>
@@ -136,6 +137,6 @@ export default function ResetPasswordScreen() {
         loading={loading}
         disabled={!formComplete}
       />
-    </View>
+    </KeyboardAwareScrollView>
   );
 }

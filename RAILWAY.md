@@ -116,6 +116,23 @@ Do not migrate existing Neon data to Railway unless separately requested.
 
 ## Verification boundary
 
+### Weekly fitting availability
+
+The migration `20261107000000_weekly_booking_schedule` adds an optional JSON
+rules column to `fashion_houses`; it does not erase existing slots or bookings.
+Apply pending migrations with `npm run db:deploy` in the server service before
+running the updated backend. Regenerate Prisma and rebuild the backend, then
+reload/rebuild the mobile app. A configured pre-deploy migration command handles
+this on Railway; confirm it succeeds in the deployment logs.
+
+Administrators select working days, opening/closing times, 1–5 hours per fitting,
+and optional blocked dates. Saving prepares the next 30 days in the house's
+timezone and replaces future unbooked slots only. Booked/linked appointments and
+historic slots are preserved. The booking window is finite: use **Save and
+generate slots** in Settings to extend it; there is no automatic background
+renewal. Existing manually configured availability remains until the owner
+explicitly saves a weekly schedule.
+
 Local builds and mocked regression tests do not prove that Railway private DNS,
 database extension permissions, role creation, provider credentials or migration
 replay work in your account. Verify the first deployment's pre-deploy and health

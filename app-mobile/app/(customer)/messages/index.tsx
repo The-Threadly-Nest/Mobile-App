@@ -1,225 +1,180 @@
 import React, { useState, useCallback, useRef } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Pressable,
-  ActivityIndicator,
-  RefreshControl,
-  Image,
-} from "react-native";
+import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl, Image, StyleSheet, AppState } from "react-native";
+import { Image as AssetImage } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
-import { MessageSquare } from "lucide-react-native";
-import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { MessageSquare, Bell } from "lucide-react-native";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 import { formatChatDate } from "@/shared/utils/formatters";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import { type MessageThread, unreadMessages, visibleMessageThreads } from "@/shared/utils/messageThreads";
 
-interface ChatThread {
-  fashionHouseId: string;
-  fashionHouseName: string;
-  fashionHouseLogo: string | null;
-  latestMessage: string;
-  latestAt: string | null;
-  unreadCount: number;
-}
+const assets = {
+  back: require("../../../assets/messages/back.svg"),
+  badge: require("../../../assets/messages/unread.svg"),
+  divider: require("../../../assets/messages/tab-line.svg"),
+  active: require("../../../assets/messages/active-line.svg"),
+};
 
-function formatThreadTime(dateString: string | null): string {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "";
-
+function formatThreadTime(value: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
   const now = new Date();
-  const isToday =
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear();
-
-  if (isToday) {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
-
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday =
-    date.getDate() === yesterday.getDate() &&
-    date.getMonth() === yesterday.getMonth() &&
-    date.getFullYear() === yesterday.getFullYear();
-
-  if (isYesterday) {
-    return "Yesterday";
-  }
-
-  return formatChatDate(date);
+  if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+  return date.toDateString() === yesterday.toDateString() ? "Yesterday" : formatChatDate(date);
 }
 
 export default function CustomerMessagesScreen() {
-  const role = useAuthStore((state) => state.role);
-  const email = useAuthStore((state) => state.email);
+  const role = useAuthStore(state => state.role);
+  const email = useAuthStore(state => state.email);
   const cacheOwner = createPageCacheOwner(role, email);
-  const [threads, setThreads] = useState<ChatThread[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
-  const hasLoadedRef = useRef(false);
+  const [threads, setThreads] = useState<MessageThread[]>([]);
+  const [tab, setTab] = useState<"messages" | "notifications">("messages");
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
+  const owner = useRef(cacheOwner);
+  const hasLoaded = useRef(false);
+  const request = useRef(0);
+  const focused = useRef(false);
 
-  const fetchThreads = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else if (!hasLoadedRef.current) setLoading(true);
-
+  const fetchThreads = useCallback(async (refresh = false) => {
+    const version = ++request.current;
+    const active = () => focused.current && version === request.current;
+    if (refresh) setRefreshing(true);
+    else if (!hasLoaded.current) setLoading(true);
     try {
-      if (!isRefresh && !hasLoadedRef.current) {
-        const cached = await readPageCache<ChatThread[]>(cacheOwner, "customer-message-threads");
-        if (cached) {
-          setThreads(cached);
-          setLoading(false);
-        }
+      if (!refresh && !hasLoaded.current) {
+        const cached = await readPageCache<MessageThread[]>(cacheOwner, "customer-message-threads");
+        if (!active()) return;
+        if (Array.isArray(cached)) { setThreads(cached); setLoading(false); }
       }
-      const data = await apiFetch<ChatThread[]>("/api/direct-messages/my-threads", { silent: true });
-      if (Array.isArray(data)) {
-        setThreads(data);
-        void writePageCache(cacheOwner, "customer-message-threads", data);
-      }
+      const data = await apiFetch<MessageThread[]>("/api/direct-messages/my-threads", { silent: true });
+      if (!active()) return;
+      if (!Array.isArray(data)) throw new Error("Invalid conversations response");
+      setThreads(data); setError("");
+      void writePageCache(cacheOwner, "customer-message-threads", data);
     } catch {
-      // silent catch
+      if (active()) setError("We couldn't refresh your messages. Please try again.");
     } finally {
-      hasLoadedRef.current = true;
-      setLoading(false);
-      setRefreshing(false);
+      if (active()) { hasLoaded.current = true; setLoading(false); setRefreshing(false); }
     }
   }, [cacheOwner]);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchThreads();
-    }, [fetchThreads])
-  );
+  useFocusEffect(useCallback(() => {
+    focused.current = true;
+    if (owner.current !== cacheOwner) {
+      owner.current = cacheOwner; hasLoaded.current = false; setThreads([]); setError("");
+    }
+    void fetchThreads();
+    const timer = setInterval(() => { if (AppState.currentState === "active") void fetchThreads(); }, 30000);
+    const subscription = AppState.addEventListener("change", state => { if (state === "active") void fetchThreads(); });
+    return () => { focused.current = false; request.current++; clearInterval(timer); subscription.remove(); };
+  }, [cacheOwner, fetchThreads]));
 
-  const renderThreadItem = ({ item }: { item: ChatThread }) => {
-    const initials = item.fashionHouseName
-      ? item.fashionHouseName
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-          .slice(0, 2)
-      : "FH";
+  const unread = unreadMessages(threads);
+  const visible = visibleMessageThreads(threads, tab);
 
+  const renderThread = ({ item }: { item: MessageThread }) => {
+    const initials = item.fashionHouseName?.trim().split(/\s+/).map(part => part[0]).join("").slice(0, 2).toUpperCase() || "FH";
+    const isUnread = item.unreadCount > 0;
     return (
-      <Pressable
-        onPress={() =>
-          router.push({
-            pathname: `/(customer)/direct-chat/${item.fashionHouseId}`,
-            params: {
-              fashionHouseName: item.fashionHouseName,
-              fashionHouseLogo: item.fashionHouseLogo || undefined,
-            },
-          })
-        }
-        className="flex-row items-center px-4 py-3.5 border-b border-[#F5F1E8] bg-white active:bg-[#F7F4EC]"
-      >
-        {/* Avatar / Logo */}
-        <View className="w-12 h-12 rounded-full bg-[#EBE7DF] items-center justify-center mr-3 overflow-hidden border border-[#E5E0D5]">
-          {item.fashionHouseLogo ? (
-            <Image
-              source={{ uri: item.fashionHouseLogo }}
-              style={{ width: "100%", height: "100%" }}
-              resizeMode="cover"
-            />
-          ) : (
-            <Text className="font-display font-semibold text-[15px] text-[#453332]">
-              {initials}
-            </Text>
-          )}
+      <Pressable accessibilityRole="button" accessibilityLabel={`${item.fashionHouseName}${isUnread ? `, ${item.unreadCount} unread messages` : ""}`}
+        onPress={() => router.push({ pathname: `/(customer)/direct-chat/${item.fashionHouseId}`, params: {
+          fashionHouseName: item.fashionHouseName, fashionHouseLogo: item.fashionHouseLogo || undefined,
+        } })} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+        <View style={styles.avatar}>
+          {item.fashionHouseLogo ? <Image source={{ uri: item.fashionHouseLogo }} style={styles.avatarImage} resizeMode="cover" />
+            : <Text style={styles.initials}>{initials}</Text>}
         </View>
-
-        {/* Content */}
-        <View className="flex-1 mr-2">
-          <View className="flex-row items-center justify-between mb-1">
-            <Text
-              className="font-display font-semibold text-[15px] text-black flex-1 mr-2"
-              numberOfLines={1}
-            >
-              {item.fashionHouseName}
-            </Text>
-            <Text className="font-body text-[12px] text-[#8A7550]">
-              {formatThreadTime(item.latestAt)}
-            </Text>
-          </View>
-          <Text
-            className={`font-body text-[13px] ${
-              item.unreadCount > 0 ? "font-semibold text-black" : "text-[#646464]"
-            }`}
-            numberOfLines={1}
-          >
-            {item.latestMessage || "No messages yet"}
-          </Text>
+        <View style={styles.content}>
+          <Text style={styles.name} numberOfLines={1}>{item.fashionHouseName}</Text>
+          <Text style={[styles.preview, isUnread && styles.unreadPreview]} numberOfLines={1}>{item.latestMessage || "Start a conversation"}</Text>
         </View>
-
-        {/* Unread Badge */}
-        {item.unreadCount > 0 && (
-          <View className="bg-[#453332] min-w-[20px] h-5 rounded-full px-1.5 items-center justify-center">
-            <Text className="font-body font-bold text-[11px] text-white">
-              {item.unreadCount}
-            </Text>
-          </View>
-        )}
+        <View style={styles.trailing}>
+          <Text style={[styles.time, isUnread && styles.unreadPreview]} numberOfLines={1}>{formatThreadTime(item.latestAt)}</Text>
+          {isUnread ? <View style={styles.badge}>
+            <AssetImage source={assets.badge} style={styles.badgeAsset} contentFit="contain" />
+            <Text style={styles.badgeText}>{item.unreadCount > 99 ? "99+" : item.unreadCount}</Text>
+          </View> : <View style={styles.badgeSpacer} />}
+        </View>
       </Pressable>
     );
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
-      {/* Header */}
-      <View style={{ paddingTop: 36 }} className="flex-row items-center px-4 pb-3 bg-[#FFFFFF] border-b border-[#F0EBE1]">
-        <Pressable
-          onPress={() => router.back()}
-          className="w-10 h-10 items-center justify-center -ml-2 rounded-full active:bg-[#EFECE6]"
-        >
-          <BackArrowIcon color="#3A2E1A" size={24} />
+    <SafeAreaView style={styles.screen} edges={["top", "bottom"]}>
+      <View style={styles.header}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Back" hitSlop={4} style={styles.back}
+          onPress={() => router.canGoBack() ? router.back() : router.replace("/(customer)/(tabs)/browse")}>
+          <AssetImage source={assets.back} style={styles.backAsset} contentFit="contain" />
         </Pressable>
-        <Text className="font-display font-semibold text-[20px] text-black ml-1 flex-1">
-          My Messages
-        </Text>
+        <Text style={styles.title}>Messages</Text>
       </View>
-
-      {/* List / Loading / Empty */}
-      {loading && !refreshing ? (
-        <View className="flex-1 items-center justify-center py-12">
-          <ActivityIndicator size="large" color="#453332" />
-          <Text className="font-body text-[14px] text-[#8A7550] mt-3">
-            Loading conversations...
-          </Text>
-        </View>
-      ) : threads.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6 py-12">
-          <View className="w-16 h-16 rounded-full bg-[#EBE7DF] items-center justify-center mb-4">
-            <MessageSquare size={28} color="#453332" />
-          </View>
-          <Text className="font-display font-semibold text-[18px] text-black text-center mb-1">
-            No Messages Yet
-          </Text>
-          <Text className="font-body text-[14px] text-[#8A7550] text-center leading-relaxed max-w-[280px]">
-            When you contact fashion houses for bespoke inquiries or fittings, your chats will appear here.
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={threads}
-          keyExtractor={(item) => item.fashionHouseId}
-          renderItem={renderThreadItem}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => fetchThreads(true)}
-              tintColor="#453332"
-              colors={["#453332"]}
-            />
-          }
-          contentContainerStyle={{ paddingBottom: 24 }}
-        />
-      )}
+      <View style={styles.tabs} accessibilityRole="tablist">
+        <AssetImage source={assets.divider} style={styles.tabDivider} contentFit="fill" />
+        {(["notifications", "messages"] as const).map(value => <Pressable key={value} accessibilityRole="tab"
+          accessibilityState={{ selected: tab === value }} onPress={() => setTab(value)} style={styles.tab}>
+          <Text style={[styles.tabText, tab === value && styles.activeText]}>{value === "messages" ? `Messages${unread ? ` (${unread})` : ""}` : "Notifications"}</Text>
+          {tab === value && <AssetImage source={assets.active} style={styles.activeLine} contentFit="contain" />}
+        </Pressable>)}
+      </View>
+      {error ? <View style={styles.error} accessibilityLiveRegion="polite">
+        <Text style={styles.errorText}>{error}</Text>
+        <Pressable accessibilityRole="button" onPress={() => { void fetchThreads(true); }} style={styles.retry}><Text style={styles.retryText}>Retry</Text></Pressable>
+      </View> : null}
+      <FlatList data={visible} keyExtractor={item => item.fashionHouseId} renderItem={renderThread}
+        contentContainerStyle={[styles.list, !visible.length && styles.emptyList]}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { void fetchThreads(true); }} tintColor="#453332" />}
+        ListEmptyComponent={loading ? <ActivityIndicator color="#453332" accessibilityLabel="Loading conversations" /> : !error ? <View style={styles.empty}>
+          {tab === "notifications" ? <Bell size={28} color="#A5A7B9" /> : <MessageSquare size={28} color="#A5A7B9" />}
+          <Text style={styles.emptyTitle}>{tab === "notifications" ? "You're all caught up" : "No messages yet"}</Text>
+          <Text style={styles.emptyText}>{tab === "notifications" ? "Unread conversation alerts appear here." : "Your conversations with fashion houses will appear here."}</Text>
+        </View> : null} />
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: "#FFFFFF" },
+  header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 12 },
+  back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  backAsset: { width: 39.7906, height: 39.7907 },
+  title: { fontFamily: "InstrumentSans-Regular", fontSize: 17, color: "#181C2E" },
+  tabs: { flexDirection: "row", height: 48, marginBottom: 12 },
+  tab: { flex: 1, alignItems: "center", justifyContent: "center", paddingBottom: 2 },
+  tabText: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#A5A7B9" },
+  activeText: { fontFamily: "InstrumentSans-SemiBold", color: "#F96951" },
+  tabDivider: { position: "absolute", bottom: 0, alignSelf: "center", width: 332.473, height: 0.884236 },
+  activeLine: { position: "absolute", bottom: 0, width: 129.099, height: 1.76847 },
+  list: { paddingHorizontal: 24, paddingBottom: 28 },
+  row: { flexDirection: "row", alignItems: "center", minHeight: 78, gap: 14, paddingVertical: 15 },
+  pressed: { opacity: 0.65 },
+  avatar: { width: 32, height: 32, borderRadius: 16, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: "#F0F4F9" },
+  avatarImage: { width: 32, height: 32 },
+  initials: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#453332" },
+  content: { flex: 1, minWidth: 0, gap: 5 },
+  name: { fontFamily: "InstrumentSans-Regular", fontSize: 16, letterSpacing: 0.3, color: "#32343E" },
+  preview: { fontFamily: "InstrumentSans-Regular", fontSize: 12, letterSpacing: 0.25, color: "#AFAFAF" },
+  unreadPreview: { color: "#373738" },
+  trailing: { alignItems: "flex-end", gap: 6, maxWidth: 64 },
+  time: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#AFAFAF" },
+  badge: { width: 19.4532, height: 19.4532, alignItems: "center", justifyContent: "center" },
+  badgeAsset: { position: "absolute", width: 19.4532, height: 19.4532 },
+  badgeText: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#F6F7FC" },
+  badgeSpacer: { height: 19.4532 },
+  separator: { height: 1, backgroundColor: "#F0F4F9" },
+  emptyList: { flexGrow: 1, justifyContent: "center" },
+  empty: { alignItems: "center", gap: 12, paddingHorizontal: 24, paddingBottom: 80 },
+  emptyTitle: { fontFamily: "InstrumentSans-Medium", fontSize: 18, color: "#32343E" },
+  emptyText: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, textAlign: "center", color: "#746765" },
+  error: { paddingHorizontal: 24, paddingVertical: 12, gap: 6 },
+  errorText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#9F1239" },
+  retry: { minHeight: 44, justifyContent: "center", alignSelf: "flex-start", paddingRight: 16 },
+  retryText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#453332" },
+});

@@ -3,6 +3,7 @@ import { View, Pressable, Text, ScrollView, useWindowDimensions } from "react-na
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
 import { Headline, Subtext } from "@/shared/components/Headline";
 import { Button } from "@/shared/components/Button";
 import { Input } from "@/shared/components/Input";
@@ -47,7 +48,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
+      <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
@@ -70,7 +71,7 @@ export default function ForgotPasswordScreen() {
         <View style={{ marginTop: 12 }}>
           <Button label="Send Reset PIN" onPress={handleSubmit} loading={loading} disabled={!email} />
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

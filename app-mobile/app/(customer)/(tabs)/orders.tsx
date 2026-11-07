@@ -6,6 +6,7 @@ import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
 import { apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import CachedImage from "@/shared/components/CachedImage";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { isCustomerOrderActive, isOrderCancelled, isOrderDelivered } from "@/shared/domain/statuses";
 
 function getRealGarmentImage(order: OrderItem): string {
@@ -90,7 +91,7 @@ export default function CustomerOrdersScreen() {
     <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
       <ScrollView
         className="flex-1 px-4"
-        style={{ paddingTop: 36 }}
+        style={{ paddingTop: SCREEN_TOP_SPACING }}
         contentContainerStyle={[
           { paddingBottom: 110, gap: 12 },
           isLandscape && { maxWidth: 840, alignSelf: "center", width: "100%", paddingHorizontal: 16 },

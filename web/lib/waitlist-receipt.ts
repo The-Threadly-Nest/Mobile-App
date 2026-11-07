@@ -1,6 +1,11 @@
 export const WAITLIST_RECEIPT_KEY = "owuja.waitlist.receipt.v1";
 export interface WaitlistReceipt { version: 1; referralCode?: string }
 
+export function mergeWaitlistReceipt(raw: string | null, referralCode?: string): WaitlistReceipt {
+  const previous = parseWaitlistReceipt(raw);
+  return parseWaitlistReceipt(JSON.stringify({ version: 1, referralCode: referralCode ?? previous?.referralCode })) ?? { version: 1 };
+}
+
 export function parseWaitlistReceipt(raw: string | null): WaitlistReceipt | null {
   if (!raw) return null;
   try {
