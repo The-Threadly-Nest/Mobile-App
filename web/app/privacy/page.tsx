@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       <main className="mx-auto max-w-3xl px-5 pb-16 pt-6 sm:px-8 sm:pt-10">
         <h1 className="font-['Hedvig_Letters_Serif'] text-4xl leading-tight sm:text-5xl">Privacy policy</h1>
         <p className="mt-3 text-sm text-[#746765]">Last updated: 7 November 2026</p>
-        <p className="mt-6 text-base leading-7">This policy explains how Owuja handles information on www.owuja.com and its Railway-hosted waitlist. It covers early-access registration and related communications, not the unreleased mobile app or future marketplace features.</p>
+        <p className="mt-6 text-base leading-7">This policy explains how Owuja handles information on www.owuja.com and its early-access waitlist. It covers early-access registration and related communications, not the unreleased mobile app or future marketplace features.</p>
 
         <div className="mt-9 space-y-8 text-base leading-7 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-semibold [&_a]:underline [&_a]:underline-offset-4 [&_li]:pl-1 [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5">
           <section aria-labelledby="owner">
@@ -44,11 +44,12 @@ export default function PrivacyPage() {
           <section aria-labelledby="providers">
             <h2 id="providers">4. Who receives it</h2>
             <ul>
-              <li><a href="https://railway.com/legal/privacy" rel="noreferrer">Railway</a> hosts the website, API and PostgreSQL database used for registration records.</li>
-              <li><a href="https://resend.com/legal/privacy-policy" rel="noreferrer">Resend</a> receives recipient details and email content to deliver welcome messages and invitations and provide delivery information.</li>
-              <li>People authorized to administer Owuja may access records for these purposes. Information may also be disclosed where required by law or necessary to protect legal rights.</li>
+              <li>Cloud infrastructure and database providers that securely host our website, application services, and waitlist registration records.</li>
+              <li>Transactional communication and email delivery providers that transmit welcome messages, early-access invitations, and service notifications on our behalf.</li>
+              <li>Authorized personnel and administrators of Owuja who require access to administer waitlist registrations and provide customer support.</li>
+              <li>Relevant authorities or third parties where required by applicable law, court order, or necessary to protect legal rights and prevent fraud or abuse.</li>
             </ul>
-            <p className="mt-3">We do not sell your waitlist information or use it for targeted advertising. Our providers may process data outside Nigeria, including in the United States. Such processing must be supported by the safeguards required by applicable data-protection law; contact us for information about your data and relevant transfer arrangements.</p>
+            <p className="mt-3">We do not sell your waitlist information or share it with third parties for targeted advertising. Our service providers operate under data protection obligations and may process data securely in cloud facilities located internationally. For questions regarding our data processors, contact us at <a href="mailto:support@owuja.com">support@owuja.com</a>.</p>
           </section>
           <section aria-labelledby="storage">
             <h2 id="storage">5. Browser storage and external links</h2>

@@ -42,6 +42,7 @@ export type CatalogItemMinAggregateOutputType = {
   category: string | null
   priceFrom: number | null
   imageUrl: string | null
+  fulfillmentType: string | null
   createdAt: Date | null
 }
 
@@ -53,6 +54,7 @@ export type CatalogItemMaxAggregateOutputType = {
   category: string | null
   priceFrom: number | null
   imageUrl: string | null
+  fulfillmentType: string | null
   createdAt: Date | null
 }
 
@@ -66,6 +68,7 @@ export type CatalogItemCountAggregateOutputType = {
   colors: number
   priceFrom: number
   imageUrl: number
+  fulfillmentType: number
   createdAt: number
   _all: number
 }
@@ -87,6 +90,7 @@ export type CatalogItemMinAggregateInputType = {
   category?: true
   priceFrom?: true
   imageUrl?: true
+  fulfillmentType?: true
   createdAt?: true
 }
 
@@ -98,6 +102,7 @@ export type CatalogItemMaxAggregateInputType = {
   category?: true
   priceFrom?: true
   imageUrl?: true
+  fulfillmentType?: true
   createdAt?: true
 }
 
@@ -111,6 +116,7 @@ export type CatalogItemCountAggregateInputType = {
   colors?: true
   priceFrom?: true
   imageUrl?: true
+  fulfillmentType?: true
   createdAt?: true
   _all?: true
 }
@@ -211,6 +217,7 @@ export type CatalogItemGroupByOutputType = {
   colors: string[]
   priceFrom: number | null
   imageUrl: string
+  fulfillmentType: string
   createdAt: Date
   _count: CatalogItemCountAggregateOutputType | null
   _avg: CatalogItemAvgAggregateOutputType | null
@@ -247,8 +254,10 @@ export type CatalogItemWhereInput = {
   colors?: Prisma.StringNullableListFilter<"CatalogItem">
   priceFrom?: Prisma.IntNullableFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringFilter<"CatalogItem"> | string
+  fulfillmentType?: Prisma.StringFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeFilter<"CatalogItem"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
+  measurementBookings?: Prisma.BookingListRelationFilter
 }
 
 export type CatalogItemOrderByWithRelationInput = {
@@ -261,8 +270,10 @@ export type CatalogItemOrderByWithRelationInput = {
   colors?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  fulfillmentType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   fashionHouse?: Prisma.FashionHouseOrderByWithRelationInput
+  measurementBookings?: Prisma.BookingOrderByRelationAggregateInput
 }
 
 export type CatalogItemWhereUniqueInput = Prisma.AtLeast<{
@@ -278,8 +289,10 @@ export type CatalogItemWhereUniqueInput = Prisma.AtLeast<{
   colors?: Prisma.StringNullableListFilter<"CatalogItem">
   priceFrom?: Prisma.IntNullableFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringFilter<"CatalogItem"> | string
+  fulfillmentType?: Prisma.StringFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeFilter<"CatalogItem"> | Date | string
   fashionHouse?: Prisma.XOR<Prisma.FashionHouseScalarRelationFilter, Prisma.FashionHouseWhereInput>
+  measurementBookings?: Prisma.BookingListRelationFilter
 }, "id">
 
 export type CatalogItemOrderByWithAggregationInput = {
@@ -292,6 +305,7 @@ export type CatalogItemOrderByWithAggregationInput = {
   colors?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  fulfillmentType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.CatalogItemCountOrderByAggregateInput
   _avg?: Prisma.CatalogItemAvgOrderByAggregateInput
@@ -313,6 +327,7 @@ export type CatalogItemScalarWhereWithAggregatesInput = {
   colors?: Prisma.StringNullableListFilter<"CatalogItem">
   priceFrom?: Prisma.IntNullableWithAggregatesFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringWithAggregatesFilter<"CatalogItem"> | string
+  fulfillmentType?: Prisma.StringWithAggregatesFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CatalogItem"> | Date | string
 }
 
@@ -325,8 +340,10 @@ export type CatalogItemCreateInput = {
   colors?: Prisma.CatalogItemCreatecolorsInput | string[]
   priceFrom?: number | null
   imageUrl: string
+  fulfillmentType?: string
   createdAt?: Date | string
   fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutCatalogItemsInput
+  measurementBookings?: Prisma.BookingCreateNestedManyWithoutCatalogItemInput
 }
 
 export type CatalogItemUncheckedCreateInput = {
@@ -339,7 +356,9 @@ export type CatalogItemUncheckedCreateInput = {
   colors?: Prisma.CatalogItemCreatecolorsInput | string[]
   priceFrom?: number | null
   imageUrl: string
+  fulfillmentType?: string
   createdAt?: Date | string
+  measurementBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCatalogItemInput
 }
 
 export type CatalogItemUpdateInput = {
@@ -351,8 +370,10 @@ export type CatalogItemUpdateInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutCatalogItemsNestedInput
+  measurementBookings?: Prisma.BookingUpdateManyWithoutCatalogItemNestedInput
 }
 
 export type CatalogItemUncheckedUpdateInput = {
@@ -365,7 +386,9 @@ export type CatalogItemUncheckedUpdateInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  measurementBookings?: Prisma.BookingUncheckedUpdateManyWithoutCatalogItemNestedInput
 }
 
 export type CatalogItemCreateManyInput = {
@@ -378,6 +401,7 @@ export type CatalogItemCreateManyInput = {
   colors?: Prisma.CatalogItemCreatecolorsInput | string[]
   priceFrom?: number | null
   imageUrl: string
+  fulfillmentType?: string
   createdAt?: Date | string
 }
 
@@ -390,6 +414,7 @@ export type CatalogItemUpdateManyMutationInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -403,6 +428,7 @@ export type CatalogItemUncheckedUpdateManyInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -426,6 +452,7 @@ export type CatalogItemCountOrderByAggregateInput = {
   colors?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  fulfillmentType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -441,6 +468,7 @@ export type CatalogItemMaxOrderByAggregateInput = {
   category?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  fulfillmentType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -452,11 +480,17 @@ export type CatalogItemMinOrderByAggregateInput = {
   category?: Prisma.SortOrder
   priceFrom?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  fulfillmentType?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type CatalogItemSumOrderByAggregateInput = {
   priceFrom?: Prisma.SortOrder
+}
+
+export type CatalogItemNullableScalarRelationFilter = {
+  is?: Prisma.CatalogItemWhereInput | null
+  isNot?: Prisma.CatalogItemWhereInput | null
 }
 
 export type CatalogItemCreateNestedManyWithoutFashionHouseInput = {
@@ -527,6 +561,22 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type CatalogItemCreateNestedOneWithoutMeasurementBookingsInput = {
+  create?: Prisma.XOR<Prisma.CatalogItemCreateWithoutMeasurementBookingsInput, Prisma.CatalogItemUncheckedCreateWithoutMeasurementBookingsInput>
+  connectOrCreate?: Prisma.CatalogItemCreateOrConnectWithoutMeasurementBookingsInput
+  connect?: Prisma.CatalogItemWhereUniqueInput
+}
+
+export type CatalogItemUpdateOneWithoutMeasurementBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.CatalogItemCreateWithoutMeasurementBookingsInput, Prisma.CatalogItemUncheckedCreateWithoutMeasurementBookingsInput>
+  connectOrCreate?: Prisma.CatalogItemCreateOrConnectWithoutMeasurementBookingsInput
+  upsert?: Prisma.CatalogItemUpsertWithoutMeasurementBookingsInput
+  disconnect?: Prisma.CatalogItemWhereInput | boolean
+  delete?: Prisma.CatalogItemWhereInput | boolean
+  connect?: Prisma.CatalogItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CatalogItemUpdateToOneWithWhereWithoutMeasurementBookingsInput, Prisma.CatalogItemUpdateWithoutMeasurementBookingsInput>, Prisma.CatalogItemUncheckedUpdateWithoutMeasurementBookingsInput>
+}
+
 export type CatalogItemCreateWithoutFashionHouseInput = {
   id?: string
   name: string
@@ -536,7 +586,9 @@ export type CatalogItemCreateWithoutFashionHouseInput = {
   colors?: Prisma.CatalogItemCreatecolorsInput | string[]
   priceFrom?: number | null
   imageUrl: string
+  fulfillmentType?: string
   createdAt?: Date | string
+  measurementBookings?: Prisma.BookingCreateNestedManyWithoutCatalogItemInput
 }
 
 export type CatalogItemUncheckedCreateWithoutFashionHouseInput = {
@@ -548,7 +600,9 @@ export type CatalogItemUncheckedCreateWithoutFashionHouseInput = {
   colors?: Prisma.CatalogItemCreatecolorsInput | string[]
   priceFrom?: number | null
   imageUrl: string
+  fulfillmentType?: string
   createdAt?: Date | string
+  measurementBookings?: Prisma.BookingUncheckedCreateNestedManyWithoutCatalogItemInput
 }
 
 export type CatalogItemCreateOrConnectWithoutFashionHouseInput = {
@@ -590,7 +644,80 @@ export type CatalogItemScalarWhereInput = {
   colors?: Prisma.StringNullableListFilter<"CatalogItem">
   priceFrom?: Prisma.IntNullableFilter<"CatalogItem"> | number | null
   imageUrl?: Prisma.StringFilter<"CatalogItem"> | string
+  fulfillmentType?: Prisma.StringFilter<"CatalogItem"> | string
   createdAt?: Prisma.DateTimeFilter<"CatalogItem"> | Date | string
+}
+
+export type CatalogItemCreateWithoutMeasurementBookingsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
+  imageUrl: string
+  fulfillmentType?: string
+  createdAt?: Date | string
+  fashionHouse: Prisma.FashionHouseCreateNestedOneWithoutCatalogItemsInput
+}
+
+export type CatalogItemUncheckedCreateWithoutMeasurementBookingsInput = {
+  id?: string
+  fashionHouseId: string
+  name: string
+  description?: string | null
+  category?: string | null
+  sizes?: Prisma.CatalogItemCreatesizesInput | string[]
+  colors?: Prisma.CatalogItemCreatecolorsInput | string[]
+  priceFrom?: number | null
+  imageUrl: string
+  fulfillmentType?: string
+  createdAt?: Date | string
+}
+
+export type CatalogItemCreateOrConnectWithoutMeasurementBookingsInput = {
+  where: Prisma.CatalogItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.CatalogItemCreateWithoutMeasurementBookingsInput, Prisma.CatalogItemUncheckedCreateWithoutMeasurementBookingsInput>
+}
+
+export type CatalogItemUpsertWithoutMeasurementBookingsInput = {
+  update: Prisma.XOR<Prisma.CatalogItemUpdateWithoutMeasurementBookingsInput, Prisma.CatalogItemUncheckedUpdateWithoutMeasurementBookingsInput>
+  create: Prisma.XOR<Prisma.CatalogItemCreateWithoutMeasurementBookingsInput, Prisma.CatalogItemUncheckedCreateWithoutMeasurementBookingsInput>
+  where?: Prisma.CatalogItemWhereInput
+}
+
+export type CatalogItemUpdateToOneWithWhereWithoutMeasurementBookingsInput = {
+  where?: Prisma.CatalogItemWhereInput
+  data: Prisma.XOR<Prisma.CatalogItemUpdateWithoutMeasurementBookingsInput, Prisma.CatalogItemUncheckedUpdateWithoutMeasurementBookingsInput>
+}
+
+export type CatalogItemUpdateWithoutMeasurementBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fashionHouse?: Prisma.FashionHouseUpdateOneRequiredWithoutCatalogItemsNestedInput
+}
+
+export type CatalogItemUncheckedUpdateWithoutMeasurementBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fashionHouseId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sizes?: Prisma.CatalogItemUpdatesizesInput | string[]
+  colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
+  priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CatalogItemCreateManyFashionHouseInput = {
@@ -602,6 +729,7 @@ export type CatalogItemCreateManyFashionHouseInput = {
   colors?: Prisma.CatalogItemCreatecolorsInput | string[]
   priceFrom?: number | null
   imageUrl: string
+  fulfillmentType?: string
   createdAt?: Date | string
 }
 
@@ -614,7 +742,9 @@ export type CatalogItemUpdateWithoutFashionHouseInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  measurementBookings?: Prisma.BookingUpdateManyWithoutCatalogItemNestedInput
 }
 
 export type CatalogItemUncheckedUpdateWithoutFashionHouseInput = {
@@ -626,7 +756,9 @@ export type CatalogItemUncheckedUpdateWithoutFashionHouseInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  measurementBookings?: Prisma.BookingUncheckedUpdateManyWithoutCatalogItemNestedInput
 }
 
 export type CatalogItemUncheckedUpdateManyWithoutFashionHouseInput = {
@@ -638,9 +770,39 @@ export type CatalogItemUncheckedUpdateManyWithoutFashionHouseInput = {
   colors?: Prisma.CatalogItemUpdatecolorsInput | string[]
   priceFrom?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  fulfillmentType?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type CatalogItemCountOutputType
+ */
+
+export type CatalogItemCountOutputType = {
+  measurementBookings: number
+}
+
+export type CatalogItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  measurementBookings?: boolean | CatalogItemCountOutputTypeCountMeasurementBookingsArgs
+}
+
+/**
+ * CatalogItemCountOutputType without action
+ */
+export type CatalogItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CatalogItemCountOutputType
+   */
+  select?: Prisma.CatalogItemCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CatalogItemCountOutputType without action
+ */
+export type CatalogItemCountOutputTypeCountMeasurementBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingWhereInput
+}
 
 
 export type CatalogItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -653,8 +815,11 @@ export type CatalogItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
+  fulfillmentType?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
+  measurementBookings?: boolean | Prisma.CatalogItem$measurementBookingsArgs<ExtArgs>
+  _count?: boolean | Prisma.CatalogItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["catalogItem"]>
 
 export type CatalogItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -667,6 +832,7 @@ export type CatalogItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
+  fulfillmentType?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["catalogItem"]>
@@ -681,6 +847,7 @@ export type CatalogItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
+  fulfillmentType?: boolean
   createdAt?: boolean
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["catalogItem"]>
@@ -695,12 +862,15 @@ export type CatalogItemSelectScalar = {
   colors?: boolean
   priceFrom?: boolean
   imageUrl?: boolean
+  fulfillmentType?: boolean
   createdAt?: boolean
 }
 
-export type CatalogItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "name" | "description" | "category" | "sizes" | "colors" | "priceFrom" | "imageUrl" | "createdAt", ExtArgs["result"]["catalogItem"]>
+export type CatalogItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fashionHouseId" | "name" | "description" | "category" | "sizes" | "colors" | "priceFrom" | "imageUrl" | "fulfillmentType" | "createdAt", ExtArgs["result"]["catalogItem"]>
 export type CatalogItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
+  measurementBookings?: boolean | Prisma.CatalogItem$measurementBookingsArgs<ExtArgs>
+  _count?: boolean | Prisma.CatalogItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CatalogItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   fashionHouse?: boolean | Prisma.FashionHouseDefaultArgs<ExtArgs>
@@ -713,6 +883,7 @@ export type $CatalogItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
   name: "CatalogItem"
   objects: {
     fashionHouse: Prisma.$FashionHousePayload<ExtArgs>
+    measurementBookings: Prisma.$BookingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -724,6 +895,7 @@ export type $CatalogItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
     colors: string[]
     priceFrom: number | null
     imageUrl: string
+    fulfillmentType: string
     createdAt: Date
   }, ExtArgs["result"]["catalogItem"]>
   composites: {}
@@ -1120,6 +1292,7 @@ readonly fields: CatalogItemFieldRefs;
 export interface Prisma__CatalogItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   fashionHouse<T extends Prisma.FashionHouseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FashionHouseDefaultArgs<ExtArgs>>): Prisma.Prisma__FashionHouseClient<runtime.Types.Result.GetResult<Prisma.$FashionHousePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  measurementBookings<T extends Prisma.CatalogItem$measurementBookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CatalogItem$measurementBookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1158,6 +1331,7 @@ export interface CatalogItemFieldRefs {
   readonly colors: Prisma.FieldRef<"CatalogItem", 'String[]'>
   readonly priceFrom: Prisma.FieldRef<"CatalogItem", 'Int'>
   readonly imageUrl: Prisma.FieldRef<"CatalogItem", 'String'>
+  readonly fulfillmentType: Prisma.FieldRef<"CatalogItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"CatalogItem", 'DateTime'>
 }
     
@@ -1557,6 +1731,30 @@ export type CatalogItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many CatalogItems to delete.
    */
   limit?: number
+}
+
+/**
+ * CatalogItem.measurementBookings
+ */
+export type CatalogItem$measurementBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
+  orderBy?: Prisma.BookingOrderByWithRelationInput | Prisma.BookingOrderByWithRelationInput[]
+  cursor?: Prisma.BookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
 }
 
 /**

@@ -9,6 +9,10 @@ import { SessionGuard, RolesGuard, AllowedRoles } from "../../core/auth/access.g
 export class CatalogController {
   constructor(@Inject(CatalogService) private readonly service: CatalogService) { }
 
+  @Get("item/:id/measurement-slots")
+  @UseGuards(SessionGuard)
+  getMeasurementSlots(@RequestInput(catalogInputs.getMeasurementSlots) input: CatalogInput<"getMeasurementSlots">) { return this.service.getMeasurementSlots(input); }
+
   @Get("")
   @UseGuards(SessionGuard)
   @HttpCode(200)

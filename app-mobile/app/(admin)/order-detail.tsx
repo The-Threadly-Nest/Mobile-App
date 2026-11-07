@@ -28,13 +28,14 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { normalizeStatus } from "@/shared/domain/statuses";
 import { formatCurrency, formatShortDate } from "@/shared/utils/formatters";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string; step: number }
 > = {
-  order_placed: { label: "Booked", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
-  pending_admin_review: { label: "Booked", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
+  order_placed: { label: "Order placed", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
+  pending_admin_review: { label: "Awaiting review", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
   booked: { label: "Booked", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
   measurements_confirmed: { label: "Measurements Confirmed", bg: "#EFE6D8", text: "#B28847", step: 2 },
   fabric_sourced: { label: "Fabric Sourced", bg: "#EFE6D8", text: "#B28847", step: 2 },
@@ -77,12 +78,14 @@ export default function OrderDetailScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [order, setOrder] = useState<any>(null);
 
   const fetchOrderDetail = useCallback(async () => {
-    if (!orderId) return;
+    if (!orderId) { setLoading(false); setLoadError("This order couldn't be opened."); return; }
+    setLoadError("");
     try {
       if (orderId.startsWith("esc-")) {
         const rawEscId = orderId.replace(/^esc-/, "");
@@ -96,8 +99,9 @@ export default function OrderDetailScreen() {
             measurements: esc.customer?.measurements || [],
           },
           itemName: esc.summary || "Bespoke Request",
-          status: esc.resolved ? "delivered" : "in_production",
-          price: initialPrice ? parseFloat(initialPrice) : 0,
+          status: esc.status || "pending_admin_review",
+          price: null,
+          isBooking: true,
           createdAt: esc.createdAt,
           staff: null,
         });
@@ -106,7 +110,9 @@ export default function OrderDetailScreen() {
 
       setOrder(await apiFetch<any>(`/api/orders/${orderId}`, { silent: true }));
     } catch (e) {
-      // offline or silent fail
+      setLoadError("We couldn't load these details. Pull down to try again.");
+    } finally {
+      setLoading(false);
     }
   }, [orderId, initialPrice]);
 
@@ -127,18 +133,18 @@ export default function OrderDetailScreen() {
   const orderNum =
     initialOrderNumber ||
     generateOrderNumber(order?.bookingId || order?.id || orderId || "2000");
-  const currentStatus = normalizeStatus(order?.status || initialStatus || "in_production");
-  const price = order?.price ?? (initialPrice ? parseFloat(initialPrice) : 0);
+  const currentStatus = normalizeStatus(order?.status || initialStatus || "pending_admin_review");
+  const price = order?.price ?? null;
   const staffName =
     order?.staff?.name ||
     (initialStaff ? initialStaff.replace(/^Assigned to /, "") : "Unassigned");
   const createdAt = order?.createdAt ? formatShortDate(order.createdAt) : "Recent Order";
 
   const statusMeta = STATUS_CONFIG[currentStatus] ?? {
-    label: "In Production",
+    label: currentStatus.replace(/_/g, " "),
     bg: "#EFE6D8",
     text: "#B28847",
-    step: 3,
+    step: 0,
   };
 
   // Extract measurements if available
@@ -148,10 +154,11 @@ export default function OrderDetailScreen() {
       : null;
 
   const handleOpenInvoice = () => {
+    if (!order || order.isBooking || price === null) return;
     router.push({
       pathname: "/(admin)/invoices/[orderId]",
       params: {
-        orderId: orderId || order?.id || "inv-1",
+        orderId: order.id,
         customerName,
         orderNumber: orderNum,
         garment: itemName,
@@ -161,23 +168,31 @@ export default function OrderDetailScreen() {
     });
   };
 
+  if (!order) return <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+    <View style={[styles.header, { paddingTop: SCREEN_TOP_SPACING }]}><Pressable accessibilityLabel="Back" onPress={() => router.back()} style={styles.backBtn}><BackArrowIcon color="#453332" /></Pressable><Text style={styles.headerTitle}>Order Details</Text></View>
+    {loading ? <ActivityIndicator color="#453332" /> : <View style={{ padding: 24, gap: 16 }}><Text accessibilityRole="alert">{loadError}</Text><Pressable onPress={() => { setLoading(true); void fetchOrderDetail(); }}><Text>Try again</Text></Pressable></View>}
+  </SafeAreaView>;
+
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <View style={[styles.container, isLandscape && styles.containerLandscape]}>
         {/* Header */}
         <View style={styles.header}>
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
-          >
-            <BackArrowIcon size={18} color="#3B0508" />
-          </Pressable>
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Order Details</Text>
-            <Text style={styles.headerSubtitle}>{orderNum}</Text>
+          <View style={styles.headerLeft}>
+            <Pressable
+              onPress={() => router.back()}
+              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              <BackArrowIcon size={18} color="#3B0508" />
+            </Pressable>
+            <View>
+              <Text style={styles.headerTitle}>Order Details</Text>
+              {orderNum ? <Text style={styles.headerSubtitle}>{orderNum}</Text> : null}
+            </View>
           </View>
           <Pressable
             onPress={handleOpenInvoice}
+            disabled={!order || order.isBooking || price === null}
             style={({ pressed }) => [styles.invoiceHeaderBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
             <FileText size={18} color="#453332" />
@@ -192,6 +207,8 @@ export default function OrderDetailScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />
           }
         >
+          {loading ? <ActivityIndicator color="#453332" /> : null}
+          {loadError ? <Text accessibilityRole="alert">{loadError}</Text> : null}
           {/* Main Status & Order Hero Card */}
           <View style={styles.heroCard}>
             <View style={styles.heroTopRow}>
@@ -216,7 +233,7 @@ export default function OrderDetailScreen() {
             <View style={styles.heroMetaRow}>
               <View>
                 <Text style={styles.metaLabel}>TOTAL PRICE</Text>
-                <Text style={styles.priceValue}>{formatCurrency(price)}</Text>
+                <Text style={styles.priceValue}>{price === null ? "Quote not set" : formatCurrency(price)}</Text>
               </View>
               <View style={{ alignItems: "flex-end" }}>
                 <Text style={styles.metaLabel}>CREATED</Text>
@@ -400,23 +417,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 14,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#F3EDE2",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
-    alignItems: "center",
-  },
-  headerCenter: {
     alignItems: "center",
   },
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
-    fontSize: 18,
-    color: "#453332",
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#1A1110",
+    letterSpacing: -0.2,
   },
   headerSubtitle: {
     fontFamily: "InstrumentSans-Medium",

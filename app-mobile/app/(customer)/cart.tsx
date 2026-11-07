@@ -25,7 +25,8 @@ export default function CartScreen() {
   const clearFashionHouse = useCartStore((state) => state.clearFashionHouse);
   const clearCart = useCartStore((state) => state.clearCart);
   const [placingOrderFor, setPlacingOrderFor] = useState<string | null>(null);
-  const checkoutKeysRef = useRef<Record<string, string>>({});
+  const checkoutKeysRef = useRef<Record<string, { key: string; signature: string }>>({});
+  const checkoutBusy = useRef(false);
 
   const groups = useMemo<CartGroup[]>(() => {
     const grouped = new Map<string, CartGroup>();
@@ -52,10 +53,11 @@ export default function CartScreen() {
       Alert.alert("Fashion House unavailable", "Remove this item and add it again from the marketplace.");
       return;
     }
-    if (placingOrderFor) return;
-
-    const checkoutKey = checkoutKeysRef.current[group.fashionHouseId] ??=
-      createIdempotencyKey("catalog-checkout");
+    if (checkoutBusy.current) return;
+    checkoutBusy.current = true;
+    const signature = JSON.stringify(group.items.map(item => ({ id: item.id, quantity: item.quantity, size: item.selectedSize, color: item.selectedColor })));
+    if (checkoutKeysRef.current[group.fashionHouseId]?.signature !== signature) checkoutKeysRef.current[group.fashionHouseId] = { key: createIdempotencyKey("catalog-checkout"), signature };
+    const checkoutKey = checkoutKeysRef.current[group.fashionHouseId].key;
     setPlacingOrderFor(group.fashionHouseId);
     try {
       await apiFetch<{ id: string }>("/api/orders/catalog-checkout", {
@@ -79,6 +81,7 @@ export default function CartScreen() {
     } catch {
       // apiFetch presents the server error. Keep the same key so a retry cannot duplicate the order.
     } finally {
+      checkoutBusy.current = false;
       setPlacingOrderFor(null);
     }
   };
@@ -101,7 +104,7 @@ export default function CartScreen() {
           <Text style={styles.headerSubtitle}>{totalItems} item{totalItems === 1 ? "" : "s"}</Text>
         </View>
         {items.length > 0 ? (
-          <TouchableOpacity onPress={confirmClear} style={styles.clearButton} activeOpacity={0.7}>
+          <TouchableOpacity disabled={placingOrderFor !== null} onPress={confirmClear} style={styles.clearButton} activeOpacity={0.7}>
             <Text style={styles.clearText}>Clear</Text>
           </TouchableOpacity>
         ) : <View style={styles.headerButton} />}
@@ -111,7 +114,7 @@ export default function CartScreen() {
         <View style={styles.emptyState}>
           <View style={styles.emptyIcon}><ShoppingBag size={30} color="#453332" /></View>
           <Text style={styles.emptyTitle}>Your cart is empty</Text>
-          <Text style={styles.emptyBody}>Browse the marketplace and save styles you would like a fashion house to make.</Text>
+          <Text style={styles.emptyBody}>Choose ready-for-pickup clothes from the marketplace.</Text>
           <TouchableOpacity style={styles.browseButton} onPress={() => router.replace("/(customer)/(tabs)/browse")} activeOpacity={0.85}>
             <Text style={styles.browseButtonText}>Browse styles</Text>
           </TouchableOpacity>
@@ -135,19 +138,19 @@ export default function CartScreen() {
                   </View>
                   <View style={styles.itemDetails}>
                     <Text style={styles.itemName} numberOfLines={2}>{item.name}</Text>
-                    <Text style={styles.itemOptions}>Size {item.selectedSize?.toUpperCase() || "Custom"} · {item.selectedColor || "Custom colour"}</Text>
+                    <Text style={styles.itemOptions}>{[item.selectedSize, item.selectedColor].filter(Boolean).join(" · ")}</Text>
                     <Text style={styles.itemPrice}>{formatCurrency(item.price * item.quantity)}</Text>
                     <View style={styles.itemActions}>
                       <View style={styles.quantityControl}>
-                        <TouchableOpacity style={styles.quantityButton} onPress={() => updateQuantity(item.id, item.selectedSize, item.selectedColor, item.quantity - 1)}>
+                        <TouchableOpacity disabled={placingOrderFor !== null} style={styles.quantityButton} onPress={() => updateQuantity(item.id, item.selectedSize, item.selectedColor, item.quantity - 1)}>
                           <Minus size={15} color="#453332" />
                         </TouchableOpacity>
                         <Text style={styles.quantityText}>{item.quantity}</Text>
-                        <TouchableOpacity style={styles.quantityButton} onPress={() => updateQuantity(item.id, item.selectedSize, item.selectedColor, item.quantity + 1)}>
+                        <TouchableOpacity disabled={placingOrderFor !== null || item.quantity >= 20} style={styles.quantityButton} onPress={() => updateQuantity(item.id, item.selectedSize, item.selectedColor, item.quantity + 1)}>
                           <Plus size={15} color="#453332" />
                         </TouchableOpacity>
                       </View>
-                      <TouchableOpacity accessibilityLabel={`Remove ${item.name}`} onPress={() => removeItem(item.id, item.selectedSize, item.selectedColor)} style={styles.removeButton}>
+                      <TouchableOpacity disabled={placingOrderFor !== null} accessibilityLabel={`Remove ${item.name}`} onPress={() => removeItem(item.id, item.selectedSize, item.selectedColor)} style={styles.removeButton}>
                         <Trash2 size={17} color="#9A2C32" />
                       </TouchableOpacity>
                     </View>

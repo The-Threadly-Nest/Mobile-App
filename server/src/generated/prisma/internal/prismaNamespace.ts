@@ -2006,6 +2006,7 @@ export const OrderScalarFieldEnum = {
   bookingId: 'bookingId',
   idempotencyKey: 'idempotencyKey',
   itemName: 'itemName',
+  items: 'items',
   price: 'price',
   status: 'status',
   createdAt: 'createdAt',
@@ -2043,6 +2044,7 @@ export const CatalogItemScalarFieldEnum = {
   colors: 'colors',
   priceFrom: 'priceFrom',
   imageUrl: 'imageUrl',
+  fulfillmentType: 'fulfillmentType',
   createdAt: 'createdAt'
 } as const
 
@@ -2070,6 +2072,9 @@ export const BookingScalarFieldEnum = {
   fashionHouseId: 'fashionHouseId',
   customerId: 'customerId',
   styleNotes: 'styleNotes',
+  purpose: 'purpose',
+  catalogItemId: 'catalogItemId',
+  catalogSnapshot: 'catalogSnapshot',
   preferredDate: 'preferredDate',
   preferredTime: 'preferredTime',
   isFirstTime: 'isFirstTime',

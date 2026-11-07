@@ -8,20 +8,36 @@ import { useAppDataStore } from "@/stores/useAppDataStore";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 import { Heart } from "lucide-react-native";
 
+const TOMATO = "#FF6347";
+
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
   return (
-    <View
-      style={{
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        overflow: "hidden",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: focused ? "#F96951" : "transparent",
-      }}
-    >
-      {children}
+    <View style={{ alignItems: "center", justifyContent: "center", height: 44, width: 44 }}>
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: focused ? "#F96951" : "transparent",
+          opacity: focused ? 1 : 0.75,
+        }}
+      >
+        {children}
+      </View>
+      {focused && (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 2,
+            width: 4,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: "#F96951",
+          }}
+        />
+      )}
     </View>
   );
 }
@@ -196,14 +212,22 @@ export default function TabsLayout() {
         name="browse"
         options={{
           title: "Discover",
-          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><DiscoverTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
+          tabBarIcon: ({ focused }) => (
+            <FloatingTabIcon focused={focused}>
+              <DiscoverTabIcon color="#FFFFFF" focused={focused} />
+            </FloatingTabIcon>
+          ),
         }}
       />
       <Tabs.Screen
         name="orders"
         options={{
           title: "My Orders",
-          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><OrdersTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
+          tabBarIcon: ({ focused }) => (
+            <FloatingTabIcon focused={focused}>
+              <OrdersTabIcon color="#FFFFFF" focused={focused} />
+            </FloatingTabIcon>
+          ),
         }}
       />
       <Tabs.Screen
@@ -211,16 +235,27 @@ export default function TabsLayout() {
         options={{
           title: "Favorites",
           tabBarAccessibilityLabel: "Favorites",
-          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}>
-            <Heart size={24} color={String(color)} fill={focused ? String(color) : "none"} strokeWidth={1.5} />
-          </FloatingTabIcon>,
+          tabBarIcon: ({ focused }) => (
+            <FloatingTabIcon focused={focused}>
+              <Heart
+                size={22}
+                color="#FFFFFF"
+                fill={focused ? "#FFFFFF" : "none"}
+                strokeWidth={focused ? 2 : 1.6}
+              />
+            </FloatingTabIcon>
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ProfileTabIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
+          tabBarIcon: ({ focused }) => (
+            <FloatingTabIcon focused={focused}>
+              <ProfileTabIcon color="#FFFFFF" focused={focused} />
+            </FloatingTabIcon>
+          ),
           tabBarBadge: unreadMessageCount > 0 ? (unreadMessageCount > 99 ? "99+" : unreadMessageCount) : undefined,
           tabBarBadgeStyle: {
             backgroundColor: "#453332",

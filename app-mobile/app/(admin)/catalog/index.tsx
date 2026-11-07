@@ -17,12 +17,14 @@ import { apiFetch, apiFetchCollectionPage } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import CachedImage from "@/shared/components/CachedImage";
 import { formatCurrency } from "@/shared/utils/formatters";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 export interface CatalogItem {
   id: string;
   name: string;
   priceFrom: number | null;
   imageUrl: string;
+  fulfillmentType?: "ready_to_wear" | "custom_fit";
   createdAt?: string;
 }
 
@@ -30,18 +32,20 @@ export default function AdminCatalogListScreen() {
   const { showAlert, showConfirm } = useAppAlert();
   const [items, setItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchCatalog = useCallback(async () => {
+    setError("");
     try {
       const result = await apiFetchCollectionPage<CatalogItem>("/api/catalog?page=1&limit=50", { silent: true });
       setItems(result.items);
       setNextPage(result.nextPage);
     } catch (err) {
-      console.log("Error loading catalog items:", err);
+      setError("We couldn't load your catalog. Pull down to try again.");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -62,6 +66,8 @@ export default function AdminCatalogListScreen() {
         return Array.from(byId.values());
       });
       setNextPage(result.nextPage);
+    } catch {
+      setError("We couldn't load more clothes. Please try again.");
     } finally {
       setLoadingMore(false);
     }
@@ -109,23 +115,13 @@ export default function AdminCatalogListScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       {/* Top Header */}
       <View style={styles.header}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Pressable
-            onPress={() => router.push("/(admin)/settings" as any)}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
-          >
-            <BackArrowIcon size={20} color="#3B0508" />
-          </Pressable>
-          <Text style={styles.headerTitle}>Garment Catalog</Text>
-        </View>
-
         <Pressable
-          onPress={() => router.push("/(admin)/catalog/new")}
-          style={({ pressed }) => [styles.addBtn, { opacity: pressed ? 0.8 : 1 }]}
+          onPress={() => router.push("/(admin)/settings" as any)}
+          style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <Plus size={16} color="#FFFFFF" style={{ marginRight: 4 }} />
-          <Text style={styles.addBtnText}>Add Clothes</Text>
+          <BackArrowIcon size={18} color="#3B0508" />
         </Pressable>
+        <Text style={styles.headerTitle}>Garment Catalog</Text>
       </View>
 
       <ScrollView
@@ -134,8 +130,9 @@ export default function AdminCatalogListScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />}
       >
         <Text style={styles.subtext}>
-          Upload clothes photos and starting prices to showcase your atelier portfolio to clients.
+          Publish ready-for-pickup clothes or custom-fit styles.
         </Text>
+        {error ? <Text accessibilityRole="alert" style={{ color: "#9F1239", marginBottom: 12 }}>{error}</Text> : null}
 
         {loading ? (
           <View style={styles.loadingWrap}>
@@ -162,7 +159,7 @@ export default function AdminCatalogListScreen() {
               <Pressable
                 key={item.id}
                 style={({ pressed }) => [
-                  styles.card,
+                  styles.productCard,
                   { opacity: pressed ? 0.92 : 1 },
                 ]}
                 onPress={() => {
@@ -176,30 +173,32 @@ export default function AdminCatalogListScreen() {
                   });
                 }}
               >
-                <CachedImage source={{ uri: item.imageUrl }} style={styles.cardImage} />
-                <View style={styles.cardBody}>
-                  <Text style={styles.cardName} numberOfLines={2}>
+                <View style={styles.imageCard}>
+                  <CachedImage source={{ uri: item.imageUrl }} style={styles.cardImage} contentFit="cover" />
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item.id, item.name);
+                    }}
+                    disabled={deletingId === item.id}
+                    style={({ pressed }) => [styles.deleteBtn, { opacity: pressed ? 0.7 : 1 }]}
+                  >
+                    {deletingId === item.id ? (
+                      <ActivityIndicator size="small" color="#D32F2F" />
+                    ) : (
+                      <Trash2 size={16} color="#D32F2F" />
+                    )}
+                  </Pressable>
+                </View>
+                <View style={styles.cardInfo}>
+                  <Text style={styles.cardName} numberOfLines={1}>
                     {item.name}
                   </Text>
                   <Text style={styles.cardPrice}>
-                    From {formatMoney(item.priceFrom)}
+                    {formatMoney(item.priceFrom)}
                   </Text>
+                  <Text style={{ fontSize: 12, color: "#746765", marginTop: 4 }}>{item.fulfillmentType === "ready_to_wear" ? "Ready for pickup" : "Custom fit"}</Text>
                 </View>
-
-                <Pressable
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleDelete(item.id, item.name);
-                  }}
-                  disabled={deletingId === item.id}
-                  style={({ pressed }) => [styles.deleteBtn, { opacity: pressed ? 0.7 : 1 }]}
-                >
-                  {deletingId === item.id ? (
-                    <ActivityIndicator size="small" color="#D32F2F" />
-                  ) : (
-                    <Trash2 size={16} color="#D32F2F" />
-                  )}
-                </Pressable>
               </Pressable>
             ))}
             {nextPage ? (
@@ -226,37 +225,27 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingTop: SCREEN_TOP_SPACING,
+    marginBottom: 8,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 20,
-    color: "#3B0508",
-  },
-  addBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#453332",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  addBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 13,
-    color: "#FFFFFF",
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#1A1110",
+    letterSpacing: -0.2,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -316,48 +305,57 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 14,
   },
-  card: {
+  productCard: {
     width: "48%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
+    marginBottom: 16,
+  },
+  imageCard: {
+    width: "100%",
+    height: 210,
+    borderRadius: 16,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#F0EBE1",
     position: "relative",
+    backgroundColor: "#F4EFE6",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
   },
   cardImage: {
     width: "100%",
-    height: 200,
-    backgroundColor: "#F4EFE6",
+    height: "100%",
   },
-  cardBody: {
-    padding: 12,
+  cardInfo: {
+    paddingTop: 8,
+    paddingHorizontal: 2,
   },
   cardName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#3B0508",
-    marginBottom: 4,
+    color: "#1A1110",
+    lineHeight: 18,
   },
   cardPrice: {
-    fontFamily: "InstrumentSans-Medium",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#C4A763",
+    color: "#453332",
+    marginTop: 2,
   },
   deleteBtn: {
     position: "absolute",
-    top: 8,
-    right: 8,
+    top: 10,
+    right: 10,
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 2,
   },
 });

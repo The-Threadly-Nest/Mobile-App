@@ -7,9 +7,51 @@ import Svg, { Path, Circle, Rect } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch, escalationsApi } from "@/shared/utils/apiClient";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
+import { Plus } from "lucide-react-native";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
-  return <View style={{ width: 36, height: 36, borderRadius: 18, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
+  return (
+    <View style={{ alignItems: "center", justifyContent: "center", height: 42, width: 44 }}>
+      <View style={{ opacity: focused ? 1 : 0.65 }}>
+        {children}
+      </View>
+      {focused && (
+        <View
+          style={{
+            position: "absolute",
+            bottom: 2,
+            width: 4,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: "#FFFFFF",
+          }}
+        />
+      )}
+    </View>
+  );
+}
+
+function CenterPlusTabIcon({ focused }: { focused: boolean }) {
+  return (
+    <View
+      style={{
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        justifyContent: "center",
+        elevation: 4,
+        shadowColor: "#000000",
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        opacity: focused ? 0.92 : 1,
+      }}
+    >
+      <Plus size={22} color="#FF6347" strokeWidth={2.4} />
+    </View>
+  );
 }
 
 // ─── Local Tray Notification for Admin Customer Inquiries & Escalations ───────
@@ -30,61 +72,32 @@ async function scheduleCustomerNotification(senderName: string, text: string) {
   }
 }
 
-function DashboardIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? "#453332" : color;
-  if (focused) {
-    return (
-      <Svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <Path
-          d="M12 3C7.5 3 4.5 6.8 4.5 11.2V17.8C4.5 19.8 6 21.2 8 21.2H16C18 21.2 19.5 19.8 19.5 17.8V11.2C19.5 6.8 16.5 3 12 3Z"
-          fill={activeColor}
-        />
-        <Rect x="8.5" y="9.5" width="3" height="3" rx="0.8" fill="#FFFFFF" />
-        <Rect x="12.5" y="9.5" width="3" height="3" rx="0.8" fill="#FFFFFF" />
-        <Rect x="8.5" y="13.5" width="3" height="3" rx="0.8" fill="#FFFFFF" />
-        <Rect x="12.5" y="13.5" width="3" height="3" rx="0.8" fill="#FFFFFF" />
-      </Svg>
-    );
-  }
+function DashboardIcon({ color }: { color: string; focused: boolean }) {
   return (
-    <Svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       <Path
         d="M12 3C7.5 3 4.5 6.8 4.5 11.2V17.8C4.5 19.8 6 21.2 8 21.2H16C18 21.2 19.5 19.8 19.5 17.8V11.2C19.5 6.8 16.5 3 12 3Z"
-        stroke={activeColor}
+        stroke={color}
         strokeWidth="1.8"
       />
-      <Rect x="8.5" y="9.5" width="3" height="3" rx="0.8" stroke={activeColor} strokeWidth="1.3" />
-      <Rect x="12.5" y="9.5" width="3" height="3" rx="0.8" stroke={activeColor} strokeWidth="1.3" />
-      <Rect x="8.5" y="13.5" width="3" height="3" rx="0.8" stroke={activeColor} strokeWidth="1.3" />
-      <Rect x="12.5" y="13.5" width="3" height="3" rx="0.8" stroke={activeColor} strokeWidth="1.3" />
+      <Rect x="8.5" y="9.5" width="3" height="3" rx="0.8" stroke={color} strokeWidth="1.3" />
+      <Rect x="12.5" y="9.5" width="3" height="3" rx="0.8" stroke={color} strokeWidth="1.3" />
+      <Rect x="8.5" y="13.5" width="3" height="3" rx="0.8" stroke={color} strokeWidth="1.3" />
+      <Rect x="12.5" y="13.5" width="3" height="3" rx="0.8" stroke={color} strokeWidth="1.3" />
     </Svg>
   );
 }
 
-function BookingsIcon({ color, focused }: { color: string; focused: boolean }) {
-  if (focused) {
-    return (
-      <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <Path
-          d="M17 3.5C20.3 3.7 21.5 5 21.5 9.5V15.5C21.5 19.5 20.5 21.5 16 21.5H8C3.5 21.5 2.5 19.5 2.5 15.5V9.5C2.5 5 3.7 3.7 7 3.5H17Z"
-          fill={color}
-        />
-        <Path d="M8 1.5V5" stroke={color} strokeWidth="2" strokeLinecap="round" />
-        <Path d="M16 1.5V5" stroke={color} strokeWidth="2" strokeLinecap="round" />
-        <Path d="M7.5 11.5H16.5" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
-        <Path d="M7.5 15.5H13" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
-      </Svg>
-    );
-  }
+function BookingsIcon({ color }: { color: string; focused: boolean }) {
   return (
-    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <Path d="M8 2V5" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <Path d="M16 2V5" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <Path d="M7 12H17" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <Path d="M7 16H13" stroke="#000000" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <Path d="M8 2V5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M16 2V5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M7 12H17" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M7 16H13" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       <Path
         d="M17 3.5C20.3 3.7 21.5 5 21.5 9.5V15.5C21.5 19.5 20.5 21.5 16 21.5H8C3.5 21.5 2.5 19.5 2.5 15.5V9.5C2.5 5 3.7 3.7 7 3.5H17Z"
-        stroke="#000000"
+        stroke={color}
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -93,45 +106,22 @@ function BookingsIcon({ color, focused }: { color: string; focused: boolean }) {
   );
 }
 
-function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
-  const activeColor = focused ? color : color;
+function OrdersIcon({ color }: { color: string; focused: boolean }) {
   return (
-    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      {focused && (
-        <Path
-          d="M5.82 3.87L4.75 13.96C4.61 15.59 5.9 16.99 7.54 16.99H18.19C19.63 16.99 20.89 15.81 21 14.38L21.54 6.88C21.66 5.22 20.4 3.87 18.73 3.87H5.82Z"
-          fill={color}
-        />
-      )}
+    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       <Path
         d="M2 2H3.74001C4.82001 2 5.67 2.93 5.58 4L4.75 13.96C4.61 15.59 5.89999 16.99 7.53999 16.99H18.19C19.63 16.99 20.89 15.81 21 14.38L21.54 6.88C21.66 5.22 20.4 3.87 18.73 3.87H5.82001"
-        stroke={activeColor}
+        stroke={color}
         strokeWidth="1.8"
         strokeMiterlimit="10"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <Path
-        d="M16.25 22C16.9404 22 17.5 21.4404 17.5 20.75C17.5 20.0596 16.9404 19.5 16.25 19.5C15.5596 19.5 15 20.0596 15 20.75C15 21.4404 15.5596 22 16.25 22Z"
-        stroke={activeColor}
-        strokeWidth="1.8"
-        strokeMiterlimit="10"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill={focused ? activeColor : "none"}
-      />
-      <Path
-        d="M8.25 22C8.94036 22 9.5 21.4404 9.5 20.75C9.5 20.0596 8.94036 19.5 8.25 19.5C7.55964 19.5 7 20.0596 7 20.75C7 21.4404 7.55964 22 8.25 22Z"
-        stroke={activeColor}
-        strokeWidth="1.8"
-        strokeMiterlimit="10"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill={focused ? activeColor : "none"}
-      />
+      <Circle cx="16.25" cy="20.75" r="1.5" stroke={color} strokeWidth="1.8" />
+      <Circle cx="8.25" cy="20.75" r="1.5" stroke={color} strokeWidth="1.8" />
       <Path
         d="M9 8H21"
-        stroke={focused ? "#FFFFFF" : activeColor}
+        stroke={color}
         strokeWidth="1.8"
         strokeMiterlimit="10"
         strokeLinecap="round"
@@ -141,15 +131,13 @@ function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
   );
 }
 
-function MoreIcon({ color, focused, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
-  const activeColor = focused ? "#453332" : color;
-
+function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
   return (
-    <View style={{ width: 26, height: 26, justifyContent: "center", alignItems: "center" }}>
-      <Svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <Circle cx="6" cy="12" r="2" fill={activeColor} />
-        <Circle cx="12" cy="12" r="2" fill={activeColor} />
-        <Circle cx="18" cy="12" r="2" fill={activeColor} />
+    <View style={{ width: 22, height: 22, justifyContent: "center", alignItems: "center" }}>
+      <Svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <Circle cx="6" cy="12" r="2" fill={color} />
+        <Circle cx="12" cy="12" r="2" fill={color} />
+        <Circle cx="18" cy="12" r="2" fill={color} />
       </Svg>
       {unreadCount > 0 ? (
         <View
@@ -157,18 +145,16 @@ function MoreIcon({ color, focused, unreadCount }: { color: string; focused: boo
             position: "absolute",
             top: -2,
             right: -4,
-            backgroundColor: "#D32F2F",
+            backgroundColor: "#FFFFFF",
             minWidth: 14,
             height: 14,
             borderRadius: 7,
             paddingHorizontal: 3,
             alignItems: "center",
             justifyContent: "center",
-            borderWidth: 1.5,
-            borderColor: "#FFFFFF",
           }}
         >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FF6347", textAlign: "center" }}>
             {unreadCount}
           </Text>
         </View>
@@ -176,6 +162,8 @@ function MoreIcon({ color, focused, unreadCount }: { color: string; focused: boo
     </View>
   );
 }
+
+const ADMIN_ALLOWED_TAB_ROUTES = ["dashboard", "escalations/index", "orders"];
 
 export default function AdminLayout() {
   const insets = useSafeAreaInsets();
@@ -271,7 +259,13 @@ export default function AdminLayout() {
   return (
     <Tabs
       backBehavior="history"
-      tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
+      tabBar={(props) => (
+        <FloatingTabBar
+          {...props}
+          bottomInset={extraBottom}
+          allowedRoutes={ADMIN_ALLOWED_TAB_ROUTES}
+        />
+      )}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#FFFFFF",
@@ -308,7 +302,16 @@ export default function AdminLayout() {
         }}
       />
 
-      {/* 3. Orders Tab */}
+      {/* 3. Add Item (Upload Clothes) Tab */}
+      <Tabs.Screen
+        name="catalog/new"
+        options={{
+          title: "Add Item",
+          tabBarIcon: ({ focused }) => <CenterPlusTabIcon focused={focused} />,
+        }}
+      />
+
+      {/* 4. Orders Tab */}
       <Tabs.Screen
         name="orders"
         options={{
@@ -317,7 +320,7 @@ export default function AdminLayout() {
         }}
       />
 
-      {/* 4. More Tab */}
+      {/* 5. More Tab */}
       <Tabs.Screen
         name="settings"
         options={{
@@ -327,10 +330,10 @@ export default function AdminLayout() {
       />
 
       {/* Hidden Non-Tab Routes */}
+      <Tabs.Screen name="profile" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="onboarding" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="profile-edit" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/index" options={{ href: null, tabBarStyle: { display: "none" } }} />
-      <Tabs.Screen name="catalog/new" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="catalog/[id]" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="messages" options={{ href: null, tabBarStyle: { display: "none" } }} />
       <Tabs.Screen name="staff/index" options={{ href: null, tabBarStyle: { display: "none" } }} />

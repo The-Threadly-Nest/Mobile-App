@@ -20,6 +20,10 @@ import CachedImage from "@/shared/components/CachedImage";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import { CatalogOfferingFields } from "@/shared/components/CatalogOfferingFields";
+import { catalogOptions, catalogPrice, type FulfillmentType } from "@/shared/utils/catalogCommerce";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
 
 export default function AdminEditGarmentScreen() {
   const insets = useSafeAreaInsets();
@@ -39,6 +43,12 @@ export default function AdminEditGarmentScreen() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [loaded, setLoaded] = useState(false);
+  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("custom_fit");
+  const [sizesText, setSizesText] = useState("");
+  const [colorsText, setColorsText] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     async function loadItem() {
@@ -46,6 +56,8 @@ export default function AdminEditGarmentScreen() {
       try {
         const item = await apiFetch<any>(`/api/catalog/item/${id}`, { silent: true });
         if (item) {
+          setLoaded(true);
+          setFulfillmentType(item.fulfillmentType || "custom_fit"); setSizesText((item.sizes || []).join(", ")); setColorsText((item.colors || []).join(", ")); setCategory(item.category || ""); setDescription(item.description || "");
           if (item.name) setName(item.name);
           if (item.priceFrom !== undefined && item.priceFrom !== null) {
             setPriceFrom(String(item.priceFrom));
@@ -53,7 +65,7 @@ export default function AdminEditGarmentScreen() {
           if (item.imageUrl) setImageUrl(item.imageUrl);
         }
       } catch (err) {
-        console.warn("Could not fetch catalog item detail:", err);
+        setError("We couldn't load this item. Please reopen it before saving changes.");
       } finally {
         setLoading(false);
       }
@@ -95,6 +107,7 @@ export default function AdminEditGarmentScreen() {
   };
 
   const handleUpdate = async () => {
+    if (!loaded) { setError("Wait for the item to load before saving changes."); return; }
     setError("");
 
     if (!imageUrl) {
@@ -106,13 +119,10 @@ export default function AdminEditGarmentScreen() {
       return;
     }
 
-    let parsedPrice: number | null = null;
-    if (priceFrom.trim()) {
-      const num = parseFloat(priceFrom.replace(/[^\d.]/g, ""));
-      if (!isNaN(num) && num > 0) {
-        parsedPrice = Math.round(num);
-      }
-    }
+    let parsedPrice: number | null;
+    try { parsedPrice = catalogPrice(priceFrom); } catch (error) { setError((error as Error).message); return; }
+    const sizes = catalogOptions(sizesText), colors = catalogOptions(colorsText);
+    if (fulfillmentType === "ready_to_wear" && (!parsedPrice || !sizes.length)) { setError("Ready-for-pickup clothes need a price and available sizes."); return; }
 
     setSaving(true);
     try {
@@ -122,6 +132,7 @@ export default function AdminEditGarmentScreen() {
           name: name.trim(),
           priceFrom: parsedPrice,
           imageUrl,
+          fulfillmentType, sizes, colors, category: category.trim() || null, description: description.trim() || null,
         }),
       });
 
@@ -193,7 +204,7 @@ export default function AdminEditGarmentScreen() {
             <ActivityIndicator size="large" color="#453332" />
           </View>
         ) : (
-          <ScrollView
+        <KeyboardAwareScrollView
             contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 + insets.bottom }]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -256,8 +267,10 @@ export default function AdminEditGarmentScreen() {
               style={styles.textInput}
             />
 
+            <CatalogOfferingFields type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving || !loaded} />
+            <TextInput accessibilityLabel="Garment details" value={description} onChangeText={setDescription} multiline placeholder="Describe this garment" maxLength={1000} style={{ minHeight: 100, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", color: "#453332", marginBottom: 20, textAlignVertical: "top" }} />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          </ScrollView>
+        </KeyboardAwareScrollView>
         )}
 
         {/* Bottom Save Action Bar */}
@@ -292,22 +305,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 12,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 20,
-    color: "#3B0508",
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#1A1110",
+    letterSpacing: -0.2,
   },
   deleteHeaderBtn: {
     padding: 8,

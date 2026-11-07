@@ -172,6 +172,7 @@ model Order {
   bookingId      String?  @unique // links to the Booking that created this order (1:1)
   idempotencyKey String?
   itemName       String
+  items          Json?
   price          Int
   status         String   @default("order_placed") // order_placed | in_production | ready | delivered
   createdAt      DateTime @default(now())
@@ -222,9 +223,11 @@ model CatalogItem {
   colors         String[] @default([])
   priceFrom      Int?
   imageUrl       String
+  fulfillmentType String @default("custom_fit")
   createdAt      DateTime @default(now())
 
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  measurementBookings Booking[]
 
   @@index([fashionHouseId, createdAt])
   @@index([createdAt])
@@ -258,6 +261,9 @@ model Booking {
   fashionHouseId String
   customerId     String
   styleNotes     String?  // nullable — not always provided at booking time
+  purpose        String @default("fitting")
+  catalogItemId  String?
+  catalogSnapshot Json?
   preferredDate  DateTime
   preferredTime  String
   isFirstTime    Boolean  @default(true)
@@ -269,6 +275,7 @@ model Booking {
   fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
   customer     User         @relation(fields: [customerId], references: [id], onDelete: Cascade)
   availableSlot AvailableSlot? @relation(fields: [availableSlotId], references: [id], onDelete: SetNull)
+  catalogItem CatalogItem? @relation(fields: [catalogItemId], references: [id], onDelete: SetNull)
   order        Order?       // back-relation: the Order created from this booking
 
   @@index([fashionHouseId, status])

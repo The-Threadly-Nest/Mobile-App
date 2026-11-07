@@ -1,4 +1,4 @@
-import { catalogCheckoutSchema, updateOrderStatusSchema } from "../../schemas/orders.schema";
+import { catalogCheckoutSchema, updateOrderStatusSchema, measurementBookingSchema } from "../../schemas/orders.schema";
 import { collectionPaginationSchema } from "../../schemas/pagination.schema";
 import type { ValidatedInput } from "../../core/http/endpoint-input";
 import { manualOrderSchema, assignOrderSchema } from "../../schemas/endpoint-bodies.schema";
@@ -6,6 +6,7 @@ import { manualOrderSchema, assignOrderSchema } from "../../schemas/endpoint-bod
 export const ordersInputs = {
   getMyOrders: { query: collectionPaginationSchema },
   postCatalogCheckout: { body: catalogCheckoutSchema },
+  postMeasurementBooking: { body: measurementBookingSchema },
   postMyOrders: {},
   getTrackById: {},
   postTrackByIdCancel: {},

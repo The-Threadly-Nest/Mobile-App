@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useCartStore } from "./useCartStore";
 import { persist, createJSONStorage } from "zustand/middleware";
 import * as SecureStore from "expo-secure-store";
 
@@ -80,6 +81,7 @@ export const useAuthStore = create<AuthState>()(
       setSession: (session) => {
         const email = session.email ?? get().email;
         const role = session.role ?? get().role;
+        if ((get().email && get().email.trim().toLowerCase() !== email.trim().toLowerCase()) || (get().role && get().role !== role)) useCartStore.getState().clearCart();
         if (email && role) {
           useAppDataStore.getState().activateCache(`${role}:${email.trim().toLowerCase()}`);
         }
@@ -87,6 +89,7 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: () => {
         try {
+          useCartStore.getState().clearCart();
           useOrdersStore.getState().setOrders([]);
           useAppDataStore.getState().clearCache();
           void clearChatCache();

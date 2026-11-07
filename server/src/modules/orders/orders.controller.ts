@@ -4,10 +4,17 @@ import { RequestInput } from "../../core/http/endpoint-input";
 import { ordersInputs, type OrdersInput } from "./orders.dto";
 
 import { SessionGuard, RolesGuard, AllowedRoles } from "../../core/auth/access.guards";
+import { EndpointRateGuard, RateLimit } from "../../core/http/endpoint-rate.guard";
 
 @Controller("api/orders")
 export class OrdersController {
   constructor(@Inject(OrdersService) private readonly service: OrdersService) { }
+
+  @Post("measurement-bookings")
+  @UseGuards(SessionGuard, RolesGuard, EndpointRateGuard)
+  @AllowedRoles("customer")
+  @RateLimit("measurement-booking", 30, 3600000, true)
+  postMeasurementBooking(@RequestInput(ordersInputs.postMeasurementBooking) input: OrdersInput<"postMeasurementBooking">) { return this.service.postMeasurementBooking(input); }
 
   @Get("my-orders")
   @UseGuards(SessionGuard)
@@ -17,8 +24,9 @@ export class OrdersController {
   }
 
   @Post("catalog-checkout")
-  @UseGuards(SessionGuard, RolesGuard)
+  @UseGuards(SessionGuard, RolesGuard, EndpointRateGuard)
   @AllowedRoles("customer")
+  @RateLimit("catalog-checkout", 30, 3600000, true)
   @HttpCode(200)
   postCatalogCheckout(@RequestInput(ordersInputs.postCatalogCheckout) input: OrdersInput<"postCatalogCheckout">) {
     return this.service.postCatalogCheckout(input);

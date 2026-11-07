@@ -100,7 +100,7 @@ export default function CustomerOrdersScreen() {
       >
         {/* Title */}
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", marginBottom: 4 }, isLandscape && { maxWidth: 600 }]}>
-          <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#000000" }}>
+          <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#3B0508" }}>
             My Orders
           </Text>
         </View>

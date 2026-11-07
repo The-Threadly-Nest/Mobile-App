@@ -1,4 +1,5 @@
 import { z } from "zod";
+export const measurementBookingSchema = z.object({ catalogItemId: z.string().uuid(), availableSlotId: z.string().uuid(), notes: z.string().trim().max(1000).optional() });
 
 export const createOrderSchema = z.object({
   customerId: z.string().uuid(),

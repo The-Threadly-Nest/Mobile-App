@@ -18,7 +18,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { router, useLocalSearchParams } from 'expo-router';
 import BackArrowIcon from '@/shared/components/BackArrowIcon';
 import {
-  Phone,
   MoreVertical,
   Star,
   Image as ImageIcon,
@@ -781,17 +780,8 @@ export default function CustomerDirectChatScreen() {
           </View>
         </View>
 
-        {/* Right Action Icons: Phone & More */}
+        {/* Right Action Icons: More */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Call Support"
-            hitSlop={8}
-            onPress={() => showAlert("Phone Call", `Voice contact for ${displayName} is connected through direct support.`)}
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-          >
-            <Phone size={20} color="#000000" />
-          </Pressable>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="More options"
@@ -1170,8 +1160,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
     gap: 8,
   },
@@ -1186,9 +1174,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerNameText: {
-    fontFamily: 'InstrumentSans-SemiBold',
-    fontSize: 15,
-    color: '#000000',
+    fontFamily: 'HedvigLettersSerif-Regular',
+    fontSize: 18,
+    color: '#3B0508',
   },
   headerSubtitleText: {
     fontFamily: 'InstrumentSans-Regular',

@@ -3,7 +3,9 @@ import { routeParam } from "../../core/http/route-param";
 import type { OrdersInput } from "./orders.dto";
 import { result, rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
-import { orderAccessWhere, bookingAccessWhere } from "../../lib/authorization";
+import { orderAccessWhere, bookingAccessWhere, availableSlotClaimWhere } from "../../lib/authorization";
+import { prepareCatalogOrder } from "../../lib/catalog-commerce";
+import { ConflictError, NotFoundError, BadRequestError } from "../../utils/errors";
 
 import { getOwnFashionHouseId } from "../../core/auth/account-identity";
 
@@ -65,16 +67,20 @@ function generateOrderNumberServer(idOrBookingId?: string): string {
 
 function resolveGarmentImageUrl(garmentTitle?: string, fashionHouse?: any): string {
   const lowerTitle = (garmentTitle || "").toLowerCase();
+  if (!lowerTitle) return "";
   if (fashionHouse?.catalogItems && fashionHouse.catalogItems.length > 0) {
     const match = fashionHouse.catalogItems.find(
       (item: any) => lowerTitle.includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(lowerTitle)
     );
     if (match?.imageUrl) return match.imageUrl;
-    if (fashionHouse.catalogItems[0]?.imageUrl) return fashionHouse.catalogItems[0].imageUrl;
   }
 
-  if (fashionHouse?.brandLogoUrl) return fashionHouse.brandLogoUrl;
   return "";
+}
+
+function snapshotImage(snapshot: unknown): string {
+  if (Array.isArray(snapshot)) return snapshotImage(snapshot[0]);
+  return snapshot && typeof snapshot === "object" && "imageUrl" in snapshot && typeof snapshot.imageUrl === "string" ? snapshot.imageUrl : "";
 }
 
 // GET /api/orders/my-orders — Customer list own bookings & orders
@@ -101,6 +107,47 @@ function resolveGarmentImageUrl(garmentTitle?: string, fashionHouse?: any): stri
 @Injectable()
 export class OrdersService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) { }
+
+  async postMeasurementBooking(input: OrdersInput<"postMeasurementBooking">) {
+    const customerId = input.authUserId!;
+    const idempotencyKey = readIdempotencyKey(input.headers);
+    if (!idempotencyKey) throw new BadRequestError("Please select your measurement appointment again.");
+    const { catalogItemId, availableSlotId, notes } = input.body;
+    const findPrior = () => this.database.client.booking.findFirst({ where: { customerId, idempotencyKey }, include: { availableSlot: true, fashionHouse: { select: { shopName: true, timezone: true } } } });
+    const prior = await findPrior();
+    if (prior) {
+      if (prior.catalogItemId !== catalogItemId || prior.availableSlotId !== availableSlotId) throw new ConflictError("That request was already used. Please choose your appointment again.");
+      return result(prior, 200);
+    }
+    let booking;
+    try {
+      booking = await this.database.client.$transaction(async tx => {
+        const item = await tx.catalogItem.findUnique({ where: { id: catalogItemId } });
+        if (!item) throw new NotFoundError("This item is no longer available.");
+        if (item.fulfillmentType !== "custom_fit") throw new BadRequestError("This item is ready for pickup. Choose your size and add it to your cart.");
+        const claim = { ...availableSlotClaimWhere(availableSlotId, item.fashionHouseId), booking: { is: null } };
+        const claimed = await tx.availableSlot.updateMany({ where: claim, data: { booked: true } });
+        if (claimed.count !== 1) throw new ConflictError("That appointment is no longer available. Please choose another time.");
+        const slot = await tx.availableSlot.findUniqueOrThrow({ where: { id: availableSlotId } });
+        if (!slot.startsAt) throw new ConflictError("Please choose another appointment time.");
+        return tx.booking.create({ data: {
+          customerId, fashionHouseId: item.fashionHouseId, availableSlotId, catalogItemId, purpose: "measurement",
+          catalogSnapshot: { id: item.id, name: item.name, imageUrl: item.imageUrl, priceFrom: item.priceFrom },
+          styleNotes: "Measurement for " + item.name + (notes ? ": " + notes : ""),
+          preferredDate: slot.startsAt, preferredTime: slot.time, isFirstTime: true,
+          status: "pending_admin_review", idempotencyKey,
+        }, include: { availableSlot: true, fashionHouse: { select: { shopName: true, timezone: true } } } });
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        const existing = await findPrior();
+        if (existing && existing.catalogItemId === catalogItemId && existing.availableSlotId === availableSlotId) return result(existing, 200);
+      }
+      throw error;
+    }
+    void sendNotificationToAdmin(booking.fashionHouseId, "New measurement booking", "A customer booked measurements for a custom-fit garment.", { screen: "orders", bookingId: booking.id });
+    return result(booking, 201);
+  }
 
   async getMyOrders(input: OrdersInput<"getMyOrders">) {
 
@@ -159,16 +206,14 @@ export class OrdersService {
       }
 
       // Dynamically resolve real garment photo from fashion house catalog or garment type
-      let realImage = "";
+      let realImage = snapshotImage(b.catalogSnapshot);
       const lowerNotes = (b.styleNotes || "").toLowerCase();
-      if (b.fashionHouse?.catalogItems && b.fashionHouse.catalogItems.length > 0) {
+      if (!realImage && lowerNotes && b.fashionHouse?.catalogItems && b.fashionHouse.catalogItems.length > 0) {
         const match = b.fashionHouse.catalogItems.find(
           (item) => lowerNotes.includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(lowerNotes)
         );
         if (match?.imageUrl) {
           realImage = match.imageUrl;
-        } else {
-          realImage = b.fashionHouse.catalogItems[0].imageUrl;
         }
       }
 
@@ -177,10 +222,12 @@ export class OrdersService {
         id: b.id,
         orderId: b.order?.id,
         bookingId: b.id,
+        purpose: b.purpose,
+        catalogItemId: b.catalogItemId,
         atelierName: b.fashionHouse?.shopName || "Fashion House",
         garmentType: b.styleNotes || "Bespoke Fitting",
         orderNumber: generateOrderNumberServer(canonicalId),
-        estimatedReady: formatEstimatedReady(b.preferredTime, b.preferredDate),
+        estimatedReady: (b.purpose === "measurement" ? "Measurement: " : "") + formatEstimatedReady(b.preferredTime, b.preferredDate),
         progressPercent: getProgressPercent(currentStatus),
         imageUrl: realImage,
         status: mappedStatus,
@@ -201,7 +248,8 @@ export class OrdersService {
         orderNumber: generateOrderNumberServer(order.id),
         estimatedReady: "Awaiting fashion house confirmation",
         progressPercent: getProgressPercent(order.status),
-        imageUrl: resolveGarmentImageUrl(order.itemName, order.fashionHouse),
+        imageUrl: snapshotImage(order.items) || resolveGarmentImageUrl(order.itemName, order.fashionHouse),
+        items: order.items,
         status: mappedStatus,
         rawStatus: order.status,
       };
@@ -218,97 +266,43 @@ export class OrdersService {
   }
 
   async postCatalogCheckout(input: OrdersInput<"postCatalogCheckout">) {
-
     const userId = input.authUserId!;
     const idempotencyKey = readIdempotencyKey(input.headers);
-    if (!idempotencyKey) {
-      return rejectRequest({ error: "We couldn't confirm this order request. Please refresh your cart and try again." }, 400);
-    }
-
-    const { fashionHouseId, items } = input.body as {
-      fashionHouseId: string;
-      items: Array<{ catalogItemId: string; quantity: number; selectedSize: string; selectedColor: string }>;
-    };
-
-    const priorOrder = await this.database.client.order.findFirst({
+    if (!idempotencyKey) throw new BadRequestError("We couldn't confirm this order request. Please refresh your cart and try again.");
+    const { fashionHouseId, items } = input.body;
+    const findPrior = () => this.database.client.order.findFirst({
       where: { fashionHouseId, idempotencyKey, customer: { userId } },
       include: { fashionHouse: { select: { shopName: true } } },
     });
+    const priorOrder = await findPrior();
     if (priorOrder) return result(priorOrder, 200);
-
-    const uniqueItemIds = [...new Set(items.map((item) => item.catalogItemId))];
-    const [catalogItems, user, fashionHouse] = await Promise.all([
-      this.database.client.catalogItem.findMany({
-        where: { id: { in: uniqueItemIds }, fashionHouseId },
-        select: { id: true, name: true, priceFrom: true },
-      }),
-      this.database.client.user.findUnique({ where: { id: userId }, select: { name: true, email: true } }),
-      this.database.client.fashionHouse.findUnique({ where: { id: fashionHouseId }, select: { id: true, shopName: true } }),
-    ]);
-
-    if (!fashionHouse) return rejectRequest({ error: "Fashion house not found." }, 404);
-    if (catalogItems.length !== uniqueItemIds.length) {
-      return rejectRequest({ error: "One or more cart items are no longer available from this fashion house." }, 400);
-    }
-
-    const catalogById = new Map(catalogItems.map((item) => [item.id, item]));
-    let total = 0;
-    const itemLabels: string[] = [];
-    for (const requestedItem of items) {
-      const catalogItem = catalogById.get(requestedItem.catalogItemId)!;
-      if (!catalogItem.priceFrom || catalogItem.priceFrom <= 0) {
-        return rejectRequest({ error: `${catalogItem.name} requires a price confirmation before ordering.` }, 400);
-      }
-      total += catalogItem.priceFrom * requestedItem.quantity;
-      const options = [requestedItem.selectedSize, requestedItem.selectedColor].filter(Boolean).join(", ");
-      itemLabels.push(`${requestedItem.quantity}× ${catalogItem.name}${options ? ` (${options})` : ""}`);
-    }
-
-    const order = await this.database.client.$transaction(async (tx) => {
-      let customer = await tx.customer.findFirst({ where: { fashionHouseId, userId } });
-      if (!customer) {
-        customer = await tx.customer.create({
-          data: {
-            fashionHouseId,
-            userId,
-            name: user?.name || user?.email || "Customer",
-            status: "active",
-          },
-        });
-      }
-
-      try {
-        return await tx.order.create({
-          data: {
-            fashionHouseId,
-            customerId: customer.id,
-            itemName: itemLabels.join("; "),
-            price: total,
-            status: "order_placed",
-            idempotencyKey,
-          },
+    let order;
+    try {
+      order = await this.database.client.$transaction(async tx => {
+        const [catalogItems, user, house] = await Promise.all([
+          tx.catalogItem.findMany({ where: { id: { in: [...new Set(items.map(item => item.catalogItemId))] }, fashionHouseId } }),
+          tx.user.findUnique({ where: { id: userId }, select: { name: true, email: true } }),
+          tx.fashionHouse.findUnique({ where: { id: fashionHouseId }, select: { id: true } }),
+        ]);
+        if (!house) throw new NotFoundError("Fashion house not found.");
+        const prepared = prepareCatalogOrder(catalogItems, items);
+        let customer = await tx.customer.findFirst({ where: { fashionHouseId, userId } });
+        if (!customer) customer = await tx.customer.create({ data: { fashionHouseId, userId, name: user?.name || user?.email || "Customer", status: "active" } });
+        return tx.order.create({
+          data: { fashionHouseId, customerId: customer.id, itemName: prepared.itemName, items: prepared.items, price: prepared.total, status: "order_placed", idempotencyKey },
           include: { fashionHouse: { select: { shopName: true } } },
         });
-      } catch (error) {
-        if (!isUniqueConstraintError(error)) throw error;
-        const existing = await tx.order.findFirst({
-          where: { fashionHouseId, idempotencyKey, customer: { userId } },
-          include: { fashionHouse: { select: { shopName: true } } },
-        });
-        if (!existing) throw error;
-        return existing;
+      });
+    } catch (error) {
+      // PostgreSQL aborts a failed transaction: query idempotent retries outside it.
+      if (isUniqueConstraintError(error)) {
+        const existing = await findPrior();
+        if (existing) return result(existing, 200);
       }
-    });
-
-    void sendNotificationToAdmin(
-      fashionHouseId,
-      "New catalog order",
-      `${user?.name || "A customer"} placed an order for ${items.length} cart item${items.length === 1 ? "" : "s"}.`,
-      { screen: "orders", orderId: order.id },
-    );
-
+      throw error;
+    }
+    void sendNotificationToAdmin(fashionHouseId, "New pickup order", "A customer placed a ready-for-pickup order.", { screen: "orders", orderId: order.id });
     return result(order, 201);
-
   }
 
   async postMyOrders(input: OrdersInput<"postMyOrders">) {
@@ -371,7 +365,7 @@ export class OrdersService {
     if (booking) {
       const currentStatus = (booking as any).order?.status || booking.status;
       const garmentType = (booking as any).order?.itemName || booking.styleNotes || "Bespoke Garment";
-      const imageUrl = resolveGarmentImageUrl(garmentType, booking.fashionHouse);
+      const imageUrl = snapshotImage(booking.catalogSnapshot) || resolveGarmentImageUrl(garmentType, booking.fashionHouse);
 
       return {
         id: booking.id,
@@ -403,7 +397,7 @@ export class OrdersService {
       }
 
       const garmentType = order.itemName || "Bespoke Garment";
-      const imageUrl = resolveGarmentImageUrl(garmentType, order.fashionHouse);
+      const imageUrl = snapshotImage(order.items) || resolveGarmentImageUrl(garmentType, order.fashionHouse);
 
       return {
         id: order.id,
@@ -415,7 +409,7 @@ export class OrdersService {
         garmentType,
         status: order.status,
         progressPercent: getProgressPercent(order.status),
-        estimatedReady: "In Production",
+        estimatedReady: order.status === "order_placed" ? "Awaiting fashion house confirmation" : order.status.replace(/_/g, " "),
         price: order.price,
         imageUrl,
         customer: {
@@ -620,7 +614,15 @@ export class OrdersService {
     });
 
     if (!order) {
-      return rejectRequest({ error: "Order not found." }, 404);
+      const booking = await this.database.client.booking.findFirst({
+        where: { id: routeParam(input, "id"), fashionHouseId: fhId },
+        include: { customer: { select: { id: true, name: true, email: true } }, availableSlot: true },
+      });
+      if (!booking) return rejectRequest({ error: "Order or appointment not found." }, 404);
+      const customer = await this.database.client.customer.findFirst({ where: { fashionHouseId: fhId, userId: booking.customerId }, include: { measurements: { orderBy: { recordedAt: "desc" } } } });
+      return { id: booking.id, bookingId: booking.id, isBooking: true, purpose: booking.purpose, itemName: booking.styleNotes, status: booking.status, createdAt: booking.createdAt, price: null,
+        availableSlot: booking.availableSlot, preferredDate: booking.preferredDate, preferredTime: booking.preferredTime,
+        customer: { ...booking.customer, phone: customer?.phone ?? null, measurements: customer?.measurements ?? [] }, staff: null };
     }
 
     let measurements = order.customer.measurements || [];

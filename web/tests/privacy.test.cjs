@@ -15,10 +15,11 @@ compiled._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
 }).outputText, filename);
 const markup = renderToStaticMarkup(React.createElement(compiled.exports.default));
 
-test('privacy page renders the owner, contact, scope and actual service providers', () => {
+test('privacy page renders the owner, contact, scope and functional service provider categories', () => {
   assert.match(compiled.exports.metadata.title, /Privacy Policy/);
-  for (const text of ['Owuja', 'support@owuja.com', 'www.owuja.com', 'unreleased mobile app', 'Railway', 'Resend', 'PostgreSQL']) assert.ok(markup.includes(text), text);
+  for (const text of ['Owuja', 'support@owuja.com', 'www.owuja.com', 'unreleased mobile app', 'Cloud infrastructure and database providers', 'Transactional communication and email delivery providers']) assert.ok(markup.includes(text), text);
   assert.match(markup, /href="https:\/\/ndpc.gov.ng\/"/);
+  assert.doesNotMatch(markup, /Railway|Resend|PostgreSQL/);
   assert.doesNotMatch(markup, /<script|iubenda/i);
 });
 

@@ -11,6 +11,7 @@ export const catalogInputs = {
   getMarketplace: { query: collectionPaginationSchema },
   getFashionHouseByFashionHouseId: { params: fashionHouseIdParamSchema, query: collectionPaginationSchema },
   getItemById: { params: idParamSchema },
+  getMeasurementSlots: { params: idParamSchema },
 } as const;
 
 export type CatalogInput<K extends keyof typeof catalogInputs> = ValidatedInput<(typeof catalogInputs)[K]>;

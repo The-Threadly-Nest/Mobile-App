@@ -1,15 +1,41 @@
-import React, { useState } from "react";
-import { View, ScrollView, Pressable, Text, ActivityIndicator, RefreshControl, Modal, TextInput, useWindowDimensions } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  ScrollView,
+  Pressable,
+  Text,
+  ActivityIndicator,
+  RefreshControl,
+  Image,
+  useWindowDimensions,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { router, useFocusEffect } from "expo-router";
-import { Plus, Trash2, Calendar, Clock, X } from "lucide-react-native";
+import { Menu, ChevronDown, Star, Plus, MessageSquare } from "lucide-react-native";
+import Svg, { Path, Defs, LinearGradient, Stop, Circle as SvgCircle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { APP_DATA_CACHE_TTL_MS, useAppDataStore } from "@/stores/useAppDataStore";
-import { adminApi, ordersApi, escalationsApi, measurementsApi, slotsApi, type AdminDashboardSummary } from "@/shared/utils/apiClient";
+import {
+  adminApi,
+  ordersApi,
+  escalationsApi,
+  measurementsApi,
+  apiFetch,
+  apiFetchCollectionPage,
+  type AdminDashboardSummary,
+} from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { isBookingPending, isOrderWorkActive, isPaymentPaid } from "@/shared/domain/statuses";
 import { formatCurrency } from "@/shared/utils/formatters";
+import CachedImage from "@/shared/components/CachedImage";
+
+interface CatalogItem {
+  id: string;
+  name: string;
+  priceFrom: number | null;
+  imageUrl: string;
+}
 
 interface EscalationItem {
   id: string;
@@ -47,9 +73,8 @@ export default function AdminDashboard() {
   const setCachedSummary = useAppDataStore((s) => s.setDashboardSummary);
   const activateCache = useAppDataStore((s) => s.activateCache);
 
-  const expectedCacheOwner = storeEmail && storeRole
-    ? `${storeRole}:${storeEmail.trim().toLowerCase()}`
-    : null;
+  const expectedCacheOwner =
+    storeEmail && storeRole ? `${storeRole}:${storeEmail.trim().toLowerCase()}` : null;
   const cacheIsFresh = Boolean(
     expectedCacheOwner &&
       cacheOwnerKey === expectedCacheOwner &&
@@ -60,22 +85,23 @@ export default function AdminDashboard() {
   const [shopName, setShopName] = useState(
     (cacheIsFresh ? cachedProfile?.shopName : null) || storedShopName || ""
   );
-
-  // Seed states directly from persistent device storage — instant 0-spinner load!
   const [orders, setOrders] = useState<any[]>(cacheIsFresh ? cachedOrders : []);
   const [escalations, setEscalations] = useState<EscalationItem[]>(cacheIsFresh ? cachedEscalations : []);
   const [summary, setSummary] = useState<AdminDashboardSummary | null>(cacheIsFresh ? cachedSummary : null);
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [brandLogoUrl, setBrandLogoUrl] = useState<string>("");
   const [assignLoadingId, setAssignLoadingId] = useState<string | null>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(
     !cacheIsFresh || (cachedOrders.length === 0 && cachedEscalations.length === 0)
   );
   const [refreshing, setRefreshing] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (expectedCacheOwner) activateCache(expectedCacheOwner);
   }, [activateCache, expectedCacheOwner]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (cacheIsFresh && orders.length === 0 && cachedOrders.length > 0) {
       setOrders(cachedOrders);
       setLoading(false);
@@ -85,34 +111,32 @@ export default function AdminDashboard() {
       setLoading(false);
     }
     if (cacheIsFresh && cachedProfile?.shopName && !shopName) setShopName(cachedProfile.shopName);
+    if (cachedProfile?.brandLogoUrl) setBrandLogoUrl(cachedProfile.brandLogoUrl);
   }, [cacheIsFresh, cachedEscalations, cachedOrders, cachedProfile, escalations.length, orders.length, shopName]);
 
-
-
   const fetchData = async () => {
-    // Only show full-screen spinner if local device cache is completely empty
     if (orders.length === 0 && escalations.length === 0) {
       setLoading(true);
     }
     try {
-      const [profileRes, summaryRes, ordersRes, escalationsRes] = await Promise.allSettled([
+      const [profileRes, summaryRes, ordersRes, escalationsRes, catalogRes] = await Promise.allSettled([
         adminApi.getProfile(),
         adminApi.getDashboardSummary(),
         ordersApi.getOrders(),
         escalationsApi.getEscalations(),
+        apiFetchCollectionPage<CatalogItem>("/api/catalog?page=1&limit=10", { silent: true }),
       ]);
 
       if (profileRes.status === "fulfilled" && profileRes.value?.fashionHouse) {
         const house = profileRes.value.fashionHouse;
         setCachedProfile(house);
-        if (house.admin?.name) {
-          useAuthStore.getState().setName(house.admin.name);
-        }
+        if (house.admin?.name) useAuthStore.getState().setName(house.admin.name);
         if (house.shopName || house.name) {
           const name = house.shopName || house.name;
           setShopName(name);
           setStoredShopName(name);
         }
+        if (house.brandLogoUrl) setBrandLogoUrl(house.brandLogoUrl);
       }
 
       if (ordersRes.status === "fulfilled" && Array.isArray(ordersRes.value)) {
@@ -129,6 +153,19 @@ export default function AdminDashboard() {
         setEscalations(escalationsRes.value);
         setCachedEscalations(escalationsRes.value);
       }
+
+      if (catalogRes.status === "fulfilled" && Array.isArray(catalogRes.value.items)) {
+        setCatalogItems(catalogRes.value.items);
+      }
+
+      // Fetch unread messages count for header notification badge
+      try {
+        const threads = await apiFetch<any[]>("/api/direct-messages/threads", { silent: true });
+        if (Array.isArray(threads)) {
+          const total = threads.reduce((acc: number, t: any) => acc + (t.unreadCount || 0), 0);
+          setUnreadCount(total);
+        }
+      } catch {}
     } catch (err) {
       console.warn("Failed to load dashboard data", err);
     } finally {
@@ -137,44 +174,23 @@ export default function AdminDashboard() {
     }
   };
 
-  const refreshDashboardSummary = async () => {
-    try {
-      const latestSummary = await adminApi.getDashboardSummary();
-      setSummary(latestSummary);
-      setCachedSummary(latestSummary);
-    } catch (err) {
-      // Keep the last successful figures during a temporary network failure.
-      console.warn("Failed to refresh dashboard summary", err);
-    }
-  };
-
   useFocusEffect(
-    React.useCallback(() => {
-      // Immediate fetch on focus
+    useCallback(() => {
       fetchData();
-
-      // Only refresh the three small dashboard figures in the background.
-      // Lists and profile data refresh on focus or pull-to-refresh.
-      const interval = setInterval(refreshDashboardSummary, 30_000);
-
-      // Cleanup: stop polling when admin navigates away
+      const interval = setInterval(async () => {
+        try {
+          const latestSummary = await adminApi.getDashboardSummary();
+          setSummary(latestSummary);
+          setCachedSummary(latestSummary);
+        } catch {}
+      }, 30_000);
       return () => clearInterval(interval);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
   );
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchData();
-  };
-
-  const handleResolveEscalation = async (id: string) => {
-    try {
-      await escalationsApi.resolveEscalation(id);
-      setEscalations((prev) => prev.map((item) => (item.id === id ? { ...item, resolved: true } : item)));
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   const handleDeclineBooking = (id: string, customerName?: string) => {
@@ -187,17 +203,13 @@ export default function AdminDashboard() {
         onConfirm: async () => {
           try {
             await escalationsApi.declineBooking(id);
-            // Mark locally as resolved so it drops off the pending list immediately
             setEscalations((prev) =>
               prev.map((item) =>
-                item.id === id
-                  ? { ...item, resolved: true, bookingStatus: "declined" }
-                  : item
+                item.id === id ? { ...item, resolved: true, bookingStatus: "declined" } : item
               )
             );
             showAlert("Booking Declined", `The booking request for ${customerName || "this customer"} has been declined.`);
-          } catch (err) {
-            console.error("Failed to decline booking:", err);
+          } catch {
             showAlert("Error", "Could not decline the booking. Please try again.");
           }
         },
@@ -205,518 +217,542 @@ export default function AdminDashboard() {
     );
   };
 
-  // Smart Fallback filtering & deduplication
   const realOrders = orders.filter((o) => !o.id?.startsWith("mock-"));
   const realEscalations = escalations.filter((e) => !e.id?.startsWith("mock-"));
+  const effectiveOrders = realOrders;
+  const effectiveEscalations = realEscalations;
 
-  const effectiveOrders = realOrders.length > 0 ? realOrders : orders;
-  const effectiveEscalations = realEscalations.length > 0 ? realEscalations : escalations;
-
-  // Active Orders count = orders in progress (not completed, delivered, ready_for_pickup, or cancelled)
   const pageActiveOrdersCount = effectiveOrders.filter((o) => isOrderWorkActive(o.status)).length;
-
-  // Page-only fallback: payment and fulfilment are separate states.
   const paidOrders = realOrders.filter(
-    (o) =>
-      o.isPaid === true ||
-      isPaymentPaid(o.paymentStatus || o.invoice?.paymentStatus || o.invoiceStatus)
+    (o) => o.isPaid === true || isPaymentPaid(o.paymentStatus || o.invoice?.paymentStatus || o.invoiceStatus)
   );
-
   const pageRevenue = paidOrders.reduce((sum, o) => sum + (o.invoice?.total || o.price || 0), 0);
 
-  // Deduplicate pending escalations/bookings by ID or customer reference
   const uniquePendingEscalations = new Map<string, any>();
   effectiveEscalations.forEach((e) => {
     if (!e.resolved && (isBookingPending(e.bookingStatus) || !e.bookingStatus)) {
       const key = e.id || e.customerId || e.customerName || "esc";
-      if (!uniquePendingEscalations.has(key)) {
-        uniquePendingEscalations.set(key, e);
-      }
+      if (!uniquePendingEscalations.has(key)) uniquePendingEscalations.set(key, e);
     }
   });
   const pendingEscalations = Array.from(uniquePendingEscalations.values());
+
   const activeOrdersCount = summary?.activeOrdersCount ?? pageActiveOrdersCount;
   const pendingBookingsCount = summary?.pendingBookingsCount ?? pendingEscalations.length;
-  const totalRevenue = summary?.revenueThisMonth ?? pageRevenue;
+  const totalRevenue = summary?.revenueThisMonth;
 
-  // Declined bookings count — bookingStatus is set by the server
-  const declinedBookingsCount = effectiveEscalations.filter(
-    (e) => e.bookingStatus === "declined"
-  ).length;
-
-  // Business / Brand Name entered during signup (e.g. "Royal Stitch Atelier")
-  const shopNameDisplay = shopName || storedShopName || "Fashion House";
-
-  // Personal Admin First Name entered during signup (e.g. "Chiamaka")
-  const emailPrefix = storeEmail ? storeEmail.split("@")[0] : "";
-  const fallbackEmailName = emailPrefix
-    ? emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)
-    : "Admin";
-
-  // Ensure personal name does not accidentally match brand name
-  const isPersonalNameValid =
-    storeName &&
-    storeName.trim().toLowerCase() !== shopNameDisplay.trim().toLowerCase();
-  const adminFullName = isPersonalNameValid ? storeName : fallbackEmailName;
-  const adminFirstName = adminFullName.split(" ")[0];
-
-  // Display real pending escalations from database
+  const shopNameDisplay = shopName || storedShopName || "Your fashion house";
   const displayRequests = pendingEscalations.slice(0, 3);
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
+  const displayedProducts = catalogItems;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8F9" }} edges={["top"]}>
       <ScrollView
         contentContainerStyle={[
-          { paddingHorizontal: 24, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 40 },
+          { paddingHorizontal: 20, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 110 },
           isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#F96951" />}
       >
-        {/* Subtitle Badge */}
-        <Text
-          style={{
-            fontFamily: "InstrumentSans-Medium",
-            fontSize: 13,
-            color: "#453332",
-            marginBottom: 4,
-          }}
-        >
-          {shopNameDisplay} · Admin
-        </Text>
-
-        {/* Serif Greeting */}
-        <View style={{ marginBottom: 20, justifyContent: "center" }}>
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={{
-              fontFamily: "HedvigLettersSerif-Regular",
-              fontSize: 26,
-              color: "#3B0508",
-              lineHeight: 34,
-            }}
-          >
-            {getGreeting()}, {adminFirstName}
-          </Text>
-        </View>
-
-        {/* Top Metrics Row: Side-by-side in landscape, stacked in portrait */}
-        <View style={isLandscape ? { flexDirection: "row", gap: 12, marginBottom: 20 } : { marginBottom: 24 }}>
-          {/* Monthly Revenue Banner */}
-          <View
-            style={[
-              {
-                backgroundColor: "#453332",
-                borderRadius: 16,
-                height: 86,
-                justifyContent: "center",
-                paddingHorizontal: 22,
-                marginBottom: 16,
-              },
-              isLandscape && { flex: 1, marginBottom: 0 },
-            ]}
-          >
-            <Text
-              style={{
-                fontFamily: "HedvigLettersSerif-Regular",
-                fontSize: 28,
-                color: "#FFFFFF",
-                marginBottom: 4,
-              }}
-            >
-              {formatCurrency(totalRevenue)}
-            </Text>
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 11,
-                letterSpacing: 1.2,
-                color: "rgba(244, 239, 230, 0.8)",
-              }}
-            >
-              REVENUE THIS MONTH
-            </Text>
-          </View>
-
-          {/* Side-by-Side Stat Cards — Row 1: Active + Pending */}
-          <View style={[{ flexDirection: "row", gap: 12 }, isLandscape && { flex: 1 }]}>
-            <Pressable
-              onPress={() => router.push("/(admin)/orders" as any)}
-              style={({ pressed }) => ({
-                flex: 1,
-                height: 86,
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                justifyContent: "center",
-                alignItems: "center",
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Text
-                style={{
-                  fontFamily: "HedvigLettersSerif-Regular",
-                  fontSize: 24,
-                  color: "#3B0508",
-                  marginBottom: 2,
-                }}
-              >
-                {activeOrdersCount}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-SemiBold",
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  color: "#8A7550",
-                }}
-              >
-                ACTIVE ORDERS
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => router.push("/(admin)/escalations" as any)}
-              style={({ pressed }) => ({
-                flex: 1,
-                height: 86,
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                justifyContent: "center",
-                alignItems: "center",
-                opacity: pressed ? 0.85 : 1,
-              })}
-            >
-              <Text
-                style={{
-                  fontFamily: "HedvigLettersSerif-Regular",
-                  fontSize: 24,
-                  color: "#3B0508",
-                  marginBottom: 2,
-                }}
-              >
-                {pendingBookingsCount}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-SemiBold",
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  color: "#8A7550",
-                }}
-              >
-                PENDING BOOKINGS
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Action Button Row — Take Measurement */}
-        <View style={{ marginBottom: 24, marginTop: 12 }}>
-          <Pressable
-            onPress={() => router.push("/(admin)/measurements/new")}
-            style={({ pressed }) => [
-              {
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#453332",
-                height: 52,
-                borderRadius: 26,
-                gap: 8,
-                paddingHorizontal: 16,
-                opacity: pressed ? 0.9 : 1,
-              },
-            ]}
-          >
-            <Plus size={20} color="#FFFFFF" />
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 15,
-                color: "#FFFFFF",
-              }}
-            >
-              Take Measurement
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Booking Requests Header */}
+        {/* ─── 1. Header (Location & Brand on Left, Message Icon on Right) ─── */}
         <View
           style={{
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 16,
+            marginBottom: 20,
           }}
         >
-          <Text
-            style={{
-              fontFamily: "HedvigLettersSerif-Regular",
-              fontSize: 18,
-              color: "#453332",
-            }}
+          {/* Left: Location & Brand Name */}
+          <Pressable
+            onPress={() => router.push("/(admin)/settings" as any)}
+            style={{ alignItems: "flex-start" }}
           >
-            Booking requests
-          </Text>
-          <Pressable onPress={() => router.push("/(admin)/escalations")}>
             <Text
               style={{
-                fontFamily: "InstrumentSans-Medium",
-                fontSize: 13,
-                color: "#8A7550",
+                fontFamily: "InstrumentSans-Bold",
+                fontSize: 10,
+                color: "#F96951",
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+                marginBottom: 2,
               }}
             >
-              View All
+              Location
+            </Text>
+            <Text
+              style={{
+                fontFamily: "InstrumentSans-SemiBold",
+                fontSize: 16,
+                color: "#32343E",
+              }}
+              numberOfLines={1}
+            >
+              {shopNameDisplay}
+            </Text>
+          </Pressable>
+
+          {/* Right: Message & Notification Icon with Badge */}
+          <Pressable
+            onPress={() => router.push("/(admin)/messages" as any)}
+            accessibilityRole="button"
+            accessibilityLabel="Messages and notifications"
+            style={({ pressed }) => ({
+              width: 42,
+              height: 42,
+              borderRadius: 21,
+              backgroundColor: "#FFFFFF",
+              alignItems: "center",
+              justifyContent: "center",
+              elevation: 2,
+              shadowColor: "#000000",
+              shadowOpacity: 0.08,
+              shadowRadius: 6,
+              shadowOffset: { width: 0, height: 2 },
+              opacity: pressed ? 0.8 : 1,
+            })}
+          >
+            <MessageSquare size={19} color="#32343E" strokeWidth={2} />
+            {unreadCount > 0 && (
+              <View
+                style={{
+                  position: "absolute",
+                  top: -2,
+                  right: -2,
+                  minWidth: 16,
+                  height: 16,
+                  borderRadius: 8,
+                  backgroundColor: "#F96951",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: 3,
+                }}
+              >
+                <Text style={{ fontFamily: "InstrumentSans-Bold", fontSize: 9, color: "#FFFFFF" }}>
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        </View>
+
+        {/* ─── 2. Running Orders & Order Request (Figma Stats) ─── */}
+        <View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
+          {/* Running Orders Card */}
+          <Pressable
+            onPress={() => router.push("/(admin)/orders")}
+            style={({ pressed }) => ({
+              flex: 1,
+              backgroundColor: "#FFFFFF",
+              borderRadius: 18,
+              paddingVertical: 18,
+              paddingHorizontal: 16,
+              elevation: 2,
+              shadowColor: "#000000",
+              shadowOpacity: 0.04,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 2 },
+              opacity: pressed ? 0.85 : 1,
+            })}
+          >
+            <Text
+              style={{
+                fontFamily: "InstrumentSans-Bold",
+                fontSize: 34,
+                color: "#32343E",
+                marginBottom: 4,
+              }}
+            >
+              {String(activeOrdersCount).padStart(2, "0")}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "InstrumentSans-SemiBold",
+                fontSize: 10,
+                letterSpacing: 0.8,
+                color: "#838799",
+                textTransform: "uppercase",
+              }}
+            >
+              Running Orders
+            </Text>
+          </Pressable>
+
+          {/* Order Request Card */}
+          <Pressable
+            onPress={() => router.push("/(admin)/escalations")}
+            style={({ pressed }) => ({
+              flex: 1,
+              backgroundColor: "#FFFFFF",
+              borderRadius: 18,
+              paddingVertical: 18,
+              paddingHorizontal: 16,
+              elevation: 2,
+              shadowColor: "#000000",
+              shadowOpacity: 0.04,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 2 },
+              opacity: pressed ? 0.85 : 1,
+            })}
+          >
+            <Text
+              style={{
+                fontFamily: "InstrumentSans-Bold",
+                fontSize: 34,
+                color: "#32343E",
+                marginBottom: 4,
+              }}
+            >
+              {String(pendingBookingsCount).padStart(2, "0")}
+            </Text>
+            <Text
+              style={{
+                fontFamily: "InstrumentSans-SemiBold",
+                fontSize: 10,
+                letterSpacing: 0.8,
+                color: "#838799",
+                textTransform: "uppercase",
+              }}
+            >
+              Order Request
             </Text>
           </Pressable>
         </View>
 
-        {/* Booking Requests List */}
-        {loading ? (
-          <ActivityIndicator color="#453332" style={{ marginVertical: 20 }} />
-        ) : displayRequests.length === 0 ? (
-          <View
-            style={{
-              backgroundColor: "#FFFFFF",
-              borderRadius: 20,
-              padding: 24,
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 14,
-            }}
-          >
-            <Text
+        {/* ─── 3. Total Revenue Card with Curve Chart (Figma Spec) ─── */}
+        <View
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderRadius: 20,
+            padding: 18,
+            marginBottom: 16,
+            elevation: 2,
+            shadowColor: "#000000",
+            shadowOpacity: 0.04,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 2 },
+          }}
+        >
+          {/* Revenue Header */}
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+            <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#32343E" }}>
+              Total Revenue
+            </Text>
+
+            {/* Daily Filter Pill */}
+            <View
               style={{
-                fontFamily: "InstrumentSans-Regular",
-                fontSize: 14,
-                color: "rgba(74, 8, 12, 0.6)",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 4,
+                borderWidth: 1,
+                borderColor: "#E8EAED",
+                borderRadius: 8,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
               }}
             >
-              No pending booking requests.
-            </Text>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#453332" }}>This month</Text>
+              <ChevronDown size={11} color="#453332" />
+            </View>
+
+            {/* See Details Link */}
+            <Pressable onPress={() => router.push("/(admin)/invoices")}>
+              <Text
+                style={{
+                  fontFamily: "InstrumentSans-Regular",
+                  fontSize: 12,
+                  color: "#F96951",
+                  textDecorationLine: "underline",
+                }}
+              >
+                See Details
+              </Text>
+            </Pressable>
           </View>
-        ) : (
-          <View style={isLandscape ? { flexDirection: "row", flexWrap: "wrap", gap: 12 } : undefined}>
+
+          {/* Revenue Value */}
+          <Text
+            style={{
+              fontFamily: "InstrumentSans-Bold",
+              fontSize: 22,
+              color: "#32343E",
+              marginBottom: 10,
+            }}
+          >
+            {totalRevenue == null ? "Unavailable" : formatCurrency(totalRevenue)}
+          </Text>
+
+          <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#746765", fontSize: 12, marginTop: 12 }}>Revenue from paid invoices this month.</Text>
+        </View>
+
+        {/* ─── 5. Pending Booking Requests (Preserved Admin Actions) ─── */}
+        {displayRequests.length > 0 && (
+          <View style={{ marginBottom: 18 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 17, color: "#32343E" }}>
+                Booking requests
+              </Text>
+              <Pressable onPress={() => router.push("/(admin)/escalations")}>
+                <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#F96951" }}>
+                  View All ({pendingEscalations.length})
+                </Text>
+              </Pressable>
+            </View>
+
             {displayRequests.map((item: any) => {
               const customerName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
-              const initial = item.initial || customerName.charAt(0).toUpperCase();
-              const detail = item.detail || item.reason || item.summary || "Bespoke fitting request";
+              const detail = item.reason || item.summary || "Bespoke fitting request";
 
               return (
                 <View
                   key={item.id}
-                  style={[
-                    {
-                      backgroundColor: "#FFFFFF",
-                      borderRadius: 20,
-                      height: 150,
-                      padding: 16,
-                      justifyContent: "space-between",
-                      marginBottom: 14,
-                    },
-                    isLandscape && { width: "49%", marginBottom: 0 },
-                  ]}
-                >
-                {/* Top Customer Info Row */}
-                <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 16,
+                    backgroundColor: "#FFFFFF",
+                    borderRadius: 16,
+                    padding: 14,
+                    marginBottom: 10,
+                    elevation: 1,
+                    shadowColor: "#000000",
+                    shadowOpacity: 0.03,
+                    shadowRadius: 6,
                   }}
                 >
-                  {/* Initials Circle Avatar */}
-                  <View
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 22,
-                      backgroundColor: "#7A3E26",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginRight: 12,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "HedvigLettersSerif-Regular",
-                        fontSize: 18,
-                        color: "#FFFFFF",
-                      }}
-                    >
-                      {initial}
-                    </Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#32343E" }}>
+                        {customerName}
+                      </Text>
+                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#8A7550" }}>
+                        {detail}
+                      </Text>
+                    </View>
+                    <View style={{ backgroundColor: "#F4EFE6", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#B0966C" }}>Pending</Text>
+                    </View>
                   </View>
 
-                  {/* Name & Request detail */}
-                  <View style={{ flex: 1 }}>
-                    <Text
-                      style={{
-                        fontFamily: "InstrumentSans-SemiBold",
-                        fontSize: 16,
-                        color: "#3B0508",
-                        marginBottom: 2,
-                      }}
-                    >
-                      {customerName}
-                    </Text>
-                    <Text
-                      numberOfLines={1}
-                      style={{
-                        fontFamily: "InstrumentSans-Regular",
-                        fontSize: 12,
-                        color: "#8A7550",
-                      }}
-                    >
-                      {detail}
-                    </Text>
-                  </View>
-
-                  {/* Status Badge */}
-                  <View
-                    style={{
-                      backgroundColor: "#F4EFE6",
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 12,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "InstrumentSans-Medium",
-                        fontSize: 11,
-                        color: "#B0966C",
-                      }}
-                    >
-                      Pending
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Action Buttons Row */}
-                <View style={{ flexDirection: "row", gap: 12 }}>
-                  <Pressable
-                    disabled={assignLoadingId === item.id}
-                    onPress={async () => {
-                      if (!item.id.startsWith("demo-")) {
-                        const custName = item.customerName || item.customer?.email?.split("@")[0] || "Customer";
+                  <View style={{ flexDirection: "row", gap: 10 }}>
+                    <Pressable
+                      disabled={assignLoadingId === item.id}
+                      onPress={async () => {
                         setAssignLoadingId(item.id);
                         try {
-                          const data = await measurementsApi.checkCustomer(custName);
-                          if (data.hasMeasurements === false) {
+                          const check = await measurementsApi.checkCustomer(customerName);
+                          if (!check?.hasMeasurements) {
                             showConfirm(
                               "Measurement Required",
-                              `No measurements found for ${custName}. Please record measurement details before assigning staff.`,
+                              `No measurements found for ${customerName}. Record measurements before assigning?`,
                               {
                                 confirmLabel: "Add Measurement",
-                                onConfirm: () => {
+                                onConfirm: () =>
                                   router.push({
                                     pathname: "/(admin)/measurements/new",
-                                    params: {
-                                      bookingId: item.id,
-                                      customerName: custName,
-                                      serviceTitle: item.reason || item.summary || "Bespoke Fitting",
-                                      appointmentTime: "Sat, Sept 6",
-                                      returnToAssign: "true",
-                                    },
-                                  } as any);
-                                },
+                                    params: { bookingId: item.id, customerName },
+                                  } as any),
                               }
                             );
                             return;
                           }
-                        } catch (err: any) {
-                          showAlert("Unable to Check Measurements", err?.message || "Please try again before assigning staff.");
-                          return;
+                          router.push({
+                            pathname: "/(admin)/escalations/assign",
+                            params: { bookingId: item.id, customerName, serviceTitle: detail },
+                          } as any);
+                        } catch {
+                          router.push({
+                            pathname: "/(admin)/escalations/assign",
+                            params: { bookingId: item.id, customerName, serviceTitle: detail },
+                          } as any);
                         } finally {
                           setAssignLoadingId(null);
                         }
-                        router.push({
-                          pathname: "/(admin)/escalations/assign",
-                          params: {
-                            bookingId: item.id,
-                            customerName: custName,
-                            serviceTitle: item.reason || item.summary || "Bespoke Fitting",
-                            appointmentTime: "Sat, Sept 6",
-                          },
-                        } as any);
-                      }
-                    }}
-                    style={({ pressed }) => [
-                      {
+                      }}
+                      style={{
                         flex: 1,
-                        height: 44,
-                        borderRadius: 22,
+                        height: 38,
+                        borderRadius: 19,
                         backgroundColor: "#453332",
                         alignItems: "center",
                         justifyContent: "center",
-                        opacity: pressed || assignLoadingId === item.id ? 0.7 : 1,
-                      },
-                    ]}
-                  >
-                    {assignLoadingId === item.id ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text
-                        style={{
-                          fontFamily: "InstrumentSans-SemiBold",
-                          fontSize: 14,
-                          color: "#FFFFFF",
-                        }}
-                      >
-                        Assign
-                      </Text>
-                    )}
-                  </Pressable>
+                      }}
+                    >
+                      {assignLoadingId === item.id ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>Assign</Text>
+                      )}
+                    </Pressable>
 
-                  <Pressable
-                    onPress={() => {
-                      if (!item.id.startsWith("demo-")) {
-                        handleDeclineBooking(item.id, customerName);
-                      }
-                    }}
-                    style={({ pressed }) => [
-                      {
+                    <Pressable
+                      onPress={() => handleDeclineBooking(item.id, customerName)}
+                      style={{
                         flex: 1,
-                        height: 44,
-                        borderRadius: 22,
+                        height: 38,
+                        borderRadius: 19,
                         backgroundColor: "#FFFFFF",
                         borderWidth: 1.5,
                         borderColor: "#453332",
                         alignItems: "center",
                         justifyContent: "center",
-                        opacity: pressed ? 0.8 : 1,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={{
-                        fontFamily: "InstrumentSans-SemiBold",
-                        fontSize: 14,
-                        color: "#453332",
                       }}
                     >
-                      Decline
-                    </Text>
-                  </Pressable>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>Decline</Text>
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
-            );
-          })}
-        </View>
+              );
+            })}
+          </View>
         )}
+
+        {/* ─── 6. My Listed Items / Admin Products (Figma Spec) ─── */}
+        <View style={{ marginBottom: 20 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 14,
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "InstrumentSans-Bold",
+                fontSize: 15,
+                color: "#32343E",
+              }}
+            >
+              My Listed Items
+            </Text>
+            <Pressable onPress={() => router.push("/(admin)/catalog")}>
+              <Text
+                style={{
+                  fontFamily: "InstrumentSans-Regular",
+                  fontSize: 12,
+                  color: "#F96951",
+                  textDecorationLine: "underline",
+                }}
+              >
+                See All
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Product Items Horizontal Scroll / Cards */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14 }}>
+            {displayedProducts.map((prod) => (
+              <Pressable
+                key={prod.id}
+                onPress={() => {
+                  if (prod.id.startsWith("showcase-")) {
+                    router.push("/(admin)/catalog/new");
+                  } else {
+                    router.push(`/(admin)/catalog/${prod.id}` as any);
+                  }
+                }}
+                style={({ pressed }) => ({
+                  width: 150,
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: 18,
+                  overflow: "hidden",
+                  elevation: 2,
+                  shadowColor: "#000000",
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  shadowOffset: { width: 0, height: 2 },
+                  opacity: pressed ? 0.9 : 1,
+                })}
+              >
+                <View style={{ width: "100%", height: 145, backgroundColor: "#EBE0D3" }}>
+                  <CachedImage
+                    source={{ uri: prod.imageUrl }}
+                    style={{ width: "100%", height: "100%" }}
+                    contentFit="cover"
+                  />
+                </View>
+                <View style={{ padding: 10 }}>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      fontFamily: "InstrumentSans-SemiBold",
+                      fontSize: 13,
+                      color: "#32343E",
+                      marginBottom: 2,
+                    }}
+                  >
+                    {prod.name}
+                  </Text>
+                  {prod.priceFrom ? (
+                    <Text
+                      style={{
+                        fontFamily: "InstrumentSans-Bold",
+                        fontSize: 12,
+                        color: "#F96951",
+                      }}
+                    >
+                      {formatCurrency(prod.priceFrom)}
+                    </Text>
+                  ) : (
+                    <Text
+                      style={{
+                        fontFamily: "InstrumentSans-Regular",
+                        fontSize: 11,
+                        color: "#8A7550",
+                      }}
+                    >
+                      Price on request
+                    </Text>
+                  )}
+                </View>
+              </Pressable>
+            ))}
+
+            {/* Quick Action: Add New Item Card */}
+            <Pressable
+              onPress={() => router.push("/(admin)/catalog/new")}
+              style={({ pressed }) => ({
+                width: 130,
+                height: 195,
+                borderRadius: 18,
+                borderWidth: 1.5,
+                borderStyle: "dashed",
+                borderColor: "#D7CFCD",
+                backgroundColor: "#FFFFFF",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: 12,
+                opacity: pressed ? 0.8 : 1,
+              })}
+            >
+              <View
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: "#F4EFE6",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Plus size={20} color="#453332" />
+              </View>
+              <Text
+                style={{
+                  fontFamily: "InstrumentSans-SemiBold",
+                  fontSize: 12,
+                  color: "#453332",
+                  textAlign: "center",
+                }}
+              >
+                Add Item
+              </Text>
+            </Pressable>
+          </ScrollView>
+        </View>
       </ScrollView>
-
-
     </SafeAreaView>
   );
 }

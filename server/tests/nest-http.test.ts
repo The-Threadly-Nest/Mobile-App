@@ -88,8 +88,8 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
-    await t.test("all 89 current feature routes are registered and protected where expected", async () => {
-      assert.equal(routes.length, 89);
+    await t.test("all 91 current feature routes are registered and protected where expected", async () => {
+      assert.equal(routes.length, 91);
       assert.equal((await send("/api/waitlist/verify", undefined, {}, "POST")).status, 404);
       for (const route of routes) {
         const response = await send(route.url, undefined, ["GET", "HEAD"].includes(route.verb) ? undefined : {}, route.verb);

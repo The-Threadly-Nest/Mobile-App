@@ -6,17 +6,30 @@ type FloatingTabBarProps = {
   descriptors: any;
   navigation: any;
   bottomInset: number;
+  allowedRoutes?: string[];
 };
 
-export function FloatingTabBar({ bottomInset, state, descriptors, navigation }: FloatingTabBarProps) {
+export function FloatingTabBar({ bottomInset, state, descriptors, navigation, allowedRoutes }: FloatingTabBarProps) {
   const { width: screenWidth } = useWindowDimensions();
-  const width = Math.min(290, screenWidth - 40);
+  const width = Math.min(330, screenWidth - 36);
   const focusedRoute = state.routes[state.index];
   const focusedStyle = StyleSheet.flatten(descriptors[focusedRoute.key]?.options.tabBarStyle);
 
   if (focusedStyle?.display === "none") return null;
 
-  const visibleRoutes = state.routes.filter((route: any) => descriptors[route.key]?.options.href !== null);
+  // Conditionally hide tab bar if current active route is not in allowedRoutes
+  if (allowedRoutes && !allowedRoutes.includes(focusedRoute?.name)) {
+    return null;
+  }
+
+  const visibleRoutes = state.routes.filter((route: any) => {
+    const options = descriptors[route.key]?.options ?? {};
+    if (options.href === null) return false;
+    if (options.tabBarStyle?.display === "none") return false;
+    if (typeof options.tabBarButton === "function" && options.tabBarButton() === null) return false;
+    if (!options.tabBarIcon) return false;
+    return true;
+  });
 
   return (
     <View
@@ -32,16 +45,16 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation }: 
       <View
         style={{
           width,
-          height: 54,
-          borderRadius: 27,
+          height: 56,
+          borderRadius: 28,
           backgroundColor: "#453332",
           flexDirection: "row",
           alignItems: "center",
-          elevation: 5,
+          elevation: 6,
           shadowColor: "#000000",
-          shadowOpacity: 0.12,
-          shadowRadius: 6,
-          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.25,
+          shadowRadius: 10,
+          shadowOffset: { width: 0, height: 4 },
           overflow: "visible",
         }}
       >

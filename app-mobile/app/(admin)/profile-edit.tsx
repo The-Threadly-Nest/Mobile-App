@@ -4,25 +4,24 @@ import {
   Text,
   TextInput,
   Pressable,
-  ScrollView,
   Image,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
-import { BookingScheduleForm, bookingScheduleError } from "@/shared/components/BookingScheduleForm";
-import type { WeeklyBookingSchedule } from "@/shared/utils/apiClient";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { Upload, Check, Calendar, Clock, Trash2, Plus } from "lucide-react-native";
+import { Upload, Check, ChevronRight, Calendar } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { adminApi, slotsApi, AdminOnboardingPayload } from "@/shared/utils/apiClient";
+import { adminApi, AdminOnboardingPayload } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { PhoneInputWithCountry } from "@/shared/components/PhoneInputWithCountry";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 const SPECIALIZATIONS = [
   "Bespoke Tailoring",
@@ -35,11 +34,20 @@ const SPECIALIZATIONS = [
   "Alterations & Fitting",
 ];
 
-export default function AdminProfileEditScreen({ onClose, embedded = false }: { onClose?: () => void; embedded?: boolean } = {}) {
+const STEPS = [
+  { num: 1, title: "Profile", fullTitle: "1. Fashion House Profile" },
+  { num: 2, title: "Brand", fullTitle: "2. Brand & Craft" },
+  { num: 3, title: "Payment", fullTitle: "3. Payment Details" },
+] as const;
+
+export default function AdminProfileEditScreen({
+  onClose,
+  embedded = false,
+}: { onClose?: () => void; embedded?: boolean } = {}) {
   const { showAlert } = useAppAlert();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [bookingSchedule, setBookingSchedule] = useState<WeeklyBookingSchedule | null>(null);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
 
   // Form states
   const [shopName, setShopName] = useState("");
@@ -53,29 +61,13 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [timezone, setTimezone] = useState("Africa/Lagos");
-  const [slotDurationMinutes, setSlotDurationMinutes] = useState("60");
+  const [existingSchedule, setExistingSchedule] = useState<any>(null);
+  const [existingTimezone, setExistingTimezone] = useState("Africa/Lagos");
+  const [existingDuration, setExistingDuration] = useState(60);
 
-  // Fitting slots state
-  const [slotsList, setSlotsList] = useState<any[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
-
-  const setStoreName = useAuthStore((s) => s.setName);
   const setStoredShopName = useAuthStore((s) => s.setShopName);
-
-  const fetchSlots = async () => {
-    setLoadingSlots(true);
-    try {
-      const data = await slotsApi.getSlots();
-      if (Array.isArray(data)) {
-        setSlotsList(data);
-      }
-    } catch (err) {
-      console.warn("Could not fetch fitting slots:", err);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
+  const storedShopName = useAuthStore((s) => s.shopName);
+  const fashionHouseName = shopName.trim() || storedShopName || "Fashion House";
 
   useEffect(() => {
     async function loadProfile() {
@@ -83,7 +75,6 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
         const res = await adminApi.getProfile();
         if (res?.fashionHouse) {
           const house = res.fashionHouse;
-          setBookingSchedule(house.bookingSchedule || null);
           setShopName(house.shopName || house.name || "");
           setLocation(house.location || "");
           setPhone(house.phone || "");
@@ -100,8 +91,9 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
             }
           }
           setBrandLogoUrl(house.brandLogoUrl || null);
-          setTimezone(house.timezone || "Africa/Lagos");
-          setSlotDurationMinutes(String(house.slotDurationMinutes || 60));
+          setExistingSchedule(house.bookingSchedule || null);
+          setExistingTimezone(house.timezone || "Africa/Lagos");
+          setExistingDuration(house.slotDurationMinutes || 60);
           if (Array.isArray(house.categories) && house.categories.length > 0) {
             setSelectedCategories(house.categories);
           }
@@ -113,7 +105,6 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
       }
     }
     loadProfile();
-    fetchSlots();
   }, []);
 
   const handlePickLogo = async () => {
@@ -154,30 +145,48 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
     );
   };
 
+  const handleHeaderBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3);
+    } else {
+      if (onClose) onClose();
+      else router.push("/(admin)/settings" as any);
+    }
+  };
+
+  const handleNextStep1 = () => {
+    if (!shopName.trim()) {
+      showAlert("Required Field", "Please enter your business or shop name before continuing.");
+      return;
+    }
+    setCurrentStep(2);
+  };
+
+  const handleNextStep2 = () => {
+    setCurrentStep(3);
+  };
+
   const handleSave = async () => {
     if (!shopName.trim()) {
       showAlert("Required Field", "Please enter your business or shop name.");
+      setCurrentStep(1);
       return;
     }
     const hasSomePaymentDetails = bankName.trim() || accountNumber.trim() || accountName.trim();
-    if (hasSomePaymentDetails && (!bankName.trim() || !/^\d{10}$/.test(accountNumber.trim()) || !accountName.trim())) {
-      showAlert("Payment Details", "Enter a bank name, a 10-digit account number, and the account name.");
-      return;
-    }
-    if (bookingSchedule) {
-      const scheduleError = bookingScheduleError(bookingSchedule);
-      if (scheduleError) { showAlert("Fitting availability", scheduleError); return; }
-    }
-    const duration = bookingSchedule?.durationMinutes ?? Number(slotDurationMinutes);
-    if (!timezone.trim() || !Number.isInteger(duration) || duration < 15 || duration > 480) {
-      showAlert("Scheduling Rules", "Choose a valid timezone and fitting duration.");
+    if (
+      hasSomePaymentDetails &&
+      (!bankName.trim() || !/^\d{10}$/.test(accountNumber.trim()) || !accountName.trim())
+    ) {
+      showAlert("Payment Details", "Enter a bank name, a valid 10-digit account number, and the account holder name.");
       return;
     }
 
     setSaving(true);
     try {
       const combinedBio = turnaround.trim()
-        ? (bio.trim() ? `${bio.trim()} • ${turnaround.trim()}` : turnaround.trim())
+        ? bio.trim()
+          ? `${bio.trim()} • ${turnaround.trim()}`
+          : turnaround.trim()
         : bio.trim();
 
       const payload: AdminOnboardingPayload = {
@@ -190,9 +199,9 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
         bankName: bankName.trim() || undefined,
         accountNumber: accountNumber.trim() || undefined,
         accountName: accountName.trim() || undefined,
-        timezone: timezone.trim(),
-        slotDurationMinutes: duration,
-        ...(bookingSchedule ? { bookingSchedule } : { availableSlots: slotsList.map(({ date, time }) => ({ date, time })) }),
+        timezone: existingTimezone,
+        slotDurationMinutes: existingDuration,
+        ...(existingSchedule ? { bookingSchedule: existingSchedule } : {}),
       };
 
       await adminApi.completeOnboarding(payload);
@@ -216,390 +225,535 @@ export default function AdminProfileEditScreen({ onClose, embedded = false }: { 
         keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 20}
       >
         {/* Header */}
-        {!embedded && <View
-          style={{
-            height: 52,
-            paddingHorizontal: 20,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Pressable
-            onPress={() => onClose ? onClose() : router.push("/(admin)/settings" as any)}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              alignItems: "center",
-              justifyContent: "center",
-              marginRight: 12,
-            }}
-          >
-            <BackArrowIcon size={20} color="#3B0508" />
-          </Pressable>
-          <Text
-            style={{
-              fontFamily: "HedvigLettersSerif-Regular",
-              fontSize: 20,
-              color: "#3B0508",
-            }}
-          >
-            Profile & Business Info
-          </Text>
-        </View>}
+        {!embedded && (
+          <View style={styles.header}>
+            <Pressable
+              onPress={handleHeaderBack}
+              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              <BackArrowIcon size={18} color="#3B0508" />
+            </Pressable>
+            <Text style={styles.headerTitle}>Personal Info</Text>
+          </View>
+        )}
+
+        {/* 3-Step Progress Indicator */}
+        <View style={styles.stepIndicatorContainer}>
+          {STEPS.map((step) => {
+            const isActive = currentStep === step.num;
+            const isCompleted = currentStep > step.num;
+            return (
+              <Pressable
+                key={step.num}
+                onPress={() => {
+                  if (step.num === 1 || shopName.trim()) {
+                    setCurrentStep(step.num);
+                  }
+                }}
+                style={styles.stepItem}
+              >
+                <View
+                  style={[
+                    styles.stepBar,
+                    (isActive || isCompleted) && styles.stepBarActive,
+                  ]}
+                />
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.stepLabel,
+                    isActive && styles.stepLabelActive,
+                  ]}
+                >
+                  {step.fullTitle}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
         {loading ? (
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <View style={styles.loadingWrap}>
             <ActivityIndicator color="#453332" size="large" />
           </View>
         ) : (
-          <KeyboardAwareScrollView keyboardGap={110}
+          <KeyboardAwareScrollView
+            keyboardGap={110}
             automaticallyAdjustKeyboardInsets={true}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingHorizontal: embedded ? 0 : 24, paddingTop: embedded ? 0 : 36, paddingBottom: 100 }}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingHorizontal: embedded ? 0 : 20, paddingBottom: 110 },
+            ]}
             showsVerticalScrollIndicator={false}
           >
-            {/* Brand Logo Card */}
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 13,
-                color: "#453332",
-                marginBottom: 8,
-              }}
-            >
-              Brand Logo
-            </Text>
+            {/* ─── STEP 1: FASHION HOUSE PROFILE ─── */}
+            {currentStep === 1 && (
+              <View>
+                <Text style={styles.stepSubtitle}>
+                  Set up brand identity and public contact details for {fashionHouseName}.
+                </Text>
 
-            <Pressable
-              onPress={handlePickLogo}
-              style={{
-                height: 120,
-                backgroundColor: "#FFFFFF",
-                borderRadius: 20,
-                borderWidth: 1.5,
-                borderColor: "rgba(74, 8, 12, 0.20)",
-                borderStyle: "dashed",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 24,
-                overflow: "hidden",
-              }}
-            >
-              {uploadingLogo ? (
-                <ActivityIndicator color="#453332" />
-              ) : brandLogoUrl ? (
-                <Image
-                  source={{ uri: brandLogoUrl }}
-                  style={{ width: "100%", height: "100%", resizeMode: "cover" }}
+                {/* Brand Logo Card */}
+                <Text style={styles.fieldLabel}>Brand Logo</Text>
+                <Pressable onPress={handlePickLogo} style={styles.logoPickerBox}>
+                  {uploadingLogo ? (
+                    <ActivityIndicator color="#453332" />
+                  ) : brandLogoUrl ? (
+                    <Image source={{ uri: brandLogoUrl }} style={styles.logoImage} />
+                  ) : (
+                    <View style={{ alignItems: "center" }}>
+                      <Upload size={24} color="#8A7550" style={{ marginBottom: 6 }} />
+                      <Text style={styles.uploadHint}>Tap to upload brand logo</Text>
+                    </View>
+                  )}
+                </Pressable>
+
+                {/* Shop / Business Name */}
+                <Text style={styles.fieldLabel}>Business / Shop Name *</Text>
+                <TextInput
+                  value={shopName}
+                  onChangeText={setShopName}
+                  placeholder="e.g. Royal Stitch Atelier"
+                  placeholderTextColor="#B0966C"
+                  style={styles.textInput}
                 />
-              ) : (
-                <View style={{ alignItems: "center" }}>
-                  <Upload size={24} color="#8A7550" style={{ marginBottom: 6 }} />
-                  <Text
-                    style={{
-                      fontFamily: "InstrumentSans-Medium",
-                      fontSize: 13,
-                      color: "#8A7550",
-                    }}
-                  >
-                    Tap to upload brand logo
-                  </Text>
+
+                {/* Location */}
+                <Text style={styles.fieldLabel}>Location / City</Text>
+                <TextInput
+                  value={location}
+                  onChangeText={setLocation}
+                  placeholder="e.g. Victoria Island, Lagos"
+                  placeholderTextColor="#B0966C"
+                  style={styles.textInput}
+                />
+
+                {/* Phone */}
+                <PhoneInputWithCountry
+                  label="Official Business Phone"
+                  placeholder="801 234 5678"
+                  value={phone}
+                  onChangePhone={setPhone}
+                />
+              </View>
+            )}
+
+            {/* ─── STEP 2: BRAND & CRAFT ─── */}
+            {currentStep === 2 && (
+              <View>
+                <Text style={styles.stepSubtitle}>
+                  Highlight {fashionHouseName}'s craftsmanship story and garment specialties.
+                </Text>
+
+                {/* Brand Bio / Motto */}
+                <View style={styles.bioHeaderRow}>
+                  <Text style={styles.fieldLabel}>Brand Bio / Motto</Text>
+                  <Text style={styles.charCount}>{bio.length}/500</Text>
                 </View>
-              )}
-            </Pressable>
+                <TextInput
+                  value={bio}
+                  onChangeText={setBio}
+                  maxLength={500}
+                  multiline
+                  numberOfLines={3}
+                  placeholder="Describe your fashion house craftsmanship style & bespoke heritage..."
+                  placeholderTextColor="#B0966C"
+                  style={styles.bioInput}
+                />
 
-            {/* Shop / Business Name */}
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 13,
-                color: "#453332",
-                marginBottom: 8,
-              }}
-            >
-              Business / Shop Name *
-            </Text>
-            <TextInput
-              value={shopName}
-              onChangeText={setShopName}
-              placeholder="e.g. Royal Stitch Atelier"
-              placeholderTextColor="#B0966C"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                paddingHorizontal: 16,
-                height: 52,
-                fontFamily: "InstrumentSans-Medium",
-                fontSize: 15,
-                color: "#3B0508",
-                borderWidth: 1,
-                borderColor: "rgba(0,0,0,0.08)",
-                marginBottom: 20,
-              }}
-            />
+                {/* Standard Turnaround Time */}
+                <Text style={styles.fieldLabel}>Standard Turnaround Time</Text>
+                <TextInput
+                  value={turnaround}
+                  onChangeText={setTurnaround}
+                  placeholder="e.g. 2-3 week turnaround"
+                  placeholderTextColor="#B0966C"
+                  style={styles.textInput}
+                />
 
-            {/* Location */}
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 13,
-                color: "#453332",
-                marginBottom: 8,
-              }}
-            >
-              Location / City
-            </Text>
-            <TextInput
-              value={location}
-              onChangeText={setLocation}
-              placeholder="e.g. Victoria Island, Lagos"
-              placeholderTextColor="#B0966C"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                paddingHorizontal: 16,
-                height: 52,
-                fontFamily: "InstrumentSans-Medium",
-                fontSize: 15,
-                color: "#3B0508",
-                borderWidth: 1,
-                borderColor: "rgba(0,0,0,0.08)",
-                marginBottom: 20,
-              }}
-            />
+                {/* Specializations (2 per row) */}
+                <Text style={[styles.fieldLabel, { marginTop: 6, marginBottom: 12 }]}>
+                  What do you specialize in?
+                </Text>
+                <View style={styles.categoriesWrap}>
+                  {SPECIALIZATIONS.map((spec) => {
+                    const selected = selectedCategories.includes(spec);
+                    return (
+                      <Pressable
+                        key={spec}
+                        onPress={() => toggleCategory(spec)}
+                        style={[
+                          styles.categoryPill,
+                          selected && styles.categoryPillActive,
+                        ]}
+                      >
+                        {selected && <Check size={16} color="#FFFFFF" />}
+                        <Text
+                          numberOfLines={1}
+                          style={[
+                            styles.categoryText,
+                            selected && styles.categoryTextActive,
+                          ]}
+                        >
+                          {spec}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
 
-            {/* Phone */}
-            <PhoneInputWithCountry
-              label="Official Business Phone"
-              placeholder="801 234 5678"
-              value={phone}
-              onChangePhone={setPhone}
-            />
+            {/* ─── STEP 3: PAYMENT DETAILS ─── */}
+            {currentStep === 3 && (
+              <View>
+                <Text style={styles.stepTitle}>Invoice Payout Details</Text>
+                <Text style={styles.stepSubtitle}>
+                  These bank details appear directly on official client invoices generated for {fashionHouseName}.
+                </Text>
 
-            <View
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 20,
-                padding: 18,
-                borderWidth: 1,
-                borderColor: "rgba(74, 8, 12, 0.12)",
-                marginBottom: 20,
-              }}
-            >
-              <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 16, color: "#3B0508", marginBottom: 4 }}>
-                Invoice Payment Details
-              </Text>
-              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#8A7550", marginBottom: 14 }}>
-                These details appear only on invoices created for your fashion house.
-              </Text>
-              <TextInput
-                value={bankName}
-                onChangeText={setBankName}
-                placeholder="Bank name"
-                placeholderTextColor="#B0966C"
-                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
-              />
-              <TextInput
-                value={accountNumber}
-                onChangeText={(value) => setAccountNumber(value.replace(/\D/g, "").slice(0, 10))}
-                placeholder="10-digit account number"
-                placeholderTextColor="#B0966C"
-                keyboardType="number-pad"
-                maxLength={10}
-                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3B0508", marginBottom: 10 }}
-              />
-              <TextInput
-                value={accountName}
-                onChangeText={setAccountName}
-                placeholder="Account holder name"
-                placeholderTextColor="#B0966C"
-                style={{ backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 14, height: 48, fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3B0508" }}
-              />
-            </View>
+                <Text style={styles.fieldLabel}>Bank Name</Text>
+                <TextInput
+                  value={bankName}
+                  onChangeText={setBankName}
+                  placeholder="e.g. Zenith Bank, GTBank, Access Bank"
+                  placeholderTextColor="#9C9BA6"
+                  style={styles.textInput}
+                />
 
-            {/* Standard Turnaround Time */}
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 13,
-                color: "#453332",
-                marginBottom: 8,
-              }}
-            >
-              Standard Turnaround Time
-            </Text>
-            <TextInput
-              value={turnaround}
-              onChangeText={setTurnaround}
-              placeholder="e.g. 2-3 week turnaround"
-              placeholderTextColor="#B0966C"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                paddingHorizontal: 16,
-                height: 52,
-                fontFamily: "InstrumentSans-Medium",
-                fontSize: 15,
-                color: "#3B0508",
-                borderWidth: 1,
-                borderColor: "rgba(0,0,0,0.08)",
-                marginBottom: 20,
-              }}
-            />
+                <Text style={styles.fieldLabel}>10-Digit Account Number</Text>
+                <TextInput
+                  value={accountNumber}
+                  onChangeText={(value) => setAccountNumber(value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="0123456789"
+                  placeholderTextColor="#9C9BA6"
+                  keyboardType="number-pad"
+                  maxLength={10}
+                  style={styles.textInput}
+                />
 
-            {/* Brand Bio / Motto */}
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 8,
-              }}
-            >
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-SemiBold",
-                  fontSize: 13,
-                  color: "#453332",
-                }}
-              >
-                Brand Bio / Motto
-              </Text>
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-Regular",
-                  fontSize: 11,
-                  color: "#8A7550",
-                }}
-              >
-                {bio.length}/500
-              </Text>
-            </View>
-            <TextInput
-              value={bio}
-              onChangeText={setBio}
-              maxLength={500}
-              multiline
-              numberOfLines={2}
-              placeholder="Briefly describe your fashion house specialization & craftsmanship style..."
-              placeholderTextColor="#B0966C"
-              style={{
-                backgroundColor: "#FFFFFF",
-                borderRadius: 16,
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                height: 60,
-                fontFamily: "InstrumentSans-Regular",
-                fontSize: 14,
-                color: "#3B0508",
-                borderWidth: 1,
-                borderColor: "rgba(0,0,0,0.08)",
-                textAlignVertical: "top",
-                marginBottom: 24,
-              }}
-            />
+                <Text style={styles.fieldLabel}>Account Holder Name</Text>
+                <TextInput
+                  value={accountName}
+                  onChangeText={setAccountName}
+                  placeholder="e.g. Royal Stitch Atelier Ltd"
+                  placeholderTextColor="#9C9BA6"
+                  style={styles.textInput}
+                />
 
-            {/* Specialization Pills (2 per row) */}
-            <Text
-              style={{
-                fontFamily: "InstrumentSans-SemiBold",
-                fontSize: 13,
-                color: "#453332",
-                marginBottom: 12,
-              }}
-            >
-              What do you specialize in?
-            </Text>
-
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
-              {SPECIALIZATIONS.map((spec) => {
-                const selected = selectedCategories.includes(spec);
-                return (
-                  <Pressable
-                    key={spec}
-                    onPress={() => toggleCategory(spec)}
-                    style={{
-                      width: "48%",
-                      height: 52,
-                      borderRadius: 26,
-                      backgroundColor: selected ? "#453332" : "#FFFFFF",
-                      borderWidth: selected ? 0 : 1,
-                      borderColor: "rgba(0,0,0,0.1)",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      paddingHorizontal: 12,
-                      flexDirection: "row",
-                      gap: 6,
-                    }}
-                  >
-                    {selected && <Check size={16} color="#FFFFFF" />}
-                    <Text
-                      numberOfLines={1}
-                      style={{
-                        fontFamily: "InstrumentSans-Medium",
-                        fontSize: 13,
-                        color: selected ? "#FFFFFF" : "#3B0508",
-                      }}
-                    >
-                      {spec}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 18, color: "#453332", marginBottom: 16 }}>Fitting availability</Text>
-            <BookingScheduleForm value={bookingSchedule} onChange={setBookingSchedule} timezone={timezone} onTimezoneChange={setTimezone} disabled={saving} />
-            {!bookingSchedule && <Text style={{ color: "#746765", marginBottom: 20 }}>{slotsList.length} existing dated slots. Choose working days above to switch to a weekly schedule.</Text>}
+                {/* Quick Link to Fitting Slots */}
+                <Pressable
+                  onPress={() => router.push("/(admin)/fitting-slots" as any)}
+                  style={({ pressed }) => [styles.slotsLinkCard, { opacity: pressed ? 0.75 : 1 }]}
+                >
+                  <View style={styles.slotsLinkIconWrap}>
+                    <Calendar size={20} color="#453332" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.slotsLinkTitle}>Manage Fitting Availability</Text>
+                    <Text style={styles.slotsLinkDesc}>Set working hours and appointment slots</Text>
+                  </View>
+                  <ChevronRight size={18} color="#453332" />
+                </Pressable>
+              </View>
+            )}
           </KeyboardAwareScrollView>
         )}
 
-        {/* Pinned Bottom Action Button */}
-        <View
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: "#FFFFFF",
-            paddingHorizontal: 24,
-            paddingTop: 12,
-            paddingBottom: 24,
-            borderTopWidth: 1,
-            borderTopColor: "rgba(0,0,0,0.05)",
-          }}
-        >
-          <Pressable
-            onPress={handleSave}
-            disabled={saving}
-            style={({ pressed }) => [
-              {
-                height: 56,
-                borderRadius: 28,
-                backgroundColor: "#453332",
-                alignItems: "center",
-                justifyContent: "center",
-                opacity: pressed || saving ? 0.85 : 1,
-              },
-            ]}
-          >
-            {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-SemiBold",
-                  fontSize: 16,
-                  color: "#FFFFFF",
-                }}
+        {/* Pinned Bottom Action Button Bar */}
+        <View style={styles.bottomBar}>
+          {currentStep === 1 && (
+            <Pressable
+              onPress={handleNextStep1}
+              style={({ pressed }) => [styles.primaryBtn, { opacity: pressed ? 0.85 : 1 }]}
+            >
+              <Text style={styles.primaryBtnText}>Continue to Brand & Craft</Text>
+            </Pressable>
+          )}
+
+          {currentStep === 2 && (
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <Pressable
+                onPress={() => setCurrentStep(1)}
+                style={({ pressed }) => [styles.secondaryBtn, { opacity: pressed ? 0.7 : 1 }]}
               >
-                Save Changes
-              </Text>
-            )}
-          </Pressable>
+                <Text style={styles.secondaryBtnText}>Back</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleNextStep2}
+                style={({ pressed }) => [styles.primaryBtn, { flex: 1, opacity: pressed ? 0.85 : 1 }]}
+              >
+                <Text style={styles.primaryBtnText}>Continue to Payment</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {currentStep === 3 && (
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <Pressable
+                onPress={() => setCurrentStep(2)}
+                style={({ pressed }) => [styles.secondaryBtn, { opacity: pressed ? 0.7 : 1 }]}
+              >
+                <Text style={styles.secondaryBtnText}>Back</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleSave}
+                disabled={saving}
+                style={({ pressed }) => [
+                  styles.primaryBtn,
+                  { flex: 1, opacity: pressed || saving ? 0.85 : 1 },
+                ]}
+              >
+                {saving ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.primaryBtnText}>Save Changes</Text>
+                )}
+              </Pressable>
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTitle: {
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#1A1110",
+    letterSpacing: -0.2,
+  },
+  stepIndicatorContainer: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  stepItem: {
+    flex: 1,
+  },
+  stepBar: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(74, 8, 12, 0.12)",
+    marginBottom: 6,
+  },
+  stepBarActive: {
+    backgroundColor: "#453332",
+  },
+  stepLabel: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 11,
+    color: "#8A7550",
+  },
+  stepLabelActive: {
+    fontFamily: "InstrumentSans-SemiBold",
+    color: "#453332",
+  },
+  stepTitle: {
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 20,
+    color: "#1A1110",
+    marginBottom: 6,
+  },
+  stepSubtitle: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 14,
+    color: "#4A4E51",
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  loadingWrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scrollContent: {
+    paddingTop: 8,
+  },
+  fieldLabel: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 13,
+    color: "#453332",
+    marginBottom: 8,
+  },
+  logoPickerBox: {
+    height: 120,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(74, 8, 12, 0.20)",
+    borderStyle: "dashed",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    overflow: "hidden",
+  },
+  logoImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  uploadHint: {
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 13,
+    color: "#8A7550",
+  },
+  textInput: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 52,
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 15,
+    color: "#3B0508",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
+    marginBottom: 20,
+  },
+  bioHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  charCount: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 11,
+    color: "#8A7550",
+  },
+  bioInput: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    minHeight: 88,
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 14,
+    color: "#3B0508",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.08)",
+    textAlignVertical: "top",
+    marginBottom: 20,
+  },
+  categoriesWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginBottom: 24,
+  },
+  categoryPill: {
+    width: "48%",
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    gap: 6,
+  },
+  categoryPillActive: {
+    backgroundColor: "#453332",
+    borderColor: "#453332",
+  },
+  categoryText: {
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 13,
+    color: "#3B0508",
+  },
+  categoryTextActive: {
+    color: "#FFFFFF",
+  },
+  slotsLinkCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F7F5F2",
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "rgba(74, 8, 12, 0.10)",
+    marginTop: 8,
+  },
+  slotsLinkIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  slotsLinkTitle: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 14,
+    color: "#1A1110",
+  },
+  slotsLinkDesc: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 12,
+    color: "#4A4E51",
+    marginTop: 2,
+  },
+  bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 24,
+  },
+  primaryBtn: {
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#453332",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryBtnText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+  secondaryBtn: {
+    width: 90,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1.5,
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryBtnText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 15,
+    color: "#453332",
+  },
+});

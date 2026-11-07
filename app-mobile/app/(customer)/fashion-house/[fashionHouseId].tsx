@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
-import { Star, Calendar, Store } from "lucide-react-native";
+import { Star, Calendar, Store, MoreVertical } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import CachedImage from "@/shared/components/CachedImage";
@@ -53,6 +53,8 @@ export default function FashionHouseScreen() {
   const role = useAuthStore((state) => state.role);
   const email = useAuthStore((state) => state.email);
   const cacheOwner = createPageCacheOwner(role, email);
+  const scrollRef = React.useRef<ScrollView>(null);
+  const portfolioOffset = React.useRef(0);
 
   const [fhData, setFhData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -113,11 +115,18 @@ export default function FashionHouseScreen() {
       ? fhData.reviews.map((r: any) => ({
           name: r.user?.name || r.name || "Customer",
           text: r.comment || r.text || "",
-          rating: r.rating || 5,
+          rating: r.rating || 0,
         }))
       : [];
 
   const rawOrdersCount = fhData?.ordersCount ?? fhData?._count?.orders ?? 0;
+
+  const rating = Number(
+    fhData?.rating ??
+      (reviews.length > 0
+        ? reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length
+        : 0)
+  );
 
   const formatOrdersText = (count: number) => {
     if (count >= 1000) {
@@ -149,39 +158,69 @@ export default function FashionHouseScreen() {
     );
   }
 
+  const heroHeight = Math.min(Math.max(height * 0.46, 360), 440);
+
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <View style={styles.container}>
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 24, paddingBottom: Math.max(insets.bottom, 33) }}
+        bounces={false}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24) + 24 }}
       >
-        {/* Hero Image */}
-        <View style={[styles.heroContainer, isLandscape && { height: 180 }]}>
+        {/* ─── Hero Image Section (Matches Cloth Details) ─── */}
+        <View style={[styles.heroContainer, { height: heroHeight }]}>
           {coverImage ? (
-            <CachedImage source={{ uri: coverImage }} style={styles.heroImage} />
+            <CachedImage
+              source={{ uri: coverImage }}
+              style={styles.heroImage}
+              contentFit="cover"
+              contentPosition="top center"
+            />
           ) : (
             <View style={[styles.heroImage, { backgroundColor: "#D8CDBD" }]} />
           )}
 
-          {/* Dark Overlay for crisp text readability */}
-          <View style={styles.heroOverlay} />
+          {/* Floating Top Nav (Back Arrow < and More Options) */}
+          <View style={[styles.floatingNav, { top: Math.max(insets.top, 14) + 6 }]}>
+            <Pressable
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
+            >
+              <BackArrowIcon size={22} color="#FFFFFF" />
+            </Pressable>
 
-          {/* Back Button */}
-          <Pressable style={styles.backBtn} onPress={() => router.back()}>
-            <BackArrowIcon size={18} color="#3A2E1A" />
-          </Pressable>
-
-          {/* Hero Title */}
-          <View style={styles.heroTitle}>
-            <Text style={[styles.heroName, isLandscape && { fontSize: 20 }]}>{displayName}</Text>
-            <View style={styles.heroRatingRow}>
-              <Text style={styles.heroRatingText}>{formatOrdersText(rawOrdersCount)} completed orders</Text>
-            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Options"
+              style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
+            >
+              <MoreVertical size={20} color="#FFFFFF" />
+            </Pressable>
           </View>
         </View>
 
-        {/* Stats Row - Moved down below hero photo */}
-        <View style={[styles.statsCard, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
+        {/* ─── Overlapping Content Sheet (Matches Cloth Details) ─── */}
+        <View style={styles.sheetCard}>
+          {/* Drag Handle */}
+          <View style={styles.dragHandle} />
+
+          {/* Fashion House Header */}
+          <View style={styles.houseHeaderRow}>
+            <Text style={styles.displayName}>{displayName}</Text>
+            <View style={styles.heroRatingRow}>
+              {renderStars(rating)}
+              <Text style={styles.heroRatingScore}>{rating > 0 ? rating.toFixed(1) : "Not rated yet"}</Text>
+              <Text style={styles.heroOrdersCount}>
+                · {formatOrdersText(rawOrdersCount)} completed orders
+              </Text>
+            </View>
+          </View>
+
+          {/* Stats Row - Moved down below hero photo */}
+          <View style={[styles.statsCard, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>Contact house</Text>
             <Text style={styles.statLabel}>TURNAROUND</Text>
@@ -205,12 +244,9 @@ export default function FashionHouseScreen() {
         </View>
 
         {/* Portfolio Section */}
-        <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
+        <View onLayout={event => { portfolioOffset.current = event.nativeEvent.layout.y; }} style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>PORTFOLIO</Text>
-            <Pressable onPress={() => {}}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </Pressable>
           </View>
 
           {catalogItems.length > 0 ? (
@@ -289,7 +325,7 @@ export default function FashionHouseScreen() {
         </View>
 
         {/* Action Buttons - Below Reviews */}
-        <View style={{ paddingHorizontal: 20, marginTop: 28, flexDirection: 'row', gap: 12 }}>
+        <View style={{ marginTop: 28, flexDirection: 'row', gap: 12 }}>
           <Pressable
             style={({ pressed }) => [
               styles.bookingBtn,
@@ -307,18 +343,14 @@ export default function FashionHouseScreen() {
 
           <Pressable
             style={({ pressed }) => [styles.bookingBtn, { flex: 1.4, opacity: pressed ? 0.9 : 1 }]}
-            onPress={() =>
-              router.push({
-                pathname: `/(customer)/chat/${targetId}`,
-                params: { fashionHouseName: displayName },
-              })
-            }
+            onPress={() => scrollRef.current?.scrollTo({ y: portfolioOffset.current, animated: true })}
           >
-            <Text style={styles.bookingBtnText}>Start Booking</Text>
+            <Text style={styles.bookingBtnText}>Browse styles</Text>
           </Pressable>
         </View>
+        </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -328,76 +360,80 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   heroContainer: {
+    width: "100%",
     position: "relative",
-    height: 280,
+    backgroundColor: "#2C2C2C",
   },
   heroImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
   },
-  heroOverlay: {
+  floatingNav: {
     position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0,0,0,0.35)",
-  },
-  backBtn: {
-    position: "absolute",
-    top: 16,
-    left: 16,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  heroTitle: {
-    position: "absolute",
-    bottom: 20,
     left: 20,
     right: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    zIndex: 10,
   },
-  heroName: {
+  navCircleBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sheetCard: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    marginTop: -26,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  dragHandle: {
+    width: 44,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#DCDCDC",
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  houseHeaderRow: {
+    marginBottom: 16,
+  },
+  displayName: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#FFFFFF",
-    marginBottom: 4,
-    textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+    color: "#1A150E",
+    marginBottom: 6,
   },
   heroRatingRow: {
     flexDirection: "row",
     alignItems: "center",
   },
-  heroRatingText: {
+  heroRatingScore: {
+    fontFamily: "InstrumentSans-Bold",
+    fontSize: 13,
+    color: "#1A150E",
+    marginLeft: 6,
+  },
+  heroOrdersCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#FFFFFF",
+    color: "#787676",
     marginLeft: 4,
   },
   statsCard: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 20,
-    marginTop: 36,
+    backgroundColor: "#FBF7EF",
     borderRadius: 16,
-    paddingVertical: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 3,
-    zIndex: 10,
+    paddingVertical: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "rgba(69, 51, 50, 0.08)",
   },
   statItem: {
     flex: 1,
@@ -422,8 +458,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   section: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
+    paddingTop: 20,
   },
   sectionHeaderRow: {
     flexDirection: "row",

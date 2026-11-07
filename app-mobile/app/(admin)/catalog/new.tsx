@@ -14,18 +14,30 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { Camera, UploadCloud, Tag } from "lucide-react-native";
-import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { ChevronLeft, Camera, Check, UploadCloud, X } from "lucide-react-native";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import { CatalogOfferingFields } from "@/shared/components/CatalogOfferingFields";
+import { catalogOptions, catalogPrice, type FulfillmentType } from "@/shared/utils/catalogCommerce";
+import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
+
 
 export default function AdminNewGarmentScreen() {
   const insets = useSafeAreaInsets();
-  const { showAlert, showConfirm } = useAppAlert();
+  const { showAlert } = useAppAlert();
+
+  // Form states with humanized defaults / placeholders
   const [name, setName] = useState("");
-  const [priceFrom, setPriceFrom] = useState("");
+  const [price, setPrice] = useState("");
+  const [details, setDetails] = useState("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("custom_fit");
+  const [sizesText, setSizesText] = useState("");
+  const [colorsText, setColorsText] = useState("");
+  const [category, setCategory] = useState("");
+
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -41,8 +53,8 @@ export default function AdminNewGarmentScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
-        aspect: [4, 5],
-        quality: 0.7,
+        aspect: [1, 1],
+        quality: 0.8,
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
@@ -63,39 +75,52 @@ export default function AdminNewGarmentScreen() {
     }
   };
 
+  const handleReset = () => {
+    setName("");
+    setPrice("");
+    setDetails("");
+    setImageUrl("");
+    setFulfillmentType("custom_fit"); setSizesText(""); setColorsText(""); setCategory("");
+    setError("");
+  };
+
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(admin)/dashboard" as any);
+    }
+  };
+
   const handleSubmit = async () => {
     setError("");
 
-    if (!imageUrl) {
-      setError("Please upload a photo of the garment.");
-      return;
-    }
-    if (!name.trim()) {
-      setError("Please enter a garment name or title.");
-      return;
-    }
-
-    let parsedPrice: number | null = null;
-    if (priceFrom.trim()) {
-      const num = parseFloat(priceFrom.replace(/[^\d.]/g, ""));
-      if (!isNaN(num) && num > 0) {
-        parsedPrice = Math.round(num);
-      }
-    }
+    const garmentName = name.trim();
+    const garmentImage = imageUrl.trim();
+    if (garmentName.length < 2 || !garmentImage) { setError("Enter an item name and upload its photo."); return; }
+    let parsedPrice: number | null;
+    try { parsedPrice = catalogPrice(price); } catch (error) { setError((error as Error).message); return; }
+    const sizes = catalogOptions(sizesText), colors = catalogOptions(colorsText);
+    if (fulfillmentType === "ready_to_wear" && (!parsedPrice || !sizes.length)) { setError("Ready-for-pickup clothes need a price and available sizes."); return; }
+    const garmentDetails = details.trim();
 
     setSaving(true);
     try {
       await apiFetch("/api/catalog", {
         method: "POST",
         body: JSON.stringify({
-          name: name.trim(),
+          name: garmentName,
           priceFrom: parsedPrice,
-          imageUrl,
+          imageUrl: garmentImage,
+          description: garmentDetails,
+          fulfillmentType, sizes, colors, category: category.trim() || null,
         }),
       });
 
       showAlert("Success", "Garment added to your catalog successfully!");
-      setTimeout(() => router.replace("/(admin)/catalog" as any), 1000);
+      setTimeout(() => {
+        router.replace("/(admin)/dashboard" as any);
+      }, 700);
     } catch (err: any) {
       setError(err.message || "Could not save garment. Please try again.");
     } finally {
@@ -104,91 +129,135 @@ export default function AdminNewGarmentScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Header */}
-        <View style={styles.header}>
+        {/* Top Header matching Figma node 208:4499 */}
+        <View style={styles.topHeader}>
+          <View style={styles.headerLeft}>
+            <Pressable
+              onPress={handleBack}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 }]}
+            >
+              <ChevronLeft size={20} color="#32343E" strokeWidth={2.2} />
+            </Pressable>
+
+            <Text style={styles.headerTitle}>Add New Items</Text>
+          </View>
+
           <Pressable
-            onPress={() => router.push("/(admin)/catalog" as any)}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            onPress={handleReset}
+            accessibilityRole="button"
+            accessibilityLabel="Reset form"
+            style={({ pressed }) => [styles.resetBtn, { opacity: pressed ? 0.6 : 1 }]}
           >
-            <BackArrowIcon size={20} color="#3B0508" />
+            <Text style={styles.resetBtnText}>RESET</Text>
           </Pressable>
-          <Text style={styles.headerTitle}>Add Clothes / Garment</Text>
         </View>
 
-        <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 + insets.bottom }]}
+        <KeyboardAwareScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: 100 + Math.max(insets.bottom, 16) },
+          ]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Garment Image Upload Box */}
-          <Text style={styles.fieldLabel}>Garment Photo *</Text>
-          <Pressable
-            onPress={handlePickImage}
-            disabled={uploadingImage}
-            style={({ pressed }) => [
-              styles.imagePickerBox,
-              { opacity: pressed || uploadingImage ? 0.8 : 1 },
-            ]}
-          >
-            {uploadingImage ? (
-              <View style={styles.loadingBox}>
-                <ActivityIndicator color="#453332" size="small" />
-                <Text style={styles.loadingText}>Uploading photo...</Text>
-              </View>
-            ) : imageUrl ? (
-              <View style={styles.previewBox}>
-                <Image source={{ uri: imageUrl }} style={styles.previewImage} resizeMode="cover" />
-                <View style={styles.changeBadge}>
-                  <Camera size={14} color="#FFFFFF" />
-                  <Text style={styles.changeBadgeText}>Change Photo</Text>
+          {/* 1. ITEM NAME field (Figma node 208:4495) */}
+          <View style={styles.fieldSection}>
+            <Text style={styles.fieldLabel}>ITEM NAME</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                value={name}
+                onChangeText={(t) => {
+                  setName(t);
+                  if (error) setError("");
+                }}
+                placeholder="Aso Oke Gown"
+                placeholderTextColor="#9C9BA6"
+                style={styles.textInput}
+                autoCapitalize="words"
+              />
+            </View>
+          </View>
+
+          {/* 2. UPLOAD PHOTO field (Figma node 208:4460) */}
+          <View style={styles.fieldSection}>
+            <Text style={styles.fieldLabel}>UPLOAD PHOTO</Text>
+            <View style={styles.photoRow}>
+              {/* Slot 1: Image Preview or Upload Slot */}
+              {uploadingImage ? (
+                <View style={[styles.photoCard, styles.loadingSlot]}>
+                  <ActivityIndicator size="small" color="#F96951" />
+                  <Text style={styles.uploadingText}>Uploading</Text>
                 </View>
-              </View>
-            ) : (
-              <View style={styles.placeholderBox}>
-                <UploadCloud size={36} color="#453332" style={{ marginBottom: 6 }} />
-                <Text style={styles.placeholderTitle}>Tap to upload clothes photo</Text>
-                <Text style={styles.placeholderSub}>JPG, PNG up to 5MB</Text>
-              </View>
-            )}
-          </Pressable>
+              ) : imageUrl ? (
+                <View style={styles.photoPreviewCard}>
+                  <Image source={{ uri: imageUrl }} style={styles.photoImage} resizeMode="cover" />
+                  <Pressable
+                    onPress={() => setImageUrl("")}
+                    hitSlop={8}
+                    style={styles.removePhotoBtn}
+                  >
+                    <X size={12} color="#FFFFFF" strokeWidth={2.5} />
+                  </Pressable>
+                </View>
+              ) : (
+                <Pressable
+                  onPress={handlePickImage}
+                  style={({ pressed }) => [styles.photoAddSlot, { opacity: pressed ? 0.7 : 1 }]}
+                >
+                  <Camera size={22} color="#9C9BA6" />
+                  <Text style={styles.addText}>Add</Text>
+                </Pressable>
+              )}
 
-          {/* Garment Name / Title */}
-          <Text style={styles.fieldLabel}>Garment Name / Title *</Text>
-          <TextInput
-            value={name}
-            onChangeText={(t) => {
-              setName(t);
-              if (error) setError("");
-            }}
-            placeholder="e.g. Bespoke Velvet Agbada Set"
-            placeholderTextColor="#B0966C"
-            style={styles.textInput}
-          />
+              {/* Slot 2: Dashed Add Slot */}
+              <Pressable
+                onPress={handlePickImage}
+                style={({ pressed }) => [styles.photoAddSlot, { opacity: pressed ? 0.7 : 1 }]}
+              >
+                <UploadCloud size={20} color="#9C9BA6" />
+                <Text style={styles.addText}>Add</Text>
+              </Pressable>
+            </View>
+          </View>
 
-          {/* Starting Price */}
-          <Text style={styles.fieldLabel}>Starting Price (₦) *</Text>
-          <TextInput
-            value={priceFrom}
-            onChangeText={(t) => {
-              setPriceFrom(t);
-              if (error) setError("");
-            }}
-            placeholder="e.g. 750,000"
-            placeholderTextColor="#B0966C"
-            keyboardType="numeric"
-            style={styles.textInput}
-          />
+          <View style={styles.fieldSection}>
+            <Text style={styles.fieldLabel}>{fulfillmentType === "ready_to_wear" ? "PRICE" : "STARTING PRICE (OPTIONAL)"}</Text>
+            <View style={styles.inputContainer}><TextInput value={price} onChangeText={setPrice} placeholder="Enter price" keyboardType="numeric" style={styles.textInput} /></View>
+          </View>
+          <CatalogOfferingFields type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving} />
+
+          {/* 4. DETAILS Multiline Text Area (Figma node 208:4456) */}
+          <View style={styles.fieldSection}>
+            <Text style={styles.fieldLabel}>DETAILS</Text>
+            <View style={styles.detailsContainer}>
+              <TextInput
+                value={details}
+                onChangeText={(t) => {
+                  setDetails(t);
+                  if (error) setError("");
+                }}
+                placeholder="Hand-woven aso oke, shaped into a gown that carries tradition with ease."
+                placeholderTextColor="#9C9BA6"
+                multiline
+                numberOfLines={4}
+                style={styles.detailsTextInput}
+                textAlignVertical="top"
+              />
+            </View>
+          </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        </ScrollView>
+        </KeyboardAwareScrollView>
 
-        {/* Pinned Bottom Action Button */}
-        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
+        {/* Pinned Bottom Bar with Original App Rounded Pill Button */}
+        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <Pressable
             onPress={handleSubmit}
             disabled={saving || uploadingImage}
@@ -200,7 +269,7 @@ export default function AdminNewGarmentScreen() {
             {saving ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.submitBtnText}>Save to Catalog</Text>
+              <Text style={styles.submitBtnText}>Save Changes</Text>
             )}
           </Pressable>
         </View>
@@ -214,116 +283,205 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  header: {
+  topHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F4F5F7",
   },
-  backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  circularBackBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
   },
   headerTitle: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 20,
-    color: "#3B0508",
+    fontFamily: "HedvigLettersSerif-Regular",
+    fontSize: 24,
+    lineHeight: 28,
+    color: "#1A1110",
+    letterSpacing: -0.2,
+  },
+  resetBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+  },
+  resetBtnText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#F96951",
+    letterSpacing: 0.5,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 36,
-    paddingBottom: 100,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  fieldSection: {
+    marginBottom: 24,
   },
   fieldLabel: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 14,
-    color: "#453332",
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#32343E",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
     marginBottom: 8,
   },
-  imagePickerBox: {
-    height: 220,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: "rgba(74, 8, 12, 0.2)",
-    borderStyle: "dashed",
-    alignItems: "center",
+  inputContainer: {
+    backgroundColor: "#FDFDFD",
+    borderWidth: 1,
+    borderColor: "#E8EAED",
+    borderRadius: 10,
+    height: 52,
     justifyContent: "center",
-    marginBottom: 24,
-    overflow: "hidden",
-  },
-  placeholderBox: {
-    alignItems: "center",
-  },
-  placeholderTitle: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 14,
-    color: "#3B0508",
-    marginBottom: 2,
-  },
-  placeholderSub: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 12,
-    color: "rgba(74, 8, 12, 0.6)",
-  },
-  loadingBox: {
-    alignItems: "center",
-    gap: 8,
-  },
-  loadingText: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 13,
-    color: "#453332",
-  },
-  previewBox: {
-    width: "100%",
-    height: "100%",
-    position: "relative",
-  },
-  previewImage: {
-    width: "100%",
-    height: "100%",
-  },
-  changeBadge: {
-    position: "absolute",
-    bottom: 12,
-    right: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#453332",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-  },
-  changeBadgeText: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 12,
-    color: "#FFFFFF",
+    paddingHorizontal: 16,
   },
   textInput: {
-    backgroundColor: "#FFFFFF",
+    fontSize: 14,
+    color: "#32343E",
+    paddingVertical: 0,
+  },
+  photoRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  photoCard: {
+    width: 92,
+    height: 92,
+    borderRadius: 14,
+  },
+  photoPreviewCard: {
+    width: 92,
+    height: 92,
     borderRadius: 16,
-    paddingHorizontal: 16,
-    height: 52,
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 15,
-    color: "#3B0508",
+    overflow: "hidden",
+    position: "relative",
+    backgroundColor: "#F5F5F7",
+  },
+  photoImage: {
+    width: "100%",
+    height: "100%",
+  },
+  removePhotoBtn: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingSlot: {
+    backgroundColor: "#FDFDFD",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.08)",
-    marginBottom: 24,
+    borderColor: "#E8EAED",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  uploadingText: {
+    fontSize: 10,
+    color: "#9C9BA6",
+  },
+  photoAddSlot: {
+    width: 92,
+    height: 92,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E8EAED",
+    borderStyle: "dashed",
+    backgroundColor: "#FDFDFD",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+  },
+  addText: {
+    fontSize: 11,
+    color: "#9C9BA6",
+    fontWeight: "500",
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  priceInputContainer: {
+    width: 125,
+    height: 50,
+    backgroundColor: "#FDFDFD",
+    borderWidth: 1,
+    borderColor: "#E8EAED",
+    borderRadius: 10,
+    justifyContent: "center",
+    paddingHorizontal: 14,
+  },
+  priceTextInput: {
+    fontSize: 14,
+    color: "#32343E",
+    paddingVertical: 0,
+  },
+  checkboxOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 16,
+    paddingVertical: 6,
+  },
+  checkboxBox: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: "#E8EAED",
+    backgroundColor: "#FDFDFD",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxBoxActive: {
+    borderColor: "#F96951",
+    backgroundColor: "#F96951",
+  },
+  checkboxLabel: {
+    fontSize: 12,
+    color: "#9C9BA6",
+    marginLeft: 6,
+    fontWeight: "500",
+  },
+  checkboxLabelActive: {
+    color: "#32343E",
+  },
+  detailsContainer: {
+    backgroundColor: "#FDFDFD",
+    borderWidth: 1,
+    borderColor: "#E8EAED",
+    borderRadius: 10,
+    minHeight: 110,
+    padding: 14,
+  },
+  detailsTextInput: {
+    fontSize: 13,
+    lineHeight: 20,
+    color: "#32343E",
+    paddingVertical: 0,
   },
   errorText: {
-    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#D32F2F",
     marginBottom: 16,
+    textAlign: "center",
   },
   bottomBar: {
     position: "absolute",
@@ -331,11 +489,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 24,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.05)",
+    borderTopColor: "#F4F5F7",
   },
   submitBtn: {
     height: 56,
@@ -345,8 +502,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   submitBtnText: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 20,
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 16,
     color: "#FFFFFF",
   },
 });

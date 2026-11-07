@@ -18,6 +18,7 @@ import { Button } from "@/shared/components/Button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 interface Sketch {
   id: string;
@@ -106,15 +107,35 @@ export default function AdminStaffMoodBoardScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
-      <View className="flex-row items-center px-5 pt-4 pb-2 gap-3">
+      <View style={{ paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 }} className="flex-row items-center px-5 gap-3">
         <Pressable
           onPress={() => router.push("/(admin)/staff" as any)}
-          className="w-10 h-10 border border-oxblood/20 rounded-full items-center justify-center"
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            borderWidth: 1,
+            borderColor: "rgba(74, 8, 12, 0.25)",
+            backgroundColor: "#FFFFFF",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 4,
+          }}
         >
-          <BackArrowIcon size={20} color="#3B0508" />
+          <BackArrowIcon size={18} color="#3B0508" />
         </Pressable>
         <View className="flex-1">
-          <Headline className="text-xl">{staffName ? `${staffName}'s Moodboard` : "Staff Moodboard"}</Headline>
+          <Text
+            style={{
+              fontFamily: "HedvigLettersSerif-Regular",
+              fontSize: 24,
+              lineHeight: 28,
+              color: "#1A1110",
+              letterSpacing: -0.2,
+            }}
+          >
+            {staffName ? `${staffName}'s Moodboard` : "Staff Moodboard"}
+          </Text>
           <Subtext className="text-xs">Promote private sketches to your public catalog</Subtext>
         </View>
       </View>
