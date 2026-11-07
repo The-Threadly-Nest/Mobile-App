@@ -21,6 +21,10 @@ export function createScopedClient(client: PrismaClient): PrismaClient {
   return new Proxy(client, {
     get(target, property) {
       const original = Reflect.get(target, property);
+      // Unsafe SQL must remain unavailable even when development disables RLS.
+      if (property === "$queryRawUnsafe" || property === "$executeRawUnsafe") {
+        return () => { throw new Error("Unsafe SQL is not available on the application database client."); };
+      }
       if (process.env.DATABASE_RLS_ENABLED !== "true") return typeof original === "function" ? original.bind(target) : original;
       if (property === "$transaction") return (work: unknown, options?: object) => {
         if (typeof work !== "function") throw new Error("Scoped database transactions require the callback form.");

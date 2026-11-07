@@ -6,6 +6,6 @@ export const createMoodBoardSketchSchema = z.object({
 });
 
 export const promoteSketchSchema = z.object({
-  priceFrom: z.number().int().min(0).optional().default(0),
+  priceFrom: z.number().int().min(0).max(2147483647).optional().default(0),
   name: z.string().min(1).max(100).optional(),
 });

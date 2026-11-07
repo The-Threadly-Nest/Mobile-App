@@ -4,7 +4,7 @@ export const measurementBookingSchema = z.object({ catalogItemId: z.string().uui
 export const createOrderSchema = z.object({
   customerId: z.string().uuid(),
   itemName: z.string().min(2).max(100),
-  price: z.number().int().positive(), // Stored as integer cents/kobo
+  price: z.number().int().positive().max(2147483647),
 });
 
 export const catalogCheckoutSchema = z.object({
@@ -18,5 +18,9 @@ export const catalogCheckoutSchema = z.object({
 });
 
 export const updateOrderStatusSchema = z.object({
-  status: z.string().min(1),
+  status: z.enum([
+    "order_placed", "pending_admin_review", "booked", "assigned",
+    "measurements_confirmed", "fabric_sourced", "in_production", "quality_check",
+    "ready", "ready_for_pickup", "completed", "delivered", "cancelled", "declined",
+  ]),
 });

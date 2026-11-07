@@ -24,6 +24,6 @@ export const measurementCaptureSchema = z.object({
 export const assignEscalationSchema = z.object({
   bookingId: z.string().uuid().nullish(), staffId: z.string().uuid().nullish(),
   serviceTitle: z.string().max(200).optional(), customerName: z.string().trim().min(1).max(100).optional(),
-  price: z.number().finite().min(0).optional(),
+  price: z.number().int().min(0).max(2147483647).optional(),
   measurements: z.object({ bust: measurementValue.optional(), waist: measurementValue.optional(), hip: measurementValue.optional(), length: measurementValue.optional() }).optional(),
 });

@@ -24,8 +24,8 @@
       "package": "com.thethreadlynest.app",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F96951"
       }
     },
     "plugins": [
@@ -51,7 +51,19 @@
       "expo-image",
       "expo-secure-store",
       "expo-sharing",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-brand.png",
+          "backgroundColor": "#453332",
+          "resizeMode": "contain",
+          "android": {
+            "image": "./assets/adaptive-icon.png",
+            "imageWidth": 288,
+            "backgroundColor": "#F96951"
+          }
+        }
+      ],
       "expo-status-bar"
     ],
     "extra": {

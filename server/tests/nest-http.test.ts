@@ -98,6 +98,12 @@ test("Nest routes retain access checks, validation, response metadata, and uploa
         else assert.notEqual(response.status, 404, `${route.verb} ${route.url}`);
       }
     });
+    await t.test("fashion-house browsing requires login and accepts customer sessions", async () => {
+      for (const url of ["/api/fashion-houses?limit=20", `/api/fashion-houses/${houseId}`]) {
+        assert.equal((await send(url)).status, 401);
+        assert.equal((await send(url, "customer")).status, 200);
+      }
+    });
     await t.test("weekly schedule routes are admin-only and validate whole-hour durations", async () => {
       const schedule = { days: [1, 3, 5], startTime: "09:00", endTime: "17:00", durationMinutes: 120, blockedDates: [] };
       for (const role of ["staff", "customer"]) {
