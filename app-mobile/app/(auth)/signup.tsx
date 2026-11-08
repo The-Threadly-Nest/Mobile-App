@@ -24,6 +24,7 @@ import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScroll
 import { StatusBar } from "expo-status-bar";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
+
 export default function SignupScreen() {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
