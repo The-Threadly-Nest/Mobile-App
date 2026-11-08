@@ -7,6 +7,7 @@ import Svg, { Path, Circle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
   return <View style={{ width: 36, height: 36, borderRadius: 18, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
@@ -15,18 +16,21 @@ function FloatingTabIcon({ focused, children }: { focused: boolean; children: Re
 // ─── Schedule a local tray notification for a new incoming chat message ───────
 async function scheduleMessageNotification(senderName: string, text: string) {
   try {
+    if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return;
     const Notifications = require("expo-notifications");
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `💬 New message from ${senderName}`,
-        body: text || "You have a new message.",
-        sound: "default",
-        data: { screen: "chat" },
-      },
-      trigger: null, // fire immediately
-    });
+    if (typeof Notifications?.scheduleNotificationAsync === "function") {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: `💬 New message from ${senderName}`,
+          body: text || "You have a new message.",
+          sound: "default",
+          data: { screen: "chat" },
+        },
+        trigger: null, // fire immediately
+      });
+    }
   } catch (e) {
-    console.warn("[notification] Failed to schedule local notification:", e);
+    // Graceful no-op in dev/Expo Go
   }
 }
 

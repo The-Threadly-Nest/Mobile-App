@@ -21,6 +21,8 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
+import { StatusBar } from "expo-status-bar";
+import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 export default function SignupScreen() {
   const { width, height } = useWindowDimensions();
@@ -134,6 +136,7 @@ export default function SignupScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
@@ -154,7 +157,7 @@ export default function SignupScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Top Header */}
-          <View style={[styles.header, isLandscape && { marginBottom: 16, marginTop: 0 }]}>
+          <View style={[styles.header, isLandscape && { marginBottom: 14, marginTop: 0 }]}>
             <View style={styles.headerTopRow}>
               <Image
                 source={require("../../assets/owuja-logo.png")}
@@ -162,8 +165,8 @@ export default function SignupScreen() {
                 resizeMode="contain"
                 accessibilityLabel="Owuja Logo"
               />
+
             </View>
-            <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>Create Account</Text>
           </View>
 
           {/* Form Fields */}
@@ -375,13 +378,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   scrollContent: {
-    paddingHorizontal: 22,
-    paddingTop: 16,
-    paddingBottom: 36,
+    paddingHorizontal: 24,
+    paddingTop: SCREEN_TOP_SPACING,
+    paddingBottom: 24,
   },
   header: {
-    marginBottom: 28,
-    gap: 6,
+    marginBottom: 18,
   },
   headerTopRow: {
     flexDirection: "row",
@@ -390,8 +392,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   logo: {
-    width: 96,
-    height: 30,
+    width: 104,
+    height: 33,
   },
   headerLoginChip: {
     flexDirection: "row",

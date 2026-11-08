@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch, escalationsApi } from "@/shared/utils/apiClient";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 import { Plus } from "lucide-react-native";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
   return (
@@ -57,18 +58,21 @@ function CenterPlusTabIcon({ focused }: { focused: boolean }) {
 // ─── Local Tray Notification for Admin Customer Inquiries & Escalations ───────
 async function scheduleCustomerNotification(senderName: string, text: string) {
   try {
+    if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return;
     const Notifications = require("expo-notifications");
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: `💬 Customer Inquiry: ${senderName}`,
-        body: text || "You have a new customer message or escalation.",
-        sound: "default",
-        data: { screen: "messages" },
-      },
-      trigger: null, // Fire immediately
-    });
+    if (typeof Notifications?.scheduleNotificationAsync === "function") {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: `💬 Customer Inquiry: ${senderName}`,
+          body: text || "You have a new customer message or escalation.",
+          sound: "default",
+          data: { screen: "messages" },
+        },
+        trigger: null, // Fire immediately
+      });
+    }
   } catch (e) {
-    console.warn("[notification] Failed to schedule customer notification:", e);
+    // Graceful no-op in dev/Expo Go
   }
 }
 

@@ -21,6 +21,7 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
+import { StatusBar } from "expo-status-bar";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 export default function LoginScreen() {
@@ -121,6 +122,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={isLandscape ? undefined : Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}

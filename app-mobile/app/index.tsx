@@ -125,7 +125,8 @@ export default function VideoSplashScreen() {
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
         <Defs>
           <LinearGradient id="scrim" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0%" stopColor="#1A1110" stopOpacity="0.2" />
+            <Stop offset="0%" stopColor="#1A1110" stopOpacity="0.5" />
+            <Stop offset="12%" stopColor="#1A1110" stopOpacity="0.2" />
             <Stop offset="40%" stopColor="#1A1110" stopOpacity="0.4" />
             <Stop offset="65%" stopColor="#1A1110" stopOpacity="0.75" />
             <Stop offset="100%" stopColor="#1A1110" stopOpacity="0.95" />
