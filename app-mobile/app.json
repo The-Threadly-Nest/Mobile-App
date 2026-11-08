@@ -8,9 +8,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon-dark.png",
+      "image": "./assets/splash-icon-black.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#F96951"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -41,8 +41,9 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
-          "color": "#453332",
+          "icon": "./assets/notification-icon.png",
+          "color": "#F96951",
+          "defaultChannel": "default",
           "sounds": []
         }
       ],
@@ -54,18 +55,19 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-icon-dark.png",
+          "image": "./assets/splash-icon-black.png",
           "imageWidth": 160,
-          "backgroundColor": "#FFFFFF",
+          "backgroundColor": "#F96951",
           "resizeMode": "contain",
           "android": {
-            "image": "./assets/splash-icon-dark.png",
+            "image": "./assets/splash-icon-black.png",
             "imageWidth": 160,
-            "backgroundColor": "#FFFFFF"
+            "backgroundColor": "#F96951"
           }
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-video"
     ],
     "extra": {
       "router": {

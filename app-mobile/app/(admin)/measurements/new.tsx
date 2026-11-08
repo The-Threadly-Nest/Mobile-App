@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
-    color: "#3B0508",
+    color: "#000000",
     flex: 1,
   },
   sectionGroup: {
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 8,
   },
   inputContainer: {
@@ -532,7 +532,7 @@ const styles = StyleSheet.create({
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#3B0508",
+    color: "#000000",
     height: "100%",
   },
   segmentContainer: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   segmentBtnActive: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   segmentBtnInactive: {
     backgroundColor: "transparent",
@@ -564,13 +564,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   segmentTextInactive: {
-    color: "rgba(74, 8, 12, 0.7)",
+    color: "#000000",
   },
   badgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#453332",
+    color: "#000000",
     marginTop: 8,
     marginBottom: 16,
   },
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   gridLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 6,
   },
   customLabelRow: {
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
   gridInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#3B0508",
+    color: "#000000",
     height: "100%",
   },
   addCustomBtn: {
@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
   addCustomBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
   addCustomBox: {
     backgroundColor: "#FFFFFF",
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
   addCustomTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 6,
   },
   addCustomRow: {
@@ -649,13 +649,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
   },
   addCustomConfirmBtn: {
     width: 42,
     height: 42,
     borderRadius: 10,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   voiceRecordPillActive: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   voiceIconWrapper: {
     marginRight: 12,
@@ -678,7 +678,7 @@ const styles = StyleSheet.create({
   voiceRecordText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
   },
   voiceRecordTextActive: {
     color: "#FFFFFF",
@@ -694,7 +694,7 @@ const styles = StyleSheet.create({
   transcriptLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 4,
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
   transcriptText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
   },
   saveBtnWrapper: {
     paddingHorizontal: 24,
@@ -716,14 +716,14 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   saveBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
 });

@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 32,
-    color: "#1A1110",
+    color: "#000000",
   },
   filterContainer: {
     marginBottom: 16,
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   filterChipActive: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   filterChipInactive: {
     backgroundColor: "#EBE7E1",
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
     flex: 1,
     marginRight: 8,
   },
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#1A1110",
+    color: "#000000",
     marginTop: 2,
     marginBottom: 6,
   },
@@ -481,14 +481,14 @@ const styles = StyleSheet.create({
   itemText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     flex: 1,
     marginRight: 8,
   },
   assignedText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
   },
   empty: {
     alignItems: "center",
@@ -497,12 +497,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 6,
   },
   emptySubText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#8A7550",
+    color: "#000000",
   },
 });

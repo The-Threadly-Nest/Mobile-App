@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
   drawBtn: {
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   drawBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   introSubtext: {
     fontFamily: "InstrumentSans-Regular",
@@ -451,13 +451,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 4,
   },
   modalSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",

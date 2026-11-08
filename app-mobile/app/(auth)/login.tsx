@@ -75,6 +75,7 @@ export default function LoginScreen() {
       const userOnboardingCompleted = body.user.onboardingCompleted ?? false;
 
       setSession({
+        userId: body.user.id,
         token: body.token,
         email: body.user.email,
         name: body.user.name ?? "",
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#3B0508",
+    color: "#000000",
   },
   formContainer: {
     width: "100%",
@@ -338,12 +339,12 @@ const styles = StyleSheet.create({
   labelText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "rgba(74, 8, 12, 0.75)",
+    color: "#000000",
   },
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#3B0508",
+    color: "#000000",
     paddingRight: 32,
     height: "100%",
   },
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
   logInBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
   signupLinkRow: {
@@ -391,12 +392,12 @@ const styles = StyleSheet.create({
   signupLinkText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#3B0508",
+    color: "#000000",
   },
   signupLinkBold: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
   dividerContainer: {
     flexDirection: "row",
@@ -411,7 +412,7 @@ const styles = StyleSheet.create({
   dividerText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "rgba(74, 8, 12, 0.60)",
+    color: "#000000",
     paddingHorizontal: 16,
   },
   googleBtn: {
@@ -419,7 +420,7 @@ const styles = StyleSheet.create({
     height: 63,
     borderRadius: 31.5,
     borderWidth: 1,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     backgroundColor: "transparent",
     flexDirection: "row",
     alignItems: "center",
@@ -437,7 +438,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
-    color: "rgba(74, 8, 12, 0.60)",
+    color: "#000000",
     textAlign: "center",
     paddingHorizontal: 16,
   },

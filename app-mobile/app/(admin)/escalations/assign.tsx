@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
-    color: "#1A1110",
+    color: "#000000",
   },
   subtitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
   },
   inputContainer: {
     flexDirection: "row",
@@ -305,14 +305,14 @@ const styles = StyleSheet.create({
   currencyPrefix: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
     marginRight: 6,
   },
   priceInput: {
     flex: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#1A1110",
+    color: "#000000",
   },
   measurementsGrid: {
     flexDirection: "row",
@@ -336,13 +336,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#1A1110",
+    color: "#000000",
     textAlign: "center",
   },
   selectTailorHeadline: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginTop: 4,
     marginBottom: 14,
   },
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#1A1110",
+    color: "#000000",
   },
   ordersCount: {
     fontFamily: "InstrumentSans-Regular",
@@ -398,14 +398,14 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   confirmBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
 });

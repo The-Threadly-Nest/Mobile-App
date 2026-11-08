@@ -16,12 +16,12 @@ export function Input({ label, error, secureTextEntry, ...rest }: InputProps) {
   return (
     <View className="mb-3 w-full">
       {label ? (
-        <Text className="font-body-medium text-xs text-grey700 mb-1.5">{label}</Text>
+        <Text className="font-body-medium text-xs text-black mb-1.5">{label}</Text>
       ) : null}
       <View className="relative justify-center">
         <TextInput
           disableFullscreenUI={true}
-          className={`border rounded-lg px-4 py-3 font-body text-base text-ink bg-white ${
+          className={`border rounded-lg px-4 py-3 font-body text-base text-black bg-white ${
             secureTextEntry ? "pr-12" : ""
           } ${
             error ? "border-red-500" : focused ? "border-oxblood" : "border-grey100"

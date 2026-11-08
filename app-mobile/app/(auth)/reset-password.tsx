@@ -127,7 +127,7 @@ export default function ResetPasswordScreen() {
 
       <Input placeholder="New password" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
       <Input placeholder="Confirm new password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
-      <Text className="font-body text-grey700 text-xs mb-4">At least 8 characters, one uppercase letter, one number</Text>
+      <Text className="font-body text-black text-xs mb-4">At least 8 characters, one uppercase letter, one number</Text>
 
       {error ? <Text className="font-body text-red-500 text-xs mb-4">{error}</Text> : null}
 

@@ -193,7 +193,7 @@ export default function CustomerOrderDetailScreen() {
                   style={[
                     styles.orderBadgeText,
                     isDeclined && { color: "#DC2626" },
-                    isCancelled && { color: "#453332" },
+                    isCancelled && { color: "#000000" },
                   ]}
                 >
                   {orderNumber}
@@ -212,7 +212,7 @@ export default function CustomerOrderDetailScreen() {
                 style={[
                   styles.dateText,
                   isDeclined && { color: "#DC2626", fontFamily: "InstrumentSans-SemiBold" },
-                  isCancelled && { color: "#453332", fontFamily: "InstrumentSans-SemiBold" },
+                  isCancelled && { color: "#000000", fontFamily: "InstrumentSans-SemiBold" },
                 ]}
                 numberOfLines={1}
               >
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
   },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#3B0508" },
+  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#000000" },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
   heroSection: {
     paddingBottom: 16,
@@ -364,11 +364,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#453332",
   },
-  orderBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#453332" },
-  fhNameText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#8A7550", flexShrink: 1, marginLeft: 6 },
-  garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 16, color: "#3B0508", marginBottom: 4 },
+  orderBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#000000" },
+  fhNameText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000", flexShrink: 1, marginLeft: 6 },
+  garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 16, color: "#000000", marginBottom: 4 },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#8A7550", flexShrink: 1 },
+  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#000000", flexShrink: 1 },
   progressSection: {
     marginBottom: 24,
   },
@@ -378,22 +378,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 16,
   },
-  cardHeadline: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#3B0508" },
+  cardHeadline: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#000000" },
   timelineContainer: { paddingLeft: 4 },
   stepRow: { flexDirection: "row", minHeight: 52 },
   indicatorCol: { alignItems: "center", width: 26, marginRight: 12 },
   circle: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   circleDone: { backgroundColor: "#453332" },
   circlePending: { backgroundColor: "#EBE6DC" },
-  circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#8A7550" },
+  circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#000000" },
   connector: { width: 2, flex: 1, marginVertical: 3 },
   connectorDone: { backgroundColor: "#453332" },
   connectorPending: { backgroundColor: "#EBE6DC" },
   stepInfoCol: { flex: 1, paddingBottom: 14 },
-  stepLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13.5, color: "#3B0508" },
-  stepLabelCurrent: { color: "#453332", fontFamily: "InstrumentSans-Bold" },
+  stepLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13.5, color: "#000000" },
+  stepLabelCurrent: { color: "#000000", fontFamily: "InstrumentSans-Bold" },
   stepLabelPending: { color: "#A0A0A0" },
-  stepDesc: { fontFamily: "InstrumentSans-Regular", fontSize: 11.5, color: "#8A7550", marginTop: 1 },
+  stepDesc: { fontFamily: "InstrumentSans-Regular", fontSize: 11.5, color: "#000000", marginTop: 1 },
   actionButtonRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
   pillBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14.5,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   pillBtnSecondary: {
     flex: 1,
@@ -434,6 +434,6 @@ const styles = StyleSheet.create({
   pillBtnSecondaryText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14.5,
-    color: "#453332",
+    color: "#000000",
   },
 });

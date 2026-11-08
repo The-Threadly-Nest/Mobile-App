@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     color: "#000000",
   },
   bookingBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     width: "100%",
     maxWidth: 376,
     height: 63,
@@ -613,6 +613,6 @@ const styles = StyleSheet.create({
   bookingBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

@@ -789,7 +789,7 @@ export default function AdminDrawScreen() {
               style={[styles.chip, title === chip ? styles.chipActive : styles.chipInactive]}
             >
               <Text
-                style={[styles.chipText, title === chip ? { color: "#FFFFFF" } : { color: "#3A2E1A" }]}
+                style={[styles.chipText, title === chip ? { color: "#FFFFFF" } : { color: "#000000" }]}
               >
                 + {chip}
               </Text>
@@ -839,7 +839,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 22, color: "#1A1110" },
+  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 22, color: "#000000" },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
@@ -854,8 +854,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  guideBtnActive: { backgroundColor: "#453332" },
-  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#453332" },
+  guideBtnActive: { backgroundColor: "#F96951" },
+  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#000000" },
   centeredModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.45)",
@@ -900,7 +900,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  widthBtnActive: { backgroundColor: "#453332", borderColor: "#453332" },
+  widthBtnActive: { backgroundColor: "#F96951", borderColor: "#F96951" },
   colorPaletteRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -918,11 +918,11 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderWidth: 2.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     transform: [{ scale: 1.15 }],
   },
   chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
-  chipActive: { backgroundColor: "#453332" },
+  chipActive: { backgroundColor: "#F96951" },
   chipInactive: { backgroundColor: "#E4D5B7" },
   chipText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11 },
   errorText: {
@@ -1036,16 +1036,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   floatBtnActive: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   floatBtnRing: {
     borderWidth: 2.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
   },
   floatBtnSave: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   floatDivider: {
     width: 28,
@@ -1091,13 +1091,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   panelBtnActive: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   panelBtnLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
   },
   panelColorSwatch: {
     width: 32,
@@ -1110,7 +1110,7 @@ const styles = StyleSheet.create({
   },
   panelColorSwatchSelected: {
     borderWidth: 2.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     transform: [{ scale: 1.15 }],
   },
 });

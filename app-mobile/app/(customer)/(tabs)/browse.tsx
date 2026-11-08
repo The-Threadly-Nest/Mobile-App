@@ -367,7 +367,7 @@ export default function BrowseScreen() {
           ))}
         </View>
 
-        {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#453332" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
+        {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#000000" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
       </ScrollView>
 
     </SafeAreaView>
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   greetingName: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#3B0508",
+    color: "#000000",
   },
   bellButton: {
     position: "relative",
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   shopNowText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#453332",
+    color: "#000000",
   },
   bannerImageWrapper: {
     flex: 0.9,
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#3B0508",
+    color: "#000000",
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Medium",
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
   fallbackInitial: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 22,
-    color: "#453332",
+    color: "#000000",
   },
   fashionHouseName: {
     fontFamily: "InstrumentSans-Medium",
@@ -755,7 +755,7 @@ const styles = StyleSheet.create({
   timerColon: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#453332",
+    color: "#000000",
   },
   filterPillsRow: {
     flexDirection: "row",
@@ -770,12 +770,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   filterPillActive: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   filterPillText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
-    color: "#453332",
+    color: "#000000",
   },
   filterPillTextActive: {
     color: "#FFFFFF",

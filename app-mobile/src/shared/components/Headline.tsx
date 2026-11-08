@@ -11,7 +11,7 @@ import { Text, TextProps } from "react-native";
  */
 export function Headline({ children, className = "", ...rest }: TextProps & { className?: string }) {
   return (
-    <Text className={`font-display text-ink ${className}`} {...rest}>
+    <Text className={`font-display text-black ${className}`} {...rest}>
       {children}
     </Text>
   );
@@ -19,7 +19,7 @@ export function Headline({ children, className = "", ...rest }: TextProps & { cl
 
 export function Subtext({ children, className = "", ...rest }: TextProps & { className?: string }) {
   return (
-    <Text className={`font-body text-grey700 ${className}`} {...rest}>
+    <Text className={`font-body text-black ${className}`} {...rest}>
       {children}
     </Text>
   );

@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { User, Store, CheckCircle2 } from "lucide-react-native";
+import { ShoppingBag, Scissors, Check } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 
 export default function RoleSelectScreen() {
@@ -24,122 +25,160 @@ export default function RoleSelectScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          isLandscape && {
-            paddingTop: 8,
-            paddingBottom: 16,
-            maxWidth: 680,
-            alignSelf: "center",
-            width: "100%",
-          },
+          isLandscape && { maxWidth: 680, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title Section */}
+        {/* Top Back Navigation */}
+        <View style={styles.navRow}>
+          <Pressable
+            onPress={() => (router.canGoBack() ? router.back() : router.replace("/(auth)/login"))}
+            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            hitSlop={8}
+          >
+            <BackArrowIcon size={22} color="#3B0508" />
+          </Pressable>
+        </View>
 
         {/* Title Section */}
-        <View style={[styles.titleSection, isLandscape && { marginBottom: 8 }]}>
-          <Text style={[styles.categoryBadge, isLandscape && { marginBottom: 2 }]}>GET STARTED</Text>
-          <Text style={[styles.title, isLandscape && { fontSize: 20, lineHeight: 26, marginBottom: 2 }]}>
-            Choose your account type
-          </Text>
-          <Text style={[styles.subtitle, isLandscape && { fontSize: 13, lineHeight: 17 }]}>
-            Select how you plan to use Owuja so we can tailor your experience.
+        <View style={styles.titleSection}>
+          <Text style={styles.categoryBadge}>GET STARTED</Text>
+          <Text style={styles.title}>Choose your account type</Text>
+          <Text style={styles.subtitle}>
+            Select how you'll be using Owuja so we can tailor your experience.
           </Text>
         </View>
 
-        {/* Role Cards Container — Side-by-side in landscape */}
-        <View style={[styles.cardsContainer, isLandscape && { flexDirection: "row", gap: 12, marginVertical: 2 }]}>
-          {/* Card 1: Customer */}
+        {/* Role Cards Container */}
+        <View style={[styles.cardsContainer, isLandscape && { flexDirection: "row", gap: 12 }]}>
+          {/* Card 1: Shopper / Customer */}
           <Pressable
             onPress={() => setSelectedRole("customer")}
             style={({ pressed }) => [
               styles.roleCard,
-              isLandscape && { flex: 1, padding: 12, borderRadius: 16 },
               selectedRole === "customer" ? styles.roleCardSelected : styles.roleCardUnselected,
-              { opacity: pressed ? 0.9 : 1 },
+              isLandscape && { flex: 1 },
+              { opacity: pressed ? 0.92 : 1 },
             ]}
           >
-            <View style={[styles.cardHeaderRow, isLandscape && { marginBottom: 6 }]}>
+            <View style={styles.cardHeaderRow}>
               <View
                 style={[
                   styles.iconCircle,
-                  isLandscape && { width: 36, height: 36, borderRadius: 18 },
-                  selectedRole === "customer"
-                    ? styles.iconCircleSelected
-                    : styles.iconCircleUnselected,
+                  selectedRole === "customer" ? styles.iconCircleSelected : styles.iconCircleUnselected,
                 ]}
               >
-                <User
-                  size={isLandscape ? 18 : 24}
+                <ShoppingBag
+                  size={22}
                   color={selectedRole === "customer" ? "#FFFFFF" : "#453332"}
+                  strokeWidth={1.8}
                 />
               </View>
-              {selectedRole === "customer" && (
-                <CheckCircle2 size={isLandscape ? 18 : 24} color="#453332" />
-              )}
+
+              {/* Radio Indicator */}
+              <View
+                style={[
+                  styles.radioCircle,
+                  selectedRole === "customer" ? styles.radioSelected : styles.radioUnselected,
+                ]}
+              >
+                {selectedRole === "customer" && <Check size={14} color="#FFFFFF" strokeWidth={2.5} />}
+              </View>
             </View>
 
-            <Text style={[styles.cardTitle, isLandscape && { fontSize: 16, marginBottom: 2 }]}>I'm a Customer</Text>
-            <Text style={[styles.cardSubtitle, isLandscape && { fontSize: 12, lineHeight: 16 }]}>
-              Discover top fashion houses, book fittings with AI assistant, track custom outfits, & save measurements.
+            <Text style={styles.cardEyebrow}>INDIVIDUAL CLIENT</Text>
+            <Text style={styles.cardTitle}>I'm a Shopper</Text>
+            <Text style={styles.cardSubtitle}>
+              Discover top Nigerian fashion houses, commission bespoke pieces, book AI fittings, and track orders.
             </Text>
+
+            {/* Feature Pills */}
+            <View style={styles.featurePillsRow}>
+              <View style={styles.featurePill}>
+                <Text style={styles.featurePillText}>Bespoke Outfits</Text>
+              </View>
+              <View style={styles.featurePill}>
+                <Text style={styles.featurePillText}>AI Fitting</Text>
+              </View>
+              <View style={styles.featurePill}>
+                <Text style={styles.featurePillText}>Live Tracking</Text>
+              </View>
+            </View>
           </Pressable>
 
-          {/* Card 2: Fashion House Owner (Admin) */}
+          {/* Card 2: Fashion House / Creator */}
           <Pressable
             onPress={() => setSelectedRole("admin")}
             style={({ pressed }) => [
               styles.roleCard,
-              isLandscape && { flex: 1, padding: 12, borderRadius: 16 },
               selectedRole === "admin" ? styles.roleCardSelected : styles.roleCardUnselected,
-              { opacity: pressed ? 0.9 : 1 },
+              isLandscape && { flex: 1 },
+              { opacity: pressed ? 0.92 : 1 },
             ]}
           >
-            <View style={[styles.cardHeaderRow, isLandscape && { marginBottom: 6 }]}>
+            <View style={styles.cardHeaderRow}>
               <View
                 style={[
                   styles.iconCircle,
-                  isLandscape && { width: 36, height: 36, borderRadius: 18 },
-                  selectedRole === "admin"
-                    ? styles.iconCircleSelected
-                    : styles.iconCircleUnselected,
+                  selectedRole === "admin" ? styles.iconCircleSelected : styles.iconCircleUnselected,
                 ]}
               >
-                <Store
-                  size={isLandscape ? 18 : 24}
+                <Scissors
+                  size={22}
                   color={selectedRole === "admin" ? "#FFFFFF" : "#453332"}
+                  strokeWidth={1.8}
                 />
               </View>
-              {selectedRole === "admin" && (
-                <CheckCircle2 size={isLandscape ? 18 : 24} color="#453332" />
-              )}
+
+              {/* Radio Indicator */}
+              <View
+                style={[
+                  styles.radioCircle,
+                  selectedRole === "admin" ? styles.radioSelected : styles.radioUnselected,
+                ]}
+              >
+                {selectedRole === "admin" && <Check size={14} color="#FFFFFF" strokeWidth={2.5} />}
+              </View>
             </View>
 
-            <Text style={[styles.cardTitle, isLandscape && { fontSize: 16, marginBottom: 2 }]}>Fashion House Owner</Text>
-            <Text style={[styles.cardSubtitle, isLandscape && { fontSize: 12, lineHeight: 16 }]}>
-              Manage orders, staff assignments, customer measurement sheets, invoices, and your digital storefront.
+            <Text style={styles.cardEyebrow}>CREATOR & BUSINESS</Text>
+            <Text style={styles.cardTitle}>Fashion House Owner</Text>
+            <Text style={styles.cardSubtitle}>
+              Manage bespoke commissions, tailor assignments, digital measurement sheets, invoices, and your brand storefront.
             </Text>
+
+            {/* Feature Pills */}
+            <View style={styles.featurePillsRow}>
+              <View style={styles.featurePill}>
+                <Text style={styles.featurePillText}>Client Measurements</Text>
+              </View>
+              <View style={styles.featurePill}>
+                <Text style={styles.featurePillText}>Order Studio</Text>
+              </View>
+              <View style={styles.featurePill}>
+                <Text style={styles.featurePillText}>Storefront</Text>
+              </View>
+            </View>
           </Pressable>
         </View>
 
         {/* Bottom Actions */}
-        <View style={[styles.bottomSection, isLandscape && { marginTop: 8, gap: 6, alignItems: "center" }]}>
+        <View style={styles.bottomSection}>
           <Pressable
             onPress={handleContinue}
             style={({ pressed }) => [
               styles.continueBtn,
-              isLandscape && { height: 44, borderRadius: 22 },
-              { opacity: pressed ? 0.85 : 1 },
+              { opacity: pressed ? 0.88 : 1 },
             ]}
           >
             <Text style={styles.continueBtnText}>
-              Continue as {selectedRole === "customer" ? "Customer" : "Fashion House"}
+              Continue as {selectedRole === "customer" ? "Shopper" : "Fashion House"}
             </Text>
           </Pressable>
 
           <View style={styles.loginRow}>
             <Text style={styles.loginText}>Already have an account? </Text>
-            <Pressable onPress={() => router.push("/(auth)/login")}>
+            <Pressable onPress={() => router.push("/(auth)/login")} hitSlop={6}>
               <Text style={styles.loginBold}>Log In</Text>
             </Pressable>
           </View>
@@ -156,37 +195,34 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 22,
     paddingTop: SCREEN_TOP_SPACING,
-    paddingBottom: 24,
-    justifyContent: "flex-start",
+    paddingBottom: 28,
   },
-  header: {
-    marginBottom: 0,
+  navRow: {
+    marginBottom: 16,
   },
   backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    alignItems: "center",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "flex-start",
     justifyContent: "center",
   },
   titleSection: {
-    marginBottom: 20,
+    marginBottom: 22,
   },
   categoryBadge: {
     fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 12,
-    letterSpacing: 1.2,
-    color: "#453332",
+    fontSize: 11,
+    letterSpacing: 1.5,
+    color: "#8A7550",
     marginBottom: 6,
   },
   title: {
     fontFamily: "HedvigLettersSerif-Regular",
-    fontSize: 26,
-    lineHeight: 34,
+    fontSize: 28,
+    lineHeight: 36,
     color: "#3B0508",
     marginBottom: 6,
   },
@@ -194,23 +230,23 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "rgba(74, 8, 12, 0.75)",
+    color: "#746765",
   },
   cardsContainer: {
     gap: 14,
-    marginVertical: 4,
+    marginBottom: 24,
   },
   roleCard: {
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 20,
-    borderWidth: 2,
+    borderWidth: 1.5,
   },
   roleCardSelected: {
     borderColor: "#453332",
-    backgroundColor: "#F4EFE6",
+    backgroundColor: "#FBF7EF",
   },
   roleCardUnselected: {
-    borderColor: "rgba(74, 8, 12, 0.15)",
+    borderColor: "#EBE0D3",
     backgroundColor: "#FFFFFF",
   },
   cardHeaderRow: {
@@ -220,9 +256,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   iconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -230,37 +266,74 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   iconCircleUnselected: {
-    backgroundColor: "#EBE0D3",
+    backgroundColor: "#F4EEE5",
+  },
+  radioCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioSelected: {
+    backgroundColor: "#453332",
+  },
+  radioUnselected: {
+    borderWidth: 1.5,
+    borderColor: "#C8BEB0",
+    backgroundColor: "transparent",
+  },
+  cardEyebrow: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 10,
+    letterSpacing: 1.2,
+    color: "#8A7550",
+    marginBottom: 4,
   },
   cardTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
-    fontSize: 20,
+    fontSize: 21,
     color: "#3B0508",
     marginBottom: 6,
   },
   cardSubtitle: {
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 14,
-    lineHeight: 20,
-    color: "rgba(74, 8, 12, 0.75)",
+    fontSize: 13,
+    lineHeight: 19,
+    color: "#5A4A48",
+    marginBottom: 14,
+  },
+  featurePillsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  featurePill: {
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: "rgba(69, 51, 50, 0.06)",
+  },
+  featurePillText: {
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 11,
+    color: "#453332",
   },
   bottomSection: {
     gap: 16,
-    marginTop: 16,
+    marginTop: "auto",
   },
   continueBtn: {
     width: "100%",
-    maxWidth: 380,
-    alignSelf: "center",
-    height: 63,
-    borderRadius: 31.5,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 16,
+    fontSize: 15,
     color: "#FFFFFF",
     letterSpacing: 0.2,
   },
@@ -272,7 +345,7 @@ const styles = StyleSheet.create({
   loginText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#746765",
   },
   loginBold: {
     fontFamily: "InstrumentSans-SemiBold",

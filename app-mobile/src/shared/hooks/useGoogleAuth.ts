@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { NativeModules } from "react-native";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -30,10 +30,12 @@ if (hasNativeModule) {
 export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const signInBusy = useRef(false);
 
   const setSession = useAuthStore((s) => s.setSession);
 
   const promptAsync = async () => {
+    if (signInBusy.current) return;
     setError("");
 
     if (!hasNativeModule || !GoogleSignin) {
@@ -41,9 +43,13 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       return;
     }
 
+    signInBusy.current = true;
     setLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
+      // Clear the SDK's remembered account, not the person's Owuja session.
+      // Interactive sign-in must offer account selection instead of auto-reusing it.
+      await GoogleSignin.signOut();
       const response = await GoogleSignin.signIn();
 
       if (isCancelledResponse(response)) {
@@ -66,6 +72,7 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       const userOnboardingCompleted = data.user.onboardingCompleted ?? false;
 
       setSession({
+        userId: data.user.id,
         token: data.token,
         email: data.user.email,
         name: data.user.name ?? "",
@@ -96,6 +103,7 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
         setError(e.message ?? "Google Sign-In failed. Please try again.");
       }
     } finally {
+      signInBusy.current = false;
       setLoading(false);
     }
   };

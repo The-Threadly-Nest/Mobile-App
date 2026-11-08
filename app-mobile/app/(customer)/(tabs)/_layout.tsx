@@ -193,7 +193,7 @@ export default function TabsLayout() {
           paddingBottom: 0,
           borderRadius: 27,
           borderTopWidth: 0,
-          backgroundColor: "#453332",
+          backgroundColor: "#F96951",
           elevation: 5,
           shadowColor: "#000000",
           shadowOpacity: 0.12,

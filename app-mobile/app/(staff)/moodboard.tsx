@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#453332",
+    color: "#000000",
   },
   headerActions: {
     flexDirection: "row",
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   drawBtn: {
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -362,13 +362,13 @@ const styles = StyleSheet.create({
   drawBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   addBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 20,
   },
   loaderContainer: {
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#3A2E1A",
+    color: "#000000",
     textAlign: "center",
   },
   emptyContainer: {
@@ -472,14 +472,14 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 4,
   },
   emptySubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
-    color: "#8A7550",
+    color: "#000000",
     textAlign: "center",
   },
   modalOverlay: {
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#453332",
+    color: "#000000",
   },
   previewImageWrapper: {
     alignItems: "center",

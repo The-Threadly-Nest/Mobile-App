@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   screenTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
-    color: "#1A1110",
+    color: "#000000",
     marginBottom: 20,
     paddingHorizontal: 4,
   },
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   pillActive: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   pillInactive: {
     backgroundColor: "#E2E5DF",
@@ -672,13 +672,13 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#1A1110",
+    color: "#000000",
     marginBottom: 2,
   },
   serviceSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
   },
   badge: {
     backgroundColor: "#F4ECE1",
@@ -712,14 +712,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   assignBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   declineBtn: {
     flex: 1,
@@ -727,14 +727,14 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   declineBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
   assignedFooter: {
     flexDirection: "row",
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#453332",
+    color: "#000000",
   },
   modalSubtitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -789,7 +789,7 @@ const styles = StyleSheet.create({
   staffItemName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
   },
   summaryCard: {
     backgroundColor: "#FFFFFF",
@@ -802,20 +802,20 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     textTransform: "uppercase",
     marginBottom: 4,
   },
   summaryText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#1A1110",
+    color: "#000000",
     lineHeight: 20,
   },
   transcriptSectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 10,
   },
   chatBubble: {
@@ -842,6 +842,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   modelChatText: {
-    color: "#1A1110",
+    color: "#000000",
   },
 });

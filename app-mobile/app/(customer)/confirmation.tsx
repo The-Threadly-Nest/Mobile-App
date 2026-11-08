@@ -51,21 +51,21 @@ export default function BookingConfirmationScreen() {
           >
             <BackArrowIcon size={18} color="#453332" />
           </Pressable>
-          <Text className="font-display text-[20px] font-bold text-[#453332]">
+          <Text className="font-display text-[20px] font-bold text-black">
             Booking Request
           </Text>
         </View>
 
         <View className="flex-1 px-6 items-center justify-center">
-          <Text className="font-display text-[24px] font-semibold text-[#453332] mb-3 text-center">
+          <Text className="font-display text-[24px] font-semibold text-black mb-3 text-center">
             We could not verify this request
           </Text>
-          <Text className="font-body text-[14px] text-[#8A7550] text-center mb-8">
+          <Text className="font-body text-[14px] text-black text-center mb-8">
             No saved booking reference was found. Please return to the fashion house and try again.
           </Text>
           <Pressable
             onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-            className="w-full max-w-[376px] h-[56px] bg-[#453332] rounded-full items-center justify-center"
+            className="w-full max-w-[376px] h-[56px] bg-tomato rounded-full items-center justify-center"
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
             <Text className="font-body-semibold text-[16px] text-white">Return to Browse</Text>
@@ -101,7 +101,7 @@ export default function BookingConfirmationScreen() {
           <View className="w-12 h-12 rounded-full bg-[#453332] items-center justify-center mb-3">
             <Check size={30} color="#C4A763" strokeWidth={3} />
           </View>
-          <Text className="font-display text-[24px] font-semibold text-[#453332] mb-1.5 text-center">
+          <Text className="font-display text-[24px] font-semibold text-black mb-1.5 text-center">
             Booking Request Received
           </Text>
           <Text className="font-body text-[14px] font-normal text-[#646464] text-center">
@@ -115,14 +115,14 @@ export default function BookingConfirmationScreen() {
             <Text className="font-body text-[14px] text-[#646464]">
               Fashion House
             </Text>
-            <Text className="font-body-semibold text-[14px] text-[#453332]">
+            <Text className="font-body-semibold text-[14px] text-black">
               {fashionHouseName}
             </Text>
           </View>
 
           <View className="flex-row items-center justify-between">
             <Text className="font-body text-[14px] text-[#646464]">Garment</Text>
-            <Text className="font-body-semibold text-[14px] text-[#453332]">
+            <Text className="font-body-semibold text-[14px] text-black">
               {garment}
             </Text>
           </View>
@@ -131,14 +131,14 @@ export default function BookingConfirmationScreen() {
             <Text className="font-body text-[14px] text-[#646464]">
               Fitting Date
             </Text>
-            <Text className="font-body-semibold text-[14px] text-[#453332]">
+            <Text className="font-body-semibold text-[14px] text-black">
               {fittingDate}
             </Text>
           </View>
 
           <View className="flex-row items-center justify-between">
             <Text className="font-body text-[14px] text-[#646464]">Estimate</Text>
-            <Text className="font-body-semibold text-[14px] text-[#453332]">
+            <Text className="font-body-semibold text-[14px] text-black">
               {estimate}
             </Text>
           </View>
@@ -146,33 +146,33 @@ export default function BookingConfirmationScreen() {
 
         {/* Card 2 — WHAT HAPPENS NEXT (376x245px SVG Spec) */}
         <View className="w-full max-w-[376px] h-[245px] self-center bg-white rounded-[24px] px-6 py-5 shadow-sm justify-between">
-          <Text className="font-body-bold text-[12px] uppercase tracking-wider text-[#453332] mb-0.5">
+          <Text className="font-body-bold text-[12px] uppercase tracking-wider text-black mb-0.5">
             WHAT HAPPENS NEXT
           </Text>
 
           <View className="flex-row items-start gap-3.5">
             <View className="w-8 h-8 rounded-full bg-[#D5C4C6] items-center justify-center">
-              <Text className="font-body-bold text-[14px] text-[#453332]">1</Text>
+              <Text className="font-body-bold text-[14px] text-black">1</Text>
             </View>
-            <Text className="font-body text-[14px] text-ink flex-1 leading-[20px] pt-1">
+            <Text className="font-body text-[14px] text-black flex-1 leading-[20px] pt-1">
               The fashion house will review your request and confirm the fitting time.
             </Text>
           </View>
 
           <View className="flex-row items-start gap-3.5">
             <View className="w-8 h-8 rounded-full bg-[#D5C4C6] items-center justify-center">
-              <Text className="font-body-bold text-[14px] text-[#453332]">2</Text>
+              <Text className="font-body-bold text-[14px] text-black">2</Text>
             </View>
-            <Text className="font-body text-[14px] text-ink flex-1 leading-[20px] pt-1">
+            <Text className="font-body text-[14px] text-black flex-1 leading-[20px] pt-1">
               You'll get a status update as production begins.
             </Text>
           </View>
 
           <View className="flex-row items-start gap-3.5">
             <View className="w-8 h-8 rounded-full bg-[#D5C4C6] items-center justify-center">
-              <Text className="font-body-bold text-[14px] text-[#453332]">3</Text>
+              <Text className="font-body-bold text-[14px] text-black">3</Text>
             </View>
-            <Text className="font-body text-[14px] text-ink flex-1 leading-[20px] pt-1">
+            <Text className="font-body text-[14px] text-black flex-1 leading-[20px] pt-1">
               We'll notify you the moment it's ready for pickup.
             </Text>
           </View>
@@ -180,7 +180,7 @@ export default function BookingConfirmationScreen() {
 
         {/* Card 3 — Favourites Toggle (376x56px SVG Spec) */}
         <View className="w-full max-w-[376px] h-[56px] self-center bg-white rounded-[20px] px-6 flex-row items-center justify-between shadow-sm">
-          <Text className="font-body text-[15px] text-ink flex-1 mr-4">
+          <Text className="font-body text-[15px] text-black flex-1 mr-4">
             Save {fashionHouseName} to favourites
           </Text>
           <Switch
@@ -194,7 +194,7 @@ export default function BookingConfirmationScreen() {
         {/* Primary Action Button (376x63px SVG Spec) */}
         <Pressable
           onPress={() => router.replace("/(customer)/(tabs)/orders")}
-          className="w-full max-w-[376px] h-[63px] self-center bg-[#453332] rounded-full items-center justify-center mt-1"
+          className="w-full max-w-[376px] h-[63px] self-center bg-tomato rounded-full items-center justify-center mt-1"
           style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
         >
           <Text className="font-body-semibold text-[16px] text-white">

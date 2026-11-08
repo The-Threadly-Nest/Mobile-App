@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   listContent: {

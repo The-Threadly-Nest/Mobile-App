@@ -651,7 +651,7 @@ export default function InvoiceDetailScreen() {
                   style={{
                     fontFamily: "HedvigLettersSerif-Regular",
                     fontSize: 26,
-                    color: "#453332",
+                    color: "#000000",
                     transform: [{ rotate: "-20deg" }],
                     textAlign: "center",
                   }}
@@ -758,12 +758,12 @@ export default function InvoiceDetailScreen() {
               {/* Tax & Breakdown Calculation Row */}
               <View style={{ marginTop: 14, marginBottom: 12, zIndex: 1 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#8A7550" }}>Subtotal</Text>
-                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#000000" }}>Subtotal</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#000000" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#8A7550" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
-                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#3A2E1A" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#000000" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#000000" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
                 </View>
               </View>
 
@@ -789,7 +789,7 @@ export default function InvoiceDetailScreen() {
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
-                    color: "#8A7550",
+                    color: "#000000",
                     letterSpacing: 0.8,
                     marginBottom: 8,
                     textAlign: "center",
@@ -799,23 +799,23 @@ export default function InvoiceDetailScreen() {
                 </Text>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
                   <View>
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BANK</Text>
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>{invoice.bankName || "Not configured"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#000000", marginBottom: 2 }}>BANK</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000" }}>{invoice.bankName || "Not configured"}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>ACCOUNT NO.</Text>
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountNumber || "—"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#000000", marginBottom: 2 }}>ACCOUNT NO.</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000" }}>{invoice.accountNumber || "—"}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#8A7550", marginBottom: 2 }}>BENEFICIARY</Text>
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>{invoice.accountName || "—"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#000000", marginBottom: 2 }}>BENEFICIARY</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000" }}>{invoice.accountName || "—"}</Text>
                   </View>
                 </View>
               </View>
 
               {/* Footer Tag */}
               <View style={{ marginTop: 16, alignItems: "center", zIndex: 1 }}>
-                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#453332", textAlign: "center" }}>
+                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#000000", textAlign: "center" }}>
                   Owuja
                 </Text>
               </View>
@@ -948,7 +948,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -972,7 +972,7 @@ const styles = StyleSheet.create({
   atelierName: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 4,
   },
   invoiceSubtitle: {
@@ -1003,7 +1003,7 @@ const styles = StyleSheet.create({
   fieldValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
   },
   itemsTable: {
     marginTop: 4,
@@ -1022,14 +1022,14 @@ const styles = StyleSheet.create({
   itemName: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
     flex: 1,
     paddingRight: 12,
   },
   itemPrice: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
   },
   tableBottomBorder: {
     borderBottomWidth: 0.5,
@@ -1045,12 +1045,12 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
   },
   totalAmount: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
   },
   statusPill: {
     paddingHorizontal: 12,
@@ -1073,7 +1073,7 @@ const styles = StyleSheet.create({
     color: "#B57E42",
   },
   paidText: {
-    color: "#453332",
+    color: "#000000",
   },
   actionButtonsContainer: {
     marginTop: 28,
@@ -1087,14 +1087,14 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   outlineBtn: {
     flex: 1,
@@ -1102,14 +1102,14 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   outlineBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
   secondaryBtn: {
     width: "100%",
@@ -1124,7 +1124,7 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
   modalOverlay: {
     flex: 1,
@@ -1152,7 +1152,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#1A1110",
+    color: "#000000",
   },
   modalSubtitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -1182,7 +1182,7 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
     marginBottom: 2,
   },
   optionDesc: {

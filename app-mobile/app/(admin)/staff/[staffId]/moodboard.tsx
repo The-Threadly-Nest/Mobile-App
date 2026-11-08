@@ -130,7 +130,7 @@ export default function AdminStaffMoodBoardScreen() {
               fontFamily: "HedvigLettersSerif-Regular",
               fontSize: 24,
               lineHeight: 28,
-              color: "#1A1110",
+              color: "#000000",
               letterSpacing: -0.2,
             }}
           >
@@ -154,7 +154,7 @@ export default function AdminStaffMoodBoardScreen() {
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center py-20">
               <PenTool size={36} color="#A6926B" />
-              <Text className="font-body text-grey700 text-sm mt-3 text-center">
+              <Text className="font-body text-black text-sm mt-3 text-center">
                 This staff member has not uploaded any sketches yet.
               </Text>
             </View>
@@ -164,19 +164,19 @@ export default function AdminStaffMoodBoardScreen() {
               <Image source={{ uri: item.imageUrl }} className="w-full h-3/5" style={{ resizeMode: "cover" }} />
               
               <View className="h-2/5 bg-white px-2 justify-between py-2">
-                <Text className="font-body-semibold text-ink text-xs text-center" numberOfLines={1}>
+                <Text className="font-body-semibold text-black text-xs text-center" numberOfLines={1}>
                   {item.title}
                 </Text>
 
                 {item.promotedToCatalog ? (
                   <View className="bg-oxblood/10 py-1.5 px-2 rounded-lg flex-row items-center justify-center gap-1">
                     <CheckCircle2 size={12} color="#453332" />
-                    <Text className="font-body-semibold text-oxblood text-[10px]">In Catalog</Text>
+                    <Text className="font-body-semibold text-black text-[10px]">In Catalog</Text>
                   </View>
                 ) : (
                   <Pressable
                     onPress={() => openPromoteModal(item)}
-                    className="bg-oxblood py-1.5 px-2 rounded-lg flex-row items-center justify-center gap-1"
+                    className="bg-tomato py-1.5 px-2 rounded-lg flex-row items-center justify-center gap-1"
                   >
                     <Sparkles size={12} color="#C4A763" />
                     <Text className="font-body-semibold text-cream text-[10px]">Promote</Text>
@@ -192,7 +192,7 @@ export default function AdminStaffMoodBoardScreen() {
       <Modal visible={!!selectedSketch} animationType="slide" transparent>
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-3xl p-6">
-            <Headline className="text-xl text-oxblood mb-1">Promote to Catalog</Headline>
+            <Headline className="text-xl text-black mb-1">Promote to Catalog</Headline>
             <Subtext className="text-xs mb-4">
               Add this sketch to your public Fashion House catalog for customers to view.
             </Subtext>
@@ -221,7 +221,7 @@ export default function AdminStaffMoodBoardScreen() {
                 loading={!!promotingId}
               />
               <Pressable onPress={() => setSelectedSketch(null)} className="py-2">
-                <Text className="font-body text-center text-grey700 text-sm">Cancel</Text>
+                <Text className="font-body text-center text-black text-sm">Cancel</Text>
               </Pressable>
             </View>
           </View>

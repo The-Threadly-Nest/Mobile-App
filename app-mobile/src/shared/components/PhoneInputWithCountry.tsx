@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 4,
   },
   inputRow: {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#3B0508",
+    color: "#000000",
   },
   closeBtn: {
     padding: 6,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
   },
   countryItem: {
     flexDirection: "row",
@@ -308,11 +308,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#3B0508",
+    color: "#000000",
   },
   itemCode: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
   },
 });

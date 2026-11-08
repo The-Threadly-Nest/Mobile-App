@@ -283,14 +283,14 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   promoteBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   promotedBanner: {
     width: "100%",
@@ -321,13 +321,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 4,
   },
   modalSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",

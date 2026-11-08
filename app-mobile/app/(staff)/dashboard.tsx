@@ -401,14 +401,14 @@ const styles = StyleSheet.create({
   atelierTag: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 4,
   },
   greetingTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     lineHeight: 34,
-    color: "#453332",
+    color: "#000000",
   },
   tabsRow: {
     flexDirection: "row",
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   activeTabPill: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   inactiveTabPill: {
     backgroundColor: "#EBE0D3",
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   inactiveTabText: {
-    color: "#3A2E1A",
+    color: "#000000",
   },
   loadingContainer: {
     paddingVertical: 40,
@@ -480,17 +480,17 @@ const styles = StyleSheet.create({
   customerNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 2,
   },
   orderNumberText: {
     fontFamily: "InstrumentSans-Medium",
-    color: "#3A2E1A",
+    color: "#000000",
   },
   garmentSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
   },
   progressTrack: {
     height: 6,
@@ -507,14 +507,14 @@ const styles = StyleSheet.create({
   statusLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 14,
   },
   actionBtn: {
     width: "100%",
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
 });

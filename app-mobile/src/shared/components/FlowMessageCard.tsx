@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
     flex: 1,
   },
   dismissBtn: {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 8,
   },
   stepsContainer: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   stepItemText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#3A2E1A",
+    color: "#000000",
     flex: 1,
   },
   buttonRow: {
@@ -192,12 +192,12 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
   },
   primaryBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -206,6 +206,6 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

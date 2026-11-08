@@ -15,7 +15,7 @@ import { sendNotificationToUser, sendNotificationToAdmin } from "../../lib/notif
 import { randomUUID } from "node:crypto";
 import { isUniqueConstraintError, readIdempotencyKey } from "../../lib/idempotency";
 import { availableSlotClaimWhere } from "../../lib/authorization";
-import { formatSlotLabel } from "../../lib/availability";
+import { formatSlotLabel, serializeChatSlot } from "../../lib/availability";
 
 // Per-user rate limit: max 30 chat messages per 10 minutes — prevents Gemini API bill abuse
 
@@ -127,7 +127,7 @@ export class ChatService {
         this.database.client.availableSlot.findMany({
           where: { fashionHouseId, booked: false, active: true, startsAt: { gt: new Date() } },
           orderBy: { startsAt: "asc" },
-          take: 10,
+          take: 1000,
           select: { id: true, date: true, time: true, startsAt: true },
         }),
         this.database.client.chatEscalation.findUnique({
@@ -148,12 +148,7 @@ export class ChatService {
 
       return {
         history: visibleHistoryForUser(history, authUserId),
-        availableSlots: availableSlots.map((slot) => ({
-          id: slot.id,
-          label: slot.startsAt && fashionHouse
-            ? formatSlotLabel(slot.startsAt, fashionHouse.timezone)
-            : `${slot.date} · ${slot.time}`,
-        })),
+        availableSlots: availableSlots.map(slot => serializeChatSlot(slot, fashionHouse?.timezone || "Africa/Lagos")),
         conversationState: activeEscalation?.status ?? "automated",
         escalationId: activeEscalation?.id ?? null,
       };
@@ -312,10 +307,10 @@ export class ChatService {
             where: { id: authUserId },
             select: { name: true },
           }).then((u) => u?.name || "A staff member");
-          sendNotificationToAdmin(fashionHouseId, audioUrl ? `New Voice Note from ${staffName}` : `New Message from ${staffName}`, notifBody);
+          sendNotificationToAdmin(fashionHouseId, audioUrl ? `New Voice Note from ${staffName}` : `New Message from ${staffName}`, notifBody, { screen: "messages", customerId: sessionCustomerId, senderId: authUserId });
         } else {
           // Use the fashion house name when admin messages the customer
-          sendNotificationToUser(sessionCustomerId, audioUrl ? `New Voice Note from ${fhName}` : `New Message from ${fhName}`, notifBody);
+          sendNotificationToUser(sessionCustomerId, audioUrl ? `New Voice Note from ${fhName}` : `New Message from ${fhName}`, notifBody, { screen: "direct-chat", fashionHouseId, senderId: authUserId });
         }
 
         return { success: true, turn, history: visibleHistoryForUser(updatedHistory, authUserId) };
@@ -375,7 +370,7 @@ export class ChatService {
           catalogItems: { take: 10, orderBy: { createdAt: "desc" } },
           availableSlots: {
             where: { booked: false, active: true, startsAt: { gt: new Date() } },
-            take: 10,
+            take: 1000,
             orderBy: { startsAt: "asc" },
             // Keep chat compatible while older development databases are being
             // upgraded; Prisma otherwise selects every slot column, including
@@ -408,9 +403,10 @@ export class ChatService {
             .join("; ")
           : "Custom Bespoke Tailoring & Couture upon request";
 
-      const availableSlots = fh.availableSlots.map((s: any) =>
-        s.startsAt ? formatSlotLabel(s.startsAt, fh.timezone) : `${s.date} · ${s.time}`
-      );
+      // Dates are enough for the model; the app shows the real times after date selection.
+      const availableSlots = [...new Set(fh.availableSlots.map(s => s.date))].map(date => `Appointments available on ${date}`);
+      const selectedSlot = fh.availableSlots.find(slot => slot.id === availableSlotId);
+      if (selectedSlot) availableSlots.push(`Customer-selected appointment: ${serializeChatSlot(selectedSlot, fh.timezone).label}`);
 
       const systemPrompt = buildSystemPrompt({
         fashionHouseName: fh.shopName,
@@ -472,10 +468,7 @@ export class ChatService {
               return rejectRequest({
                 code: "SLOT_REQUIRED",
                 error: "Please select one of the available fitting slots.",
-                availableSlots: fh.availableSlots.map((slot: any) => ({
-                  id: slot.id,
-                  label: `${slot.date} · ${slot.time}`,
-                })),
+                availableSlots: fh.availableSlots.map(slot => serializeChatSlot(slot, fh.timezone)),
               }, 400);
             }
 
@@ -518,16 +511,13 @@ export class ChatService {
               if (!booking && error instanceof SlotUnavailableError) {
                 const freshSlots = await this.database.client.availableSlot.findMany({
                   where: { fashionHouseId, booked: false, active: true, startsAt: { gt: new Date() } },
-                  take: 10,
+                  take: 1000,
                   orderBy: { startsAt: "asc" },
                 });
                 return rejectRequest({
                   code: "SLOT_UNAVAILABLE",
                   error: "That fitting slot was just taken. Please choose another available time.",
-                  availableSlots: freshSlots.map((slot) => ({
-                    id: slot.id,
-                    label: slot.startsAt ? formatSlotLabel(slot.startsAt, fh.timezone) : `${slot.date} · ${slot.time}`,
-                  })),
+                  availableSlots: freshSlots.map(slot => serializeChatSlot(slot, fh.timezone)),
                 }, 409);
               }
               if (!booking) throw error;
@@ -611,16 +601,13 @@ export class ChatService {
         fashionHouseId,
         customerUser?.name || "Customer",
         message.slice(0, 100),
-        { screen: "messages", customerId }
+        { screen: "messages", customerId, senderId: authUserId }
       );
 
       return {
         type: "message",
         reply: modelReply,
-        availableSlots: fh.availableSlots.map((slot: any) => ({
-          id: slot.id,
-          label: `${slot.date} · ${slot.time}`,
-        })),
+        availableSlots: fh.availableSlots.map(slot => serializeChatSlot(slot, fh.timezone)),
       };
     } catch (err) {
       throw err;

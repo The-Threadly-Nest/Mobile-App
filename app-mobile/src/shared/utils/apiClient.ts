@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { alertEmitter } from "@/shared/utils/alertEmitter";
+import { getConnectionStatus, refreshConnectionStatus, OFFLINE_MESSAGE } from "../services/connectionStatus";
 
 export interface ApiErrorDetail {
   status: number;
@@ -39,6 +40,11 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 let lastLogoutAlertTimestamp = 0;
 
 export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  if (getConnectionStatus() === "offline") {
+    refreshConnectionStatus();
+    // Never queue mutations: a fitting slot or garment price may change offline.
+    throw new ApiError({ status: 0, code: "NETWORK_DISCONNECTED", message: OFFLINE_MESSAGE });
+  }
   const { token, logout } = useAuthStore.getState();
   const url = `${API_BASE_URL}${endpoint}`;
   const { retryCount: _retryCount, silent: _silent, timeoutMs: _timeoutMs, onResponse, ...requestInit } = options;
@@ -151,6 +157,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
   } catch (error) {
     // Handle network disconnect/offline errors
     if (!(error instanceof ApiError)) {
+      refreshConnectionStatus();
       if (!options.silent) {
         console.error("[API Client] Network or parsing crash:", error);
       }

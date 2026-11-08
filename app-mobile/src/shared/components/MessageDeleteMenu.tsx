@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   title: {
     paddingHorizontal: 24,
     paddingBottom: 10,
-    color: "#3A2E1A",
+    color: "#000000",
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   actionText: {
-    color: "#453332",
+    color: "#000000",
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },

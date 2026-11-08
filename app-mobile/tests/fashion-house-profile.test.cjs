@@ -15,5 +15,6 @@ test('fashion-house display text uses black and primary button stays readable', 
     assert.ok(block, name);
     assert.match(block[1], /color: "#000000"/, name);
   }
-  assert.match(source, /bookingBtnText: \{[\s\S]*?color: "#FFFFFF"/);
+  assert.match(source, /bookingBtnText: \{[\s\S]*?color: "#000000"/);
+  assert.match(source, /bookingBtn: \{[\s\S]*?backgroundColor: "#F96951"/);
 });

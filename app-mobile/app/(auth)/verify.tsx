@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 8,
   },
   subtitle: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   emailHighlight: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#453332",
+    color: "#000000",
   },
   otpRow: {
     flexDirection: "row",
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#453332",
+    color: "#000000",
   },
   otpBoxEmpty: {
     backgroundColor: "#FFFFFF",
@@ -425,10 +425,10 @@ const styles = StyleSheet.create({
   resendAction: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
   },
   resendDisabled: {
-    color: "#8A7550",
+    color: "#000000",
   },
   resendTimer: {
     fontFamily: "InstrumentSans-Regular",
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   changeEmailText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
     textDecorationLine: "underline",
   },
 
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   verifiedTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
-    color: "#453332",
+    color: "#000000",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     right: 24,
   },
   continueBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     borderRadius: 50,
     paddingVertical: 18,
     alignItems: "center",
@@ -489,6 +489,6 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

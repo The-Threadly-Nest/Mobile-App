@@ -58,7 +58,7 @@ export default function FavoritesScreen() {
           style={{
             fontFamily: "HedvigLettersSerif-Regular",
             fontSize: 26,
-            color: "#3B0508",
+            color: "#000000",
             textAlign: "left",
             alignSelf: "flex-start",
             marginBottom: 16,
@@ -75,7 +75,7 @@ export default function FavoritesScreen() {
           <Pressable onPress={() => router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } })}
             accessibilityRole="button" accessibilityLabel={`View ${item.name}`} style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 14 }}>
             <Image source={{ uri: item.imageUrl }} style={{ width: 64, height: 78, borderRadius: 10 }} resizeMode="cover" />
-            <Text style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#453332" }}>{item.name}</Text>
+            <Text style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#000000" }}>{item.name}</Text>
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${item.name} from favorites`} disabled={saving}
             onPress={() => { void remove(item.id); }} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", opacity: saving ? 0.5 : 1 }}>

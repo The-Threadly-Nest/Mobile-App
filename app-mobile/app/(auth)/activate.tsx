@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 8,
   },
   subtitle: {
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   emailHighlight: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#453332",
+    color: "#000000",
   },
   otpRow: {
     flexDirection: "row",
@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#453332",
+    color: "#000000",
   },
   otpBoxEmpty: {
     backgroundColor: "#FFFFFF",
@@ -331,13 +331,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#3A2E1A",
+    color: "#000000",
   },
   passwordToggle: { padding: 16 },
   passwordHint: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 20,
   },
   errorText: {
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   resendAction: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
   },
   resendDisabled: {
     color: "#8A7550",
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
-    color: "#8A7550",
+    color: "#000000",
     textAlign: "center",
     marginBottom: 20,
   },
@@ -387,14 +387,14 @@ const styles = StyleSheet.create({
   changeEmailText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
     textDecorationLine: "underline",
   },
   submitContainer: {
     marginTop: 12,
   },
   submitBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     borderRadius: 50,
     paddingVertical: 16,
     alignItems: "center",
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 
   /* Verified Screen Styles */
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   verifiedTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
-    color: "#453332",
+    color: "#000000",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     right: 24,
   },
   continueBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     borderRadius: 50,
     paddingVertical: 18,
     alignItems: "center",
@@ -452,6 +452,6 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

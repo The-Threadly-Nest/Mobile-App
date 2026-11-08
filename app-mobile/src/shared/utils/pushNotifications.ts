@@ -5,6 +5,7 @@ import { alertEmitter } from "./alertEmitter";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { createIdempotencyKey } from "./idempotency";
+import { notificationBelongsToAccount } from "./notificationRecipient";
 
 let notificationListener: any = null;
 let notificationResponseListener: any = null;
@@ -13,6 +14,7 @@ async function handleMessageAction(response: any) {
   const actionId = response.actionIdentifier;
   const content = response.notification.request.content;
   const data = content.data ?? {};
+  if (!notificationBelongsToAccount(data, useAuthStore.getState().userId)) return;
   const threadId = data.customerId || data.fashionHouseId;
   const token = useAuthStore.getState().token;
   if (!threadId || !token) return;
@@ -55,11 +57,10 @@ export async function initNotifications() {
 
     // 1. Configure foreground notification handler so alerts/sounds/badges show while app is open
     Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-      }),
+      handleNotification: async (notification: any) => {
+        const show = notificationBelongsToAccount(notification.request.content.data, useAuthStore.getState().userId);
+        return { shouldShowAlert: show, shouldShowBanner: show, shouldShowList: show, shouldPlaySound: show, shouldSetBadge: show };
+      },
     });
 
     // 2. Setup Android high-priority channel with custom brand colors & vibration
@@ -68,7 +69,7 @@ export async function initNotifications() {
         name: "Owuja Notifications",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#D97706",
+        lightColor: "#F96951",
         sound: "default",
       });
     }
@@ -90,6 +91,7 @@ export async function initNotifications() {
     // 3. Listen for foreground notifications and trigger branded alert modal
     if (!notificationListener) {
       notificationListener = Notifications.addNotificationReceivedListener((notification: any) => {
+        if (!notificationBelongsToAccount(notification.request.content.data, useAuthStore.getState().userId)) return;
         const { title, body } = notification.request.content;
         if (title || body) {
           alertEmitter.emit({
@@ -153,11 +155,14 @@ export async function registerPushToken(authToken: string) {
     const pushToken = pushTokenData.data;
 
     if (pushToken && authToken) {
-      await apiFetch("/api/auth/push-token", {
+      // A permission dialog may outlive the account that opened it.
+      if (useAuthStore.getState().token !== authToken) return;
+      const registration = await apiFetch<{ userId?: string }>("/api/auth/push-token", {
         method: "POST",
         body: JSON.stringify({ pushToken }),
         silent: true,
       });
+      if (registration.userId && useAuthStore.getState().token === authToken) useAuthStore.getState().setSession({ userId: registration.userId });
     }
   } catch (e) {
     console.warn("[pushToken] Push notification registration failed:", e);

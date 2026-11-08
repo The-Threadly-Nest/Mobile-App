@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   headerTitleText: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 22,
-    color: "#453332",
+    color: "#000000",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -319,17 +319,17 @@ const styles = StyleSheet.create({
   customerNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 2,
   },
   orderNumberText: {
     fontFamily: "InstrumentSans-Medium",
-    color: "#3A2E1A",
+    color: "#000000",
   },
   garmentSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
   },
   stagesCard: {
     backgroundColor: "#FFFFFF",
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   stagesHeadline: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 16,
   },
   stepperContainer: {
@@ -418,20 +418,20 @@ const styles = StyleSheet.create({
   },
   completedLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#3A2E1A",
+    color: "#000000",
   },
   activeLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#453332",
+    color: "#000000",
   },
   upcomingLabelText: {
     fontFamily: "InstrumentSans-Regular",
-    color: "#8A7550",
+    color: "#000000",
   },
   activeSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     marginTop: 2,
   },
   noteSection: {
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   noteLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 8,
   },
   noteInput: {
@@ -451,14 +451,14 @@ const styles = StyleSheet.create({
     padding: 14,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3A2E1A",
+    color: "#000000",
     height: 96,
   },
   submitBtn: {
     width: "100%",
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
 });

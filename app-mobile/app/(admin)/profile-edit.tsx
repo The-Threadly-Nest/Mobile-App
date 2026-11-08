@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   stepIndicatorContainer: {
@@ -566,16 +566,16 @@ const styles = StyleSheet.create({
   stepLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#8A7550",
+    color: "#000000",
   },
   stepLabelActive: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#453332",
+    color: "#000000",
   },
   stepTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#1A1110",
+    color: "#000000",
     marginBottom: 6,
   },
   stepSubtitle: {
@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 8,
   },
   logoPickerBox: {
@@ -619,7 +619,7 @@ const styles = StyleSheet.create({
   uploadHint: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
   },
   textInput: {
     backgroundColor: "#FFFFFF",
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     height: 52,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#3B0508",
+    color: "#000000",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
     marginBottom: 20,
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
   charCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#8A7550",
+    color: "#000000",
   },
   bioInput: {
     backgroundColor: "#FFFFFF",
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
     minHeight: 88,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
     textAlignVertical: "top",
@@ -678,13 +678,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   categoryPillActive: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   categoryText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#3B0508",
+    color: "#000000",
   },
   categoryTextActive: {
     color: "#FFFFFF",
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
   slotsLinkTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#1A1110",
+    color: "#000000",
   },
   slotsLinkDesc: {
     fontFamily: "InstrumentSans-Regular",
@@ -732,14 +732,14 @@ const styles = StyleSheet.create({
   primaryBtn: {
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   secondaryBtn: {
     width: 90,
@@ -754,6 +754,6 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
 });

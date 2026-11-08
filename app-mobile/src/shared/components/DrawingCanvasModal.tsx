@@ -342,14 +342,14 @@ export default function DrawingCanvasModal({
                   paddingHorizontal: 10,
                   paddingVertical: 5,
                   borderRadius: 12,
-                  backgroundColor: title === chip ? "#453332" : "#E4D5B7",
+                  backgroundColor: title === chip ? "#F96951" : "#E4D5B7",
                 }}
               >
                 <Text
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
-                    color: title === chip ? "#FFFFFF" : "#3A2E1A",
+                    color: title === chip ? "#FFFFFF" : "#000000",
                   }}
                 >
                   + {chip}
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
   },
   guideToggleRow: {
     flexDirection: "row",
@@ -499,12 +499,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   guideBtnActive: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   guideBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#453332",
+    color: "#000000",
   },
   closeBtn: {
     padding: 4,
@@ -560,8 +560,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   widthBtnActive: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   colorPaletteRow: {
     flexDirection: "row",
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   },
   colorSwatchSelected: {
     borderWidth: 2.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     transform: [{ scale: 1.1 }],
   },
   footerContainer: {

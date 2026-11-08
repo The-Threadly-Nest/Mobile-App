@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 20,
   },
   profileCard: {
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   userName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 20,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 6,
   },
   roleBadge: {
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 1,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 16,
   },
   infoRow: {
@@ -175,13 +175,13 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 2,
   },
   infoValue: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#3A2E1A",
+    color: "#000000",
   },
   divider: {
     height: 1,

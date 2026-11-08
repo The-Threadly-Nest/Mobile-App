@@ -397,7 +397,7 @@ export class DirectMessagesService {
         fashionHouseId,
         senderName,
         notifBody,
-        { screen: "messages", customerId }
+        { screen: "messages", customerId, senderId }
       );
     } else {
       // Admin → customer: notify the customer
@@ -408,7 +408,7 @@ export class DirectMessagesService {
         customerId,
         fhName,
         notifBody,
-        { screen: "direct-chat", fashionHouseId }
+        { screen: "direct-chat", fashionHouseId, senderId }
       );
     }
 

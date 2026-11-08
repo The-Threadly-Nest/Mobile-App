@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 8,
   },
   message: {
@@ -220,10 +220,10 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#453332",
+    color: "#000000",
   },
   confirmBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   confirmText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.5,
   },
 });

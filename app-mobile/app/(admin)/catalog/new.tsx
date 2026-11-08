@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   resetBtn: {
@@ -497,13 +497,13 @@ const styles = StyleSheet.create({
   submitBtn: {
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

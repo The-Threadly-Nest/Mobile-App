@@ -3,6 +3,7 @@ import { appLogger, logFailure } from "../core/logging";
 
 export async function sendNotificationToUser(userId: string, title: string, body: string, data?: any) {
   try {
+    if (data?.senderId === userId) return;
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { pushToken: true },
@@ -11,6 +12,12 @@ export async function sendNotificationToUser(userId: string, title: string, body
     if (!user?.pushToken) {
       appLogger.debug("Notification skipped because this account has no registered device.");
       return;
+    }
+
+    if (data?.senderId) {
+      const sender = await prisma.user.findUnique({ where: { id: data.senderId }, select: { pushToken: true } });
+      // Also protect existing installations with duplicate account/device registrations.
+      if (sender?.pushToken === user.pushToken) return;
     }
 
     appLogger.debug("Sending a notification to the account's registered device.");
@@ -24,10 +31,12 @@ export async function sendNotificationToUser(userId: string, title: string, body
       body: JSON.stringify({
         to: user.pushToken,
         sound: "default",
+        channelId: "default",
+        color: "#F96951",
         title,
         body,
         categoryId: data?.screen === "messages" || data?.screen === "direct-chat" ? "message" : undefined,
-        data,
+        data: { ...data, recipientUserId: userId },
       }),
     });
 

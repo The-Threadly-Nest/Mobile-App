@@ -43,9 +43,9 @@ export function ProfileDesignHeader({ balance }: {
       <Text style={styles.name}>{balance}</Text>
       <Pressable disabled accessibilityRole="button" accessibilityState={{ disabled: true }}
         accessibilityLabel="Withdraw unavailable until wallet is connected"
-        style={{ borderWidth: 1, borderColor: "#453332", borderRadius: 10, paddingHorizontal: 22, minHeight: 38,
+        style={{ borderWidth: 1, borderColor: "#F96951", borderRadius: 10, paddingHorizontal: 22, minHeight: 38,
           alignItems: "center", justifyContent: "center", marginTop: 14, marginBottom: 8, opacity: 0.65 }}>
-        <Text style={{ color: "#453332", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
+        <Text style={{ color: "#000000", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
       </Pressable>
       <Text style={[styles.subtitle, { fontSize: 12, opacity: 0.8 }]}>Wallet balance is not connected yet</Text>
     </View>}
@@ -66,10 +66,10 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 26,
-    color: "#3B0508",
+    color: "#000000",
     marginTop: 0,
     marginBottom: 16,
   },
-  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#453332", textAlign: "center", marginTop: 12 },
-  subtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#453332", textAlign: "center", marginTop: 6 },
+  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#000000", textAlign: "center", marginTop: 12 },
+  subtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#000000", textAlign: "center", marginTop: 6 },
 });

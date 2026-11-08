@@ -54,13 +54,13 @@ export function BookingScheduleForm({ value, onChange, timezone, onTimezoneChang
 }
 
 const styles = StyleSheet.create({
-  group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#453332" },
+  group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#000000" },
   hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#746765" },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, row: { flexDirection: "row", alignItems: "center", gap: 10 },
-  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#453332", backgroundColor: "white" },
+  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#000000", backgroundColor: "white" },
   day: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, justifyContent: "center", alignItems: "center" },
-  dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#453332" }, selected: { backgroundColor: "#453332", borderColor: "#453332" }, selectedText: { color: "white" },
+  dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#000000" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, selectedText: { color: "white" },
   block: { borderRadius: 10, padding: 10, backgroundColor: "#F6F6F6" }, add: { minHeight: 48, paddingHorizontal: 12, justifyContent: "center", borderRadius: 12, backgroundColor: "#F0ECEB" },
-  primary: { minHeight: 48, alignItems: "center", justifyContent: "center", backgroundColor: "#453332", borderRadius: 12, padding: 12 }, primaryText: { fontFamily: "InstrumentSans-SemiBold", color: "white", fontSize: 14 },
+  primary: { minHeight: 48, alignItems: "center", justifyContent: "center", backgroundColor: "#F96951", borderRadius: 12, padding: 12 }, primaryText: { fontFamily: "InstrumentSans-SemiBold", color: "white", fontSize: 14 },
   error: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#9F1239" },
 });

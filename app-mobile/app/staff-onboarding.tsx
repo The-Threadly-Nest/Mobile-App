@@ -224,20 +224,20 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   nextBtn: {
     flex: 1,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#453332", // Oxblood
+    backgroundColor: "#F96951", // Oxblood
     alignItems: "center",
     justifyContent: "center",
   },
   nextBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   fullWidthBtn: {
     width: "100%",

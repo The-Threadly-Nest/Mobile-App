@@ -393,11 +393,14 @@ export class AuthService {
     if (!user) {
       return rejectRequest({ error: "Your session has expired. Please log in again." }, 401);
     }
-    await this.database.identityClient.user.update({
-      where: { id: input.authUserId! },
-      data: { pushToken },
+    await this.database.identityClient.$transaction(async tx => {
+      // One physical device must not stay subscribed to previously signed-in accounts.
+      // Serialize concurrent registrations for the same token without logging its value.
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${pushToken}, 0))::text`;
+      await tx.user.updateMany({ where: { pushToken, id: { not: input.authUserId! } }, data: { pushToken: null } });
+      await tx.user.update({ where: { id: input.authUserId! }, data: { pushToken } });
     });
-    return { success: true, message: "Push token registered successfully." };
+    return { success: true, userId: user.id, message: "Notifications are enabled on this device." };
 
   }
 

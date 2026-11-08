@@ -273,7 +273,7 @@ export default function AdminLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 54, paddingTop: 0, paddingBottom: 0, borderRadius: 27, borderTopWidth: 0,
-          backgroundColor: "#453332", elevation: 5, shadowColor: "#000000",
+          backgroundColor: "#F96951", elevation: 5, shadowColor: "#000000",
           shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 },
         },
         tabBarItemStyle: { height: 54 },

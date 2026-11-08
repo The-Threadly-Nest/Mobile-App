@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -377,7 +377,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 12,
   },
   dateStrip: {
@@ -396,13 +396,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   dateChipActive: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   dateDayName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#8A7550",
+    color: "#000000",
     textTransform: "uppercase",
   },
   dateDayNameActive: {
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
   dateDayNum: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#1A1110",
+    color: "#000000",
   },
   dateDayNumActive: {
     color: "#FFFFFF",
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   countText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 10,
-    color: "#8A7550",
+    color: "#000000",
   },
   countTextActive: {
     color: "rgba(255, 255, 255, 0.9)",
@@ -443,12 +443,12 @@ const styles = StyleSheet.create({
   dailyDateTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#453332",
+    color: "#000000",
   },
   dailyTotalCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
   },
   emptyDayBox: {
     paddingVertical: 32,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   emptyDayText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
     textAlign: "center",
   },
   slotsList: {
@@ -476,12 +476,12 @@ const styles = StyleSheet.create({
   slotTimeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#1A1110",
+    color: "#000000",
   },
   slotDurationText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#8A7550",
+    color: "#000000",
     marginTop: 2,
   },
   availableBadge: {
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   bookedBadgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
-    color: "#8A7550",
+    color: "#000000",
   },
   deleteBtn: {
     padding: 6,
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
   },
   divider: {
     height: 1,
@@ -543,13 +543,13 @@ const styles = StyleSheet.create({
   primaryBtn: {
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

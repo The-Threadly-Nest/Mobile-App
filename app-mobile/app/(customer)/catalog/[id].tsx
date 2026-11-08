@@ -181,7 +181,7 @@ export default function CatalogItemDetailScreen() {
 
           <View style={styles.priceRatingRow}><Text style={styles.mainPrice}>{garmentPriceFormatted}</Text></View>
           <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#746765", marginBottom: 12 }}>{isCustomFit ? "Custom fit ? Measurement appointment required" : "Ready for pickup"}</Text>
-          {vendorName ? <Pressable onPress={() => router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId } })}><Text style={{ color: "#453332", textDecorationLine: "underline", marginBottom: 12 }}>{vendorName}</Text></Pressable> : null}
+          {vendorName ? <Pressable onPress={() => router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId } })}><Text style={{ color: "#000000", textDecorationLine: "underline", marginBottom: 12 }}>{vendorName}</Text></Pressable> : null}
 
           {/* Description */}
           <Text style={styles.descriptionText}>
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   },
   roundPillActive: {
     backgroundColor: "#FDEEE9",
-    borderColor: "#453332",
+    borderColor: "#F96951",
   },
   roundPillDisabled: {
     backgroundColor: "#F0F0F0",
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   },
   roundPillTextActive: {
     fontFamily: "InstrumentSans-Bold",
-    color: "#453332",
+    color: "#000000",
   },
   roundPillTextDisabled: {
     color: "#A8A8A8",
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   colorSwatchWrapActive: {
-    borderColor: "#453332",
+    borderColor: "#F96951",
   },
   colorSwatch: {
     width: 26,
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   addToCartBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     height: 54,
     borderRadius: 27,
     width: "100%",

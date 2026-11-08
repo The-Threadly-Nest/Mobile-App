@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   withdrawBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   menuContainer: {
     paddingTop: 20,

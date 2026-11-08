@@ -16,6 +16,8 @@ import { ProfileDesignHeader, ProfileDesignIcon, ProfileMenuGroups } from "@/sha
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { ProfileSettingsPopup } from "@/shared/components/ProfileSettingsPopup";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
+import CustomerMeasurementsModal from "@/shared/components/CustomerMeasurementsModal";
+import { measurementGroups } from "@/shared/utils/customerMeasurements";
 
 // List Icon Components
 function MeasurementIcon() {
@@ -111,6 +113,7 @@ export default function CustomerProfileScreen() {
   const setUnreadMessageCount = useAppDataStore((s) => s.setUnreadMessageCount);
   const [isMeasurementsModalVisible, setIsMeasurementsModalVisible] = useState<boolean>(false);
   const [loadingMeasurements, setLoadingMeasurements] = useState<boolean>(false);
+  const [measurementsError, setMeasurementsError] = useState("");
 
   // Edit Personal Info state
   const [showPersonalInfo, setShowPersonalInfo] = useState(false);
@@ -126,6 +129,15 @@ export default function CustomerProfileScreen() {
     setTempLocation(storedLocation || "Lagos, Nigeria");
   }, [storedPhone, storedLocation]);
 
+  const loadMeasurements = useCallback(async () => {
+    setLoadingMeasurements(true); setMeasurementsError("");
+    try {
+      const rows = await apiFetch<any[]>("/api/measurements/my-measurements", { silent: true });
+      if (!Array.isArray(rows)) throw new Error("We couldn't read your measurements. Please try again.");
+      setMeasurements(rows); setSavedSetsCount(measurementGroups(rows).length);
+    } catch (error) { setMeasurementsError(error instanceof Error ? error.message : "We couldn't load your measurements."); }
+    finally { setLoadingMeasurements(false); }
+  }, []);
   const fetchStats = useCallback(async () => {
     try {
       const orders = await apiFetch<any[]>("/api/orders/my-orders", { silent: true }).catch(() => []);
@@ -149,19 +161,8 @@ export default function CustomerProfileScreen() {
       }
     } catch {}
 
-    try {
-      setLoadingMeasurements(true);
-      const measList = await apiFetch<any[]>("/api/measurements/my-measurements", { silent: true }).catch(() => []);
-      if (Array.isArray(measList)) {
-        setMeasurements(measList);
-        setSavedSetsCount(measList.length > 0 ? 1 : 0);
-      }
-    } catch {
-      // silent fail
-    } finally {
-      setLoadingMeasurements(false);
-    }
-  }, [storeOrders.length, setPhone, setLocation]);
+    await loadMeasurements();
+  }, [storeOrders.length, setPhone, setLocation, loadMeasurements]);
 
   useFocusEffect(
     useCallback(() => {
@@ -272,7 +273,7 @@ export default function CustomerProfileScreen() {
 
           {/* Measurement */}
           <Pressable
-            onPress={() => setIsMeasurementsModalVisible(true)}
+            onPress={() => { setIsMeasurementsModalVisible(true); void loadMeasurements(); }}
             className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
           >
             <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
@@ -282,7 +283,7 @@ export default function CustomerProfileScreen() {
               <Text className="font-body text-[14px] text-black">
                 Measurement
               </Text>
-              <Text className="font-body text-[13px] text-[#8A7550] mt-0.5">
+              <Text className="font-body text-[13px] text-black mt-0.5">
                 {savedSetsCount} saved {savedSetsCount === 1 ? "set" : "sets"}
               </Text>
             </View>
@@ -367,7 +368,7 @@ export default function CustomerProfileScreen() {
       <Modal visible={showSavedItems} animationType="slide" onRequestClose={() => setShowSavedItems(false)}>
         <SafeAreaView className="flex-1 bg-white px-6">
           <View className="flex-row items-center justify-between py-5">
-            <Text className="font-body text-xl text-[#453332]">Saved Items</Text>
+            <Text className="font-body text-xl text-black">Saved Items</Text>
             <Pressable accessibilityLabel="Close saved items" onPress={() => setShowSavedItems(false)}><X size={24} color="#453332" /></Pressable>
           </View>
           <ScrollView>
@@ -377,7 +378,7 @@ export default function CustomerProfileScreen() {
               router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } });
             }}>
               <Image source={{ uri: item.imageUrl }} style={{ width: 60, height: 70, borderRadius: 8 }} />
-              <Text className="flex-1 font-body text-[#453332]">{item.name}</Text>
+              <Text className="flex-1 font-body text-black">{item.name}</Text>
               <ProfileDesignIcon name="chevron" />
             </Pressable>)}
           </ScrollView>
@@ -400,13 +401,13 @@ export default function CustomerProfileScreen() {
                 className="flex-row items-center bg-[#F7F4EC] px-3 py-1.5 rounded-full"
               >
                 <Edit2 size={13} color="#453332" style={{ marginRight: 4 }} />
-                <Text className="font-body text-[12px] text-[#453332] font-medium">Edit</Text>
+                <Text className="font-body text-[12px] text-black font-medium">Edit</Text>
               </Pressable>
             ) : (
               <Pressable
                 onPress={handleSaveContactInfo}
                 disabled={savingContact}
-                className="flex-row items-center bg-[#453332] px-3.5 py-1.5 rounded-full"
+                className="flex-row items-center bg-tomato px-3.5 py-1.5 rounded-full"
               >
                 <Check size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
                 <Text className="font-body text-[12px] text-white font-medium">{savingContact ? "Saving..." : "Save"}</Text>
@@ -422,7 +423,7 @@ export default function CustomerProfileScreen() {
                   <Phone size={15} color="#3A2E1A" />
                 </View>
                 <View className="flex-1">
-                  <Text className="font-body text-[11px] text-[#8A7550] uppercase tracking-wide">Phone Number</Text>
+                  <Text className="font-body text-[11px] text-black uppercase tracking-wide">Phone Number</Text>
                   <Text className="font-body text-[14px] text-black">
                     {storedPhone || "Add phone number"}
                   </Text>
@@ -437,7 +438,7 @@ export default function CustomerProfileScreen() {
                   <MapPin size={15} color="#3A2E1A" />
                 </View>
                 <View className="flex-1">
-                  <Text className="font-body text-[11px] text-[#8A7550] uppercase tracking-wide">Location</Text>
+                  <Text className="font-body text-[11px] text-black uppercase tracking-wide">Location</Text>
                   <Text className="font-body text-[14px] text-black">
                     {storedLocation || "Lagos, Nigeria"}
                   </Text>
@@ -459,13 +460,13 @@ export default function CustomerProfileScreen() {
               {/* Location Input & Auto Detect */}
               <View style={{ width: "100%", alignSelf: "stretch" }}>
                 <View className="flex-row items-center justify-between mb-1">
-                  <Text className="font-body text-[12px] text-[#8A7550]">Location</Text>
+                  <Text className="font-body text-[12px] text-black">Location</Text>
                   <Pressable
                     onPress={handleAutoDetectLocation}
                     className="flex-row items-center"
                   >
                     <Navigation size={12} color="#453332" style={{ marginRight: 3 }} />
-                    <Text className="font-body text-[11px] text-[#453332] font-semibold">
+                    <Text className="font-body text-[11px] text-black font-semibold">
                       {isDetecting ? "Detecting..." : "Auto-detect"}
                     </Text>
                     {isDetecting && <ActivityIndicator size="small" color="#453332" style={{ marginLeft: 4 }} />}
@@ -486,99 +487,7 @@ export default function CustomerProfileScreen() {
           </KeyboardAwareScrollView>
       </ProfileSettingsPopup>
 
-      {/* Measurements Details Modal */}
-      <Modal
-        visible={isMeasurementsModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsMeasurementsModalVisible(false)}
-      >
-        <View className="flex-1 bg-black/60 items-center justify-center p-4">
-          <View
-            className="w-full bg-[#FFFFFF] rounded-3xl p-6 border border-[#E5E0D5] shadow-2xl"
-            style={{ maxWidth: 440 }}
-          >
-            {/* Modal Header */}
-            <View className="flex-row items-center justify-between pb-3 border-b border-[#EBE7DF]">
-              <View className="flex-row items-center gap-2.5">
-                <View className="w-9 h-9 rounded-full bg-[#453332]/10 items-center justify-center">
-                  <Ruler size={18} color="#453332" />
-                </View>
-                <View>
-                  <Text className="font-display font-semibold text-[18px] text-black">
-                    My Measurements
-                  </Text>
-                  <Text className="font-body text-[12px] text-[#8A7550]">
-                    Bespoke tailored metrics
-                  </Text>
-                </View>
-              </View>
-              <Pressable
-                onPress={() => setIsMeasurementsModalVisible(false)}
-                className="w-8 h-8 rounded-full bg-[#EBE7DF] items-center justify-center"
-              >
-                <X size={16} color="#1F1F1F" />
-              </Pressable>
-            </View>
-
-            {/* Modal Content */}
-            <ScrollView className="my-4 max-h-[360px]" showsVerticalScrollIndicator={false}>
-              {loadingMeasurements ? (
-                <View className="py-8 items-center justify-center">
-                  <ActivityIndicator size="small" color="#453332" />
-                  <Text className="font-body text-[13px] text-[#8A7550] mt-2">
-                    Loading measurements...
-                  </Text>
-                </View>
-              ) : measurements.length > 0 ? (
-                <View className="flex-row flex-wrap gap-2.5">
-                  {measurements.map((m: any, idx: number) => {
-                    const label = (m.field || "Metric")
-                      .replace(/([A-Z])/g, " $1")
-                      .replace(/^./, (str: string) => str.toUpperCase())
-                      .trim();
-                    return (
-                      <View
-                        key={m.id || idx}
-                        className="bg-white rounded-2xl p-3 border border-[#EFE9DF] flex-1 min-w-[130px] shadow-sm"
-                      >
-                        <Text className="font-body text-[11px] uppercase tracking-wider text-[#8A7550]">
-                          {label}
-                        </Text>
-                        <Text className="font-display font-semibold text-[18px] text-[#453332] mt-0.5">
-                          {m.value} {m.unit || "in"}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                <View className="py-8 items-center justify-center px-4">
-                  <View className="w-14 h-14 rounded-full bg-[#EBE7DF] items-center justify-center mb-3">
-                    <MeasurementIcon />
-                  </View>
-                  <Text className="font-display font-semibold text-[16px] text-black text-center mb-1">
-                    No Measurements Saved
-                  </Text>
-                  <Text className="font-body text-[13px] text-[#8A7550] text-center leading-relaxed">
-                    Your bespoke body measurements will be recorded during your consultation or fitting appointment.
-                  </Text>
-                </View>
-              )}
-            </ScrollView>
-
-            {/* Modal Footer / Close Button */}
-            <Pressable
-              onPress={() => setIsMeasurementsModalVisible(false)}
-              className="w-full bg-[#453332] py-3.5 rounded-2xl items-center justify-center shadow-sm"
-            >
-              <Text className="font-body font-semibold text-[14px] text-white">
-                Done
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <CustomerMeasurementsModal visible={isMeasurementsModalVisible} onClose={() => setIsMeasurementsModalVisible(false)} rows={measurements} loading={loadingMeasurements} error={measurementsError} onRetry={() => { void loadMeasurements(); }} />
     </SafeAreaView>
   );
 }

@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   subtitle: {
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
   },
   passwordRow: {
     flexDirection: "row",
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   sendBtn: {
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 12,
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   sendBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
 });

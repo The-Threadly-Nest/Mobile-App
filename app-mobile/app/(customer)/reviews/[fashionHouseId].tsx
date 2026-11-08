@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#3A2E1A",
+    color: "#000000",
     marginBottom: 8,
   },
   emptyBody: {

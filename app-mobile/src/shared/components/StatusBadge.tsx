@@ -4,8 +4,8 @@ import { View, Text } from "react-native";
 type Status = "order_placed" | "in_production" | "ready" | "delivered";
 
 const config: Record<Status, { label: string; bg: string; text: string }> = {
-  order_placed: { label: "Order Placed", bg: "bg-white border border-oxblood", text: "text-oxblood" },
-  in_production: { label: "In Production", bg: "bg-gold", text: "text-ink" },
+  order_placed: { label: "Order Placed", bg: "bg-white border border-tomato", text: "text-black" },
+  in_production: { label: "In Production", bg: "bg-gold", text: "text-black" },
   ready: { label: "Ready", bg: "bg-oxblood", text: "text-cream" },
   delivered: { label: "Delivered", bg: "bg-ink", text: "text-cream" },
 };

@@ -215,7 +215,7 @@ export default function CustomersScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#1A1110" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#000000" }}>
                         {selectedCustomer.name}
                       </Text>
                       <View style={{
@@ -259,7 +259,7 @@ export default function CustomersScreen() {
               }}
               style={({ pressed }) => [
                 styles.measActionBtn,
-                { opacity: pressed ? 0.85 : 1, marginBottom: 10, backgroundColor: "#453332" },
+                { opacity: pressed ? 0.85 : 1, marginBottom: 10, backgroundColor: "#F96951" },
               ]}
             >
               <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
@@ -298,7 +298,7 @@ export default function CustomersScreen() {
                 }}
                 style={({ pressed }) => [
                   styles.measActionBtn,
-                  { backgroundColor: selectedCustomer.status === "inactive" ? "#453332" : "#8A7550", opacity: pressed ? 0.85 : 1 },
+                  { backgroundColor: selectedCustomer.status === "inactive" ? "#F96951" : "#F96951", opacity: pressed ? 0.85 : 1 },
                 ]}
               >
                 <Text style={styles.measActionBtnText}>
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   searchBar: {
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
   },
   listContent: {
     paddingBottom: 32,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#1A1110",
+    color: "#000000",
     marginBottom: 4,
   },
   customerPhone: {
@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#8A7550",
+    color: "#000000",
   },
   modalOverlay: {
     flex: 1,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 20,
-    color: "#453332",
+    color: "#000000",
   },
   statBox: {
     flexDirection: "row",
@@ -467,12 +467,12 @@ const styles = StyleSheet.create({
   statBoxText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#3A2E1A",
+    color: "#000000",
   },
   measActionBtn: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -481,6 +481,6 @@ const styles = StyleSheet.create({
   measActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

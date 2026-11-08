@@ -77,6 +77,11 @@ export function serializeSlot<T extends SlotLike>(slot: T, timeZone: string) {
   };
 }
 
+export function serializeChatSlot(slot: Pick<SlotLike, "id" | "date" | "time" | "startsAt">, timezone: string) {
+  return { id: slot.id, date: slot.date, time: slot.time, timezone,
+    label: slot.startsAt ? formatSlotLabel(slot.startsAt, timezone) : `${slot.date} · ${slot.time}` };
+}
+
 export function slotsOverlap(
   startsAt: Date,
   durationMinutes: number,

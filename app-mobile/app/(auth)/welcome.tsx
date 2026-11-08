@@ -51,7 +51,7 @@ export default function WelcomeScreen() {
           <View style={[styles.buttonsContainer, isLandscape && { gap: 8, marginTop: 12 }]}>
             {/* Create Account - Solid Oxblood */}
             <Pressable
-              onPress={() => router.push("/(auth)/role-select")}
+              onPress={() => router.push("/(auth)/signup")}
               style={({ pressed }) => [
                 styles.createAccountBtn,
                 isLandscape && { height: 48, borderRadius: 24 },
@@ -112,14 +112,14 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
     lineHeight: 36,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 10,
   },
   subtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
-    color: "rgba(74, 8, 12, 0.75)",
+    color: "#000000",
   },
   buttonsContainer: {
     gap: 12,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     height: 63,
     borderRadius: 31.5,
     borderWidth: 1.5,
-    borderColor: "#453332",
+    borderColor: "#F96951",
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
@@ -153,14 +153,14 @@ const styles = StyleSheet.create({
   logInText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
     letterSpacing: 0.2,
   },
   disclaimerText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
-    color: "rgba(74, 8, 12, 0.60)",
+    color: "#000000",
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 16,

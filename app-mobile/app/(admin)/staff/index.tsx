@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   searchBar: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#1A1110",
+    color: "#000000",
   },
   loaderContainer: {
     flex: 1,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 6,
     textAlign: "center",
   },
@@ -444,13 +444,13 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
-    color: "#8A7550",
+    color: "#000000",
     textAlign: "center",
     marginBottom: 20,
     maxWidth: 280,
   },
   emptyActionBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   emptyActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   floatingCircle: {
     position: "absolute",
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#453332",

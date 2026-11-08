@@ -1522,7 +1522,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#453332',
+    backgroundColor: "#F96951",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1568,7 +1568,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#453332',
+    backgroundColor: "#F96951",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1621,7 +1621,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   segmentedPillActive: {
-    backgroundColor: '#453332',
+    backgroundColor: "#F96951",
   },
   segmentedText: {
     fontFamily: 'InstrumentSans-SemiBold',

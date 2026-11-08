@@ -454,7 +454,7 @@ export default function AdminDashboard() {
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#453332" }}>This month</Text>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#000000" }}>This month</Text>
               <ChevronDown size={11} color="#453332" />
             </View>
 
@@ -525,7 +525,7 @@ export default function AdminDashboard() {
                       <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#32343E" }}>
                         {customerName}
                       </Text>
-                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#8A7550" }}>
+                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#000000" }}>
                         {detail}
                       </Text>
                     </View>
@@ -573,7 +573,7 @@ export default function AdminDashboard() {
                         flex: 1,
                         height: 38,
                         borderRadius: 19,
-                        backgroundColor: "#453332",
+                        backgroundColor: "#F96951",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
@@ -593,12 +593,12 @@ export default function AdminDashboard() {
                         borderRadius: 19,
                         backgroundColor: "#FFFFFF",
                         borderWidth: 1.5,
-                        borderColor: "#453332",
+                        borderColor: "#F96951",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#453332" }}>Decline</Text>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000" }}>Decline</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -699,7 +699,7 @@ export default function AdminDashboard() {
                       style={{
                         fontFamily: "InstrumentSans-Regular",
                         fontSize: 11,
-                        color: "#8A7550",
+                        color: "#000000",
                       }}
                     >
                       Price on request
@@ -743,7 +743,7 @@ export default function AdminDashboard() {
                 style={{
                   fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 12,
-                  color: "#453332",
+                  color: "#000000",
                   textAlign: "center",
                 }}
               >

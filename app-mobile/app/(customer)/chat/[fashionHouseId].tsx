@@ -23,10 +23,13 @@ import {
   writeChatCache,
 } from "@/shared/services/chatCache";
 import { createIdempotencyKey } from "@/shared/utils/idempotency";
+import BookingSlotPicker from "@/shared/components/BookingSlotPicker";
 
 interface Slot {
   id: string;
   label: string;
+  date?: string;
+  time?: string;
 }
 
 interface Turn {
@@ -79,7 +82,7 @@ export default function BookingChatScreen() {
     ? [
         {
           role: "model",
-          text: `Welcome! We are delighted to assist you with your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Please select an available fitting slot below to schedule your measurement session:`,
+          text: `Welcome! Let's arrange your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Choose an available date, then a time below.`,
           slots: availableSlots,
         },
       ]
@@ -142,7 +145,7 @@ export default function BookingChatScreen() {
             if (Array.isArray(listBody)) {
               if (cancelled) return;
               if (Array.isArray(listBody) && listBody.length > 0) {
-                setFashionHouseName(listBody[0].shopName);
+                setFashionHouseName(listBody[0].name || listBody[0].shopName || "Fashion House");
                 if (Array.isArray(listBody[0].categories)) {
                   setHouseCategories(listBody[0].categories);
                 }
@@ -598,7 +601,7 @@ export default function BookingChatScreen() {
           <Pressable
             onPress={handleManualEscalation}
             disabled={requestingHuman}
-            className="px-3 py-1.5 rounded-full bg-[#EBE0D3] border border-oxblood"
+            className="px-3 py-1.5 rounded-full bg-[#EBE0D3] border border-tomato"
             style={{ opacity: requestingHuman ? 0.5 : 1 }}
           >
             <Text className="font-body-medium text-[11px] text-oxblood">
@@ -695,7 +698,7 @@ export default function BookingChatScreen() {
                               width: turn.options!.length > 1 ? "48.5%" : "100%",
                               backgroundColor: "#FFFFFF",
                               borderWidth: 1,
-                              borderColor: "#453332",
+                              borderColor: "#F96951",
                               paddingHorizontal: 12,
                               paddingVertical: 10,
                               borderRadius: 20,
@@ -720,49 +723,14 @@ export default function BookingChatScreen() {
                     </View>
                   )}
 
-                  {/* Slot Selection Card matching Figma SVG */}
                   {turn.slots && turn.slots.length > 0 && (
-                    <View className="w-full bg-white rounded-[24px] p-6 mt-3 shadow-sm">
-                      {turn.slots.map((slot, idx) => {
-                        const isSelected = selectedSlotLabel === slot.label;
-                        return (
-                          <View key={slot.id}>
-                            <View className="flex-row items-center justify-between py-2">
-                              <Text className="font-body text-[15px] text-oxblood font-medium flex-1 mr-3">
-                                {slot.label}
-                              </Text>
-                              <Pressable
-                                disabled={!!selectedSlotLabel || sending}
-                                onPress={() => {
-                                  if (!selectedSlotLabel && !sending) {
-                                    setSelectedSlotLabel(slot.label);
-                                    handleSend(`Book slot: ${slot.label}`, slot.id);
-                                  }
-                                }}
-                                className={`px-4 py-2 rounded-full items-center justify-center ${
-                                  isSelected ? "bg-oxblood" : "bg-[#D5C4C6]"
-                                }`}
-                                style={({ pressed }) => ({
-                                  backgroundColor: (pressed || isSelected) ? "#453332" : "#D5C4C6",
-                                  opacity: (selectedSlotLabel && !isSelected) ? 0.4 : 1,
-                                })}
-                              >
-                                <Text
-                                  className={`font-body-medium text-[13.5px] ${
-                                    isSelected ? "text-white" : "text-oxblood"
-                                  }`}
-                                >
-                                  {isSelected ? "Selected" : "Select"}
-                                </Text>
-                              </Pressable>
-                            </View>
-                            {idx < turn.slots!.length - 1 && (
-                              <View className="border-b border-dashed border-[#D1D1D1] my-2" />
-                            )}
-                          </View>
-                        );
-                      })}
-                    </View>
+                    <BookingSlotPicker slots={turn.slots} selectedLabel={selectedSlotLabel} disabled={sending}
+                      onSelect={slot => {
+                        if (!selectedSlotLabel && !sending) {
+                          setSelectedSlotLabel(slot.label);
+                          void handleSend(`Book slot: ${slot.label}`, slot.id);
+                        }
+                      }} />
                   )}
                 </View>
               );
@@ -804,7 +772,7 @@ export default function BookingChatScreen() {
               <View style={{ gap: 8 }}>
                 <Pressable
                   onPress={() => router.setParams({ startNew: String(Date.now()) })}
-                  className="bg-oxblood rounded-full items-center justify-center py-4 px-6"
+                  className="bg-tomato rounded-full items-center justify-center py-4 px-6"
                 >
                   <Text className="font-body-semibold text-[14px] text-white">Start a new booking</Text>
                 </Pressable>
@@ -813,7 +781,7 @@ export default function BookingChatScreen() {
                     pathname: `/(customer)/direct-chat/${fashionHouseId}`,
                     params: { fashionHouseName },
                   })}
-                  className="rounded-full items-center justify-center py-3 px-6 border border-oxblood"
+                  className="rounded-full items-center justify-center py-3 px-6 border border-tomato"
                 >
                   <Text className="font-body-semibold text-[14px] text-oxblood">Continue human chat</Text>
                 </Pressable>
@@ -832,7 +800,7 @@ export default function BookingChatScreen() {
               <Pressable
                 onPress={() => handleSend()}
                 disabled={sending || !draft.trim()}
-                className={`w-11 h-11 bg-oxblood rounded-full items-center justify-center ${
+                className={`w-11 h-11 bg-tomato rounded-full items-center justify-center ${
                   !draft.trim() || sending ? "opacity-50" : "opacity-100"
                 }`}
                 style={({ pressed }) => [{ opacity: pressed ? 0.8 : draft.trim() ? 1 : 0.5 }]}

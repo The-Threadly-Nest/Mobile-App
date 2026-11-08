@@ -11,6 +11,7 @@ import { clearPageCache } from "@/shared/services/pageCache";
 type Role = "admin" | "staff" | "customer" | null;
 
 interface AuthState {
+  userId: string | null;
   role: Role;
   name: string;
   shopName: string;
@@ -38,7 +39,7 @@ interface AuthState {
   setResendAvailableAt: (timestamp: number | null) => void;
   setCreatedAt: (dateStr: string | null) => void;
   setSession: (session: Partial<Pick<AuthState,
-    "token" | "email" | "name" | "shopName" | "role" | "createdAt" | "isVerified" | "onboardingCompleted"
+    "token" | "email" | "name" | "shopName" | "role" | "createdAt" | "isVerified" | "onboardingCompleted" | "userId"
   >>) => void;
   logout: () => void;
 }
@@ -52,6 +53,7 @@ const secureStorage = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
+      userId: null,
       role: null,
       name: "",
       shopName: "",
@@ -81,6 +83,7 @@ export const useAuthStore = create<AuthState>()(
       setSession: (session) => {
         const email = session.email ?? get().email;
         const role = session.role ?? get().role;
+        if (get().email !== email || get().role !== role) set({ userId: null });
         if ((get().email && get().email.trim().toLowerCase() !== email.trim().toLowerCase()) || (get().role && get().role !== role)) useCartStore.getState().clearCart();
         if (email && role) {
           useAppDataStore.getState().activateCache(`${role}:${email.trim().toLowerCase()}`);
@@ -98,6 +101,7 @@ export const useAuthStore = create<AuthState>()(
           console.warn("Failed to clear local caches on logout:", e);
         }
         set({
+          userId: null,
           role: null,
           name: "",
           shopName: "",

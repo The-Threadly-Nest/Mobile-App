@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -275,13 +275,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 6,
   },
   emptySub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A7550",
+    color: "#000000",
     textAlign: "center",
     marginBottom: 20,
     lineHeight: 18,
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   emptyActionBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 24,
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   emptyActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   gridContainer: {
     flexDirection: "row",
@@ -333,13 +333,13 @@ const styles = StyleSheet.create({
   cardName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#1A1110",
+    color: "#000000",
     lineHeight: 18,
   },
   cardPrice: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
     marginTop: 2,
   },
   deleteBtn: {

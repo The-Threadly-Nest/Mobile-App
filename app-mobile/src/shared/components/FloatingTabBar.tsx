@@ -47,7 +47,7 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
           width,
           height: 56,
           borderRadius: 28,
-          backgroundColor: "#453332",
+          backgroundColor: "#F96951",
           flexDirection: "row",
           alignItems: "center",
           elevation: 6,

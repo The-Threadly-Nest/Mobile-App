@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 12,
     textTransform: "uppercase",
   },
@@ -314,14 +314,14 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 30,
     lineHeight: 36,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 8,
   },
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
-    color: "rgba(74, 8, 12, 0.75)",
+    color: "#000000",
     marginBottom: 32,
   },
   section: {
@@ -330,13 +330,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "rgba(74, 8, 12, 0.60)",
+    color: "#000000",
     marginBottom: 16,
   },
   pillsWrapContainer: {
@@ -362,15 +362,15 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.35)",
   },
   pillSelected: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   pillText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
   },
   pillTextUnselected: {
-    color: "#3B0508",
+    color: "#000000",
   },
   pillTextSelected: {
     color: "#FFFFFF",
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   budgetSegmentSelected: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
   },
   budgetSymbolText: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   budgetTextUnselected: {
-    color: "rgba(74, 8, 12, 0.65)",
+    color: "#000000",
   },
   budgetTextSelected: {
     color: "#FFFFFF",
@@ -419,14 +419,14 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 63,
     borderRadius: 31.5,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
     letterSpacing: 0.2,
   },
   skipBtn: {
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#3B0508",
+    color: "#000000",
     letterSpacing: 0.2,
   },
 });

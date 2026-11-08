@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#1A1110",
+    color: "#000000",
     letterSpacing: -0.2,
   },
   headerSubtitle: {
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 18,
-    color: "#453332",
+    color: "#000000",
   },
   garmentTitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -532,13 +532,13 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     letterSpacing: 0.8,
-    color: "#8A7550",
+    color: "#000000",
     marginBottom: 4,
   },
   priceValue: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 22,
-    color: "#453332",
+    color: "#000000",
   },
   dateValue: {
     fontFamily: "InstrumentSans-Medium",
@@ -566,13 +566,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 14,
   },
   unitBadge: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#8A7550",
+    color: "#000000",
     backgroundColor: "#F4ECE1",
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -631,11 +631,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   stepLabelActive: {
-    color: "#453332",
+    color: "#000000",
     fontFamily: "InstrumentSans-SemiBold",
   },
   stepLabelCurrent: {
-    color: "#453332",
+    color: "#000000",
     fontFamily: "InstrumentSans-SemiBold",
   },
   infoRow: {
@@ -665,7 +665,7 @@ const styles = StyleSheet.create({
   infoFieldValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#1A1110",
+    color: "#000000",
     marginTop: 2,
   },
   measurementsGrid: {
@@ -689,7 +689,7 @@ const styles = StyleSheet.create({
   measurementVal: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 16,
-    color: "#453332",
+    color: "#000000",
     marginTop: 4,
   },
   actionContainer: {
@@ -697,7 +697,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryBtn: {
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     borderRadius: 16,
     height: 52,
     flexDirection: "row",
@@ -713,6 +713,6 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

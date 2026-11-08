@@ -35,6 +35,7 @@ export class MeasurementsService {
     const measurements = await this.database.client.measurement.findMany({
       where: { customer: { userId } },
       orderBy: { recordedAt: "desc" },
+      include: { customer: { select: { fashionHouse: { select: { id: true, shopName: true } } } } },
     });
 
     return measurements;

@@ -100,7 +100,7 @@ export default function CustomerOrdersScreen() {
       >
         {/* Title */}
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", marginBottom: 4 }, isLandscape && { maxWidth: 600 }]}>
-          <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#3B0508" }}>
+          <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#000000" }}>
             My Orders
           </Text>
         </View>
@@ -109,7 +109,7 @@ export default function CustomerOrdersScreen() {
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 12 }, isLandscape && { maxWidth: 600 }]}>
           <Pressable
             onPress={() => setActiveTab("active")}
-            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "active" ? "bg-[#453332]" : "bg-[#E2E2E2]"
+            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "active" ? "bg-tomato" : "bg-[#E2E2E2]"
               }`}
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
@@ -123,7 +123,7 @@ export default function CustomerOrdersScreen() {
 
           <Pressable
             onPress={() => setActiveTab("completed")}
-            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "completed" ? "bg-[#453332]" : "bg-[#E2E2E2]"
+            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "completed" ? "bg-tomato" : "bg-[#E2E2E2]"
               }`}
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
@@ -138,7 +138,7 @@ export default function CustomerOrdersScreen() {
           {declinedOrders.length > 0 && (
             <Pressable
               onPress={() => setActiveTab("declined")}
-              className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "declined" ? "bg-[#453332]" : "bg-[#E2E2E2]"
+              className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "declined" ? "bg-tomato" : "bg-[#E2E2E2]"
                 }`}
               style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
             >
@@ -232,14 +232,14 @@ export default function CustomerOrdersScreen() {
                           </View>
                         ) : isCancelled ? (
                           <View style={{ backgroundColor: "#F5EFE6", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#E5DFD5" }}>
-                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#453332" }}>
+                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#000000" }}>
                               Cancelled
                             </Text>
                           </View>
                         ) : null}
                       </View>
 
-                      <Text className="font-body text-[12px] text-[#8A7550] mt-0.5" numberOfLines={1}>
+                      <Text className="font-body text-[12px] text-black mt-0.5" numberOfLines={1}>
                         {order.garmentType} · Order: {formattedNum}
                       </Text>
                     </View>
@@ -280,7 +280,7 @@ export default function CustomerOrdersScreen() {
                 {loadingMore ? (
                   <ActivityIndicator size="small" color="#453332" />
                 ) : (
-                  <Text style={{ color: "#453332", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
+                  <Text style={{ color: "#000000", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
                 )}
               </Pressable>
             ) : null}

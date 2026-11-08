@@ -7,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 import AppAlert from "@/shared/components/AppAlert";
 import AppErrorBoundary from "@/shared/components/AppErrorBoundary";
+import ConnectionFrame from "@/shared/components/ConnectionFrame";
 import * as SplashScreen from "expo-splash-screen";
 
 SplashScreen.preventAutoHideAsync();
@@ -35,7 +36,9 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <StatusBar style="dark" />
         <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-          <Stack screenOptions={{ headerShown: false }} />
+          <ConnectionFrame>
+            <Stack screenOptions={{ headerShown: false }} />
+          </ConnectionFrame>
         </View>
         {/* Global branded alert — driven by alertEmitter, available everywhere */}
         <AppAlert />

@@ -8,7 +8,7 @@ const sharp = require(require.resolve('sharp', { paths: [root, path.resolve(root
 const check = process.argv.includes('--check');
 const res = path.join(root, 'android/app/src/main/res');
 const background = '#F96951';
-const splashBackground = '#FFFFFF';
+const splashBackground = '#F96951';
 const densities = [['mdpi', 1], ['hdpi', 1.5], ['xhdpi', 2], ['xxhdpi', 3], ['xxxhdpi', 4]];
 
 async function output(file, bytes) {
@@ -29,13 +29,23 @@ async function main() {
   const padded = await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
     .composite([{ input: mark, left: 205, top: 205 }]).png().toBuffer();
   await output(path.join(root, 'assets/adaptive-icon.png'), padded);
+  // Android small notification icons must be white silhouettes on transparency.
+  const rawMark = await sharp(path.join(root, 'assets/splash-icon-dark.png')).resize(72, 72, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).ensureAlpha().raw().toBuffer();
+  for (let i = 0; i < rawMark.length; i += 4) rawMark[i] = rawMark[i + 1] = rawMark[i + 2] = 255;
+  const smallMark = await sharp(rawMark, { raw: { width: 72, height: 72, channels: 4 } }).png().toBuffer();
+  const notification = await sharp({ create: { width: 96, height: 96, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite([{ input: smallMark, left: 12, top: 12 }]).png().toBuffer();
+  await output(path.join(root, 'assets/notification-icon.png'), notification);
 
   const config = JSON.parse(await fs.readFile(path.join(root, 'app.json'), 'utf8')).expo;
   assert.equal(config.name, 'Owuja');
   assert.equal(config.android.adaptiveIcon.foregroundImage, './assets/adaptive-icon.png');
   assert.equal(config.android.adaptiveIcon.backgroundColor, background);
+  const notificationConfig = config.plugins.find(plugin => Array.isArray(plugin) && plugin[0] === 'expo-notifications')[1];
+  assert.equal(notificationConfig.icon, './assets/notification-icon.png');
+  assert.equal(notificationConfig.color, background);
+  assert.equal(notificationConfig.defaultChannel, 'default');
   const splash = config.plugins.find(plugin => Array.isArray(plugin) && plugin[0] === 'expo-splash-screen')[1].android;
-  assert.equal(splash.image, './assets/splash-icon-dark.png');
+  assert.equal(splash.image, './assets/splash-icon-black.png');
   assert.equal(splash.backgroundColor, splashBackground);
   assert.equal(splash.imageWidth, 160);
 
@@ -51,10 +61,11 @@ async function main() {
     const circle = Buffer.from(`<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white"/></svg>`);
     const round = await sharp(legacy).ensureAlpha().composite([{ input: circle, blend: 'dest-in' }]).webp({ lossless: true }).toBuffer();
     await output(path.join(dir, 'ic_launcher_round.webp'), round);
-    const launch = await sharp(path.join(root, 'assets/splash-icon-dark.png'))
+    const launch = await sharp(path.join(root, 'assets/splash-icon-black.png'))
       .resize(160 * scale, 160 * scale, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .extend({ top: 64 * scale, bottom: 64 * scale, left: 64 * scale, right: 64 * scale, background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
     await output(path.join(res, 'drawable-' + density, 'splashscreen_logo.png'), launch);
+    await output(path.join(res, 'drawable-' + density, 'notification_icon.png'), await sharp(notification).resize(24 * scale, 24 * scale).png().toBuffer());
     // Duplicate PNG/WebP basenames would make Android resource compilation fail.
     const files = await fs.readdir(dir);
     for (const basename of ['ic_launcher', 'ic_launcher_round', 'ic_launcher_foreground']) {

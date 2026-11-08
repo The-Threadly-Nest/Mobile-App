@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#453332",
+    color: "#000000",
     marginBottom: 16,
   },
   stepContainer: {
@@ -469,13 +469,13 @@ const styles = StyleSheet.create({
   headline: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 28,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 8,
   },
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "rgba(74, 8, 12, 0.75)",
+    color: "#000000",
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -500,12 +500,12 @@ const styles = StyleSheet.create({
   logoPlaceholderText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
   },
   logoSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "rgba(74, 8, 12, 0.6)",
+    color: "#000000",
   },
   logoUploadingWrap: {
     alignItems: "center",
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
   logoUploadingText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#453332",
+    color: "#000000",
   },
   logoPreviewWrap: {
     alignItems: "center",
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: "HedvigLettersSerif-Regular",
     fontSize: 15,
-    color: "#3B0508",
+    color: "#000000",
     marginBottom: 8,
   },
   input: {
@@ -558,13 +558,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#3B0508",
+    color: "#000000",
     backgroundColor: "#FFFFFF",
   },
   charCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "rgba(74, 8, 12, 0.45)",
+    color: "#000000",
     textAlign: "right",
     marginTop: 4,
   },
@@ -585,8 +585,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillSelected: {
-    backgroundColor: "#453332",
-    borderColor: "#453332",
+    backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   pillUnselected: {
     backgroundColor: "transparent",
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   pillTextUnselected: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#3B0508",
+    color: "#000000",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
@@ -640,14 +640,14 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     height: 58,
     borderRadius: 29,
-    backgroundColor: "#453332",
+    backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
   },
   nextBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
   addSlotBtn: {
     width: "100%",
@@ -666,6 +666,6 @@ const styles = StyleSheet.create({
   addSlotBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#000000",
   },
 });

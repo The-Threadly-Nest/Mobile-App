@@ -4,9 +4,9 @@ import { Pressable, Text, ActivityIndicator, PressableProps } from "react-native
 type Variant = "primary" | "secondary" | "accent";
 
 const styles: Record<Variant, { container: string; text: string }> = {
-  primary: { container: "bg-oxblood", text: "text-cream" },
-  secondary: { container: "bg-white border border-oxblood", text: "text-oxblood" },
-  accent: { container: "bg-gold", text: "text-ink" },
+  primary: { container: "bg-tomato", text: "text-black" },
+  secondary: { container: "bg-white border border-tomato", text: "text-black" },
+  accent: { container: "bg-tomato", text: "text-black" },
 };
 
 /**
