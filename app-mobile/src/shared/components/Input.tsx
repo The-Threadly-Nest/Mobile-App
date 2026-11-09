@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { TextInput, TextInputProps, View, Text, Pressable } from "react-native";
+import { TextInputProps, View, Pressable } from "react-native";
+import { TextInput, Text } from "@/shared/components/Typography";
 import { Eye, EyeOff } from "lucide-react-native";
 
 interface InputProps extends TextInputProps {

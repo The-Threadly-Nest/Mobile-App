@@ -39,7 +39,70 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 let lastLogoutAlertTimestamp = 0;
 
+type CachedResponse = { value: unknown; headers: Record<string, string>; savedAt: number };
+const responseCache = new Map<string, CachedResponse>();
+const requestsInFlight = new Map<string, Promise<unknown>>();
+let cacheToken: string | null | undefined;
+let cacheVersion = 0;
+export function invalidateReadCache() {
+  cacheVersion++;
+  responseCache.clear();
+  requestsInFlight.clear();
+}
+function syncCacheIdentity() {
+  const token = useAuthStore.getState().token;
+  if (token !== cacheToken) { cacheToken = token; cacheVersion++; responseCache.clear(); requestsInFlight.clear(); }
+}
+const cacheableRead = (endpoint: string, options: RequestOptions) =>
+  (options.method || "GET").toUpperCase() === "GET" && !options.signal && !options.headers &&
+  /^\/api\/(orders|catalog|fashion-houses|admin\/(profile|dashboard-summary)|staff|customers|measurements|preferences|escalations)(\/|\?|$)/.test(endpoint) &&
+  !/slots|availability|presign/.test(endpoint);
+
+export function getCachedResponse<T>(endpoint: string): T | undefined {
+  syncCacheIdentity();
+  return responseCache.get(endpoint)?.value as T | undefined;
+}
+
 export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
+  syncCacheIdentity();
+  const method = (options.method || "GET").toUpperCase();
+  if (!cacheableRead(endpoint, options) || options.cache === "no-store") {
+    const value = await fetchNetwork<T>(endpoint, options);
+    if (!["GET", "HEAD"].includes(method)) invalidateReadCache();
+    return value;
+  }
+  const version = cacheVersion;
+  const token = cacheToken;
+  const load = () => {
+    let request = requestsInFlight.get(endpoint) as Promise<T> | undefined;
+    if (!request) {
+      const headers: Record<string, string> = {};
+      request = fetchNetwork<T>(endpoint, { ...options, silent: true, onResponse: response => {
+        response.headers.forEach((value, key) => { headers[key] = value; });
+      } }).then(value => {
+        if (cacheVersion === version && useAuthStore.getState().token === token) {
+          if (responseCache.size >= 150) responseCache.delete(responseCache.keys().next().value!);
+          responseCache.set(endpoint, { value, headers, savedAt: Date.now() });
+        }
+        return value;
+      }).finally(() => { if (requestsInFlight.get(endpoint) === request) requestsInFlight.delete(endpoint); });
+      requestsInFlight.set(endpoint, request);
+    }
+    return request;
+  };
+  const cached = responseCache.get(endpoint);
+  if (cached && options.cache !== "reload") {
+    options.onResponse?.(new Response(null, { headers: cached.headers }));
+    if (Date.now() - cached.savedAt > 30_000 && getConnectionStatus() !== "offline") void load().catch(() => {});
+    return cached.value as T;
+  }
+  const value = await load();
+  const saved = responseCache.get(endpoint);
+  if (saved) options.onResponse?.(new Response(null, { headers: saved.headers }));
+  return value;
+}
+
+async function fetchNetwork<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   if (getConnectionStatus() === "offline") {
     refreshConnectionStatus();
     // Never queue mutations: a fitting slot or garment price may change offline.
@@ -133,7 +196,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         : Math.pow(2, currentRetry) * 1000 + Math.random() * 500;
       console.warn(`[API Client] Transient error ${errorDetail.status}. Retrying in ${backoffMs}ms...`);
       await delay(backoffMs);
-      return apiFetch<T>(endpoint, { ...options, retryCount: currentRetry + 1 });
+      return fetchNetwork<T>(endpoint, { ...options, retryCount: currentRetry + 1 });
     }
 
     // 2. Global interception: Unauthorized (401) session expiry
@@ -281,7 +344,14 @@ export const invoicesApi = {
 
 export const ordersApi = {
   getOrders: async () => {
-    return apiFetch<any[]>("/api/orders", { silent: true });
+    const orders: any[] = [];
+    let page: number | null = 1;
+    while (page !== null) {
+      const result: CollectionPage<any> = await apiFetchCollectionPage<any>(`/api/orders?page=${page}&limit=100`, { silent: true });
+      orders.push(...result.items);
+      page = result.nextPage && result.nextPage > page ? result.nextPage : null;
+    }
+    return orders;
   },
 };
 

@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
-import { View, ScrollView, Text, Pressable, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { useOrdersStore, OrderItem } from "@/stores/useOrdersStore";
@@ -100,7 +101,7 @@ export default function CustomerOrdersScreen() {
       >
         {/* Title */}
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", marginBottom: 4 }, isLandscape && { maxWidth: 600 }]}>
-          <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#000000" }}>
+          <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 26, color: "#2B2B2B" }}>
             My Orders
           </Text>
         </View>
@@ -232,7 +233,7 @@ export default function CustomerOrdersScreen() {
                           </View>
                         ) : isCancelled ? (
                           <View style={{ backgroundColor: "#F5EFE6", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#E5DFD5" }}>
-                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#000000" }}>
+                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2B2B2B" }}>
                               Cancelled
                             </Text>
                           </View>
@@ -280,7 +281,7 @@ export default function CustomerOrdersScreen() {
                 {loadingMore ? (
                   <ActivityIndicator size="small" color="#453332" />
                 ) : (
-                  <Text style={{ color: "#000000", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
+                  <Text style={{ color: "#2B2B2B", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
                 )}
               </Pressable>
             ) : null}

@@ -80,7 +80,8 @@ export class PreferencesService {
       where: { id: { in: preference.savedCatalogIds } },
       select: { id: true, name: true, imageUrl: true, priceFrom: true, fashionHouseId: true },
     }) : [];
-    return { ...preference, photoUrl: preference.photoKey ? getPublicFileUrl(preference.photoKey) : null, savedItems };
+    // Exclude unavailable IDs so stale favourites cannot block a new save.
+    return { ...preference, savedCatalogIds: savedItems.map(item => item.id), photoUrl: preference.photoKey ? getPublicFileUrl(preference.photoKey) : null, savedItems };
   }
 }
 

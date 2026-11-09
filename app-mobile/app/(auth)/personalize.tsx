@@ -1,13 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, StyleSheet, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Check } from "lucide-react-native";
@@ -77,12 +70,12 @@ export default function PersonalizeScreen() {
       console.warn("Failed to save preferences:", e);
     } finally {
       setLoading(false);
-      router.replace("/(customer)/browse");
+      router.replace("/(auth)/loading");
     }
   };
 
   const handleSkip = () => {
-    router.replace("/(customer)/browse");
+    router.replace("/(auth)/loading");
   };
 
   return (
@@ -306,22 +299,22 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 12,
     textTransform: "uppercase",
   },
   headline: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 30,
     lineHeight: 36,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 32,
   },
   section: {
@@ -330,13 +323,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 16,
   },
   pillsWrapContainer: {
@@ -370,7 +363,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   pillTextUnselected: {
-    color: "#000000",
+    color: "#2B2B2B",
   },
   pillTextSelected: {
     color: "#FFFFFF",
@@ -405,7 +398,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   budgetTextUnselected: {
-    color: "#000000",
+    color: "#2B2B2B",
   },
   budgetTextSelected: {
     color: "#FFFFFF",
@@ -426,7 +419,7 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
   skipBtn: {
@@ -442,7 +435,7 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: 0.2,
   },
 });

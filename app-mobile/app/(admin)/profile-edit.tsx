@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Image,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from "react-native";
+import { View, Pressable, Image, ActivityIndicator, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
 import { router } from "expo-router";
@@ -539,10 +530,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   stepIndicatorContainer: {
@@ -566,16 +557,16 @@ const styles = StyleSheet.create({
   stepLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   stepLabelActive: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   stepTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   stepSubtitle: {
@@ -596,7 +587,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   logoPickerBox: {
@@ -619,7 +610,7 @@ const styles = StyleSheet.create({
   uploadHint: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   textInput: {
     backgroundColor: "#FFFFFF",
@@ -628,7 +619,7 @@ const styles = StyleSheet.create({
     height: 52,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
     marginBottom: 20,
@@ -642,7 +633,7 @@ const styles = StyleSheet.create({
   charCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   bioInput: {
     backgroundColor: "#FFFFFF",
@@ -652,7 +643,7 @@ const styles = StyleSheet.create({
     minHeight: 88,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
     textAlignVertical: "top",
@@ -684,7 +675,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   categoryTextActive: {
     color: "#FFFFFF",
@@ -711,7 +702,7 @@ const styles = StyleSheet.create({
   slotsLinkTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   slotsLinkDesc: {
     fontFamily: "InstrumentSans-Regular",
@@ -739,7 +730,7 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   secondaryBtn: {
     width: 90,
@@ -754,6 +745,6 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
 });

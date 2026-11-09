@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  ScrollView,
-  Pressable,
-  Text,
-  ActivityIndicator,
-  RefreshControl,
-  Image,
-  useWindowDimensions,
-} from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, RefreshControl, Image, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { router, useFocusEffect } from "expo-router";
@@ -29,6 +21,9 @@ import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { isBookingPending, isOrderWorkActive, isPaymentPaid } from "@/shared/domain/statuses";
 import { formatCurrency } from "@/shared/utils/formatters";
 import CachedImage from "@/shared/components/CachedImage";
+import { adminOrderRequests, isRunningOrder } from "@/shared/utils/adminOrderQueues";
+import { isReadyToWear } from "@/shared/utils/orderFulfillment";
+import { invalidateReadCache } from "@/shared/utils/apiClient";
 
 interface CatalogItem {
   id: string;
@@ -92,9 +87,7 @@ export default function AdminDashboard() {
   const [brandLogoUrl, setBrandLogoUrl] = useState<string>("");
   const [assignLoadingId, setAssignLoadingId] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(
-    !cacheIsFresh || (cachedOrders.length === 0 && cachedEscalations.length === 0)
-  );
+  const [loading, setLoading] = useState(!cacheIsFresh);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -115,7 +108,7 @@ export default function AdminDashboard() {
   }, [cacheIsFresh, cachedEscalations, cachedOrders, cachedProfile, escalations.length, orders.length, shopName]);
 
   const fetchData = async () => {
-    if (orders.length === 0 && escalations.length === 0) {
+    if (!useAppDataStore.getState().lastSyncedAt) {
       setLoading(true);
     }
     try {
@@ -189,6 +182,7 @@ export default function AdminDashboard() {
   );
 
   const onRefresh = () => {
+    invalidateReadCache();
     setRefreshing(true);
     fetchData();
   };
@@ -222,7 +216,7 @@ export default function AdminDashboard() {
   const effectiveOrders = realOrders;
   const effectiveEscalations = realEscalations;
 
-  const pageActiveOrdersCount = effectiveOrders.filter((o) => isOrderWorkActive(o.status)).length;
+  const pageActiveOrdersCount = effectiveOrders.filter(isRunningOrder).length;
   const paidOrders = realOrders.filter(
     (o) => o.isPaid === true || isPaymentPaid(o.paymentStatus || o.invoice?.paymentStatus || o.invoiceStatus)
   );
@@ -235,14 +229,14 @@ export default function AdminDashboard() {
       if (!uniquePendingEscalations.has(key)) uniquePendingEscalations.set(key, e);
     }
   });
-  const pendingEscalations = Array.from(uniquePendingEscalations.values());
+  const pendingEscalations = adminOrderRequests(realOrders, realEscalations);
 
-  const activeOrdersCount = summary?.activeOrdersCount ?? pageActiveOrdersCount;
-  const pendingBookingsCount = summary?.pendingBookingsCount ?? pendingEscalations.length;
+  const activeOrdersCount = pageActiveOrdersCount;
+  const pendingBookingsCount = pendingEscalations.length;
   const totalRevenue = summary?.revenueThisMonth;
 
   const shopNameDisplay = shopName || storedShopName || "Your fashion house";
-  const displayRequests = pendingEscalations.slice(0, 3);
+  const displayRequests = pendingEscalations.slice(0, 2);
 
   const displayedProducts = catalogItems;
 
@@ -365,7 +359,7 @@ export default function AdminDashboard() {
                 marginBottom: 4,
               }}
             >
-              {String(activeOrdersCount).padStart(2, "0")}
+              {loading ? "—" : String(activeOrdersCount).padStart(2, "0")}
             </Text>
             <Text
               style={{
@@ -405,7 +399,7 @@ export default function AdminDashboard() {
                 marginBottom: 4,
               }}
             >
-              {String(pendingBookingsCount).padStart(2, "0")}
+              {loading ? "—" : String(pendingBookingsCount).padStart(2, "0")}
             </Text>
             <Text
               style={{
@@ -454,7 +448,7 @@ export default function AdminDashboard() {
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#000000" }}>This month</Text>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#2B2B2B" }}>This month</Text>
               <ChevronDown size={11} color="#453332" />
             </View>
 
@@ -482,7 +476,7 @@ export default function AdminDashboard() {
               marginBottom: 10,
             }}
           >
-            {totalRevenue == null ? "Unavailable" : formatCurrency(totalRevenue)}
+            {loading ? "—" : totalRevenue == null ? "Unavailable" : formatCurrency(totalRevenue)}
           </Text>
 
           <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#746765", fontSize: 12, marginTop: 12 }}>Revenue from paid invoices this month.</Text>
@@ -492,8 +486,8 @@ export default function AdminDashboard() {
         {displayRequests.length > 0 && (
           <View style={{ marginBottom: 18 }}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 17, color: "#32343E" }}>
-                Booking requests
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 17, color: "#32343E" }}>
+                Order requests
               </Text>
               <Pressable onPress={() => router.push("/(admin)/escalations")}>
                 <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#F96951" }}>
@@ -525,7 +519,7 @@ export default function AdminDashboard() {
                       <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#32343E" }}>
                         {customerName}
                       </Text>
-                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#000000" }}>
+                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#2B2B2B" }}>
                         {detail}
                       </Text>
                     </View>
@@ -540,7 +534,13 @@ export default function AdminDashboard() {
                       onPress={async () => {
                         setAssignLoadingId(item.id);
                         try {
-                          const check = await measurementsApi.checkCustomer(customerName);
+                          if (item.orderId && isReadyToWear(item)) {
+                            await apiFetch(`/api/orders/${item.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "in_production" }) });
+                            await fetchData();
+                            showAlert("Order accepted", "Prepare this order, then mark it ready for pickup.");
+                            return;
+                          }
+                          const check = isReadyToWear(item) ? { hasMeasurements: true } : await measurementsApi.checkCustomer(customerName);
                           if (!check?.hasMeasurements) {
                             showConfirm(
                               "Measurement Required",
@@ -558,12 +558,16 @@ export default function AdminDashboard() {
                           }
                           router.push({
                             pathname: "/(admin)/escalations/assign",
-                            params: { bookingId: item.id, customerName, serviceTitle: detail },
+                            params: { bookingId: item.orderId ? undefined : item.id, orderId: item.orderId, customerName, serviceTitle: detail, fulfillmentType: isReadyToWear(item) ? "ready_to_wear" : "custom_fit" },
                           } as any);
                         } catch {
+                          if (item.orderId && isReadyToWear(item)) {
+                            showAlert("Couldn't accept order", "Please try again.");
+                            return;
+                          }
                           router.push({
                             pathname: "/(admin)/escalations/assign",
-                            params: { bookingId: item.id, customerName, serviceTitle: detail },
+                            params: { bookingId: item.orderId ? undefined : item.id, orderId: item.orderId, customerName, serviceTitle: detail, fulfillmentType: isReadyToWear(item) ? "ready_to_wear" : "custom_fit" },
                           } as any);
                         } finally {
                           setAssignLoadingId(null);
@@ -581,12 +585,15 @@ export default function AdminDashboard() {
                       {assignLoadingId === item.id ? (
                         <ActivityIndicator size="small" color="#FFFFFF" />
                       ) : (
-                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>Assign</Text>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>{item.orderId && isReadyToWear(item) ? "Accept order" : "Assign"}</Text>
                       )}
                     </Pressable>
 
                     <Pressable
-                      onPress={() => handleDeclineBooking(item.id, customerName)}
+                      onPress={() => item.orderId ? showConfirm("Decline order", `Decline the order for ${customerName}?`, { confirmLabel: "Decline", onConfirm: async () => {
+                        try { await apiFetch(`/api/orders/${item.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) }); await fetchData(); }
+                        catch { showAlert("Couldn't decline order", "Please try again."); }
+                      } }) : handleDeclineBooking(item.id, customerName)}
                       style={{
                         flex: 1,
                         height: 38,
@@ -598,7 +605,7 @@ export default function AdminDashboard() {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000" }}>Decline</Text>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" }}>Decline</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -642,7 +649,11 @@ export default function AdminDashboard() {
 
           {/* Product Items Horizontal Scroll / Cards */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14 }}>
-            {displayedProducts.map((prod) => (
+            {loading ? (
+              <View style={{ width: "100%", paddingVertical: 24, alignItems: "center", justifyContent: "center" }}>
+                <ActivityIndicator color="#F96951" />
+              </View>
+            ) : displayedProducts.map((prod) => (
               <Pressable
                 key={prod.id}
                 onPress={() => {
@@ -699,7 +710,7 @@ export default function AdminDashboard() {
                       style={{
                         fontFamily: "InstrumentSans-Regular",
                         fontSize: 11,
-                        color: "#000000",
+                        color: "#2B2B2B",
                       }}
                     >
                       Price on request
@@ -743,7 +754,7 @@ export default function AdminDashboard() {
                 style={{
                   fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 12,
-                  color: "#000000",
+                  color: "#2B2B2B",
                   textAlign: "center",
                 }}
               >

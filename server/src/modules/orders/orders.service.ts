@@ -145,7 +145,8 @@ export class OrdersService {
       }
       throw error;
     }
-    void sendNotificationToAdmin(booking.fashionHouseId, "New measurement booking", "A customer booked measurements for a custom-fit garment.", { screen: "orders", bookingId: booking.id });
+    const bookingCustomer = await this.database.client.user.findUnique({ where: { id: customerId }, select: { name: true } }).catch(() => null);
+    void sendNotificationToAdmin(booking.fashionHouseId, "New measurement request", `${bookingCustomer?.name || "A customer"} booked a measurement appointment.`, { screen: "orders", bookingId: booking.id, senderId: customerId });
     return result(booking, 201);
   }
 
@@ -301,7 +302,8 @@ export class OrdersService {
       }
       throw error;
     }
-    void sendNotificationToAdmin(fashionHouseId, "New pickup order", "A customer placed a ready-for-pickup order.", { screen: "orders", orderId: order.id });
+    const orderCustomer = await this.database.client.user.findUnique({ where: { id: userId }, select: { name: true } }).catch(() => null);
+    void sendNotificationToAdmin(fashionHouseId, "New order", `You have an order from ${orderCustomer?.name || "a customer"}.`, { screen: "orders", orderId: order.id, senderId: userId });
     return result(order, 201);
   }
 

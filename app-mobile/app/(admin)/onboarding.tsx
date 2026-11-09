@@ -1,18 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Image,
-  useWindowDimensions,
-  Keyboard,
-} from "react-native";
+import { View, Pressable, StyleSheet, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform, Image, useWindowDimensions, Keyboard } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";
@@ -451,7 +439,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 16,
   },
   stepContainer: {
@@ -467,15 +455,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   headline: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -500,12 +488,12 @@ const styles = StyleSheet.create({
   logoPlaceholderText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   logoSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   logoUploadingWrap: {
     alignItems: "center",
@@ -514,7 +502,7 @@ const styles = StyleSheet.create({
   logoUploadingText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   logoPreviewWrap: {
     alignItems: "center",
@@ -545,9 +533,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   input: {
@@ -558,13 +546,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     backgroundColor: "#FFFFFF",
   },
   charCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "right",
     marginTop: 4,
   },
@@ -600,7 +588,7 @@ const styles = StyleSheet.create({
   pillTextUnselected: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
@@ -647,7 +635,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   addSlotBtn: {
     width: "100%",
@@ -666,6 +654,6 @@ const styles = StyleSheet.create({
   addSlotBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

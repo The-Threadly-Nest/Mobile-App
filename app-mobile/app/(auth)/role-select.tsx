@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
+import { View, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ShoppingBag, Scissors, Check } from "lucide-react-native";
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   title: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 36,
     color: "#3B0508",
@@ -291,7 +292,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cardTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 21,
     color: "#3B0508",
     marginBottom: 6,

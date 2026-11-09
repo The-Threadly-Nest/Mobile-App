@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  Switch,
-  BackHandler,
-} from "react-native";
+import { View, ScrollView, Pressable, Switch, BackHandler } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Check } from "lucide-react-native";

@@ -1,20 +1,13 @@
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  View,
-  FlatList,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  RefreshControl,
-  StyleSheet,
-} from "react-native";
+import { View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect, router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
-import { apiFetchCollectionPage, escalationsApi } from "@/shared/utils/apiClient";
+import { apiFetchCollectionPage, escalationsApi, getCachedResponse, invalidateReadCache } from "@/shared/utils/apiClient";
 import { normalizeStatus } from "@/shared/domain/statuses";
+import { isUnassignedOrder } from "@/shared/utils/adminOrderQueues";
 
 interface OrderItem {
   id: string;
@@ -134,6 +127,7 @@ export default function AdminOrdersScreen() {
         const data = ordersRes.value.items;
         if (Array.isArray(data)) {
           data.forEach((o: any) => {
+            if (isUnassignedOrder(o)) return;
             merged.push({
               id: o.id,
               orderNumber: generateOrderNumber(o.bookingId || o.id),
@@ -154,7 +148,7 @@ export default function AdminOrdersScreen() {
         const escData = escRes.value;
         if (Array.isArray(escData)) {
           escData
-            .filter((e: any) => e.resolved && e.bookingStatus !== "declined")
+            .filter((e: any) => Boolean(e.preferredDate || e.bookingStatus || e.purpose) && e.resolved && Boolean(e.assignedStaff?.id) && e.bookingStatus !== "declined")
             .forEach((e: any) => {
               const name = e.customerName || e.customer?.name || "Customer";
               if (!coveredNames.has(name.toLowerCase())) {
@@ -192,7 +186,7 @@ export default function AdminOrdersScreen() {
       const data = result.items;
       setNextPage(result.nextPage);
       if (Array.isArray(data)) {
-        const incoming: OrderItem[] = data.map((order: any) => ({
+        const incoming: OrderItem[] = data.filter((order: any) => !isUnassignedOrder(order)).map((order: any) => ({
           id: order.id,
           orderNumber: generateOrderNumber(order.bookingId || order.id),
           customer: order.customer?.name || "Customer",
@@ -214,12 +208,13 @@ export default function AdminOrdersScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
+      if (!getCachedResponse("/api/orders?page=1&limit=50")) setLoading(true);
       void fetchOrders();
     }, [fetchOrders])
   );
 
   const onRefresh = () => {
+    invalidateReadCache();
     setRefreshing(true);
     fetchOrders();
   };
@@ -381,9 +376,9 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   title: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 32,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   filterContainer: {
     marginBottom: 16,
@@ -440,7 +435,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -455,7 +450,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     flex: 1,
     marginRight: 8,
   },
@@ -471,7 +466,7 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 2,
     marginBottom: 6,
   },
@@ -481,28 +476,28 @@ const styles = StyleSheet.create({
   itemText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     flex: 1,
     marginRight: 8,
   },
   assignedText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   empty: {
     alignItems: "center",
     marginTop: 60,
   },
   emptyText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   emptySubText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
 });

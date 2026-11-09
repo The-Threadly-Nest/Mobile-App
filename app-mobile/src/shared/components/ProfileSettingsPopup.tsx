@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, View, Text, Pressable, KeyboardAvoidingView, Platform, useWindowDimensions, StyleSheet } from "react-native";
+import { Modal, View, Pressable, KeyboardAvoidingView, Platform, useWindowDimensions, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import { ProfileDesignIcon } from "./ProfileDesign";
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
   card: { width: "100%", maxWidth: 440, maxHeight: "100%", flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 24, padding: 20, borderWidth: 1, borderColor: "#E5E0D5" },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#EBE7DF" },
   heading: { flexDirection: "row", alignItems: "center", gap: 10 },
-  title: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#000000" },
+  title: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B" },
   close: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#EBE7DF", alignItems: "center", justifyContent: "center" },
   body: { flex: 1, minHeight: 0, paddingTop: 16 },
 });

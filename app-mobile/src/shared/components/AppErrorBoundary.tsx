@@ -1,5 +1,6 @@
 import React, { Component, type ErrorInfo, type ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 
 interface Props { children: ReactNode }
 interface State { error: Error | null }
@@ -19,10 +20,10 @@ export default class AppErrorBoundary extends Component<Props, State> {
     if (!this.state.error) return this.props.children;
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#FFFFFF" }}>
-        <Text style={{ fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#000000", textAlign: "center" }}>
+        <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 24, color: "#2B2B2B", textAlign: "center" }}>
           Something went wrong
         </Text>
-        <Text style={{ marginTop: 12, fontFamily: "InstrumentSans-Regular", fontSize: 15, lineHeight: 22, color: "#000000", textAlign: "center" }}>
+        <Text style={{ marginTop: 12, fontFamily: "InstrumentSans-Regular", fontSize: 15, lineHeight: 22, color: "#2B2B2B", textAlign: "center" }}>
           We could not open this page. Please try again.
         </Text>
         <Pressable

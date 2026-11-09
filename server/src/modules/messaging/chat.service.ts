@@ -526,9 +526,9 @@ export class ChatService {
           if (bookingWasCreated) {
             sendNotificationToAdmin(
               fashionHouseId,
-              "New Booking Request",
-              "A customer has requested a fitting appointment.",
-              { bookingId: booking.id }
+              "New appointment request",
+              `${customerUser?.name || "A customer"} requested a fitting appointment.`,
+              { screen: "orders", bookingId: booking.id, senderId: authUserId }
             );
           }
           const reservedSlotLabel = booking.availableSlot
@@ -599,7 +599,7 @@ export class ChatService {
       // Notify admin of new customer AI-chat message (WhatsApp-style: always notify the other side)
       sendNotificationToAdmin(
         fashionHouseId,
-        customerUser?.name || "Customer",
+        `${customerUser?.name || "A customer"} messaged you`,
         message.slice(0, 100),
         { screen: "messages", customerId, senderId: authUserId }
       );
@@ -706,6 +706,18 @@ export class ChatService {
           where: { id: input.sessionId },
           data: { history: updatedHistory as unknown as Prisma.InputJsonValue },
         });
+        // A human handoff starts an inbox thread, never an order or booking.
+        // Keep this atomic with the escalation so retries cannot duplicate it.
+        await transaction.directMessage.create({
+          data: {
+            fashionHouseId: input.fashionHouseId,
+            customerId: input.customerId,
+            senderId: input.customerId,
+            senderRole: "customer",
+            text: "I'd like to speak with the fashion house team. Please help me here.",
+            clientMessageId: `handoff:${created.id}`,
+          },
+        });
         return created;
       });
     } catch (error) {
@@ -715,10 +727,12 @@ export class ChatService {
       return racedEscalation;
     }
 
+    const handoffCustomer = await this.database.client.user.findUnique({ where: { id: input.customerId }, select: { name: true } }).catch(() => null);
     sendNotificationToAdmin(
       input.fashionHouseId,
-      "Customer Escalation Request",
-      "A customer requested direct assistance."
+      `${handoffCustomer?.name || "A customer"} messaged you`,
+      "You have a request to chat with the fashion house team.",
+      { screen: "messages", customerId: input.customerId, senderId: input.customerId }
     );
     return escalation;
   }

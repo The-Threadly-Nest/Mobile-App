@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  ActivityIndicator,
-  Linking,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, Linking, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { Phone, Calendar, Ruler, Scissors, ArrowRight } from "lucide-react-native";
@@ -218,7 +210,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitleText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#000000" },
+  headerTitleText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#2B2B2B" },
   scrollContent: { paddingHorizontal: 20, paddingVertical: 20, paddingBottom: 40 },
   heroCard: {
     flexDirection: "row",
@@ -239,24 +231,24 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#FFFFFF" },
   heroInfoCol: { flex: 1 },
-  customerNameText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#000000" },
-  orderNumberText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#000000", marginTop: 2 },
+  customerNameText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#2B2B2B" },
+  orderNumberText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B", marginTop: 2 },
   card: { backgroundColor: "#FFFFFF", borderRadius: 20, padding: 18, marginBottom: 16 },
   cardHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
-  cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#000000" },
+  cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#2B2B2B" },
   statusBadge: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#453332", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
-  statusBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#000000" },
+  statusBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#2B2B2B" },
   progressTrack: { height: 8, backgroundColor: "rgba(0,0,0,0.06)", borderRadius: 4, overflow: "hidden", marginBottom: 6 },
   progressFill: { height: "100%", backgroundColor: "#C4A763", borderRadius: 4 },
-  percentSubtext: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#000000" },
-  garmentTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#000000", marginBottom: 8 },
+  percentSubtext: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#2B2B2B" },
+  garmentTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#2B2B2B", marginBottom: 8 },
   phoneRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  phoneText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#000000" },
+  phoneText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" },
   measurementsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   measurementItem: { width: "47%", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 10 },
-  measurementLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#000000", marginBottom: 2 },
-  measurementVal: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#000000" },
-  noMeasurementsText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#000000", fontStyle: "italic", lineHeight: 20 },
+  measurementLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#2B2B2B", marginBottom: 2 },
+  measurementVal: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#2B2B2B" },
+  noMeasurementsText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#2B2B2B", fontStyle: "italic", lineHeight: 20 },
   actionBtn: {
     backgroundColor: "#F96951",
     height: 52,
@@ -266,5 +258,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
   },
-  actionBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#000000" },
+  actionBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFFFF" },
 });

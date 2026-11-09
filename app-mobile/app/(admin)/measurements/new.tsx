@@ -1,22 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  TextInput,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 import { Plus, Trash2, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { useAudioRecorder, AudioModule, RecordingPresets } from "expo-audio";
+import { useAudioRecorder, AudioModule, setAudioModeAsync } from "expo-audio";
+import { VOICE_RECORDING_OPTIONS, voiceAttachment } from "@/shared/utils/voiceRecording";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
@@ -131,7 +122,7 @@ export default function NewMeasurementScreen() {
     setCustomFields((prev) => prev.filter((f) => f.id !== id));
   };
 
-  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
+  const audioRecorder = useAudioRecorder(VOICE_RECORDING_OPTIONS);
 
   const handleToggleVoiceRecord = async () => {
     try {
@@ -143,12 +134,14 @@ export default function NewMeasurementScreen() {
         }
 
         // prepareToRecordAsync() initialises the file sink — MUST come before record()
+        await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
         await audioRecorder.prepareToRecordAsync();
         audioRecorder.record();
         setIsRecording(true);
       } else {
         setIsRecording(false);
         await audioRecorder.stop();
+        await setAudioModeAsync({ allowsRecording: false });
 
         // Give expo-audio a tick to finalise the file and populate .uri
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -164,10 +157,11 @@ export default function NewMeasurementScreen() {
 
         // Build multipart/form-data so the server receives the raw audio buffer
         const formData = new FormData();
+        const attachment = voiceAttachment("measurement");
         formData.append("audio", {
           uri,
-          name: "recording.m4a",
-          type: "audio/m4a",
+          name: attachment.filename,
+          type: attachment.contentType,
         } as any);
 
         console.log("[Voice] Uploading audio to /api/measurements/parse-voice …");
@@ -506,9 +500,9 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
-    color: "#000000",
+    color: "#2B2B2B",
     flex: 1,
   },
   sectionGroup: {
@@ -517,7 +511,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   inputContainer: {
@@ -532,7 +526,7 @@ const styles = StyleSheet.create({
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     height: "100%",
   },
   segmentContainer: {
@@ -564,13 +558,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   segmentTextInactive: {
-    color: "#000000",
+    color: "#2B2B2B",
   },
   badgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 8,
     marginBottom: 16,
   },
@@ -586,7 +580,7 @@ const styles = StyleSheet.create({
   gridLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   customLabelRow: {
@@ -607,7 +601,7 @@ const styles = StyleSheet.create({
   gridInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     height: "100%",
   },
   addCustomBtn: {
@@ -619,7 +613,7 @@ const styles = StyleSheet.create({
   addCustomBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   addCustomBox: {
     backgroundColor: "#FFFFFF",
@@ -632,7 +626,7 @@ const styles = StyleSheet.create({
   addCustomTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   addCustomRow: {
@@ -649,7 +643,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   addCustomConfirmBtn: {
     width: 42,
@@ -678,7 +672,7 @@ const styles = StyleSheet.create({
   voiceRecordText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   voiceRecordTextActive: {
     color: "#FFFFFF",
@@ -694,7 +688,7 @@ const styles = StyleSheet.create({
   transcriptLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 4,
@@ -702,7 +696,7 @@ const styles = StyleSheet.create({
   transcriptText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   saveBtnWrapper: {
     paddingHorizontal: 24,
@@ -723,7 +717,7 @@ const styles = StyleSheet.create({
   saveBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
 });

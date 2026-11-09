@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  FlatList,
-  Pressable,
-  Text,
-  Image,
-  ActivityIndicator,
-  Modal,
-} from "react-native";
+import { View, FlatList, Pressable, Image, ActivityIndicator, Modal } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Sparkles, CheckCircle2, PenTool } from "lucide-react-native";
@@ -127,10 +120,10 @@ export default function AdminStaffMoodBoardScreen() {
         <View className="flex-1">
           <Text
             style={{
-              fontFamily: "HedvigLettersSerif-Regular",
+              fontFamily: "InstrumentSans-Regular",
               fontSize: 24,
               lineHeight: 28,
-              color: "#000000",
+              color: "#2B2B2B",
               letterSpacing: -0.2,
             }}
           >

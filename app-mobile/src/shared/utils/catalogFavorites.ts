@@ -3,9 +3,9 @@ import { apiFetch, ApiError } from "./apiClient";
 export type SavedCatalogItem = { id: string; name: string; imageUrl: string; priceFrom: number | null };
 export type SavedCatalogProfile = { savedCatalogIds: string[]; savedItems: SavedCatalogItem[] };
 
-export async function loadCatalogFavorites(): Promise<SavedCatalogProfile> {
+export async function loadCatalogFavorites(fresh = false): Promise<SavedCatalogProfile> {
   try {
-    const profile = await apiFetch<SavedCatalogProfile>("/api/preferences", { silent: true });
+    const profile = await apiFetch<SavedCatalogProfile>("/api/preferences", { silent: true, ...(fresh ? { cache: "reload" as const } : {}) });
     if (!Array.isArray(profile.savedCatalogIds) || !Array.isArray(profile.savedItems)) {
       throw new Error("We couldn't load your saved items. Please try again shortly.");
     }
@@ -18,7 +18,7 @@ export async function loadCatalogFavorites(): Promise<SavedCatalogProfile> {
 
 export async function saveCatalogFavorite(id: string, saved: boolean): Promise<SavedCatalogProfile> {
   // Read current server state instead of overwriting favorites from a stale screen.
-  const current = await loadCatalogFavorites();
+  const current = await loadCatalogFavorites(true);
   const ids = new Set(current.savedCatalogIds);
   if (saved) ids.add(id); else ids.delete(id);
   const profile = await apiFetch<SavedCatalogProfile>("/api/preferences", {

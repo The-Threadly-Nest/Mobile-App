@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  ActivityIndicator,
-  RefreshControl,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, RefreshControl, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import {
@@ -29,6 +21,9 @@ import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { normalizeStatus } from "@/shared/domain/statuses";
 import { formatCurrency, formatShortDate } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import { isReadyToWear, READY_ORDER_STAGES } from "@/shared/utils/orderFulfillment";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
+import { isUnassignedOrder } from "@/shared/utils/adminOrderQueues";
 
 const STATUS_CONFIG: Record<
   string,
@@ -57,6 +52,9 @@ const STAGES = [
 ];
 
 export default function OrderDetailScreen() {
+  const { showAlert } = useAppAlert();
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const statusLock = React.useRef(false);
   const {
     orderId,
     customerName: initialCustomer,
@@ -134,6 +132,8 @@ export default function OrderDetailScreen() {
     initialOrderNumber ||
     generateOrderNumber(order?.bookingId || order?.id || orderId || "2000");
   const currentStatus = normalizeStatus(order?.status || initialStatus || "pending_admin_review");
+  const readyToWear = isReadyToWear(order);
+  const stages = readyToWear ? READY_ORDER_STAGES : STAGES;
   const price = order?.price ?? null;
   const staffName =
     order?.staff?.name ||
@@ -146,6 +146,7 @@ export default function OrderDetailScreen() {
     text: "#B28847",
     step: 0,
   };
+  const progressStep = readyToWear && statusMeta.step === 2 ? 3 : statusMeta.step;
 
   // Extract measurements if available
   const measurementsList =
@@ -166,6 +167,21 @@ export default function OrderDetailScreen() {
         status: currentStatus,
       },
     });
+  };
+  const nextReadyStatus = ["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? null
+    : isUnassignedOrder(order) ? { status: "in_production", label: "Accept order" }
+    : ["ready", "ready_for_pickup"].includes(currentStatus) ? { status: "completed", label: "Mark completed" }
+    : { status: "ready_for_pickup", label: "Mark ready for pickup" };
+  const advanceReadyOrder = async () => {
+    if (!order || !readyToWear || !nextReadyStatus || statusLock.current) return;
+    statusLock.current = true;
+    setUpdatingStatus(true);
+    try {
+      await apiFetch(`/api/orders/${encodeURIComponent(order.id)}/status`, { method: "PATCH", body: JSON.stringify({ status: nextReadyStatus.status }) });
+      await fetchOrderDetail();
+    } catch (error) {
+      showAlert("Couldn't update order", error instanceof Error ? error.message : "Please try again.");
+    } finally { statusLock.current = false; setUpdatingStatus(false); }
   };
 
   if (!order) return <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
@@ -246,9 +262,9 @@ export default function OrderDetailScreen() {
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Production Progress</Text>
             <View style={styles.timelineRow}>
-              {STAGES.map((st, i) => {
-                const isPassed = statusMeta.step >= st.step;
-                const isCurrent = statusMeta.step === st.step;
+              {stages.map((st, i) => {
+                const isPassed = progressStep >= st.step;
+                const isCurrent = progressStep === st.step;
                 return (
                   <View key={st.step} style={styles.timelineStepContainer}>
                     <View style={styles.stepCircleRow}>
@@ -270,14 +286,14 @@ export default function OrderDetailScreen() {
                         {isPassed ? (
                           <CheckCircle2 size={12} color="#FFFFFF" />
                         ) : (
-                          <Text style={styles.stepNumText}>{st.step}</Text>
+                          <Text style={styles.stepNumText}>{i + 1}</Text>
                         )}
                       </View>
-                      {i < STAGES.length - 1 && (
+                      {i < stages.length - 1 && (
                         <View
                           style={[
                             styles.stepConnector,
-                            statusMeta.step > st.step && styles.stepConnectorActive,
+                            progressStep > st.step && styles.stepConnectorActive,
                           ]}
                         />
                       )}
@@ -335,7 +351,7 @@ export default function OrderDetailScreen() {
           </View>
 
           {/* Measurements Card (if available) */}
-          {measurementsList && (
+          {!readyToWear && measurementsList && (
             <View style={styles.card}>
               <View style={styles.cardHeaderRow}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
@@ -381,6 +397,15 @@ export default function OrderDetailScreen() {
 
           {/* Bottom Action Cards */}
           <View style={styles.actionContainer}>
+            {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={styles.primaryBtn}>
+              <CheckCircle2 size={18} color="#FFFFFF" /><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating…" : nextReadyStatus.label}</Text>
+            </Pressable> : null}
+            {readyToWear && !order.isBooking && !["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? <Pressable
+              onPress={() => router.push({ pathname: "/(admin)/escalations/assign", params: {
+                orderId: order.id, customerName, serviceTitle: itemName, fulfillmentType: "ready_to_wear",
+              } })}
+              style={styles.primaryBtn}
+            ><Scissors size={18} color="#FFFFFF" /><Text style={styles.primaryBtnText}>{order.staff ? "Reassign staff (optional)" : "Assign staff (optional)"}</Text></Pressable> : null}
             <Pressable
               onPress={handleOpenInvoice}
               style={({ pressed }) => [
@@ -436,10 +461,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   headerSubtitle: {
@@ -490,7 +515,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
     color: "#FFFFFF",
   },
@@ -498,9 +523,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerName: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   garmentTitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -532,13 +557,13 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     letterSpacing: 0.8,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   priceValue: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 22,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   dateValue: {
     fontFamily: "InstrumentSans-Medium",
@@ -564,15 +589,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 14,
   },
   unitBadge: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
     backgroundColor: "#F4ECE1",
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -631,11 +656,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   stepLabelActive: {
-    color: "#000000",
+    color: "#2B2B2B",
     fontFamily: "InstrumentSans-SemiBold",
   },
   stepLabelCurrent: {
-    color: "#000000",
+    color: "#2B2B2B",
     fontFamily: "InstrumentSans-SemiBold",
   },
   infoRow: {
@@ -665,7 +690,7 @@ const styles = StyleSheet.create({
   infoFieldValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 2,
   },
   measurementsGrid: {
@@ -687,9 +712,9 @@ const styles = StyleSheet.create({
     color: "#7A7265",
   },
   measurementVal: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 4,
   },
   actionContainer: {
@@ -713,6 +738,6 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

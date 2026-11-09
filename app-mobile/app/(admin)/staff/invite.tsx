@@ -1,16 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-  useWindowDimensions,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Pressable, ScrollView, ActivityIndicator, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
@@ -181,10 +171,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   subtitle: {
@@ -225,7 +215,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   passwordRow: {
     flexDirection: "row",
@@ -249,7 +239,7 @@ const styles = StyleSheet.create({
   sendBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
 });

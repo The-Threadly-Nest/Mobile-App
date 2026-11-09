@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { Tabs, usePathname } from "expo-router";
 import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

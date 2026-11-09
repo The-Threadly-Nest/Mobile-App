@@ -5,6 +5,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        charcoal: "#2B2B2B",
         tomato: "#F96951",
         cream: "#FBF7EF",
         oxblood: "#453332",
@@ -15,10 +16,12 @@ module.exports = {
         grey500: "#A6926B",
         grey700: "#8A7550",
       },
+      // Soften text-black without changing black backgrounds, borders or shadows.
+      textColor: { black: "#2B2B2B" },
       fontFamily: {
-        // Headlines / display moments only — see README for usage rules
-        display: ["HedvigLettersSerif-Regular"],
-        "display-regular": ["HedvigLettersSerif-Regular"],
+        // Preserve existing utility names while using one font family everywhere.
+        display: ["InstrumentSans-Regular"],
+        "display-regular": ["InstrumentSans-Regular"],
         // Body, buttons, labels, forms, chat — everything small/dense
         body: ["InstrumentSans-Regular"],
         "body-medium": ["InstrumentSans-Medium"],

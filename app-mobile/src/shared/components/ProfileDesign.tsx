@@ -1,18 +1,18 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Asset } from "expo-asset";
-import { SvgUri } from "react-native-svg";
+import { View, Pressable, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
+import { ChevronLeft, ChevronRight, User, Settings, LogOut, Star, ShoppingBag } from "lucide-react-native";
 import { ProfilePhoto } from "./ProfilePhoto";
 import { SCREEN_TOP_SPACING } from "../utils/screenSpacing";
 
 const icons = {
-  back: require("../../../assets/profile/back.svg"),
-  personal: require("../../../assets/profile/personal.svg"),
-  settings: require("../../../assets/profile/settings.svg"),
-  chevron: require("../../../assets/profile/chevron.svg"),
-  logout: require("../../../assets/profile/logout.svg"),
-  reviews: require("../../../assets/profile/reviews.svg"),
-  orders: require("../../../assets/profile/orders.svg"),
+  back: ChevronLeft,
+  personal: User,
+  settings: Settings,
+  chevron: ChevronRight,
+  logout: LogOut,
+  reviews: Star,
+  orders: ShoppingBag,
 };
 
 export function ProfileMenuGroups({ children }: { children: React.ReactNode }) {
@@ -29,7 +29,8 @@ export function ProfileMenuGroups({ children }: { children: React.ReactNode }) {
 export function ProfileDesignIcon({ name }: { name: keyof typeof icons }) {
   const width = name === "back" ? 39.7906 : name === "chevron" ? 26.5271 : 21.2217;
   const height = name === "back" ? 39.7907 : width;
-  return <SvgUri uri={Asset.fromModule(icons[name]).uri} width={width} height={height} />;
+  const Icon = icons[name];
+  return <Icon width={width} height={height} color={name === "chevron" ? "#746765" : "#F96951"} strokeWidth={1.6} />;
 }
 
 export function ProfileDesignHeader({ balance }: {
@@ -45,7 +46,7 @@ export function ProfileDesignHeader({ balance }: {
         accessibilityLabel="Withdraw unavailable until wallet is connected"
         style={{ borderWidth: 1, borderColor: "#F96951", borderRadius: 10, paddingHorizontal: 22, minHeight: 38,
           alignItems: "center", justifyContent: "center", marginTop: 14, marginBottom: 8, opacity: 0.65 }}>
-        <Text style={{ color: "#000000", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
+        <Text style={{ color: "#2B2B2B", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
       </Pressable>
       <Text style={[styles.subtitle, { fontSize: 12, opacity: 0.8 }]}>Wallet balance is not connected yet</Text>
     </View>}
@@ -64,12 +65,12 @@ const styles = StyleSheet.create({
   profileTitle: {
     alignSelf: "flex-start",
     textAlign: "left",
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 0,
     marginBottom: 16,
   },
-  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#000000", textAlign: "center", marginTop: 12 },
-  subtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#000000", textAlign: "center", marginTop: 6 },
+  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#2B2B2B", textAlign: "center", marginTop: 12 },
+  subtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#2B2B2B", textAlign: "center", marginTop: 6 },
 });

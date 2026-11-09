@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  View,
-  ScrollView,
-  Pressable,
-  Text,
-  Image,
-  ActivityIndicator,
-  Modal,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, ScrollView, Pressable, Image, ActivityIndicator, Modal, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import Svg, { SvgUri } from "react-native-svg";
@@ -353,9 +344,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   drawBtn: {
     height: 38,
@@ -369,7 +360,7 @@ const styles = StyleSheet.create({
   drawBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   introSubtext: {
     fontFamily: "InstrumentSans-Regular",
@@ -399,14 +390,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
     color: "#FFFFFF",
   },
   tailorName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   sketchGrid: {
     flexDirection: "row",
@@ -449,15 +440,15 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   modalSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",

@@ -1,20 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { formatChatDate } from "@/shared/utils/formatters";
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  KeyboardAvoidingView,
-  Keyboard,
-  Platform,
-  ActivityIndicator,
-  StyleSheet,
-  Image,
-  Animated,
-  Easing,
-} from "react-native";
+import { View, ScrollView, Pressable, KeyboardAvoidingView, Keyboard, Platform, ActivityIndicator, StyleSheet, Image, Animated, Easing } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -929,7 +916,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   headerNameText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#453332",
   },
@@ -1024,7 +1011,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitleText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#453332",
   },
@@ -1267,7 +1254,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   listStaffName: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
     color: "#453332",
   },

@@ -1,14 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  PanResponder,
-  ScrollView,
-  Modal,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, PanResponder, ScrollView, Modal, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Svg, { Path, Rect, Circle, G } from "react-native-svg";
@@ -789,7 +781,7 @@ export default function AdminDrawScreen() {
               style={[styles.chip, title === chip ? styles.chipActive : styles.chipInactive]}
             >
               <Text
-                style={[styles.chipText, title === chip ? { color: "#FFFFFF" } : { color: "#000000" }]}
+                style={[styles.chipText, title === chip ? { color: "#FFFFFF" } : { color: "#2B2B2B" }]}
               >
                 + {chip}
               </Text>
@@ -839,7 +831,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 22, color: "#000000" },
+  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#2B2B2B" },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
@@ -855,7 +847,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   guideBtnActive: { backgroundColor: "#F96951" },
-  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#000000" },
+  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2B2B2B" },
   centeredModalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.45)",
@@ -1097,7 +1089,7 @@ const styles = StyleSheet.create({
   panelBtnLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   panelColorSwatch: {
     width: 32,

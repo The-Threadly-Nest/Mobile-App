@@ -1,14 +1,6 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { View, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
@@ -275,9 +267,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   subtitle: {
@@ -289,7 +281,7 @@ const styles = StyleSheet.create({
   },
   emailHighlight: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   otpRow: {
     flexDirection: "row",
@@ -301,9 +293,9 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 14,
     textAlign: "center",
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   otpBoxEmpty: {
     backgroundColor: "#FFFFFF",
@@ -331,13 +323,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   passwordToggle: { padding: 16 },
   passwordHint: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 20,
   },
   errorText: {
@@ -361,7 +353,7 @@ const styles = StyleSheet.create({
   resendAction: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   resendDisabled: {
     color: "#8A7550",
@@ -375,7 +367,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginBottom: 20,
   },
@@ -387,7 +379,7 @@ const styles = StyleSheet.create({
   changeEmailText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     textDecorationLine: "underline",
   },
   submitContainer: {
@@ -406,7 +398,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 
   /* Verified Screen Styles */
@@ -422,9 +414,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   verifiedTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -452,6 +444,6 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

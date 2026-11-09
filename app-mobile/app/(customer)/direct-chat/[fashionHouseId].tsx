@@ -1,19 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { formatChatDate } from '@/shared/utils/formatters';
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  KeyboardAvoidingView,
-  Keyboard,
-  Platform,
-  ActivityIndicator,
-  StyleSheet,
-  Image,
-  AppState,
-} from 'react-native';
+import { View, ScrollView, Pressable, KeyboardAvoidingView, Keyboard, Platform, ActivityIndicator, StyleSheet, Image, AppState } from 'react-native';
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import BackArrowIcon from '@/shared/components/BackArrowIcon';
@@ -32,7 +20,9 @@ import {
   Pause,
   Trash2,
 } from 'lucide-react-native';
-import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from 'expo-audio';
+import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync, createAudioPlayer } from 'expo-audio';
+import AnimatedWaveform from "@/shared/components/AudioWaveform";
+import { VOICE_RECORDING_OPTIONS, voiceAttachment } from '@/shared/utils/voiceRecording';
 import * as ImagePicker from 'expo-image-picker';
 import { SCREEN_TOP_SPACING } from '@/shared/utils/screenSpacing';
 import { apiFetch } from '../../../src/shared/utils/apiClient';
@@ -93,59 +83,6 @@ interface DirectMessagePage {
 
 const EMOJIS = ['😊', '👍', '✂️', '👗', '✨', '🪡', '🧵', '❤️', '🙌', '🔥', '👌', '👏'];
 
-function AnimatedWaveform({
-  isAnimating,
-  color,
-  inactiveColor,
-  barCount = 34,
-  height = 14,
-}: {
-  isAnimating: boolean;
-  color: string;
-  inactiveColor?: string;
-  barCount?: number;
-  height?: number;
-}) {
-  const [bars, setBars] = useState<number[]>(() =>
-    Array.from({ length: barCount }, () => 0.2)
-  );
-
-  useEffect(() => {
-    if (!isAnimating) return;
-
-    const interval = setInterval(() => {
-      setBars((prev) => {
-        const isLull = Math.random() < 0.15;
-        const newSample = isLull
-          ? 0.15 + Math.random() * 0.15
-          : 0.25 + Math.random() * 0.6;
-
-        return [...prev.slice(1), newSample];
-      });
-    }, 150);
-
-    return () => clearInterval(interval);
-  }, [isAnimating, barCount]);
-
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height, flex: 1 }}>
-      {bars.map((amplitude, i) => {
-        const barH = Math.max(2, amplitude * height);
-        return (
-          <View
-            key={i}
-            style={{
-              width: 2.5,
-              height: barH,
-              borderRadius: 1.5,
-              backgroundColor: isAnimating ? color : inactiveColor || color,
-            }}
-          />
-        );
-      })}
-    </View>
-  );
-}
 
 // WhatsApp-style message tail components
 const SentTail = () => (
@@ -207,7 +144,8 @@ export default function CustomerDirectChatScreen() {
   } | null>(null);
 
   // Audio Recording & Playback
-  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
+  const audioRecorder = useAudioRecorder(VOICE_RECORDING_OPTIONS);
+  const recordingState = useAudioRecorderState(audioRecorder, 100);
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -527,6 +465,7 @@ export default function CustomerDirectChatScreen() {
         showAlert('Permission Denied', 'Microphone permission is required to record voice notes.');
         return;
       }
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setIsRecording(true);
@@ -546,6 +485,7 @@ export default function CustomerDirectChatScreen() {
     try {
       await audioRecorder.stop();
     } catch {}
+    await setAudioModeAsync({ allowsRecording: false }).catch(() => {});
     setIsRecording(false);
     setIsPaused(false);
     setRecordingDuration(0);
@@ -582,11 +522,14 @@ export default function CustomerDirectChatScreen() {
       setIsPaused(false);
       setRecordingDuration(0);
 
-      if (!uri) return;
+      await setAudioModeAsync({ allowsRecording: false });
+      if (!uri) throw new Error('No audio was recorded. Please try again.');
 
       setSending(true);
-      const uploaded = await uploadFile(uri, `voice_${Date.now()}.m4a`, 'audio/m4a');
-      const finalAudioUrl = uploaded.fileUrl || uri;
+      const attachment = voiceAttachment();
+      const uploaded = await uploadFile(uri, attachment.filename, attachment.contentType);
+      if (!uploaded.fileUrl) throw new Error('The voice note could not be uploaded. Please try again.');
+      const finalAudioUrl = uploaded.fileUrl;
 
       const tempMsg: DirectMessage = {
         id: `temp-${Date.now()}`,
@@ -622,6 +565,7 @@ export default function CustomerDirectChatScreen() {
         return;
       }
 
+      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
       const player = createAudioPlayer(audioUrl);
       playerRef.current = player;
       setPlayingAudioId(msgId);
@@ -754,7 +698,7 @@ export default function CustomerDirectChatScreen() {
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontFamily: 'HedvigLettersSerif-Regular', fontSize: 16, color: '#FFFFFF' }}>
+                <Text style={{ fontFamily: 'InstrumentSans-Regular', fontSize: 16, color: '#FFFFFF' }}>
                   {displayName.charAt(0).toUpperCase()}
                 </Text>
               </View>
@@ -976,6 +920,8 @@ export default function CustomerDirectChatScreen() {
                 <View style={{ flex: 1, marginLeft: 12, justifyContent: 'center' }}>
                   <AnimatedWaveform
                     isAnimating={!isPaused}
+                    live
+                    metering={recordingState.metering}
                     color="#453332"
                     inactiveColor="rgba(74, 8, 12, 0.2)"
                     barCount={34}
@@ -1112,7 +1058,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerNameText: {
-    fontFamily: 'HedvigLettersSerif-Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 18,
     color: '#3B0508',
   },
@@ -1169,7 +1115,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitleText: {
-    fontFamily: 'HedvigLettersSerif-Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 18,
     color: '#453332',
     marginBottom: 6,
@@ -1214,7 +1160,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   historyTitle: {
-    fontFamily: 'HedvigLettersSerif-Regular',
+    fontFamily: 'InstrumentSans-Regular',
     fontSize: 15,
     color: '#453332',
   },
@@ -1286,7 +1232,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   receivedText: {
-    color: '#000000',
+    color: "#2B2B2B",
   },
   statusRow: {
     flexDirection: 'row',

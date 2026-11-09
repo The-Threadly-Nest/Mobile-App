@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { formatMonthYear } from "@/shared/utils/formatters";
-import { View, ScrollView, Text, Pressable, TextInput, ActivityIndicator, useWindowDimensions, Modal, Linking, Image } from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, useWindowDimensions, Modal, Linking, Image } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import Svg, { Path, Circle } from "react-native-svg";
-import { MapPin, Phone, Edit2, Check, Navigation, X, Ruler } from "lucide-react-native";
+import { MapPin, Phone, Edit2, Check, Navigation, X, Ruler, ChevronRight, LogOut, User } from "lucide-react-native";
 import * as Location from "expo-location";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useOrdersStore } from "@/stores/useOrdersStore";
@@ -268,7 +269,7 @@ export default function CustomerProfileScreen() {
             <Text className="font-body text-[14px] text-black flex-1">
               Settings
             </Text>
-            <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
           </Pressable>
 
           {/* Measurement */}
@@ -287,7 +288,7 @@ export default function CustomerProfileScreen() {
                 {savedSetsCount} saved {savedSetsCount === 1 ? "set" : "sets"}
               </Text>
             </View>
-            <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
           </Pressable>
 
           {/* My Messages */}
@@ -320,7 +321,7 @@ export default function CustomerProfileScreen() {
                 </Text>
               </View>
             )}
-            <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
           </Pressable>
 
 
@@ -332,7 +333,7 @@ export default function CustomerProfileScreen() {
             <Text className="font-body text-[14px] text-black flex-1">
               Saved Items
             </Text>
-            <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
           </Pressable>
 
           {/* Notifications */}
@@ -343,24 +344,24 @@ export default function CustomerProfileScreen() {
             <Text className="font-body text-[14px] text-black flex-1">
               Notifications
             </Text>
-            <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
           </Pressable>
 
           {/* Log Out */}
           <Pressable
             onPress={() => {
               logout();
-              router.replace("/(auth)/login");
+              router.replace("/");
             }}
             className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
           >
             <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
-              <ProfileDesignIcon name="logout" />
+              <LogOut size={20} color="#F96951" strokeWidth={1.6} />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
               Log Out
             </Text>
-            <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
           </Pressable>
         </ProfileMenuGroups>
       </ScrollView>
@@ -379,7 +380,7 @@ export default function CustomerProfileScreen() {
             }}>
               <Image source={{ uri: item.imageUrl }} style={{ width: 60, height: 70, borderRadius: 8 }} />
               <Text className="flex-1 font-body text-black">{item.name}</Text>
-              <ProfileDesignIcon name="chevron" />
+            <ChevronRight size={18} color="#746765" />
             </Pressable>)}
           </ScrollView>
         </SafeAreaView>
@@ -391,7 +392,7 @@ export default function CustomerProfileScreen() {
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center flex-1">
               <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
-                <ProfileDesignIcon name="personal" />
+                <User size={20} color="#F96951" strokeWidth={1.6} />
               </View>
               <Text className="font-body text-[15px] text-[#333333]">Personal Info</Text>
             </View>

@@ -15,30 +15,43 @@ function FloatingTabIcon({ focused, children }: { focused: boolean; children: Re
     <View style={{ alignItems: "center", justifyContent: "center", height: 44, width: 44 }}>
       <View
         style={{
-          width: 36,
-          height: 36,
-          borderRadius: 18,
+          width: 38,
+          height: 38,
+          borderRadius: 19,
+          overflow: "hidden",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: focused ? "#F96951" : "transparent",
-          opacity: focused ? 1 : 0.75,
+          backgroundColor: focused ? "#453332" : "transparent",
         }}
       >
         {children}
       </View>
-      {focused && (
-        <View
-          style={{
-            position: "absolute",
-            bottom: 2,
-            width: 4,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: "#F96951",
-          }}
-        />
-      )}
     </View>
+  );
+}
+
+function FavoritesTabIcon({ color, focused }: { color: string; focused: boolean }) {
+  if (focused) {
+    return (
+      <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+        <Path
+          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+          fill={color}
+        />
+      </Svg>
+    );
+  }
+
+  return (
+    <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12.62 20.81C12.28 20.93 11.72 20.93 11.38 20.81C8.48 19.82 2 15.69 2 8.69C2 5.6 4.49 3.1 7.56 3.1C9.38 3.1 10.99 3.98 12 5.34C13.01 3.98 14.63 3.1 16.44 3.1C19.51 3.1 22 5.6 22 8.69C22 15.69 15.52 19.82 12.62 20.81Z"
+        stroke={color}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
   );
 }
 
@@ -237,12 +250,7 @@ export default function TabsLayout() {
           tabBarAccessibilityLabel: "Favorites",
           tabBarIcon: ({ focused }) => (
             <FloatingTabIcon focused={focused}>
-              <Heart
-                size={22}
-                color="#FFFFFF"
-                fill={focused ? "#FFFFFF" : "none"}
-                strokeWidth={focused ? 2 : 1.6}
-              />
+              <FavoritesTabIcon color="#FFFFFF" focused={focused} />
             </FloatingTabIcon>
           ),
         }}

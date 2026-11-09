@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  TextInput,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  ActivityIndicator,
-  Modal,
-  Switch,
-} from "react-native";
+import { View, Pressable, KeyboardAvoidingView, Platform, ActivityIndicator, Modal, Switch } from "react-native";
+import { TextInput, Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { ArrowUp, Check } from "lucide-react-native";
@@ -37,6 +28,8 @@ interface Turn {
   text: string;
   options?: string[];
   slots?: Slot[];
+  slotStage?: "dates" | "times";
+  slotPickerComplete?: boolean;
 }
 
 function sanitizeText(text: string): string {
@@ -61,8 +54,7 @@ function cleanRawSlotText(text: string): string {
 const DEFAULT_INITIAL_TURNS: Turn[] = [
   {
     role: "model",
-    text: "Welcome! We are delighted to assist you with your fitting. What occasion are we styling for today?",
-    options: ["Wedding", "Owambe / Gala", "Casual & Daily", "Custom Bespoke"],
+    text: "Welcome! What garment would you like us to make? Tell us once, then choose your measurement date and time.",
   },
 ];
 
@@ -106,6 +98,7 @@ export default function BookingChatScreen() {
   const cacheOwner = createChatCacheOwner(role, email);
   const hydratedConversationIdRef = useRef<string | null>(null);
   const slotRequestKeysRef = useRef<Record<string, string>>({});
+  const sendLockRef = useRef(false);
 
   // Load session history and real fashion house name on mount
   useEffect(() => {
@@ -115,6 +108,11 @@ export default function BookingChatScreen() {
       hydratedConversationIdRef.current = null;
       setLoadingSession(true);
       setHistory(initialTurns);
+      setBookingConfirmed(false);
+      setSelectedSlotLabel(null);
+      setSelectedGarment(garmentName || "Bespoke Fitting Session");
+      setSelectedEstimate(garmentPrice || "Finalized at fitting");
+      slotRequestKeysRef.current = {};
       try {
         const cached = await readChatCache<Turn[]>(
           cacheOwner,
@@ -122,7 +120,7 @@ export default function BookingChatScreen() {
           fashionHouseId
         );
         if (cancelled) return;
-        if (cached) {
+        if (cached && !startNew) {
           setHistory(Array.isArray(cached) ? cached : initialTurns);
           hydratedConversationIdRef.current = fashionHouseId;
           setLoadingSession(false);
@@ -171,7 +169,18 @@ export default function BookingChatScreen() {
             const humanHandoffActive = body.conversationState && body.conversationState !== "automated";
             setEscalatedToHuman(Boolean(humanHandoffActive));
             setAvailableSlots(serverSlots);
-            if (serverHistory.length > 0) {
+            if (garmentName && startNew && !humanHandoffActive) {
+              const welcome: Turn[] = [{
+                role: "model",
+                text: serverSlots.length
+                  ? `Welcome! Let's book your measurement for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Choose a date, then a time below.`
+                  : `Welcome! There are no available appointments for ${garmentName} right now. Use Talk to Admin for help.`,
+                slots: serverSlots,
+              }];
+              setHistory(welcome);
+              hydratedConversationIdRef.current = fashionHouseId;
+              void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, welcome);
+            } else if (serverHistory.length > 0) {
               const formatted = serverHistory.map((t) => ({ ...t, text: sanitizeText(t.text) }));
               const lastTurn = formatted[formatted.length - 1];
               if (
@@ -189,8 +198,7 @@ export default function BookingChatScreen() {
                 } else {
                   formatted.push({
                     role: "model",
-                    text: "Welcome back! We are delighted to assist you with your next fitting. What occasion are we styling for today?",
-                    options: ["Wedding", "Owambe / Gala", "Casual & Daily", "Custom Bespoke"],
+                    text: "Welcome back! What garment would you like us to make?",
                   });
                 }
               }
@@ -220,7 +228,7 @@ export default function BookingChatScreen() {
     return () => {
       cancelled = true;
     };
-  }, [cacheOwner, fashionHouseId, startNew, token]);
+  }, [cacheOwner, fashionHouseId, startNew, token, garmentName, garmentPrice]);
 
   useEffect(() => {
     if (
@@ -233,7 +241,7 @@ export default function BookingChatScreen() {
 
   const handleSend = async (messageText?: string, availableSlotId?: string) => {
     const textToSend = (messageText ?? draft).trim();
-    if (!textToSend || sending) return;
+    if (!textToSend || sending || sendLockRef.current || bookingConfirmed) return;
     if (escalatedToHuman) {
       router.push({
         pathname: `/(customer)/direct-chat/${fashionHouseId}`,
@@ -244,6 +252,7 @@ export default function BookingChatScreen() {
     const chatRequestKey = availableSlotId
       ? (slotRequestKeysRef.current[availableSlotId] ??= createIdempotencyKey("booking"))
       : createIdempotencyKey("chat");
+    sendLockRef.current = true;
 
     if (bookingConfirmed) setBookingConfirmed(false);
 
@@ -261,8 +270,6 @@ export default function BookingChatScreen() {
       !lower.includes("fabric") &&
       !lower.includes("bring my own") &&
       !lower.includes("discuss at fitting") &&
-      !lower.includes("wedding") &&
-      !lower.includes("owambe") &&
       !lower.includes("just for me")
     ) {
       if (
@@ -278,6 +285,14 @@ export default function BookingChatScreen() {
         lower.includes("buba") ||
         lower.includes("skirt") ||
         lower.includes("blouse") ||
+        lower.includes("shirt") ||
+        lower.includes("trouser") ||
+        lower.includes("uniform") ||
+        lower.includes("jacket") ||
+        lower.includes("outfit") ||
+        lower.includes("native") ||
+        lower.includes("two piece") ||
+        lower.includes("two-piece") ||
         houseCategories.some((c) => lower.includes(c.toLowerCase()))
       ) {
         activeGarment = textToSend;
@@ -309,7 +324,7 @@ export default function BookingChatScreen() {
             body: JSON.stringify({
               fashionHouseId,
               message: textToSend,
-              garmentName: activeGarment,
+              garmentName: activeGarment === "Bespoke Fitting Session" ? undefined : activeGarment,
               availableSlotId,
               idempotencyKey: chatRequestKey,
             }),
@@ -400,135 +415,35 @@ export default function BookingChatScreen() {
           selectedSlotLabel ||
           "Fitting time to be confirmed";
 
-        setTimeout(() => {
-          setHistory(DEFAULT_INITIAL_TURNS);
-          setBookingConfirmed(false);
-          router.push({
-            pathname: "/(customer)/confirmation",
-            params: {
-              bookingId: confirmedBooking.id,
-              fashionHouseName,
-              garment: activeGarment,
-              fittingDate: requestedSlot,
-              estimate: selectedEstimate,
-            },
-          });
-        }, 1200);
+        setSelectedSlotLabel(requestedSlot);
         return;
       }
 
-      // Dynamic style options from the fashion house's real specializations
-      const styleOptions =
-        houseCategories.length > 0
-          ? houseCategories.slice(0, 4)
-          : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
-
-      const cleanedReply = cleanRawSlotText(replyText);
-      const replyLower = (cleanedReply || "").toLowerCase();
-
-      const mentionsFabric =
-        replyLower.includes("fabric") ||
-        replyLower.includes("material") ||
-        lower.includes("fabric") ||
-        lower.includes("bring my own") ||
-        lower.includes("discuss at fitting");
-
-      const mentionsSlots =
-        replyLower.includes("slot") ||
-        replyLower.includes("available time") ||
-        lower.includes("slot") ||
-        lower.includes("schedule") ||
-        lower.includes("appointment") ||
-        lower.includes("book fitting");
-
-      const isOccasionChoice =
-        lower.includes("wedding") ||
-        lower.includes("owambe") ||
-        lower.includes("gala") ||
-        lower.includes("casual") ||
-        lower.includes("just for me") ||
-        lower.includes("custom bespoke");
-
-      const isStyleChoice =
-        !isOccasionChoice && (
-          lower.includes("gown") ||
-          lower.includes("aso-ebi") ||
-          lower.includes("agbada") ||
-          lower.includes("kaftan") ||
-          lower.includes("senator") ||
-          lower.includes("suit") ||
-          lower.includes("corset") ||
-          houseCategories.some((c) => lower.includes(c.toLowerCase()))
-        );
-
-      let responseTurn: Turn = {
-        role: "model",
-        text: cleanedReply,
-      };
-
-      const hasPreselectedGarment = !!garmentName || (selectedGarment && selectedGarment !== "Bespoke Fitting Session");
-
-      if (hasPreselectedGarment) {
-        // MARKETPLACE FLOW: Garment is already selected ("you have the cloth already")!
-        // Always present fitting slots directly
-        responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName} for your ${selectedGarment}. Please select a convenient time below:`;
-        responseTurn.options = undefined;
-        responseTurn.slots = responseSlots;
-      } else if (mentionsSlots) {
-        responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
-        responseTurn.options = undefined;
-        responseTurn.slots = responseSlots;
-      } else if (isOccasionChoice) {
-        // VENDOR FLOW: Ask for Garment Style
-        responseTurn.text = cleanedReply || `Wonderful! We would be honored to craft something exquisite for you. What garment style or silhouette do you have in mind?`;
-        responseTurn.options = styleOptions;
-        responseTurn.slots = undefined;
-      } else if (isStyleChoice) {
-        responseTurn.text = cleanedReply || `Great choice! Would you like to select a fabric from our in-house collection, or bring your own?`;
-        responseTurn.options = ["Fashion House Fabric", "Bring My Own Fabric", "Discuss at Fitting"];
-        responseTurn.slots = undefined;
-      } else if (mentionsFabric) {
-        responseTurn.text = cleanedReply || `Here are the upcoming fitting slots available at ${fashionHouseName}. Please select a convenient time below:`;
-        responseTurn.options = undefined;
-        responseTurn.slots = responseSlots;
-      } else {
-        responseTurn.options = styleOptions;
-        responseTurn.slots = undefined;
-      }
-
-      if (responseTurn.slots && responseTurn.slots.length === 0) {
-        responseTurn.text = `There are no fitting slots available at ${fashionHouseName} right now. Please use Talk to Admin so the fashion house can assist you.`;
-        responseTurn.slots = undefined;
-      }
+      const hasGarment = Boolean(activeGarment && activeGarment !== "Bespoke Fitting Session");
+      const responseTurn: Turn = hasGarment
+        ? {
+            role: "model",
+            text: responseSlots.length
+              ? "Let's book your measurement appointment. Choose an available date, then a time below."
+              : "There are no available appointments right now. Use Talk to Admin for help.",
+            slots: responseSlots.length ? responseSlots : undefined,
+          }
+        : {
+            role: "model",
+            text: cleanRawSlotText(replyText) || "What garment would you like us to make?",
+          };
 
       setHistory((prev) => [...prev, responseTurn]);
     } catch {
       if (availableSlotId) setSelectedSlotLabel(null);
-      // Fallback interactive response
-      const styleOptions =
-        houseCategories.length > 0
-          ? houseCategories.slice(0, 4)
-          : ["Bridal Gown", "Aso-Ebi", "Agbada", "Senator Kaftan"];
-
-      let responseTurn: Turn = garmentName && availableSlots.length > 0
-        ? {
-            role: "model",
-            text: `Please select an available fitting slot below to complete your order for ${garmentName}:`,
-            slots: availableSlots,
-          }
-        : garmentName
-        ? {
-            role: "model",
-            text: `There are no fitting slots available at ${fashionHouseName} right now. Please use Talk to Admin so the fashion house can assist you.`,
-          }
-        : {
-            role: "model",
-            text: `Wonderful! We would be honored to craft something exquisite for you. What garment style do you have in mind?`,
-            options: styleOptions,
-          };
+      const responseTurn: Turn = {
+        role: "model",
+        text: "We couldn't reach the booking assistant. Please try again, or use Talk to Admin.",
+      };
 
       setHistory((prev) => [...prev, responseTurn]);
     } finally {
+      sendLockRef.current = false;
       setSending(false);
     }
   };
@@ -724,7 +639,16 @@ export default function BookingChatScreen() {
                   )}
 
                   {turn.slots && turn.slots.length > 0 && (
-                    <BookingSlotPicker slots={turn.slots} selectedLabel={selectedSlotLabel} disabled={sending}
+                    <BookingSlotPicker slots={turn.slots} selectedLabel={selectedSlotLabel} disabled={sending || bookingConfirmed || !!turn.slotPickerComplete}
+                      mode={turn.slotStage || "dates"}
+                      onDateSelect={day => {
+                        if (sending || bookingConfirmed || turn.slotPickerComplete) return;
+                        setHistory(previous => [
+                          ...previous.map((entry, i) => i === index ? { ...entry, slotPickerComplete: true } : entry),
+                          { role: "user", text: day.label },
+                          { role: "model", text: `What time works for you on ${day.label}?`, slots: day.slots, slotStage: "times" },
+                        ]);
+                      }}
                       onSelect={slot => {
                         if (!selectedSlotLabel && !sending) {
                           setSelectedSlotLabel(slot.label);

@@ -1,5 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Pressable, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 
 type FloatingTabBarProps = {
   state: any;
@@ -70,12 +71,21 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
               accessibilityRole="button"
               accessibilityState={focused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel ?? options.title ?? route.name}
+              android_ripple={null}
               onPress={() => {
                 const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
                 if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
               }}
               onLongPress={() => navigation.emit({ type: "tabLongPress", target: route.key })}
-              style={{ flex: 1, height: 54, alignItems: "center", justifyContent: "center" }}
+              style={({ pressed }) => [
+                {
+                  flex: 1,
+                  height: 54,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: pressed ? 0.8 : 1,
+                },
+              ]}
             >
               {icon}
               {badge != null ? (

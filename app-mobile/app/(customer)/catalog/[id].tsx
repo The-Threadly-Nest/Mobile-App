@@ -1,13 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-  ActivityIndicator,
-} from "react-native";
+import { View, ScrollView, Pressable, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import {
@@ -82,9 +75,11 @@ export default function CatalogItemDetailScreen() {
 
   const toggleFav = async () => {
     if (!id || favoriteLock.current) return;
+    const wasSaved = isFavorite;
     favoriteLock.current = true; setSavingFav(true);
-    try { const profile = await saveCatalogFavorite(id, !isFavorite); setIsFavorite(profile.savedCatalogIds.includes(id)); }
-    catch (error) { showAlert("Couldn't save item", error instanceof Error ? error.message : "Please try again."); }
+    setIsFavorite(!wasSaved);
+    try { const profile = await saveCatalogFavorite(id, !wasSaved); setIsFavorite(profile.savedCatalogIds.includes(id)); }
+    catch (error) { setIsFavorite(wasSaved); showAlert("Couldn't update saved item", error instanceof Error ? error.message : "Please try again."); }
     finally { favoriteLock.current = false; setSavingFav(false); }
   };
   const garmentName = garmentData?.name || initialName || "";
@@ -97,7 +92,18 @@ export default function CatalogItemDetailScreen() {
   const isCustomFit = garmentData?.fulfillmentType !== "ready_to_wear";
 
   const handleBookMeasurement = () => {
-    if (garmentData) router.push({ pathname: "/(customer)/book-measurement/[id]", params: { id: garmentData.id } });
+    const targetHouseId = garmentData?.fashionHouseId || garmentData?.fashionHouse?.id;
+    if (!garmentData || !targetHouseId) return;
+    router.push({
+      pathname: "/(customer)/chat/[fashionHouseId]",
+      params: {
+        fashionHouseId: targetHouseId,
+        fashionHouseName: vendorName,
+        garmentName: garmentData.name,
+        garmentPrice: garmentPriceFormatted,
+        startNew: String(Date.now()),
+      },
+    });
   };
   const handleAddToCart = (buyNow = false) => {
     if (!garmentData) return;
@@ -167,13 +173,15 @@ export default function CatalogItemDetailScreen() {
 
             <Pressable
               onPress={toggleFav}
+              disabled={savingFav}
               accessibilityRole="button"
               accessibilityLabel={isFavorite ? "Remove from saved" : "Save item"}
+              accessibilityState={{ selected: isFavorite, busy: savingFav, disabled: savingFav }}
               style={({ pressed }) => [styles.favoriteCard, { opacity: pressed ? 0.8 : 1 }]}
             >
               <Heart
                 size={22}
-                color="#F96951"
+                color={isFavorite ? "#F96951" : "#746765"}
                 fill={isFavorite ? "#F96951" : "none"}
               />
             </Pressable>
@@ -181,7 +189,7 @@ export default function CatalogItemDetailScreen() {
 
           <View style={styles.priceRatingRow}><Text style={styles.mainPrice}>{garmentPriceFormatted}</Text></View>
           <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#746765", marginBottom: 12 }}>{isCustomFit ? "Custom fit ? Measurement appointment required" : "Ready for pickup"}</Text>
-          {vendorName ? <Pressable onPress={() => router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId } })}><Text style={{ color: "#000000", textDecorationLine: "underline", marginBottom: 12 }}>{vendorName}</Text></Pressable> : null}
+          {vendorName ? <Pressable onPress={() => router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId } })}><Text style={{ color: "#2B2B2B", textDecorationLine: "underline", marginBottom: 12 }}>{vendorName}</Text></Pressable> : null}
 
           {/* Description */}
           <Text style={styles.descriptionText}>
@@ -346,7 +354,7 @@ const styles = StyleSheet.create({
   garmentTitle: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 22,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.3,
   },
   categorySubtitle: {
@@ -383,7 +391,7 @@ const styles = StyleSheet.create({
   mainPrice: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   originalPrice: {
     fontFamily: "InstrumentSans-Regular",
@@ -412,7 +420,7 @@ const styles = StyleSheet.create({
   ratingScore: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   descriptionText: {
     fontFamily: "InstrumentSans-Regular",
@@ -448,7 +456,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 10,
   },
   variantRow: {
@@ -477,11 +485,11 @@ const styles = StyleSheet.create({
   roundPillText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   roundPillTextActive: {
     fontFamily: "InstrumentSans-Bold",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   roundPillTextDisabled: {
     color: "#A8A8A8",

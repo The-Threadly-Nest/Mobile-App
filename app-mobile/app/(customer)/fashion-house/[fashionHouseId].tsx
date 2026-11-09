@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  StyleSheet,
-  ActivityIndicator,
-  useWindowDimensions,
-} from "react-native";
+import { View, ScrollView, Pressable, StyleSheet, ActivityIndicator, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import { Star, Calendar, Store, MoreVertical } from "lucide-react-native";
@@ -338,7 +331,7 @@ export default function FashionHouseScreen() {
               })
             }
           >
-            <Text style={[styles.bookingBtnText, { color: '#000000' }]}>Message</Text>
+            <Text style={[styles.bookingBtnText, { color: "#2B2B2B" }]}>Message</Text>
           </Pressable>
 
           <Pressable
@@ -408,9 +401,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   displayName: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   heroRatingRow: {
@@ -420,13 +413,13 @@ const styles = StyleSheet.create({
   heroRatingScore: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginLeft: 6,
   },
   heroOrdersCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginLeft: 4,
   },
   statsCard: {
@@ -444,15 +437,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   statValue: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   statLabel: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: 0.6,
   },
   statDivider: {
@@ -472,18 +465,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: 1.2,
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   aboutText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     lineHeight: 22,
   },
   portfolioGrid: {
@@ -518,12 +511,12 @@ const styles = StyleSheet.create({
   catalogTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   catalogPrice: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 2,
   },
   emptyCatalogCard: {
@@ -538,13 +531,13 @@ const styles = StyleSheet.create({
   emptyCatalogTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   emptyCatalogSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
   },
   reviewsCard: {
@@ -577,7 +570,7 @@ const styles = StyleSheet.create({
   reviewName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   reviewStars: {
     flexDirection: "row",
@@ -585,7 +578,7 @@ const styles = StyleSheet.create({
   reviewText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     lineHeight: 20,
   },
   seeAllBtn: {
@@ -598,7 +591,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   bookingBtn: {
     backgroundColor: "#F96951",
@@ -613,6 +606,6 @@ const styles = StyleSheet.create({
   bookingBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

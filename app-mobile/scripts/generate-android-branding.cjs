@@ -45,7 +45,7 @@ async function main() {
   assert.equal(notificationConfig.color, background);
   assert.equal(notificationConfig.defaultChannel, 'default');
   const splash = config.plugins.find(plugin => Array.isArray(plugin) && plugin[0] === 'expo-splash-screen')[1].android;
-  assert.equal(splash.image, './assets/splash-icon-black.png');
+  assert.equal(splash.image, './assets/splash-transparent.png');
   assert.equal(splash.backgroundColor, splashBackground);
   assert.equal(splash.imageWidth, 160);
 
@@ -61,7 +61,7 @@ async function main() {
     const circle = Buffer.from(`<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white"/></svg>`);
     const round = await sharp(legacy).ensureAlpha().composite([{ input: circle, blend: 'dest-in' }]).webp({ lossless: true }).toBuffer();
     await output(path.join(dir, 'ic_launcher_round.webp'), round);
-    const launch = await sharp(path.join(root, 'assets/splash-icon-black.png'))
+    const launch = await sharp(path.join(root, 'assets/splash-transparent.png'))
       .resize(160 * scale, 160 * scale, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
       .extend({ top: 64 * scale, bottom: 64 * scale, left: 64 * scale, right: 64 * scale, background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
     await output(path.join(res, 'drawable-' + density, 'splashscreen_logo.png'), launch);

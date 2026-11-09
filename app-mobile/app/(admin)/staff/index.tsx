@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  FlatList,
-  ActivityIndicator,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, FlatList, ActivityIndicator, StyleSheet, useWindowDimensions } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Search, Plus, Users } from "lucide-react-native";
@@ -296,10 +288,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   searchBar: {
@@ -318,7 +310,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   loaderContainer: {
     flex: 1,
@@ -357,7 +349,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 17,
     color: "#FFFFFF",
   },
@@ -368,7 +360,7 @@ const styles = StyleSheet.create({
   staffName: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 2,
   },
   staffEmail: {
@@ -434,9 +426,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   emptyTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
     textAlign: "center",
   },
@@ -444,7 +436,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginBottom: 20,
     maxWidth: 280,
@@ -458,7 +450,7 @@ const styles = StyleSheet.create({
   emptyActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   floatingCircle: {
     position: "absolute",

@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Pressable, StyleSheet, ScrollView } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { LogOut, Mail, ShieldCheck, Building } from "lucide-react-native";
@@ -14,7 +15,7 @@ export default function StaffProfileScreen() {
 
   const handleLogout = () => {
     logout();
-    router.replace("/(auth)/login");
+    router.replace("/");
   };
 
   return (
@@ -93,9 +94,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   pageTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 20,
   },
   profileCard: {
@@ -122,14 +123,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
     color: "#FFFFFF",
   },
   userName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   roleBadge: {
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 1,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 16,
   },
   infoRow: {
@@ -175,13 +176,13 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 2,
   },
   infoValue: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   divider: {
     height: 1,

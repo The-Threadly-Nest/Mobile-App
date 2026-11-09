@@ -12,6 +12,7 @@ function fixture(initial = { savedCatalogIds: ['a'], savedItems: [{ id: 'a', nam
   let state = initial;
   let failure;
   const writes = [];
+  const reads = [];
   const filename = path.resolve(__dirname, '../src/shared/utils/catalogFavorites.ts');
   const compiled = new Module(filename, module);
   compiled.require = (id) => {
@@ -19,6 +20,7 @@ function fixture(initial = { savedCatalogIds: ['a'], savedItems: [{ id: 'a', nam
     return { ApiError, apiFetch: async (endpoint, options) => {
       assert.equal(endpoint, '/api/preferences');
       if (failure) throw failure;
+      if (options.method !== 'POST') reads.push(options);
       if (options.method === 'POST') {
         const body = JSON.parse(options.body); writes.push(body);
         state = { savedCatalogIds: body.savedCatalogIds, savedItems: body.savedCatalogIds.map(id => ({ id, name: id })) };
@@ -29,7 +31,7 @@ function fixture(initial = { savedCatalogIds: ['a'], savedItems: [{ id: 'a', nam
   compiled._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
   }).outputText, filename);
-  return { ...compiled.exports, writes, fail: error => { failure = error; }, replace: value => { state = value; } };
+  return { ...compiled.exports, writes, reads, fail: error => { failure = error; }, replace: value => { state = value; } };
 }
 
 test('favorites loads actual saved records', async () => {
@@ -39,6 +41,7 @@ test('favorites loads actual saved records', async () => {
 test('saving and removing preserves other current server favorites', async () => {
   const f = fixture();
   await f.saveCatalogFavorite('b', true);
+  assert.equal(f.reads[0].cache, 'reload', 'save must merge fresh server favourites, not cached IDs');
   assert.deepEqual(f.writes[0], { savedCatalogIds: ['a', 'b'] });
   await f.saveCatalogFavorite('b', true);
   assert.deepEqual(f.writes[1], { savedCatalogIds: ['a', 'b'] });

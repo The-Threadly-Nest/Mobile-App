@@ -1,5 +1,5 @@
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, ScrollView, TextInput, View, type ScrollViewProps } from "react-native";
+import { Keyboard, ScrollView, View, TextInput, type ScrollViewProps } from "react-native";
 import { keyboardScrollAdjustment } from "../utils/keyboardVisibility";
 
 /** Measures the actual visible scroll area, including inside a centered modal. */

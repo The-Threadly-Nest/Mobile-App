@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import Svg, { Rect, Defs, LinearGradient, Stop } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -37,7 +38,7 @@ export function ProfileAvatarIcon({ size = 60, name }: ProfileAvatarIconProps) {
       </Svg>
       <Text
         style={{
-          fontFamily: "HedvigLettersSerif-Regular",
+          fontFamily: "InstrumentSans-Regular",
           fontSize,
           color: "#FFFFFF",
           textAlign: "center",

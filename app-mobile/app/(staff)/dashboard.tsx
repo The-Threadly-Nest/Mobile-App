@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  ActivityIndicator,
-  useWindowDimensions,
-  StyleSheet,
-} from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, useWindowDimensions, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
@@ -401,14 +394,14 @@ const styles = StyleSheet.create({
   atelierTag: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   greetingTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 34,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   tabsRow: {
     flexDirection: "row",
@@ -436,7 +429,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   inactiveTabText: {
-    color: "#000000",
+    color: "#2B2B2B",
   },
   loadingContainer: {
     paddingVertical: 40,
@@ -470,7 +463,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -480,17 +473,17 @@ const styles = StyleSheet.create({
   customerNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 2,
   },
   orderNumberText: {
     fontFamily: "InstrumentSans-Medium",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   garmentSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   progressTrack: {
     height: 6,
@@ -507,7 +500,7 @@ const styles = StyleSheet.create({
   statusLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 14,
   },
   actionBtn: {
@@ -522,7 +515,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
 });

@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ImageBackground,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, ImageBackground, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NavigationBar } from "expo-navigation-bar";
 import { router } from "expo-router";
@@ -74,7 +68,7 @@ export default function OnboardingScreen() {
             {/* Headline */}
             <Text
               style={{
-                fontFamily: "HedvigLettersSerif-Regular",
+                fontFamily: "InstrumentSans-Regular",
                 fontSize: 26,
                 lineHeight: 34,
                 color: "#FFFFFF",
@@ -245,7 +239,7 @@ export default function OnboardingScreen() {
         {/* Headline */}
         <Text
           style={{
-            fontFamily: "HedvigLettersSerif-Regular",
+            fontFamily: "InstrumentSans-Regular",
             fontSize: 36,
             lineHeight: 44,
             color: "#FFFFFF",

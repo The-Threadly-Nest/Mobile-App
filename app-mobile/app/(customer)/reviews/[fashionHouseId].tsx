@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
@@ -42,12 +43,12 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#EAE3D2",
   },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 18, color: "#000000" },
+  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 18, color: "#2B2B2B" },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28 },
   emptyTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   emptyBody: {

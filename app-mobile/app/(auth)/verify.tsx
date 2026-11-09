@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, useWindowDimensions } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
 import Svg, { Rect, Path } from "react-native-svg";
@@ -357,9 +348,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   subtitle: {
@@ -371,7 +362,7 @@ const styles = StyleSheet.create({
   },
   emailHighlight: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   otpRow: {
     flexDirection: "row",
@@ -383,9 +374,9 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 14,
     textAlign: "center",
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   otpBoxEmpty: {
     backgroundColor: "#FFFFFF",
@@ -425,10 +416,10 @@ const styles = StyleSheet.create({
   resendAction: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   resendDisabled: {
-    color: "#000000",
+    color: "#2B2B2B",
   },
   resendTimer: {
     fontFamily: "InstrumentSans-Regular",
@@ -442,7 +433,7 @@ const styles = StyleSheet.create({
   changeEmailText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     textDecorationLine: "underline",
   },
 
@@ -459,9 +450,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   verifiedTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -489,6 +480,6 @@ const styles = StyleSheet.create({
   continueBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

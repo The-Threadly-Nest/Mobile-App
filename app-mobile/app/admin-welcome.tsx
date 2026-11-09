@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Image, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
+import { View, Image, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -110,17 +111,17 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   title: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 36,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 10,
   },
   subtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   buttonsContainer: {
     gap: 12,
@@ -154,14 +155,14 @@ const styles = StyleSheet.create({
   logInText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: 0.2,
   },
   disclaimerText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 16,

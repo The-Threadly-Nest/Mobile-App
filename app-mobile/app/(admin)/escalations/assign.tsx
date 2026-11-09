@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-  ActivityIndicator,
-} from "react-native";
+import { View, Pressable, ScrollView, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { DollarSign, Ruler, Scissors } from "lucide-react-native";
@@ -16,6 +8,7 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch, staffApi } from "@/shared/utils/apiClient";
+import { isReadyToWear } from "@/shared/utils/orderFulfillment";
 
 interface TailorOption {
   id: string;
@@ -26,6 +19,8 @@ interface TailorOption {
 export default function AssignStaffScreen() {
   const params = useLocalSearchParams<{
     bookingId?: string;
+    orderId?: string;
+    fulfillmentType?: string;
     customerName?: string;
     serviceTitle?: string;
     appointmentTime?: string;
@@ -39,6 +34,7 @@ export default function AssignStaffScreen() {
   const customerName = params.customerName || "Customer";
   const serviceTitle = params.serviceTitle || "Bespoke Fitting";
   const appointmentTime = params.appointmentTime || "Appointment time unavailable";
+  const readyToWear = isReadyToWear(params);
 
   const [tailors, setTailors] = useState<TailorOption[]>([]);
   const [selectedTailorId, setSelectedTailorId] = useState<string>("");
@@ -49,10 +45,8 @@ export default function AssignStaffScreen() {
     params.serviceTitle || "Bespoke Fitting"
   );
   const [priceInput, setPriceInput] = useState<string>("");
-  const [bust, setBust] = useState<string>("");
-  const [waist, setWaist] = useState<string>("");
-  const [hip, setHip] = useState<string>("");
-  const [length, setLength] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+  const savingRef = React.useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -85,15 +79,22 @@ export default function AssignStaffScreen() {
   }, [token]);
 
   const handleConfirm = async () => {
+    if (savingRef.current) return;
+    if (!token) { showAlert("Sign in required", "Please sign in again before assigning staff."); return; }
     const tailor = tailors.find((t) => t.id === selectedTailorId) || tailors[0];
     if (!tailor) {
       showAlert("No Staff Available", "Add an active staff member before assigning this booking.");
       return;
     }
     const cleanedPrice = Number(priceInput.replace(/[^0-9]/g, "")) || 0;
-
+    savingRef.current = true;
+    setSaving(true);
     try {
-      if (token) {
+      if (params.orderId) {
+        await apiFetch(`/api/orders/${encodeURIComponent(params.orderId)}/assign`, {
+          method: "PATCH", body: JSON.stringify({ staffId: tailor.id }),
+        });
+      } else {
         await apiFetch("/api/escalations/assign", {
           method: "POST",
           body: JSON.stringify({
@@ -105,12 +106,15 @@ export default function AssignStaffScreen() {
           }),
         });
       }
-    } catch {
-      showAlert("Network Error", "Could not reach the server. Please check your connection.");
+    } catch (error) {
+      showAlert("Couldn't assign staff", error instanceof Error ? error.message : "Please try again.");
       return;
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
 
-    showAlert("Assignment Confirmed", `${customerName}'s fitting has been successfully assigned to ${tailor.name}.`);
+    showAlert("Assignment Confirmed", `${customerName}'s ${readyToWear ? "order" : "fitting"} has been successfully assigned to ${tailor.name}.`);
     setTimeout(() => {
       router.replace("/(admin)/dashboard" as any);
     }, 1200);
@@ -145,6 +149,7 @@ export default function AssignStaffScreen() {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.priceInput}
+                editable={!params.orderId}
                 value={serviceTitleInput}
                 onChangeText={setServiceTitleInput}
                 placeholder="e.g. Aso-Ebi (2 pcs), Senator Kaftan"
@@ -153,8 +158,8 @@ export default function AssignStaffScreen() {
             </View>
           </View>
 
-          {/* Order Details & Pricing Section */}
-          <View style={styles.sectionCard}>
+          {/* Existing orders retain their checkout price during assignment. */}
+          {!params.orderId && <View style={styles.sectionCard}>
             <View style={styles.sectionHeaderRow}>
               <DollarSign size={18} color="#453332" />
               <Text style={styles.sectionTitle}>Agreed Order Price (Optional)</Text>
@@ -170,8 +175,8 @@ export default function AssignStaffScreen() {
                 placeholderTextColor="#8A7550"
               />
             </View>
-          </View>
-
+          </View>}
+          {readyToWear ? <Text style={styles.subtitle}>Standard-size order. Custom measurements are not required.</Text> : null}
           {/* Tailor Selection Title */}
           <Text style={styles.selectTailorHeadline}>Assign Tailor / Stylist</Text>
 
@@ -215,12 +220,13 @@ export default function AssignStaffScreen() {
         <View style={styles.bottomBar}>
           <Pressable
             onPress={handleConfirm}
+            disabled={saving || loadingStaff}
             style={({ pressed }) => [
               styles.confirmBtn,
               { opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <Text style={styles.confirmBtnText}>Confirm Assignment</Text>
+            <Text style={styles.confirmBtnText}>{saving ? "Assigning…" : "Confirm Assignment"}</Text>
           </Pressable>
         </View>
       </View>
@@ -259,9 +265,9 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   subtitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -288,9 +294,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   inputContainer: {
     flexDirection: "row",
@@ -305,14 +311,14 @@ const styles = StyleSheet.create({
   currencyPrefix: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginRight: 6,
   },
   priceInput: {
     flex: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   measurementsGrid: {
     flexDirection: "row",
@@ -336,13 +342,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
   },
   selectTailorHeadline: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 4,
     marginBottom: 14,
   },
@@ -373,7 +379,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -381,7 +387,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   ordersCount: {
     fontFamily: "InstrumentSans-Regular",
@@ -405,7 +411,7 @@ const styles = StyleSheet.create({
   confirmBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
 });

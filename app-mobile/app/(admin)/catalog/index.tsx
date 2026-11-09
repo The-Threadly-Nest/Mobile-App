@@ -1,14 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  Image,
-  ActivityIndicator,
-  RefreshControl,
-  StyleSheet,
-} from "react-native";
+import { View, ScrollView, Pressable, Image, ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Plus, Trash2, Tag } from "lucide-react-native";
@@ -241,10 +233,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -255,7 +247,7 @@ const styles = StyleSheet.create({
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -273,15 +265,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   emptyTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   emptySub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginBottom: 20,
     lineHeight: 18,
@@ -297,7 +289,7 @@ const styles = StyleSheet.create({
   emptyActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   gridContainer: {
     flexDirection: "row",
@@ -333,13 +325,13 @@ const styles = StyleSheet.create({
   cardName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     lineHeight: 18,
   },
   cardPrice: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 2,
   },
   deleteBtn: {

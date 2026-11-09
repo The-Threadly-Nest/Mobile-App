@@ -69,9 +69,9 @@ test('Google account selection signs out the SDK before interactive sign-in with
   await hook.useGoogleAuth().promptAsync();
   assert.deepEqual(calls, ['available', 'picker-reset', 'choose-account']);
 });
-test('primary shared buttons use tomato and black text without changing chat bubbles', () => {
+test('primary shared buttons use tomato and white text without changing chat bubbles', () => {
   const button = fs.readFileSync(path.resolve(__dirname, '../src/shared/components/Button.tsx'), 'utf8');
-  assert.match(button, /primary: \{ container: "bg-tomato", text: "text-black"/);
+  assert.match(button, /primary: \{ container: "bg-tomato", text: "text-white"/);
   const chat = fs.readFileSync(path.resolve(__dirname, '../app/(customer)/chat/[fashionHouseId].tsx'), 'utf8');
   assert.match(chat, /color: isUser \? "#453332" : "#FFFFFF"/);
   assert.match(chat, /<BookingSlotPicker/);

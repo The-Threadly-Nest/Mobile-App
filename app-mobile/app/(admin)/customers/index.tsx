@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  FlatList,
-  Modal,
-  StyleSheet,
-  useWindowDimensions,
-  ActivityIndicator,
-} from "react-native";
+import { View, Pressable, FlatList, Modal, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Search, X, Ruler, UserCheck, MessageSquare } from "lucide-react-native";
@@ -215,7 +206,7 @@ export default function CustomersScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#000000" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#2B2B2B" }}>
                         {selectedCustomer.name}
                       </Text>
                       <View style={{
@@ -344,10 +335,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   searchBar: {
@@ -366,7 +357,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   listContent: {
     paddingBottom: 32,
@@ -394,7 +385,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -404,7 +395,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   customerPhone: {
@@ -430,7 +421,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   modalOverlay: {
     flex: 1,
@@ -450,9 +441,9 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   modalTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   statBox: {
     flexDirection: "row",
@@ -467,7 +458,7 @@ const styles = StyleSheet.create({
   statBoxText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   measActionBtn: {
     height: 54,
@@ -481,6 +472,6 @@ const styles = StyleSheet.create({
   measActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

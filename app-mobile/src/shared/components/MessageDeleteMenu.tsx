@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 
 type MessageDeleteMenuProps = {
   visible: boolean;
@@ -93,7 +94,7 @@ const styles = StyleSheet.create({
   title: {
     paddingHorizontal: 24,
     paddingBottom: 10,
-    color: "#000000",
+    color: "#2B2B2B",
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   actionText: {
-    color: "#000000",
+    color: "#2B2B2B",
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },

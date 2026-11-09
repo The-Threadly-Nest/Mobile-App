@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  Image,
-  StyleSheet,
-  RefreshControl,
-  ActivityIndicator,
-  AppState,
-  useWindowDimensions,
-} from "react-native";
+import { View, ScrollView, Pressable, Image, StyleSheet, RefreshControl, ActivityIndicator, AppState, useWindowDimensions } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import {
@@ -25,7 +14,7 @@ import {
 import Svg, { Path } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
-import { apiFetch, apiFetchCollectionPage, ApiError } from "@/shared/utils/apiClient";
+import { apiFetch, apiFetchCollectionPage, ApiError, getCachedResponse, invalidateReadCache } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { loadCatalogFavorites, saveCatalogFavorite } from "@/shared/utils/catalogFavorites";
 import { formatCurrency } from "@/shared/utils/formatters";
@@ -88,12 +77,12 @@ export default function BrowseScreen() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [fashionHouses, setFashionHouses] = useState<FashionHouseSummary[]>([]);
+  const [fashionHouses, setFashionHouses] = useState<FashionHouseSummary[]>(() => getCachedResponse<FashionHouseSummary[]>("/api/fashion-houses?limit=20") || []);
   const [housesError, setHousesError] = useState("");
-  const [products, setProducts] = useState<ProductCardItem[]>([]);
+  const [products, setProducts] = useState<ProductCardItem[]>(() => (getCachedResponse<any[]>("/api/catalog/marketplace?page=1&limit=50") || []).map(item => ({ id: item.id, name: item.name, category: item.category || "", price: item.priceFrom, imageUrl: item.imageUrl })));
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !getCachedResponse("/api/catalog/marketplace?page=1&limit=50"));
   const [savingFavorite, setSavingFavorite] = useState(false);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [error, setError] = useState("");
@@ -160,16 +149,18 @@ export default function BrowseScreen() {
     if (favoriteLock.current) return;
     favoriteLock.current = true;
     setSavingFavorite(true);
+    const previous = !!favorites[id];
+    setFavorites(current => ({ ...current, [id]: !previous }));
     try {
-      const saved = await saveCatalogFavorite(id, !favorites[id]);
+      const saved = await saveCatalogFavorite(id, !previous);
       setFavorites(Object.fromEntries(saved.savedCatalogIds.map(key => [key, true])));
-    } catch (err) { showAlert("Couldn't save item", err instanceof Error ? err.message : "Please try again."); }
+    } catch (err) { setFavorites(current => ({ ...current, [id]: previous })); showAlert("Couldn't save item", err instanceof Error ? err.message : "Please try again."); }
     finally { favoriteLock.current = false; setSavingFavorite(false); }
   }
   const filteredRecommend = products.filter(item =>
     (!searchQuery.trim() || item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
     && (!selectedCategory || normalizeCategory(item.category) === selectedCategory));
-  const onRefresh = useCallback(async () => { await Promise.all([loadCatalog(1), loadUnread(), loadFashionHouses()]); }, [loadCatalog, loadUnread, loadFashionHouses]);
+  const onRefresh = useCallback(async () => { invalidateReadCache(); await Promise.all([loadCatalog(1), loadUnread(), loadFashionHouses()]); }, [loadCatalog, loadUnread, loadFashionHouses]);
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -333,16 +324,18 @@ export default function BrowseScreen() {
                 {/* Top-Right Heart Button */}
                 <Pressable
                   disabled={savingFavorite}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: !!favorites[item.id], busy: savingFavorite }}
                   accessibilityLabel={favorites[item.id] ? "Unsave item" : "Save item"}
                   onPress={(event) => {
                     event.stopPropagation();
                     void toggleFavorite(item.id);
                   }}
-                  style={styles.heartBtn}
+                  style={[styles.heartBtn, { backgroundColor: favorites[item.id] ? "#F96951" : "#FFFFFF" }]}
                 >
                   <Heart
                     size={14}
-                    color="#FFFFFF"
+                    color={favorites[item.id] ? "#FFFFFF" : "#746765"}
                     fill={favorites[item.id] ? "#FFFFFF" : "none"}
                   />
                 </Pressable>
@@ -367,7 +360,7 @@ export default function BrowseScreen() {
           ))}
         </View>
 
-        {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#000000" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
+        {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#2B2B2B" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
       </ScrollView>
 
     </SafeAreaView>
@@ -397,9 +390,9 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   greetingName: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   bellButton: {
     position: "relative",
@@ -529,7 +522,7 @@ const styles = StyleSheet.create({
   shopNowText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   bannerImageWrapper: {
     flex: 0.9,
@@ -551,9 +544,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Medium",
@@ -602,14 +595,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   fallbackInitial: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 22,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   fashionHouseName: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginTop: 6,
     maxWidth: 68,
@@ -689,13 +682,13 @@ const styles = StyleSheet.create({
   productName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     lineHeight: 17,
   },
   productPrice: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 4,
   },
   ratingBadge: {
@@ -718,7 +711,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   flashSaleHeaderRow: {
     flexDirection: "row",
@@ -738,7 +731,7 @@ const styles = StyleSheet.create({
   closingInText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
     marginRight: 2,
   },
   timerBlock: {
@@ -755,7 +748,7 @@ const styles = StyleSheet.create({
   timerColon: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   filterPillsRow: {
     flexDirection: "row",
@@ -775,7 +768,7 @@ const styles = StyleSheet.create({
   filterPillText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   filterPillTextActive: {
     color: "#FFFFFF",

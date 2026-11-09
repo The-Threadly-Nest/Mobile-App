@@ -1,14 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  ScrollView,
-  Pressable,
-  ActivityIndicator,
-  useWindowDimensions,
-  StyleSheet,
-} from "react-native";
+import { View, ScrollView, Pressable, ActivityIndicator, useWindowDimensions, StyleSheet } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { Info, Check, ArrowRight } from "lucide-react-native";
@@ -270,9 +262,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitleText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 22,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -309,7 +301,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -319,17 +311,17 @@ const styles = StyleSheet.create({
   customerNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 2,
   },
   orderNumberText: {
     fontFamily: "InstrumentSans-Medium",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   garmentSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   stagesCard: {
     backgroundColor: "#FFFFFF",
@@ -345,9 +337,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   stagesHeadline: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 16,
   },
   stepperContainer: {
@@ -418,20 +410,20 @@ const styles = StyleSheet.create({
   },
   completedLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   activeLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   upcomingLabelText: {
     fontFamily: "InstrumentSans-Regular",
-    color: "#000000",
+    color: "#2B2B2B",
   },
   activeSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 2,
   },
   noteSection: {
@@ -440,7 +432,7 @@ const styles = StyleSheet.create({
   noteLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   noteInput: {
@@ -451,7 +443,7 @@ const styles = StyleSheet.create({
     padding: 14,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     height: 96,
   },
   submitBtn: {
@@ -466,7 +458,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
 });

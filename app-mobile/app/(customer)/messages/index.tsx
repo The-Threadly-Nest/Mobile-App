@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
-import { View, Text, FlatList, Pressable, ActivityIndicator, RefreshControl, Image, StyleSheet, AppState } from "react-native";
+import { View, FlatList, Pressable, ActivityIndicator, RefreshControl, Image, StyleSheet, AppState } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { Image as AssetImage } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";

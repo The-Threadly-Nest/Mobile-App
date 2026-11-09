@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  Image,
-  ActivityIndicator,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Pressable, ScrollView, Image, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -268,7 +258,7 @@ export default function AdminEditGarmentScreen() {
             />
 
             <CatalogOfferingFields type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving || !loaded} />
-            <TextInput accessibilityLabel="Garment details" value={description} onChangeText={setDescription} multiline placeholder="Describe this garment" maxLength={1000} style={{ minHeight: 100, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", color: "#000000", marginBottom: 20, textAlignVertical: "top" }} />
+            <TextInput accessibilityLabel="Garment details" value={description} onChangeText={setDescription} multiline placeholder="Describe this garment" maxLength={1000} style={{ minHeight: 100, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", color: "#2B2B2B", marginBottom: 20, textAlignVertical: "top" }} />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </KeyboardAwareScrollView>
         )}
@@ -320,10 +310,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   deleteHeaderBtn: {
@@ -341,7 +331,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   imagePickerBox: {
@@ -364,13 +354,13 @@ const styles = StyleSheet.create({
   pickerTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 2,
   },
   pickerSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   loadingBox: {
     flex: 1,
@@ -381,7 +371,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   previewBox: {
     width: "100%",
@@ -416,7 +406,7 @@ const styles = StyleSheet.create({
     height: 52,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
     marginBottom: 24,
@@ -449,6 +439,6 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 20,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

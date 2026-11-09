@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { Check, ChevronDown, X } from "lucide-react-native";
 import { selectedCatalogChoices, toggleCatalogChoice } from "../utils/catalogChoices";
 
@@ -38,14 +39,14 @@ export function CatalogChoicePicker({ label, value, choices, onChange, multiple 
 }
 const styles = StyleSheet.create({
   input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", padding: 12, backgroundColor: "white", flexDirection: "row", alignItems: "center", gap: 10 },
-  value: { flex: 1, fontSize: 15, fontFamily: "InstrumentSans-Regular", color: "#000000" },
+  value: { flex: 1, fontSize: 15, fontFamily: "InstrumentSans-Regular", color: "#2B2B2B" },
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingVertical: 36 },
   modal: { width: "100%", maxWidth: 480, maxHeight: "100%", flexShrink: 1, backgroundColor: "white", borderRadius: 24, padding: 20, gap: 12 },
-  heading: { flexDirection: "row", alignItems: "center", gap: 12 }, title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#000000" },
+  heading: { flexDirection: "row", alignItems: "center", gap: 12 }, title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#2B2B2B" },
   close: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" },
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
   choice: { minHeight: 44, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
   selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, white: { color: "white" },
-  text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#000000" }, hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#746765" },
+  text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#746765" },
   done: { flex: 1, minHeight: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
 });

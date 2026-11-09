@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Check, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react-native";
@@ -241,41 +242,41 @@ const styles = StyleSheet.create({
   },
   headerButton: { width: 44, height: 44, alignItems: "flex-start", justifyContent: "center" },
   headerTitleGroup: { flex: 1, alignItems: "center" },
-  headerTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 26, color: "#000000" },
-  headerSubtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#000000", marginTop: 2 },
+  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 26, color: "#2B2B2B" },
+  headerSubtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#2B2B2B", marginTop: 2 },
   clearButton: { width: 44, height: 44, alignItems: "flex-end", justifyContent: "center" },
   clearText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#9A2C32" },
   content: { paddingHorizontal: 20, paddingBottom: 40 },
   groupSection: { marginBottom: 28 },
   groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#F0E9DF" },
-  groupLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 9, letterSpacing: 1, color: "#000000" },
-  groupName: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 20, color: "#000000", marginTop: 2 },
-  groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#000000" },
+  groupLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 9, letterSpacing: 1, color: "#2B2B2B" },
+  groupName: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B", marginTop: 2 },
+  groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#2B2B2B" },
   itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#F4EEE5" },
   itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#EBE0D3" },
   itemImageContent: { width: "100%", height: "100%", borderRadius: 14 },
   itemDetails: { flex: 1, marginLeft: 12 },
   itemName: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, lineHeight: 18, color: "#241719" },
-  itemOptions: { fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#000000", marginTop: 4 },
-  itemPrice: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000", marginTop: 5 },
+  itemOptions: { fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#2B2B2B", marginTop: 4 },
+  itemPrice: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B", marginTop: 5 },
   itemActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8 },
   quantityControl: { flexDirection: "row", alignItems: "center", borderRadius: 14, backgroundColor: "#F6F0E7", padding: 3 },
   quantityButton: { width: 28, height: 28, borderRadius: 11, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
-  quantityText: { width: 28, textAlign: "center", fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000" },
+  quantityText: { width: 28, textAlign: "center", fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" },
   removeButton: { width: 34, height: 34, borderRadius: 17, backgroundColor: "#FFF1F1", alignItems: "center", justifyContent: "center" },
   continueButton: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", paddingHorizontal: 18, marginTop: 14 },
   continueButtonDisabled: { opacity: 0.6 },
-  continueButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#000000", textAlign: "center" },
+  continueButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF", textAlign: "center" },
   totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 12, paddingBottom: 4 },
-  totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#000000" },
-  totalPrice: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 24, color: "#000000" },
-  multiHouseNote: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#000000", textAlign: "center", paddingHorizontal: 20 },
+  totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#2B2B2B" },
+  totalPrice: { fontFamily: "InstrumentSans-Regular", fontSize: 24, color: "#2B2B2B" },
+  multiHouseNote: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#2B2B2B", textAlign: "center", paddingHorizontal: 20 },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 36 },
   emptyIcon: { width: 68, height: 68, borderRadius: 34, backgroundColor: "#EBE0D3", alignItems: "center", justifyContent: "center", marginBottom: 18 },
-  emptyTitle: { fontFamily: "HedvigLettersSerif-Regular", fontSize: 22, color: "#000000" },
-  emptyBody: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#000000", textAlign: "center", marginTop: 8, marginBottom: 24 },
+  emptyTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#2B2B2B" },
+  emptyBody: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#2B2B2B", textAlign: "center", marginTop: 8, marginBottom: 24 },
   browseButton: { height: 52, borderRadius: 26, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", paddingHorizontal: 30 },
-  browseButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#000000" },
+  browseButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(30, 20, 20, 0.55)",
@@ -307,9 +308,9 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   modalTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     marginBottom: 8,
   },
@@ -333,7 +334,7 @@ const styles = StyleSheet.create({
   modalPrimaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   modalSecondaryBtn: {
     marginTop: 12,
@@ -343,6 +344,6 @@ const styles = StyleSheet.create({
   modalSecondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
 });

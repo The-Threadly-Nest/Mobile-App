@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { Sparkles, Info, CheckCircle2, ChevronRight, X } from "lucide-react-native";
 
 interface FlowMessageCardProps {
@@ -135,9 +136,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   titleText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     flex: 1,
   },
   dismissBtn: {
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   stepsContainer: {
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
   stepItemText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     flex: 1,
   },
   buttonRow: {
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   primaryBtn: {
     flexDirection: "row",
@@ -206,6 +207,6 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { router, useLocalSearchParams } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { KeyboardAwareScrollView } from "@/shared/components/KeyboardAwareScrollView";

@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ImageBackground,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, ImageBackground, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NavigationBar } from "expo-navigation-bar";
 import { router } from "expo-router";
@@ -74,7 +68,7 @@ export default function AdminOnboardingSlidesScreen() {
             {/* Headline */}
             <Text
               style={{
-                fontFamily: "HedvigLettersSerif-Regular",
+                fontFamily: "InstrumentSans-Regular",
                 fontSize: 24,
                 lineHeight: 32,
                 color: "#FFFFFF",
@@ -245,7 +239,7 @@ export default function AdminOnboardingSlidesScreen() {
         {/* Headline */}
         <Text
           style={{
-            fontFamily: "HedvigLettersSerif-Regular",
+            fontFamily: "InstrumentSans-Regular",
             fontSize: 32,
             lineHeight: 40,
             color: "#FFFFFF",

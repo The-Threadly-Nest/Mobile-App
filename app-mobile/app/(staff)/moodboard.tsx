@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Pressable,
-  Image,
-  ActivityIndicator,
-  Modal,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, FlatList, Pressable, Image, ActivityIndicator, Modal, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Plus, PenTool, Trash2, CheckCircle2, Paintbrush, X } from "lucide-react-native";
@@ -341,9 +332,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   headerActions: {
     flexDirection: "row",
@@ -362,7 +353,7 @@ const styles = StyleSheet.create({
   drawBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   addBtn: {
     width: 38,
@@ -376,7 +367,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 20,
   },
   loaderContainer: {
@@ -447,7 +438,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
   },
   emptyContainer: {
@@ -470,16 +461,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   emptySubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
   },
   modalOverlay: {
@@ -500,9 +491,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   previewImageWrapper: {
     alignItems: "center",

@@ -3,6 +3,11 @@
     "version": ">= 16.0.0"
   },
   "build": {
+    "development": {
+      "extends": "preview",
+      "developmentClient": true,
+      "distribution": "internal"
+    },
     "preview": {
       "distribution": "internal",
       "env": {

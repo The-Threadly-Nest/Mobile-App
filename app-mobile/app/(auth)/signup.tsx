@@ -1,17 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-  useWindowDimensions,
-} from "react-native";
+import { View, Image, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Eye, EyeOff, User, Scissors } from "lucide-react-native";
@@ -415,9 +404,9 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   formContainer: {
     width: "100%",
@@ -476,12 +465,12 @@ const styles = StyleSheet.create({
   labelText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11.5,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
     paddingRight: 32,
     height: "100%",
   },
@@ -512,12 +501,12 @@ const styles = StyleSheet.create({
   roleToggleLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   roleToggleValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     textDecorationLine: "underline",
   },
   createAccountBtn: {

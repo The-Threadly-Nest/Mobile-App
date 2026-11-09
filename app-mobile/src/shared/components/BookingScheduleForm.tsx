@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import type { WeeklyBookingSchedule } from "../utils/apiClient";
 
 export const DEFAULT_BOOKING_SCHEDULE: WeeklyBookingSchedule = { days: [1, 2, 3, 4, 5], startTime: "09:00", endTime: "17:00", durationMinutes: 60, blockedDates: [] };
@@ -54,12 +55,12 @@ export function BookingScheduleForm({ value, onChange, timezone, onTimezoneChang
 }
 
 const styles = StyleSheet.create({
-  group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#000000" },
+  group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#2B2B2B" },
   hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#746765" },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, row: { flexDirection: "row", alignItems: "center", gap: 10 },
-  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#000000", backgroundColor: "white" },
+  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#2B2B2B", backgroundColor: "white" },
   day: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, justifyContent: "center", alignItems: "center" },
-  dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#000000" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, selectedText: { color: "white" },
+  dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, selectedText: { color: "white" },
   block: { borderRadius: 10, padding: 10, backgroundColor: "#F6F6F6" }, add: { minHeight: 48, paddingHorizontal: 12, justifyContent: "center", borderRadius: 12, backgroundColor: "#F0ECEB" },
   primary: { minHeight: 48, alignItems: "center", justifyContent: "center", backgroundColor: "#F96951", borderRadius: 12, padding: 12 }, primaryText: { fontFamily: "InstrumentSans-SemiBold", color: "white", fontSize: 14 },
   error: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#9F1239" },

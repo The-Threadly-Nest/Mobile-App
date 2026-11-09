@@ -1,12 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Modal,
-  View,
-  Text,
-  Pressable,
-  Animated,
-  StyleSheet,
-} from "react-native";
+import { Modal, View, Pressable, Animated, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { ShoppingBag } from "lucide-react-native";
 import { alertEmitter, AlertPayload } from "@/shared/utils/alertEmitter";
 
@@ -60,6 +54,8 @@ export default function AppAlert() {
 
   const isConfirm = !!(payload.onConfirm || payload.confirmLabel);
   const isCartAlert = payload.variant === "cart";
+  const { width, fontScale } = useWindowDimensions();
+  const stackActions = isConfirm && ((payload.confirmLabel || "OK").length > 12 || width < 360 || fontScale > 1.2);
 
   return (
     <Modal transparent animationType="none" visible={visible} onRequestClose={() => close(payload.onCancel)}>
@@ -96,12 +92,13 @@ export default function AppAlert() {
             <Text style={[styles.title, isCartAlert && styles.centeredText]}>{payload.title}</Text>
             <Text style={[styles.message, isCartAlert && styles.centeredText]}>{payload.message}</Text>
 
-            <View style={[styles.actions, isConfirm && styles.actionsRow]}>
+            <View style={[styles.actions, isConfirm && styles.actionsRow, stackActions && styles.actionsStack]}>
               {isConfirm && (
                 <Pressable
                   style={({ pressed }) => [
                     styles.cancelBtn,
                     styles.btnEqual,
+                    stackActions && styles.btnStack,
                     { opacity: pressed ? 0.7 : 1 },
                   ]}
                   onPress={() => close(payload.onCancel)}
@@ -113,6 +110,7 @@ export default function AppAlert() {
                 style={({ pressed }) => [
                   styles.confirmBtn,
                   isConfirm && styles.btnEqual,
+                  stackActions && styles.btnStack,
                   { opacity: pressed ? 0.85 : 1 },
                 ]}
                 onPress={() => close(payload.onConfirm)}
@@ -179,9 +177,9 @@ const styles = StyleSheet.create({
     color: "#8A6252",
   },
   title: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 8,
   },
   message: {
@@ -206,7 +204,7 @@ const styles = StyleSheet.create({
   },
   btnEqual: {
     flex: 1,
-    height: 48,
+    minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -218,9 +216,10 @@ const styles = StyleSheet.create({
     borderColor: "rgba(74, 8, 12, 0.3)",
   },
   cancelText: {
+    textAlign: "center",
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   confirmBtn: {
     backgroundColor: "#F96951",
@@ -229,9 +228,12 @@ const styles = StyleSheet.create({
     borderRadius: 24,
   },
   confirmText: {
+    textAlign: "center",
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.5,
   },
+  actionsStack: { flexDirection: "column-reverse", alignItems: "stretch" },
+  btnStack: { flex: 0, width: "100%", minHeight: 48 },
 });

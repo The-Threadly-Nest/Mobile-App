@@ -1,13 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, ScrollView, ActivityIndicator, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { Trash2 } from "lucide-react-native";
@@ -364,10 +357,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -375,9 +368,9 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   sectionTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 12,
   },
   dateStrip: {
@@ -402,16 +395,16 @@ const styles = StyleSheet.create({
   dateDayName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
     textTransform: "uppercase",
   },
   dateDayNameActive: {
     color: "rgba(255, 255, 255, 0.75)",
   },
   dateDayNum: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   dateDayNumActive: {
     color: "#FFFFFF",
@@ -423,7 +416,7 @@ const styles = StyleSheet.create({
   countText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   countTextActive: {
     color: "rgba(255, 255, 255, 0.9)",
@@ -443,12 +436,12 @@ const styles = StyleSheet.create({
   dailyDateTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   dailyTotalCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   emptyDayBox: {
     paddingVertical: 32,
@@ -457,7 +450,7 @@ const styles = StyleSheet.create({
   emptyDayText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
   },
   slotsList: {
@@ -476,12 +469,12 @@ const styles = StyleSheet.create({
   slotTimeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   slotDurationText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     marginTop: 2,
   },
   availableBadge: {
@@ -506,7 +499,7 @@ const styles = StyleSheet.create({
   bookedBadgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   deleteBtn: {
     padding: 6,
@@ -523,7 +516,7 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   divider: {
     height: 1,
@@ -550,6 +543,6 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
 });

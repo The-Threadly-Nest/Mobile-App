@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 
 type Status = "order_placed" | "in_production" | "ready" | "delivered";
 

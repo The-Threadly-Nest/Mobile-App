@@ -61,6 +61,7 @@ test("direct messages notify only the other party and retries do not send anothe
     await service.postThreadByFashionHouseId(input);
     const delivered = sent[sent.length - 1];
     assert.equal(delivered.target, senderRole === "admin" ? "customer" : "admin");
+    assert.equal(delivered.args[1], senderRole === "admin" ? "Test House messaged you" : "customer messaged you");
     assert.equal(delivered.args[3].senderId, senderRole);
     const count = sent.length;
     await service.postThreadByFashionHouseId(input);

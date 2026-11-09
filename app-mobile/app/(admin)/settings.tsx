@@ -1,12 +1,6 @@
 import React, { useState, useCallback } from "react";
-import {
-  View,
-  Pressable,
-  Text,
-  ScrollView,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { View, Pressable, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import {
@@ -39,7 +33,7 @@ export default function AdminSettingsScreen() {
   const token = useAuthStore((s) => s.token);
 
   const [businessName, setBusinessName] = useState(storedShopName || name || "");
-  const availableBalance = "Not connected";
+  const availableBalance = "Coming Soon";
 
   useFocusEffect(
     useCallback(() => {
@@ -75,7 +69,7 @@ export default function AdminSettingsScreen() {
       cancelLabel: "Cancel",
       onConfirm: () => {
         logout();
-        router.replace("/(auth)/login");
+        router.replace("/");
       },
     });
   };
@@ -256,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
     color: "#FFFFFF",
@@ -287,7 +281,7 @@ const styles = StyleSheet.create({
   withdrawBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   menuContainer: {
     paddingTop: 20,
@@ -317,6 +311,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
 });

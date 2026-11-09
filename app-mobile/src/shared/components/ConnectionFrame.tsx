@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
-import { AppState, Pressable, StyleSheet, Text, View } from "react-native";
+import { AppState, Pressable, StyleSheet, View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaInsetsContext, useSafeAreaInsets } from "react-native-safe-area-context";
 import { WifiOff } from "lucide-react-native";
 import type { NetInfoState } from "@react-native-community/netinfo";
@@ -50,7 +51,7 @@ export default function ConnectionFrame({ children }: { children: ReactNode }) {
 }
 const styles = StyleSheet.create({
   frame: { flex: 1 }, banner: { backgroundColor: "#EFECE6", paddingHorizontal: 16, paddingBottom: 10, flexDirection: "row", alignItems: "flex-start", gap: 10 },
-  copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#000000", fontSize: 13 },
-  body: { fontFamily: "InstrumentSans-Regular", color: "#000000", fontSize: 12, lineHeight: 17, marginTop: 2 },
-  retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#000000", fontSize: 12 },
+  copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#2B2B2B", fontSize: 13 },
+  body: { fontFamily: "InstrumentSans-Regular", color: "#2B2B2B", fontSize: 12, lineHeight: 17, marginTop: 2 },
+  retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#2B2B2B", fontSize: 12 },
 });

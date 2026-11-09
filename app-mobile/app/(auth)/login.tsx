@@ -1,17 +1,6 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  Pressable,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  ActivityIndicator,
-  useWindowDimensions,
-} from "react-native";
+import { View, Image, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Eye, EyeOff } from "lucide-react-native";
@@ -98,11 +87,11 @@ export default function LoginScreen() {
         } else if (!userOnboardingCompleted) {
           router.replace("/(admin)/onboarding");
         } else {
-          router.replace("/(admin)/dashboard");
+          router.replace("/(auth)/loading" as any);
         }
       } else if (body.user.role === "staff") {
-        router.replace("/(staff)/dashboard");
-      } else router.replace("/(customer)/browse");
+        router.replace("/(auth)/loading" as any);
+      } else router.replace("/(auth)/loading" as any);
     } catch (e: any) {
       if (e.message === "Network request failed" || e.name === "TypeError") {
         setError("Network request failed. Please check your connection and try again.");
@@ -313,9 +302,9 @@ const styles = StyleSheet.create({
     height: 33,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   formContainer: {
     width: "100%",
@@ -341,12 +330,12 @@ const styles = StyleSheet.create({
   labelText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     paddingRight: 32,
     height: "100%",
   },
@@ -362,7 +351,7 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
@@ -382,7 +371,7 @@ const styles = StyleSheet.create({
   logInBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
     letterSpacing: 0.2,
   },
   signupLinkRow: {
@@ -394,12 +383,12 @@ const styles = StyleSheet.create({
   signupLinkText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   signupLinkBold: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   dividerContainer: {
     flexDirection: "row",
@@ -414,7 +403,7 @@ const styles = StyleSheet.create({
   dividerText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
     paddingHorizontal: 16,
   },
   googleBtn: {
@@ -440,7 +429,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     textAlign: "center",
     paddingHorizontal: 16,
   },

@@ -92,10 +92,10 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
         if (!userOnboardingCompleted) {
           router.replace("/(admin)/onboarding");
         } else {
-          router.replace("/(admin)/dashboard");
+          router.replace("/(auth)/loading" as any);
         }
-      } else if (data.user.role === "staff") router.replace("/(staff)/dashboard");
-      else router.replace("/(customer)/browse");
+      } else if (data.user.role === "staff") router.replace("/(auth)/loading" as any);
+      else router.replace("/(auth)/loading" as any);
     } catch (e: any) {
       if (e.message?.includes("Network request failed") || e.name === "TypeError") {
         setError("Unable to connect to server. Please check your internet connection.");

@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ImageBackground,
-  StyleSheet,
-  useWindowDimensions,
-  Platform,
-} from "react-native";
+import { View, Pressable, ImageBackground, StyleSheet, useWindowDimensions, Platform } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NavigationBar } from "expo-navigation-bar";
 import { router } from "expo-router";
@@ -171,7 +164,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   headline: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 36,
     color: "#FFFFFF",
@@ -224,7 +217,7 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   nextBtn: {
     flex: 1,
@@ -237,7 +230,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   fullWidthBtn: {
     width: "100%",

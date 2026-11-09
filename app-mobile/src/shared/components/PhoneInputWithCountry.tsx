@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  FlatList,
-} from "react-native";
+import { View, Pressable, Modal, ScrollView, StyleSheet, FlatList } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { ChevronDown, Search, X } from "lucide-react-native";
 
 export interface Country {
@@ -193,7 +185,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 4,
   },
   inputRow: {
@@ -223,7 +215,7 @@ const styles = StyleSheet.create({
   codeText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   divider: {
     width: 1,
@@ -235,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     paddingVertical: 0,
     height: "100%",
   },
@@ -266,9 +258,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   closeBtn: {
     padding: 6,
@@ -288,7 +280,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   countryItem: {
     flexDirection: "row",
@@ -308,11 +300,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   itemCode: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
   },
 });

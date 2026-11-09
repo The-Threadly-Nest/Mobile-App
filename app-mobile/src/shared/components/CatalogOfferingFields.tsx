@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Pressable, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { CatalogChoicePicker } from "./CatalogChoicePicker";
 import { GARMENT_CATEGORIES, GARMENT_SIZES, GARMENT_COLORS } from "../utils/catalogChoices";
 import type { FulfillmentType } from "../utils/catalogCommerce";
@@ -19,4 +20,4 @@ export function CatalogOfferingFields({ type, onTypeChange, sizes, onSizesChange
       <Text style={styles.label}>AVAILABLE COLOURS (OPTIONAL)</Text><CatalogChoicePicker label="Available colours" value={colors} onChange={onColorsChange} choices={GARMENT_COLORS} multiple disabled={disabled} /></>}
   </View>;
 }
-const styles = StyleSheet.create({ group: { gap: 12, marginBottom: 24 }, row: { flexDirection: "row", gap: 10 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#000000" }, hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#746765" }, option: { flex: 1, minHeight: 48, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#D7CFCD", justifyContent: "center", alignItems: "center" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#000000" }, input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", paddingHorizontal: 12, fontSize: 16, fontFamily: "InstrumentSans-Regular", color: "#000000", backgroundColor: "white" } });
+const styles = StyleSheet.create({ group: { gap: 12, marginBottom: 24 }, row: { flexDirection: "row", gap: 10 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#2B2B2B" }, hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#746765" }, option: { flex: 1, minHeight: 48, borderRadius: 24, padding: 12, borderWidth: 1, borderColor: "#D7CFCD", justifyContent: "center", alignItems: "center" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", paddingHorizontal: 12, fontSize: 16, fontFamily: "InstrumentSans-Regular", color: "#2B2B2B", backgroundColor: "white" } });

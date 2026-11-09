@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useCallback } from "react";
-import { View, Text, Image, Pressable, StyleSheet, useWindowDimensions } from "react-native";
-import { router } from "expo-router";
+import React, { useEffect, useRef, useCallback, useState } from "react";
+import { View, Image, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
+import { router, Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useVideoPlayer, VideoView } from "expo-video";
@@ -9,8 +10,19 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppDataStore } from "@/stores/useAppDataStore";
 import { apiFetch, ApiError } from "@/shared/utils/apiClient";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
+import { useStartupReady } from "@/shared/components/StartupContext";
 
 export default function VideoSplashScreen() {
+  const ready = useStartupReady();
+  const token = useAuthStore(state => state.token);
+  const role = useAuthStore(state => state.role);
+  if (!ready) return null;
+  if (token && role) return <Redirect href="/(auth)/loading" />;
+  return <VideoWelcomeScreen />;
+}
+
+function VideoWelcomeScreen() {
+  const [videoReady, setVideoReady] = useState(false);
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
 
@@ -28,78 +40,7 @@ export default function VideoSplashScreen() {
     p.play();
   });
 
-  // Preload role data and configure status bar for logged-in users
-  useEffect(() => {
-    const fetchSafe = async (endpoint: string) => {
-      try {
-        return await apiFetch<any>(endpoint, { silent: true });
-      } catch (error) {
-        return null;
-      }
-    };
 
-    const preloadData = async () => {
-      if (!token || !role) return;
-      try {
-        const appStore = useAppDataStore.getState();
-        appStore.activateCache(`${role}:${email.trim().toLowerCase()}`);
-
-        if (role === "admin") {
-          const [orders, staff, escalations] = await Promise.all([
-            fetchSafe("/api/orders?page=1&limit=30"),
-            fetchSafe("/api/staff"),
-            fetchSafe("/api/escalations?limit=20"),
-          ]);
-          if (Array.isArray(orders)) appStore.setOrders(orders);
-          if (Array.isArray(staff)) appStore.setStaffList(staff);
-          if (Array.isArray(escalations)) appStore.setEscalations(escalations);
-        } else if (role === "staff") {
-          const [orders, profile] = await Promise.all([
-            fetchSafe("/api/orders?page=1&limit=30"),
-            fetchSafe("/api/staff/me"),
-          ]);
-          if (Array.isArray(orders)) appStore.setOrders(orders);
-          if (profile) appStore.setProfile(profile);
-        } else {
-          const [myOrders, catalog] = await Promise.all([
-            fetchSafe("/api/orders/my-orders"),
-            fetchSafe("/api/fashion-houses"),
-          ]);
-          if (Array.isArray(myOrders)) appStore.setOrders(myOrders);
-          if (Array.isArray(catalog)) appStore.setCatalogItems(catalog);
-        }
-        appStore.setLastSyncedAt(Date.now());
-      } catch (e) {
-        console.warn("[Splash] Preload warning:", e);
-      }
-    };
-
-    preloadData();
-  }, [token, role, email]);
-
-  // Auto-navigate if already authenticated
-  useEffect(() => {
-    if (token && role) {
-      void (async () => {
-        try {
-          await registerPushToken(token);
-        } catch {}
-        if (role === "admin") {
-          if (!isVerified) {
-            router.replace({ pathname: "/(auth)/verify", params: { email } });
-          } else if (!onboardingCompleted) {
-            router.replace("/(admin)/onboarding");
-          } else {
-            router.replace("/(admin)/dashboard");
-          }
-        } else if (role === "staff") {
-          router.replace("/(staff)/dashboard");
-        } else {
-          router.replace("/(customer)/browse");
-        }
-      })();
-    }
-  }, [token, role, isVerified, onboardingCompleted, email]);
 
   const handleGetStarted = () => {
     router.push("/(auth)/signup");
@@ -111,7 +52,7 @@ export default function VideoSplashScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      <StatusBar style={videoReady ? "light" : "dark"} />
 
       {/* Fullscreen Video */}
       <VideoView
@@ -119,6 +60,8 @@ export default function VideoSplashScreen() {
         style={StyleSheet.absoluteFill}
         contentFit="cover"
         nativeControls={false}
+        surfaceType="textureView"
+        onFirstFrameRender={() => setVideoReady(true)}
       />
 
       {/* Cinematic Gradient Scrim Overlay */}
@@ -172,14 +115,25 @@ export default function VideoSplashScreen() {
           </View>
         </View>
       </View>
+      {!videoReady ? <View style={styles.videoLoadingCover}>
+        <View style={styles.loadingBrand}>
+          <Image source={require("../assets/splash-icon-black.png")} style={styles.loadingMark} resizeMode="contain" />
+          <Text style={styles.loadingName}>Owuja</Text>
+        </View>
+      </View> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  videoLoadingCover: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
+  loadingBrand: { flexDirection: "row", alignItems: "center", gap: 14 },
+  loadingMark: { width: 64, height: 73.02 },
+  loadingName: { fontFamily: "InstrumentSans-Medium", fontSize: 36, lineHeight: 44, color: "#FFFFFF" },
   container: {
     flex: 1,
     backgroundColor: "#1A1110",
+    overflow: "hidden",
   },
   content: {
     flex: 1,
@@ -196,7 +150,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   brandTagline: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
     lineHeight: 34,
     color: "#FBF7EF",

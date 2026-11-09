@@ -1,14 +1,6 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  Modal,
-  Pressable,
-  PanResponder,
-  StyleSheet,
-  ActivityIndicator,
-  ScrollView,
-} from "react-native";
+import { View, Modal, Pressable, PanResponder, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import Svg, { Path, Rect, Circle, G } from "react-native-svg";
 import { X, Undo2, RotateCcw, Check, Paintbrush, Eraser, User, Grid, HelpCircle } from "lucide-react-native";
 import { Input } from "./Input";
@@ -349,7 +341,7 @@ export default function DrawingCanvasModal({
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
-                    color: title === chip ? "#FFFFFF" : "#000000",
+                    color: title === chip ? "#FFFFFF" : "#2B2B2B",
                   }}
                 >
                   + {chip}
@@ -480,9 +472,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   guideToggleRow: {
     flexDirection: "row",
@@ -504,7 +496,7 @@ const styles = StyleSheet.create({
   guideBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   closeBtn: {
     padding: 4,

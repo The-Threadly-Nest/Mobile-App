@@ -1,13 +1,6 @@
 import React, { useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, Pressable, FlatList, RefreshControl, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
@@ -196,10 +189,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
     lineHeight: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     letterSpacing: -0.2,
   },
   listContent: {
@@ -228,7 +221,7 @@ const styles = StyleSheet.create({
   invoiceNumber: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   clientDate: {
@@ -241,9 +234,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   amount: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 6,
   },
   statusPill: {

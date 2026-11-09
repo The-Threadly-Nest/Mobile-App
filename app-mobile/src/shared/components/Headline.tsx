@@ -1,13 +1,9 @@
 import React from "react";
-import { Text, TextProps } from "react-native";
+import { TextProps } from "react-native";
+import { Text } from "@/shared/components/Typography";
 
 /**
- * Use this for headlines and hero/display moments ONLY — screen titles,
- * onboarding headlines, "Welcome back" type copy. Never for body text,
- * subtext, form labels, buttons, or anything under ~18px — Hedvig Letters Serif
- * (a serif) loses legibility fast at small sizes, which is exactly why
- * the app has a separate Instrument Sans track for everything else. See
- * README "Typography Rules" before reaching for this on a new screen.
+ * Semantic headline helper. Both headline and body utilities use Instrument Sans.
  */
 export function Headline({ children, className = "", ...rest }: TextProps & { className?: string }) {
   return (

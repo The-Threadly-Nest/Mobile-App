@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  FlatList,
-  Pressable,
-  Text,
-  Modal,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { View, FlatList, Pressable, Modal, ScrollView, ActivityIndicator, StyleSheet, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { X, UserCheck } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
-import { apiFetch, escalationsApi, measurementsApi, staffApi } from "@/shared/utils/apiClient";
+import { apiFetch, escalationsApi, measurementsApi, staffApi, ordersApi } from "@/shared/utils/apiClient";
 import { normalizeStatus } from "@/shared/domain/statuses";
 import { formatDate } from "@/shared/utils/formatters";
+import { isReadyToWear } from "@/shared/utils/orderFulfillment";
+import { adminOrderRequests } from "@/shared/utils/adminOrderQueues";
 
 interface BookingItem {
   id: string;
@@ -28,6 +21,8 @@ interface BookingItem {
   status: "pending" | "assigned" | "declined";
   assignedStaffName?: string;
   createdAt: string;
+  readyToWear?: boolean;
+  orderId?: string;
 }
 
 interface MessageTurn {
@@ -136,9 +131,10 @@ export default function BookingsScreen() {
     if (!token) return;
     setLoading(true);
     try {
-      const [escRes, staffRes] = await Promise.allSettled([
+      const [escRes, staffRes, ordersRes] = await Promise.allSettled([
         escalationsApi.getEscalations(),
         staffApi.getStaff(),
+        ordersApi.getOrders(),
       ]);
 
       if (staffRes.status === "fulfilled") {
@@ -146,8 +142,8 @@ export default function BookingsScreen() {
         if (Array.isArray(staffData)) setStaffList(staffData);
       }
 
-      if (escRes.status === "fulfilled") {
-        const data = escRes.value;
+      if (escRes.status === "fulfilled" || ordersRes.status === "fulfilled") {
+        const data = adminOrderRequests(ordersRes.status === "fulfilled" ? ordersRes.value : [], escRes.status === "fulfilled" ? escRes.value : []);
         if (Array.isArray(data)) {
           const seen = new Set<string>();
           const mapped: BookingItem[] = [];
@@ -161,8 +157,10 @@ export default function BookingsScreen() {
 
             mapped.push({
               id: item.id,
+              readyToWear: isReadyToWear(item),
+              orderId: item.orderId || item.order?.id,
               customerName: formattedName,
-              serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Bespoke Fitting",
+              serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Order request",
               appointmentTime: item.preferredDate
                 ? `${formatDate(item.preferredDate, {
                     weekday: "short",
@@ -205,14 +203,21 @@ export default function BookingsScreen() {
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
   const assignedCount = bookings.filter((b) => b.status === "assigned").length;
   const declinedCount = bookings.filter((b) => b.status === "declined").length;
-  const currentList = bookings.filter((b) => b.status === activeTab);
+  const currentList = bookings;
 
   const [checkingBookingId, setCheckingBookingId] = useState<string | null>(null);
 
   const handleOpenAssign = async (booking: BookingItem) => {
+    if (checkingBookingId) return;
     setCheckingBookingId(booking.id);
     try {
-      if (token) {
+      if (booking.orderId && booking.readyToWear) {
+        await apiFetch(`/api/orders/${booking.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "in_production" }) });
+        await fetchBackendData();
+        showAlert("Order accepted", "Prepare this order, then mark it ready for pickup.");
+        return;
+      }
+      if (token && !booking.readyToWear) {
           const data = await measurementsApi.checkCustomer(booking.customerName);
           if (data.hasMeasurements === false) {
             showConfirm(
@@ -237,7 +242,11 @@ export default function BookingsScreen() {
             return;
           }
       }
-    } catch {
+    } catch (error) {
+      if (booking.orderId && booking.readyToWear) {
+        showAlert("Couldn't accept order", error instanceof Error ? error.message : "Please try again.");
+        return;
+      }
       // Fallback directly to assign screen if check fails
     } finally {
       setCheckingBookingId(null);
@@ -247,6 +256,8 @@ export default function BookingsScreen() {
       pathname: "/(admin)/escalations/assign",
       params: {
         bookingId: booking.id,
+        orderId: booking.orderId,
+        fulfillmentType: booking.readyToWear ? "ready_to_wear" : "custom_fit",
         customerName: booking.customerName,
         serviceTitle: booking.serviceTitle,
         appointmentTime: booking.appointmentTime,
@@ -283,7 +294,9 @@ export default function BookingsScreen() {
             prev.map((b) => (b.id === booking.id ? { ...b, status: "declined" } : b))
           );
           try {
-            await escalationsApi.declineBooking(booking.id);
+            if (booking.orderId) await apiFetch(`/api/orders/${booking.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) });
+            else await escalationsApi.declineBooking(booking.id);
+            setBookings(prev => prev.filter(item => item.id !== booking.id));
             showAlert("Booking Declined", `Appointment for ${booking.customerName} moved to Declined.`);
           } catch {
             // Revert optimistic update on failure
@@ -298,6 +311,7 @@ export default function BookingsScreen() {
   };
 
   const handleOpenTranscript = async (booking: BookingItem) => {
+    if (booking.orderId) { router.push({ pathname: "/(admin)/order-detail", params: { orderId: booking.orderId } }); return; }
     setSelectedBooking(booking);
     setTranscript([]);
     setDetailModalVisible(true);
@@ -323,64 +337,9 @@ export default function BookingsScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={[styles.container, isLandscape && styles.containerLandscape]}>
         {/* Screen Title */}
-        <Text style={styles.screenTitle}>Bookings</Text>
+        <Text style={styles.screenTitle}>Order requests</Text>
 
-        {/* Filter Pills Row */}
-        <View style={styles.pillsRow}>
-          <Pressable
-            onPress={() => setActiveTab("pending")}
-            style={({ pressed }) => [
-              styles.pill,
-              activeTab === "pending" ? styles.pillActive : styles.pillInactive,
-              { opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Text
-              style={[
-                styles.pillText,
-                activeTab === "pending" ? styles.pillTextActive : styles.pillTextInactive,
-              ]}
-            >
-              Pending ({pendingCount})
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setActiveTab("assigned")}
-            style={({ pressed }) => [
-              styles.pill,
-              activeTab === "assigned" ? styles.pillActive : styles.pillInactive,
-              { opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Text
-              style={[
-                styles.pillText,
-                activeTab === "assigned" ? styles.pillTextActive : styles.pillTextInactive,
-              ]}
-            >
-              Assigned ({assignedCount})
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => setActiveTab("declined")}
-            style={({ pressed }) => [
-              styles.pill,
-              activeTab === "declined" ? styles.pillActive : styles.pillInactive,
-              { opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Text
-              style={[
-                styles.pillText,
-                activeTab === "declined" ? styles.pillTextActive : styles.pillTextInactive,
-              ]}
-            >
-              Declined ({declinedCount})
-            </Text>
-          </Pressable>
-        </View>
+        <Text style={styles.serviceSubtitle}>{bookings.length} awaiting assignment</Text>
 
         {/* Bookings List */}
         {loading && bookings.length === 0 ? (
@@ -453,7 +412,7 @@ export default function BookingsScreen() {
                         {checkingBookingId === item.id ? (
                           <ActivityIndicator size="small" color="#FFFFFF" />
                         ) : (
-                          <Text style={styles.assignBtnText}>Assign</Text>
+                          <Text style={styles.assignBtnText}>{item.readyToWear && item.orderId ? "Accept order" : "Assign"}</Text>
                         )}
                       </Pressable>
 
@@ -595,9 +554,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   screenTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 20,
     paddingHorizontal: 4,
   },
@@ -662,7 +621,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#FFFFFF",
   },
@@ -672,13 +631,13 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 2,
   },
   serviceSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   badge: {
     backgroundColor: "#F4ECE1",
@@ -719,7 +678,7 @@ const styles = StyleSheet.create({
   assignBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#FFFFFF",
   },
   declineBtn: {
     flex: 1,
@@ -734,7 +693,7 @@ const styles = StyleSheet.create({
   declineBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   assignedFooter: {
     flexDirection: "row",
@@ -768,9 +727,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontFamily: "HedvigLettersSerif-Regular",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   modalSubtitle: {
     fontFamily: "InstrumentSans-Regular",
@@ -789,7 +748,7 @@ const styles = StyleSheet.create({
   staffItemName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#000000",
+    color: "#2B2B2B",
   },
   summaryCard: {
     backgroundColor: "#FFFFFF",
@@ -802,20 +761,20 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#000000",
+    color: "#2B2B2B",
     textTransform: "uppercase",
     marginBottom: 4,
   },
   summaryText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     lineHeight: 20,
   },
   transcriptSectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#000000",
+    color: "#2B2B2B",
     marginBottom: 10,
   },
   chatBubble: {
@@ -842,6 +801,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   modelChatText: {
-    color: "#000000",
+    color: "#2B2B2B",
   },
 });

@@ -395,7 +395,7 @@ export class DirectMessagesService {
       const senderName = message.sender?.name || "A customer";
       sendNotificationToAdmin(
         fashionHouseId,
-        senderName,
+        `${senderName} messaged you`,
         notifBody,
         { screen: "messages", customerId, senderId }
       );
@@ -406,7 +406,7 @@ export class DirectMessagesService {
         .then((fh) => fh?.shopName || "The Fashion House");
       sendNotificationToUser(
         customerId,
-        fhName,
+        `${fhName} messaged you`,
         notifBody,
         { screen: "direct-chat", fashionHouseId, senderId }
       );

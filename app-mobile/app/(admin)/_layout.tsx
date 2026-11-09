@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { AppState, View, Text } from "react-native";
+import { AppState, View } from "react-native";
+import { Text } from "@/shared/components/Typography";
 import { Tabs, usePathname } from "expo-router";
 import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,73 +9,48 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch, escalationsApi } from "@/shared/utils/apiClient";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 import { Plus } from "lucide-react-native";
-import Constants, { ExecutionEnvironment } from "expo-constants";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", height: 42, width: 44 }}>
-      <View style={{ opacity: focused ? 1 : 0.65 }}>
+    <View style={{ alignItems: "center", justifyContent: "center", height: 44, width: 44 }}>
+      <View
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 19,
+          overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: focused ? "#453332" : "transparent",
+        }}
+      >
         {children}
       </View>
-      {focused && (
-        <View
-          style={{
-            position: "absolute",
-            bottom: 2,
-            width: 4,
-            height: 4,
-            borderRadius: 2,
-            backgroundColor: "#FFFFFF",
-          }}
-        />
-      )}
     </View>
   );
 }
 
 function CenterPlusTabIcon({ focused }: { focused: boolean }) {
   return (
-    <View
-      style={{
-        width: 42,
-        height: 42,
-        borderRadius: 21,
-        backgroundColor: "#FFFFFF",
-        alignItems: "center",
-        justifyContent: "center",
-        elevation: 4,
-        shadowColor: "#000000",
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
-        opacity: focused ? 0.92 : 1,
-      }}
-    >
-      <Plus size={22} color="#FF6347" strokeWidth={2.4} />
+    <View style={{ alignItems: "center", justifyContent: "center", height: 44, width: 44 }}>
+      <View
+        style={{
+          width: 38,
+          height: 38,
+          borderRadius: 19,
+          overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#FFFFFF",
+        }}
+      >
+        <Plus size={22} color="#F96951" strokeWidth={2.4} />
+      </View>
     </View>
   );
 }
 
 // ─── Local Tray Notification for Admin Customer Inquiries & Escalations ───────
-async function scheduleCustomerNotification(senderName: string, text: string) {
-  try {
-    if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return;
-    const Notifications = require("expo-notifications");
-    if (typeof Notifications?.scheduleNotificationAsync === "function") {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: `💬 Customer Inquiry: ${senderName}`,
-          body: text || "You have a new customer message or escalation.",
-          sound: "default",
-          data: { screen: "messages" },
-        },
-        trigger: null, // Fire immediately
-      });
-    }
-  } catch (e) {
-    // Graceful no-op in dev/Expo Go
-  }
-}
 
 function DashboardIcon({ color }: { color: string; focused: boolean }) {
   return (
@@ -167,7 +143,7 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
   );
 }
 
-const ADMIN_ALLOWED_TAB_ROUTES = ["dashboard", "escalations/index", "orders"];
+const ADMIN_ALLOWED_TAB_ROUTES = ["dashboard", "escalations/index", "orders", "settings"];
 
 export default function AdminLayout() {
   const insets = useSafeAreaInsets();
@@ -237,7 +213,8 @@ export default function AdminLayout() {
         } else {
           if (totalUnread > prevCountRef.current) {
             // New message/escalation arrived — trigger local system notification
-            await scheduleCustomerNotification(latestSender, latestMsg);
+            // Push delivery comes from the server. Polling updates badges only,
+            // otherwise the same message produces a second local notification.
           }
           prevCountRef.current = totalUnread;
           setUnreadCount(totalUnread);
@@ -301,7 +278,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="escalations/index"
         options={{
-          title: "Bookings",
+          title: "Order requests",
           tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><BookingsIcon color={String(color)} focused={focused} /></FloatingTabIcon>,
         }}
       />
