@@ -287,7 +287,7 @@ export class AuthService {
 
   async postGoogle(input: AuthInput<"postGoogle">) {
 
-    const { idToken, role } = input.body;
+    const { idToken, role, intent } = input.body;
     if (!idToken) return rejectRequest({ error: "Google sign-in didn't finish. Please try again." }, 400);
 
     // Restrict self-registration to customer or admin only (staff are invited by admins)
@@ -326,6 +326,9 @@ export class AuthService {
     }
 
     if (!user) {
+      if (intent !== "signup") {
+        return rejectRequest({ code: "ACCOUNT_NOT_FOUND", error: "You don't have an Owuja account with this Google email yet. Please create an account first." }, 404);
+      }
       // Create new user with selected role
       const createdUserId = await this.database.identityClient.$transaction(async (tx) => {
         const newUser = await tx.user.create({

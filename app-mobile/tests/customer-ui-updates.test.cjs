@@ -64,6 +64,7 @@ test('Google account selection signs out the SDK before interactive sign-in with
     '@/stores/useAuthStore': { useAuthStore: selector => selector({ setSession: () => assert.fail('Must preserve current session') }) },
     'expo-router': { router: {} },
     '@/shared/utils/pushNotifications': { registerPushToken: async () => {} },
+    '@/shared/utils/alertEmitter': { alertEmitter: { emit: () => {} } },
     '@react-native-google-signin/google-signin': { GoogleSignin: google, isSuccessResponse: response => response.type === 'success', isCancelledResponse: response => response.type === 'cancelled' },
   });
   await hook.useGoogleAuth().promptAsync();

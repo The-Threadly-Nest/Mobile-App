@@ -118,7 +118,7 @@ export default function SignupScreen() {
     }
   };
 
-  const { promptAsync: triggerGoogleAuth, error: googleError, loading: googleLoading } = useGoogleAuth(role);
+  const { promptAsync: triggerGoogleAuth, error: googleError, loading: googleLoading } = useGoogleAuth(role, "signup");
 
   const handleGoogleAuth = () => {
     triggerGoogleAuth();

@@ -4,6 +4,7 @@ import { apiFetch } from "@/shared/utils/apiClient";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { router } from "expo-router";
 import { registerPushToken } from "@/shared/utils/pushNotifications";
+import { alertEmitter } from "@/shared/utils/alertEmitter";
 
 // Dynamically import Google Sign-In to prevent crashing in Expo Go
 let GoogleSignin: any = null;
@@ -27,7 +28,7 @@ if (hasNativeModule) {
   }
 }
 
-export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
+export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer", intent: "login" | "signup" = "login") {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const signInBusy = useRef(false);
@@ -65,7 +66,8 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
 
       const data = await apiFetch<any>("/api/auth/google", {
         method: "POST",
-        body: JSON.stringify({ idToken, role: selectedRole }),
+        body: JSON.stringify({ idToken, role: selectedRole, intent }),
+        silent: true,
       });
 
       const userVerified = data.user.isVerified ?? true;
@@ -97,6 +99,16 @@ export function useGoogleAuth(selectedRole: "customer" | "admin" = "customer") {
       } else if (data.user.role === "staff") router.replace("/(auth)/loading" as any);
       else router.replace("/(auth)/loading" as any);
     } catch (e: any) {
+      if (e?.details?.responseBody?.code === "ACCOUNT_NOT_FOUND") {
+        alertEmitter.emit({
+          title: "No account found",
+          message: "You don't have an Owuja account with this Google email yet. Please create an account to continue.",
+          confirmLabel: "Create account",
+          cancelLabel: "Cancel",
+          onConfirm: () => router.push("/(auth)/signup"),
+        });
+        return;
+      }
       if (e.message?.includes("Network request failed") || e.name === "TypeError") {
         setError("Unable to connect to server. Please check your internet connection.");
       } else {
