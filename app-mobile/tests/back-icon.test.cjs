@@ -19,14 +19,22 @@ test('shared back icon uses the existing chevron and preserves screen colors and
   assert.equal(icon.type, ChevronLeft);
   assert.equal(icon.props.size, 18);
   assert.equal(icon.props.color, '#FFFFFF');
-  assert.equal(compiled.exports.BackArrowIcon({}).props.size, 20);
+  assert.equal(compiled.exports.BackArrowIcon({}).props.size, 24);
+  assert.equal(compiled.exports.BackArrowIcon({}).props.color, '#2B2B2B');
 });
 test('screens do not bypass the shared icon with old back-arrow glyphs', () => {
   function walk(directory) {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const file = path.join(directory, entry.name);
       if (entry.isDirectory()) walk(file);
-      else if (file.endsWith('.tsx')) assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /<ArrowLeft\b|name=["']arrow-back["']|name=["']arrow-left["']/, file);
+      else if (file.endsWith('.tsx')) {
+        const source = fs.readFileSync(file, 'utf8');
+        assert.doesNotMatch(source, /<ArrowLeft\b|<ChevronLeft\b|source=\{assets\.back\}|name=["']arrow-back["']|name=["']arrow-left["']/, file);
+        for (const tag of source.match(/<BackArrowIcon\b[^>]*\/>/g) || []) {
+          const size = tag.match(/size=\{(\d+)\}/);
+          if (size) assert.equal(Number(size[1]), 24, file);
+        }
+      }
     }
   }
   walk(path.resolve(__dirname, '../app'));

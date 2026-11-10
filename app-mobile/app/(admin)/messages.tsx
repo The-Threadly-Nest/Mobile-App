@@ -856,11 +856,11 @@ export default function AdminMessagesScreen() {
       <View style={styles.headerBar}>
         {selectedCustomer ? (
           <TouchableOpacity style={styles.headerBtn} onPress={closeThread}>
-            <BackArrowIcon size={20} color="#453332" />
+            <BackArrowIcon size={24} color="#453332" />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.headerBtn} onPress={() => router.back()}>
-            <BackArrowIcon size={20} color="#453332" />
+            <BackArrowIcon size={24} color="#453332" />
           </TouchableOpacity>
         )}
 
@@ -1082,7 +1082,7 @@ export default function AdminMessagesScreen() {
                     {uploadingImage ? <ActivityIndicator size="small" color="#8A7550" /> : <Paperclip size={20} color="#8A7550" />}
                   </Pressable>
                   <Pressable onPress={() => void handlePickImage('camera')} disabled={uploadingImage} style={styles.composerIconBtn}>
-                    <Camera size={20} color="#8A7550" />
+                    <Camera size={20} color="#F96951" />
                   </Pressable>
                 </View>
 
@@ -1259,7 +1259,7 @@ const styles = StyleSheet.create({
     color: '#8A7550',
   },
   unreadBadge: {
-    backgroundColor: '#453332',
+    backgroundColor: '#F96951',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,

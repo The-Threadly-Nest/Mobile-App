@@ -343,11 +343,11 @@ export const invoicesApi = {
 };
 
 export const ordersApi = {
-  getOrders: async () => {
+  getOrders: async (fresh = false) => {
     const orders: any[] = [];
     let page: number | null = 1;
     while (page !== null) {
-      const result: CollectionPage<any> = await apiFetchCollectionPage<any>(`/api/orders?page=${page}&limit=100`, { silent: true });
+      const result: CollectionPage<any> = await apiFetchCollectionPage<any>(`/api/orders?page=${page}&limit=100`, { silent: true, ...(fresh ? { cache: "reload" as const } : {}) });
       orders.push(...result.items);
       page = result.nextPage && result.nextPage > page ? result.nextPage : null;
     }

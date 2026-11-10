@@ -15,6 +15,7 @@ export default function InviteStaffScreen() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,6 +32,10 @@ export default function InviteStaffScreen() {
       return;
     }
 
+    if (password && (password.length < 8 || password.length > 72 || !/[A-Z]/.test(password) || !/\d/.test(password))) {
+      setError("Use 8–72 characters with an uppercase letter and a number, or leave the password blank.");
+      return;
+    }
     setLoading(true);
     try {
       await apiFetch("/api/staff/invite", {
@@ -38,6 +43,7 @@ export default function InviteStaffScreen() {
         body: JSON.stringify({
           name: name.trim(),
           email: email.trim().toLowerCase(),
+          ...(password ? { password } : {}),
         }),
       });
 
@@ -72,14 +78,14 @@ export default function InviteStaffScreen() {
               onPress={() => router.push("/(admin)/staff" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={18} color="#3B0508" />
+              <BackArrowIcon size={24} color="#3B0508" />
             </Pressable>
             <Text style={styles.headerTitle}>Invite Staff</Text>
           </View>
 
           {/* Subtitle Message */}
           <Text style={styles.subtitle}>
-            They'll get an email invite to set their own password and activate their account.
+            They'll receive an activation code. Set an optional password for them, or let them choose one. They can also activate with their invited Google email.
           </Text>
 
           {/* Form Fields */}
@@ -116,6 +122,11 @@ export default function InviteStaffScreen() {
             </View>
 
             {/* Error message */}
+            <View style={styles.fieldWrapper}>
+              <View style={styles.labelContainer}><Text style={styles.floatingLabel}>Password (optional)</Text></View>
+              <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoCorrect={false} placeholder="8+ characters, uppercase and number" placeholderTextColor="#A89E90" />
+            </View>
+            <Text style={styles.subtitle}>Share this password privately. The account stays inactive until the invitation is verified.</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
             {/* Send Invite Button */}

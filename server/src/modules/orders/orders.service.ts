@@ -571,10 +571,7 @@ export class OrdersService {
     const whereClause: any = { fashionHouseId: fhId };
 
     if (input.authRole === "staff") {
-      whereClause.OR = [
-        { staffId: input.authUserId },
-        { staffId: null },
-      ];
+      whereClause.staffId = input.authUserId;
     }
 
     const orders = await this.database.client.order.findMany({
@@ -615,6 +612,7 @@ export class OrdersService {
       },
     });
 
+    if (input.authRole === "staff" && (!order || order.staffId !== input.authUserId)) return rejectRequest({ error: "This order is not assigned to you." }, 403);
     if (!order) {
       const booking = await this.database.client.booking.findFirst({
         where: { id: routeParam(input, "id"), fashionHouseId: fhId },
@@ -653,10 +651,10 @@ export class OrdersService {
 
     if (staffId) {
       const staffUser = await this.database.client.user.findFirst({
-        where: { id: staffId, fashionHouseId: fhId, role: "staff" },
+        where: { id: staffId, fashionHouseId: fhId, role: "staff", active: true },
       });
       if (!staffUser) {
-        return rejectRequest({ error: "Staff member not found in your fashion house." }, 404);
+        return rejectRequest({ error: "Choose an activated staff member from your fashion house." }, 400);
       }
     }
 
@@ -687,6 +685,14 @@ export class OrdersService {
     });
     if (!order) {
       return rejectRequest({ error: "Order not found." }, 404);
+    }
+
+    const readyToWear = Array.isArray(order.items) && order.items.length > 0 && order.items.every(item => item && typeof item === "object" && !Array.isArray(item) && typeof item.selectedSize === "string" && item.selectedSize.length > 0);
+    if (input.authRole === "staff" && (readyToWear || order.staffId !== input.authUserId)) {
+      return rejectRequest({ error: "You can update only custom-fit orders assigned to you." }, 403);
+    }
+    if (input.authRole === "admin" && !readyToWear && status !== "cancelled" && status !== "declined") {
+      return rejectRequest({ error: "The assigned staff member updates custom-fit progress. You can update ready-to-wear orders." }, 403);
     }
 
     const updated = await this.database.client.order.update({

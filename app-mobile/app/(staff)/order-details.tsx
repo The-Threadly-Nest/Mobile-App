@@ -8,6 +8,7 @@ import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
+import { isReadyToWear } from "@/shared/utils/orderFulfillment";
 
 const STAGE_LABELS: Record<string, { label: string; percent: number }> = {
   booked: { label: "Booked", percent: 16 },
@@ -45,7 +46,7 @@ export default function StaffOrderDetailScreen() {
       return;
     }
     try {
-      setOrder(await apiFetch<any>(`/api/orders/${params.orderId}`, { silent: true }));
+      setOrder(await apiFetch<any>(`/api/orders/${params.orderId}`, { silent: true, cache: "reload" }));
     } catch (err) {
       console.warn("Could not fetch order detail:", err);
     } finally {
@@ -86,7 +87,7 @@ export default function StaffOrderDetailScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#453332" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
         <Text style={styles.headerTitleText}>Order Details</Text>
         <View style={{ width: 36 }} />
@@ -167,7 +168,7 @@ export default function StaffOrderDetailScreen() {
         </View>
 
         {/* Update Progress Button */}
-        <Pressable
+        {order && !isReadyToWear(order) ? <Pressable
           onPress={() =>
             router.push({
               pathname: "/(staff)/update-progress",
@@ -185,7 +186,7 @@ export default function StaffOrderDetailScreen() {
         >
           <Text style={styles.actionBtnText}>Update Order Progress</Text>
           <ArrowRight size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
-        </Pressable>
+        </Pressable> : null}
       </ScrollView>
     </SafeAreaView>
   );

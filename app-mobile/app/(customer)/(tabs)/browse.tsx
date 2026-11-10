@@ -20,12 +20,16 @@ import { loadCatalogFavorites, saveCatalogFavorite } from "@/shared/utils/catalo
 import { formatCurrency } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import CachedImage from "@/shared/components/CachedImage";
+import CatalogFilters from "@/shared/components/CatalogFilters";
+import { filterCatalogItems } from "@/shared/utils/catalogFilters";
 
 interface ProductCardItem {
   id: string;
   name: string;
   category: string;
   price: number | null;
+  fulfillmentType?: string;
+  createdAt?: string;
 
   imageUrl: any;
   isFavorite?: boolean;
@@ -76,10 +80,14 @@ export default function BrowseScreen() {
   }, [loadUnread]));
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [fulfillmentFilter, setFulfillmentFilter] = useState("");
+  const [sort, setSort] = useState("newest");
+  const catalogRevision = React.useRef(0);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [fashionHouses, setFashionHouses] = useState<FashionHouseSummary[]>(() => getCachedResponse<FashionHouseSummary[]>("/api/fashion-houses?limit=20") || []);
   const [housesError, setHousesError] = useState("");
-  const [products, setProducts] = useState<ProductCardItem[]>(() => (getCachedResponse<any[]>("/api/catalog/marketplace?page=1&limit=50") || []).map(item => ({ id: item.id, name: item.name, category: item.category || "", price: item.priceFrom, imageUrl: item.imageUrl })));
+  const [products, setProducts] = useState<ProductCardItem[]>(() => (getCachedResponse<any[]>("/api/catalog/marketplace?page=1&limit=50") || []).map(item => ({ id: item.id, name: item.name, category: item.category || "", price: item.priceFrom, imageUrl: item.imageUrl, fulfillmentType: item.fulfillmentType, createdAt: item.createdAt })));
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(() => !getCachedResponse("/api/catalog/marketplace?page=1&limit=50"));
@@ -124,18 +132,20 @@ export default function BrowseScreen() {
   }, []);
 
   const loadCatalog = useCallback(async (page = 1) => {
+    const revision = ++catalogRevision.current;
     setError("");
     setRefreshing(true);
     try {
-      const response = await apiFetchCollectionPage<{ id: string; name: string; category: string | null; priceFrom: number | null; imageUrl: string }>(
-        `/api/catalog/marketplace?page=${page}&limit=50`, { silent: true });
-      const items = response.items.map(item => ({ id: item.id, name: item.name, category: item.category || "", price: item.priceFrom, imageUrl: item.imageUrl }));
+      const response = await apiFetchCollectionPage<{ id: string; name: string; category: string | null; priceFrom: number | null; imageUrl: string; fulfillmentType: string; createdAt: string }>(
+        `/api/catalog/marketplace?page=${page}&limit=50${fulfillmentFilter ? `&fulfillmentType=${fulfillmentFilter}` : ""}${sort !== "newest" ? `&sort=${sort}` : ""}`, { silent: true, cache: "reload" });
+      if (revision !== catalogRevision.current) return;
+      const items = response.items.map(item => ({ id: item.id, name: item.name, category: item.category || "", price: item.priceFrom, imageUrl: item.imageUrl, fulfillmentType: item.fulfillmentType, createdAt: item.createdAt }));
       setProducts(previous => page === 1 ? items : [...new Map([...previous, ...items].map(item => [item.id, item])).values()]);
       setNextPage(response.nextPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "We couldn't load the catalog. Please try again.");
-    } finally { setRefreshing(false); setLoading(false); }
-  }, []);
+      if (revision === catalogRevision.current) setError(err instanceof Error ? err.message : "We couldn't load the catalog. Please try again.");
+    } finally { if (revision === catalogRevision.current) { setRefreshing(false); setLoading(false); } }
+  }, [fulfillmentFilter, sort]);
   useFocusEffect(useCallback(() => {
     void loadCatalog();
     void loadFashionHouses();
@@ -157,7 +167,7 @@ export default function BrowseScreen() {
     } catch (err) { setFavorites(current => ({ ...current, [id]: previous })); showAlert("Couldn't save item", err instanceof Error ? err.message : "Please try again."); }
     finally { favoriteLock.current = false; setSavingFavorite(false); }
   }
-  const filteredRecommend = products.filter(item =>
+  const filteredRecommend = filterCatalogItems(products, fulfillmentFilter, sort).filter(item =>
     (!searchQuery.trim() || item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
     && (!selectedCategory || normalizeCategory(item.category) === selectedCategory));
   const onRefresh = useCallback(async () => { invalidateReadCache(); await Promise.all([loadCatalog(1), loadUnread(), loadFashionHouses()]); }, [loadCatalog, loadUnread, loadFashionHouses]);
@@ -209,7 +219,7 @@ export default function BrowseScreen() {
               onChangeText={setSearchQuery}
             />
           </View>
-          <Pressable accessibilityLabel="Show all categories" onPress={() => { setSelectedCategory(""); setSearchQuery(""); scrollRef.current?.scrollTo({ y: catalogOffset.current, animated: true }); }} style={styles.filterBtn}>
+          <Pressable accessibilityLabel="Filter dashboard" onPress={() => setFiltersVisible(true)} style={styles.filterBtn}>
             <SlidersHorizontal size={18} color="#FFFFFF" />
           </Pressable>
         </View>
@@ -219,7 +229,7 @@ export default function BrowseScreen() {
           <View style={styles.bannerTextCol}>
             <Text style={styles.bannerTitle}>New Collection</Text>
             <Text style={styles.bannerSubtitle}>Discover clothing from{"\n"}independent fashion houses</Text>
-            <Pressable onPress={() => scrollRef.current?.scrollTo({ y: catalogOffset.current, animated: true })} style={styles.shopNowBtn}>
+            <Pressable onPress={() => router.push("/(customer)/marketplace")} style={styles.shopNowBtn}>
               <Text style={styles.shopNowText}>Shop Now</Text>
             </Pressable>
           </View>
@@ -236,6 +246,7 @@ export default function BrowseScreen() {
         <View style={styles.fashionHousesSection}>
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Fashion Houses</Text>
+            <Pressable onPress={() => router.push("/(customer)/fashion-houses")}><Text style={styles.viewAllText}>View All</Text></Pressable>
           </View>
           {housesError ? <Text style={{ color: "#9F1239", marginBottom: 12 }}>{housesError}</Text> : !fashionHouses.length && !loading ? <Text style={{ color: "#746765", marginBottom: 12 }}>No fashion houses are available yet.</Text> : null}
           <ScrollView
@@ -300,7 +311,7 @@ export default function BrowseScreen() {
         {/* Recommend For You Section */}
         <View onLayout={event => { catalogOffset.current = event.nativeEvent.layout.y; }} style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>For You</Text>
-          <Pressable onPress={() => { setSelectedCategory(""); setSearchQuery(""); }}>
+          <Pressable onPress={() => router.push("/(customer)/marketplace")}>
             <Text style={styles.viewAllText}>View All</Text>
           </Pressable>
         </View>
@@ -363,6 +374,7 @@ export default function BrowseScreen() {
         {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#2B2B2B" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
       </ScrollView>
 
+      <CatalogFilters visible={filtersVisible} onClose={() => { setFiltersVisible(false); scrollRef.current?.scrollTo({ y: catalogOffset.current, animated: true }); }} type={fulfillmentFilter} onTypeChange={setFulfillmentFilter} sort={sort} onSortChange={setSort} />
     </SafeAreaView>
   );
 }
@@ -514,7 +526,7 @@ const styles = StyleSheet.create({
   },
   shopNowBtn: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 6,
+    borderRadius: 999,
     paddingVertical: 6,
     paddingHorizontal: 14,
     alignSelf: "flex-start",

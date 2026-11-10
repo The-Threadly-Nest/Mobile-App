@@ -591,7 +591,7 @@ export default function StaffChatScreen() {
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#453332" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
 
         <View style={styles.headerInfoCol}>
@@ -835,7 +835,7 @@ export default function StaffChatScreen() {
                   {uploadingImage ? <ActivityIndicator size="small" color="#8A7550" /> : <Paperclip size={20} color="#8A7550" />}
                 </Pressable>
                 <Pressable onPress={() => void handlePickImage("camera")} disabled={uploadingImage} style={styles.composerIconBtn}>
-                  <Camera size={20} color="#8A7550" />
+                  <Camera size={20} color="#F96951" />
                 </Pressable>
               </View>
 

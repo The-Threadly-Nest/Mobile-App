@@ -478,7 +478,7 @@ export default function StaffDrawScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => [styles.floatBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={16} color="#453332" />
+              <BackArrowIcon size={24} color="#453332" />
             </Pressable>
 
             <View style={styles.floatDivider} />
@@ -562,7 +562,7 @@ export default function StaffDrawScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={20} color="#000000" />
+            <BackArrowIcon size={24} color="#000000" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketchpad</Text>
         </View>

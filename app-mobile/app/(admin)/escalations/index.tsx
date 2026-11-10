@@ -229,7 +229,9 @@ export default function BookingsScreen() {
                   router.push({
                     pathname: "/(admin)/measurements/new",
                     params: {
-                      bookingId: booking.id,
+                      bookingId: booking.orderId ? undefined : booking.id,
+                      orderId: booking.orderId,
+                      fulfillmentType: "custom_fit",
                       customerName: booking.customerName,
                       serviceTitle: booking.serviceTitle,
                       appointmentTime: booking.appointmentTime,

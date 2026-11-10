@@ -191,10 +191,10 @@ export default function StaffDashboard() {
         });
         setOrders(formatted);
       } else if (orders.length === 0) {
-        setOrders(FALLBACK_STAFF_ORDERS);
+        setOrders([]);
       }
     } catch {
-      if (orders.length === 0) setOrders(FALLBACK_STAFF_ORDERS);
+      if (orders.length === 0) setOrders([]);
     } finally {
       setLoading(false);
     }

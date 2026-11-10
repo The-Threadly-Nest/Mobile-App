@@ -676,7 +676,7 @@ export default function CustomerDirectChatScreen() {
           hitSlop={8}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.6 : 1 }]}
         >
-          <BackArrowIcon size={26} color="#000000" />
+          <BackArrowIcon size={24} color="#000000" />
         </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>

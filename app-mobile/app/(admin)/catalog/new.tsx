@@ -4,7 +4,8 @@ import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { ChevronLeft, Camera, Check, UploadCloud, X } from "lucide-react-native";
+import { Camera, Check, UploadCloud, X } from "lucide-react-native";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { uploadFile } from "@/shared/utils/upload";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
@@ -133,7 +134,7 @@ export default function AdminNewGarmentScreen() {
               accessibilityLabel="Go back"
               style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <ChevronLeft size={20} color="#32343E" strokeWidth={2.2} />
+              <BackArrowIcon />
             </Pressable>
 
             <Text style={styles.headerTitle}>Add New Items</Text>
@@ -201,7 +202,7 @@ export default function AdminNewGarmentScreen() {
                   onPress={handlePickImage}
                   style={({ pressed }) => [styles.photoAddSlot, { opacity: pressed ? 0.7 : 1 }]}
                 >
-                  <Camera size={22} color="#9C9BA6" />
+                  <Camera size={22} color="#F96951" />
                   <Text style={styles.addText}>Add</Text>
                 </Pressable>
               )}

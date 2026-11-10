@@ -37,7 +37,7 @@ export default function RoleSelectScreen() {
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             hitSlop={8}
           >
-            <BackArrowIcon size={22} color="#3B0508" />
+            <BackArrowIcon size={24} color="#3B0508" />
           </Pressable>
         </View>
 

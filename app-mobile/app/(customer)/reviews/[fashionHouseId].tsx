@@ -10,7 +10,7 @@ export default function AllReviewsScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
         <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <BackArrowIcon size={20} color="#3A2E1A" />
+          <BackArrowIcon size={24} color="#3A2E1A" />
         </Pressable>
         <Text style={styles.headerTitle}>Customer Reviews</Text>
       </View>

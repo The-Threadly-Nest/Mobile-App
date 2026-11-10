@@ -171,7 +171,7 @@ export default function AdminEditGarmentScreen() {
               onPress={() => router.push("/(admin)/catalog" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={20} color="#3B0508" />
+              <BackArrowIcon size={24} color="#3B0508" />
             </Pressable>
             <Text style={styles.headerTitle}>Edit Garment</Text>
           </View>

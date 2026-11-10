@@ -4,7 +4,6 @@ import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import {
-  ChevronLeft,
   User,
   Tag,
   PenTool,
@@ -20,6 +19,7 @@ import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { ProfileDesignIcon, ProfileMenuGroups } from "@/shared/components/ProfileDesign";
 import { formatCurrency } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 
 const TOMATO = "#FF6347";
 
@@ -94,7 +94,7 @@ export default function AdminSettingsScreen() {
               accessibilityLabel="Go back"
               style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <ChevronLeft size={20} color="#FFFFFF" strokeWidth={2.4} />
+              <BackArrowIcon color="#FFFFFF" />
             </Pressable>
             <Text style={styles.headerTitle}>My Profile</Text>
           </View>

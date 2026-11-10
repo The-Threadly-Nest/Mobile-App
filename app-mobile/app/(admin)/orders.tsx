@@ -115,7 +115,7 @@ export default function AdminOrdersScreen() {
     }
     try {
       const [ordersRes, escRes] = await Promise.allSettled([
-        apiFetchCollectionPage<any>("/api/orders?page=1&limit=50", { silent: true }),
+        apiFetchCollectionPage<any>("/api/orders?page=1&limit=50", { silent: true, cache: "reload" }),
         escalationsApi.getEscalations(),
       ]);
 

@@ -240,7 +240,7 @@ export default function VerifyEmailScreen() {
         >
           {/* Back Button */}
           <Pressable style={[styles.backBtn, isLandscape && { marginBottom: 12 }]} onPress={handleBackNav}>
-            <BackArrowIcon size={20} color="#3A2E1A" />
+            <BackArrowIcon size={24} color="#3A2E1A" />
           </Pressable>
 
           {/* Top Phone Icon */}

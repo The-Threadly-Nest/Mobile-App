@@ -1,5 +1,5 @@
 import { createCatalogItemSchema, updateCatalogItemSchema } from "../../schemas/catalog.schema";
-import { collectionPaginationSchema } from "../../schemas/pagination.schema";
+import { collectionPaginationSchema, discoveryQuerySchema } from "../../schemas/pagination.schema";
 import { fashionHouseIdParamSchema, idParamSchema } from "../../schemas/params.schema";
 import type { ValidatedInput } from "../../core/http/endpoint-input";
 
@@ -8,7 +8,7 @@ export const catalogInputs = {
   post: { body: createCatalogItemSchema },
   patchById: { params: idParamSchema, body: updateCatalogItemSchema },
   deleteById: { params: idParamSchema },
-  getMarketplace: { query: collectionPaginationSchema },
+  getMarketplace: { query: discoveryQuerySchema },
   getFashionHouseByFashionHouseId: { params: fashionHouseIdParamSchema, query: collectionPaginationSchema },
   getItemById: { params: idParamSchema },
   getMeasurementSlots: { params: idParamSchema },

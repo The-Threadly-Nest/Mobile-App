@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { View, ScrollView, Pressable, ActivityIndicator, RefreshControl, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import {
   User,
   Scissors,
@@ -106,7 +106,7 @@ export default function OrderDetailScreen() {
         return;
       }
 
-      setOrder(await apiFetch<any>(`/api/orders/${orderId}`, { silent: true }));
+      setOrder(await apiFetch<any>(`/api/orders/${orderId}`, { silent: true, cache: "reload" }));
     } catch (e) {
       setLoadError("We couldn't load these details. Pull down to try again.");
     } finally {
@@ -114,9 +114,11 @@ export default function OrderDetailScreen() {
     }
   }, [orderId, initialPrice]);
 
-  useEffect(() => {
-    fetchOrderDetail();
-  }, [fetchOrderDetail]);
+  useFocusEffect(useCallback(() => {
+    void fetchOrderDetail();
+    const timer = setInterval(() => { void fetchOrderDetail(); }, 15_000);
+    return () => clearInterval(timer);
+  }, [fetchOrderDetail]));
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -199,7 +201,7 @@ export default function OrderDetailScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={18} color="#3B0508" />
+              <BackArrowIcon size={24} color="#3B0508" />
             </Pressable>
             <View>
               <Text style={styles.headerTitle}>Order Details</Text>

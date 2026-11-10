@@ -121,7 +121,7 @@ export default function StaffScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={18} color="#3B0508" />
+            <BackArrowIcon size={24} color="#3B0508" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Staff</Text>
@@ -184,7 +184,7 @@ export default function StaffScreen() {
                     {item.unreadCount && item.unreadCount > 0 ? (
                       <View
                         style={{
-                          backgroundColor: "#D32F2F",
+                          backgroundColor: "#F96951",
                           minWidth: 22,
                           height: 22,
                           borderRadius: 11,

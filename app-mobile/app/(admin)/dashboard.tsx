@@ -115,7 +115,7 @@ export default function AdminDashboard() {
       const [profileRes, summaryRes, ordersRes, escalationsRes, catalogRes] = await Promise.allSettled([
         adminApi.getProfile(),
         adminApi.getDashboardSummary(),
-        ordersApi.getOrders(),
+        ordersApi.getOrders(true),
         escalationsApi.getEscalations(),
         apiFetchCollectionPage<CatalogItem>("/api/catalog?page=1&limit=10", { silent: true }),
       ]);
@@ -172,6 +172,9 @@ export default function AdminDashboard() {
       fetchData();
       const interval = setInterval(async () => {
         try {
+          const liveOrders = await ordersApi.getOrders(true);
+          setOrders(liveOrders);
+          setCachedOrders(liveOrders);
           const latestSummary = await adminApi.getDashboardSummary();
           setSummary(latestSummary);
           setCachedSummary(latestSummary);
@@ -550,7 +553,7 @@ export default function AdminDashboard() {
                                 onConfirm: () =>
                                   router.push({
                                     pathname: "/(admin)/measurements/new",
-                                    params: { bookingId: item.id, customerName },
+                                    params: { bookingId: item.orderId ? undefined : item.id, orderId: item.orderId, customerName, serviceTitle: detail, fulfillmentType: "custom_fit", returnToAssign: "true" },
                                   } as any),
                               }
                             );

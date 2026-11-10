@@ -5,7 +5,7 @@ import type { StaffInput } from "./staff.dto";
 import { result, rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
 
-import { generateResetToken, hashResetToken } from "../../lib/password";
+import { generateResetToken, hashResetToken, hashPassword } from "../../lib/password";
 import { sendStaffActivationEmail } from "../../lib/mailer";
 
 @Injectable()
@@ -44,7 +44,7 @@ export class StaffService {
   async postInvite(input: StaffInput<"postInvite">) {
 
     const fh = await this.getOwnFashionHouse(input.authUserId!);
-    const { name, email } = input.body;
+    const { name, email, password } = input.body;
 
     const existing = await this.database.client.user.findUnique({ where: { email } });
     if (existing) {
@@ -71,7 +71,7 @@ export class StaffService {
       data: {
         name: name ? name.trim() : null,
         email,
-        passwordHash: null,
+        passwordHash: password ? await hashPassword(password) : null,
         role: "staff",
         fashionHouseId: fh.id,
         active: false,

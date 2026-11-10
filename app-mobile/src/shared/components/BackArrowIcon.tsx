@@ -6,7 +6,7 @@ interface BackArrowIconProps {
   color?: string;
 }
 
-export function BackArrowIcon({ size = 20, color = "#000000" }: BackArrowIconProps) {
+export function BackArrowIcon({ size = 24, color = "#2B2B2B" }: BackArrowIconProps) {
   return (
     <ChevronLeft size={size} color={color} strokeWidth={1.5} />
   );

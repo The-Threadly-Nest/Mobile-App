@@ -43,7 +43,7 @@ export default function BookingConfirmationScreen() {
             className="w-10 h-10 rounded-full border border-[#E4D5B7] bg-white items-center justify-center mr-4"
             style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={18} color="#453332" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
           <Text className="font-display text-[20px] font-bold text-black">
             Booking Request
@@ -78,7 +78,7 @@ export default function BookingConfirmationScreen() {
           className="w-10 h-10 rounded-full border border-[#D1D1D1] bg-white items-center justify-center mr-4"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={18} color="#000000" />
+          <BackArrowIcon size={24} color="#000000" />
         </Pressable>
         <Text className="font-display text-[20px] font-bold text-black">
           Confirmation

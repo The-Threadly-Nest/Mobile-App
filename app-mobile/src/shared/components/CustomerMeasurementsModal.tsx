@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Image, Modal, Pressable, ScrollView, StyleSheet, View, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { X, Ruler, ChevronRight, ChevronLeft } from "lucide-react-native";
+import { X, Ruler, ChevronRight } from "lucide-react-native";
+import BackArrowIcon from "./BackArrowIcon";
 import { measurementGroups, measurementLabel, type CustomerMeasurement } from "../utils/customerMeasurements";
 
 export default function CustomerMeasurementsModal({ visible, onClose, rows, loading, error, onRetry }: {
@@ -35,7 +36,7 @@ export default function CustomerMeasurementsModal({ visible, onClose, rows, load
                 onPress={() => setSelectedHouseId(null)}
                 style={styles.iconButton}
               >
-                <ChevronLeft size={20} color="#000000" />
+                <BackArrowIcon />
               </Pressable>
             ) : (
               <View style={styles.headingIcon}><Ruler size={21} color="#F96951" /></View>

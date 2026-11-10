@@ -115,7 +115,7 @@ export default function AdminStaffMoodBoardScreen() {
             marginRight: 4,
           }}
         >
-          <BackArrowIcon size={18} color="#3B0508" />
+          <BackArrowIcon size={24} color="#3B0508" />
         </Pressable>
         <View className="flex-1">
           <Text

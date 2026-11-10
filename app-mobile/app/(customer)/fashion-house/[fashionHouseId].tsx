@@ -182,7 +182,7 @@ export default function FashionHouseScreen() {
               accessibilityLabel="Back"
               style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <BackArrowIcon size={22} color="#FFFFFF" />
+              <BackArrowIcon size={24} color="#FFFFFF" />
             </Pressable>
 
             <Pressable

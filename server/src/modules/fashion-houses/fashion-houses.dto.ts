@@ -1,9 +1,9 @@
-import { collectionPaginationSchema } from "../../schemas/pagination.schema";
+import { discoveryQuerySchema } from "../../schemas/pagination.schema";
 import { idParamSchema } from "../../schemas/params.schema";
 import type { ValidatedInput } from "../../core/http/endpoint-input";
 
 export const fashionHousesInputs = {
-  get: { query: collectionPaginationSchema },
+  get: { query: discoveryQuerySchema },
   getById: { params: idParamSchema },
 } as const;
 

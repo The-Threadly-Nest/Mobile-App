@@ -176,7 +176,7 @@ export default function AdminMoodBoardRedesignScreen() {
               onPress={() => router.push("/(admin)/settings" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={20} color="#000000" />
+              <BackArrowIcon size={24} color="#000000" />
             </Pressable>
             <Text style={styles.headerTitle}>Moodboards</Text>
           </View>

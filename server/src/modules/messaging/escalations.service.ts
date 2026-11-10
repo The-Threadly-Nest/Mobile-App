@@ -130,8 +130,8 @@ export class EscalationsService {
     if (!escalation) return rejectRequest({ error: "We couldn't find that support request. Please refresh and try again." }, 404);
 
     if (input.body.assignToStaffId) {
-      const staff = await this.database.client.user.findFirst({ where: { id: input.body.assignToStaffId, fashionHouseId: fh.id, role: "staff" } });
-      if (!staff) return rejectRequest({ error: "Staff member not found in this fashion house" }, 404);
+      const staff = await this.database.client.user.findFirst({ where: { id: input.body.assignToStaffId, fashionHouseId: fh.id, role: "staff", active: true } });
+      if (!staff) return rejectRequest({ error: "Choose an activated staff member from your fashion house." }, 400);
     }
 
     const updated = await this.database.client.chatEscalation.update({
@@ -200,11 +200,12 @@ export class EscalationsService {
         });
         if (!ownedBooking) return rejectRequest({ error: "Booking not found." }, 404);
       }
+      if (!staffId) return rejectRequest({ error: "Add an activated staff member before assigning this request." }, 400);
       let validStaffId: string | null = null;
       if (staffId) {
         if (typeof staffId !== "string") return rejectRequest({ error: "Invalid staff member." }, 400);
         const staffUser = await this.database.client.user.findFirst({
-          where: { id: staffId, fashionHouseId: fh.id, role: "staff" },
+          where: { id: staffId, fashionHouseId: fh.id, role: "staff", active: true },
         });
         if (!staffUser) return rejectRequest({ error: "Staff member not found." }, 404);
         validStaffId = staffUser.id;

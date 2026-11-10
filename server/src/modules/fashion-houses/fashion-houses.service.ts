@@ -19,6 +19,10 @@ export class FashionHousesService {
 
     const { page, limit } = input.query as unknown as CollectionPagination;
     const houses = await this.database.client.fashionHouse.findMany({
+      where: input.query.q ? { OR: [
+        { shopName: { contains: input.query.q, mode: "insensitive" } },
+        { location: { contains: input.query.q, mode: "insensitive" } },
+      ] } : undefined,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       ...collectionWindow(page, limit),
       include: {

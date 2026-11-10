@@ -4,6 +4,7 @@ import { Text } from "@/shared/components/Typography";
 import { ChevronLeft, ChevronRight, User, Settings, LogOut, Star, ShoppingBag } from "lucide-react-native";
 import { ProfilePhoto } from "./ProfilePhoto";
 import { SCREEN_TOP_SPACING } from "../utils/screenSpacing";
+import BackArrowIcon from "./BackArrowIcon";
 
 const icons = {
   back: ChevronLeft,
@@ -27,8 +28,9 @@ export function ProfileMenuGroups({ children }: { children: React.ReactNode }) {
 }
 
 export function ProfileDesignIcon({ name }: { name: keyof typeof icons }) {
-  const width = name === "back" ? 39.7906 : name === "chevron" ? 26.5271 : 21.2217;
-  const height = name === "back" ? 39.7907 : width;
+  if (name === "back") return <BackArrowIcon />;
+  const width = name === "chevron" ? 26.5271 : 21.2217;
+  const height = width;
   const Icon = icons[name];
   return <Icon width={width} height={height} color={name === "chevron" ? "#746765" : "#F96951"} strokeWidth={1.6} />;
 }

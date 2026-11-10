@@ -48,7 +48,7 @@ test("measurement booking claims the item's house slot, persists its purpose, an
     },
     booking: { create: async (args: any) => { saved = { id: "booking", ...args.data }; return saved; } },
   };
-  const client = { booking: { findFirst: async () => saved }, $transaction: async (fn: any) => fn(tx) };
+  const client = { user: { findUnique: async () => ({ name: "Customer" }) }, booking: { findFirst: async () => saved }, $transaction: async (fn: any) => fn(tx) };
   const service = new OrdersService({ client });
   const input = { authUserId: "customer", headers: { "idempotency-key": "measurement-test-123" }, body: { catalogItemId: "item", availableSlotId: "slot" } };
   assert.equal((await service.postMeasurementBooking(input)).status, 201);
@@ -94,7 +94,7 @@ test("checkout creates a real server-priced order and repeats the same request o
     customer: { findFirst: async () => ({ id: "customer-record" }) },
     order: { create: async (args: any) => { creates++; saved = { id: "order", ...args.data }; return saved; } },
   };
-  const service = new OrdersService({ client: { order: { findFirst: async (args: any) => { assert.deepEqual(args.where.customer, { userId: "customer" }); return saved; } }, $transaction: async (fn: any) => fn(tx) } });
+  const service = new OrdersService({ client: { user: tx.user, order: { findFirst: async (args: any) => { assert.deepEqual(args.where.customer, { userId: "customer" }); return saved; } }, $transaction: async (fn: any) => fn(tx) } });
   const input = { authUserId: "customer", headers: { "idempotency-key": "checkout-test-123" }, body: { fashionHouseId: "house", items: [{ ...line(), price: 1 }] } };
   assert.equal((await service.postCatalogCheckout(input)).status, 201);
   assert.equal(saved.price, 30000);

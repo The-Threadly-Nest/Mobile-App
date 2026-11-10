@@ -75,7 +75,7 @@ export function ProfilePhoto() {
           ? <Image source={{ uri: photo.url }} style={{ width: 88, height: 88 }} resizeMode="cover" />
           : <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 30, color: "#2B2B2B" }}>{displayName.charAt(0).toUpperCase()}</Text>}
       </View>
-      <View style={{ position: "absolute", right: -2, bottom: 0, backgroundColor: "#453332", borderRadius: 16, width: 32, height: 32, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "white" }}>
+      <View style={{ position: "absolute", right: -2, bottom: 0, backgroundColor: "#F96951", borderRadius: 16, width: 32, height: 32, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "white" }}>
         <Camera size={16} color="white" />
       </View>
     </Pressable>

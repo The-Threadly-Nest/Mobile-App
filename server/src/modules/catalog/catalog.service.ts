@@ -129,7 +129,15 @@ export class CatalogService {
 
     const { page, limit } = input.query as unknown as CollectionPagination;
     const items = await this.database.client.catalogItem.findMany({
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      where: {
+        ...(input.query.fulfillmentType ? { fulfillmentType: input.query.fulfillmentType } : {}),
+        ...(input.query.q ? { OR: [
+          { name: { contains: input.query.q, mode: "insensitive" as const } },
+          { category: { contains: input.query.q, mode: "insensitive" as const } },
+          { fashionHouse: { shopName: { contains: input.query.q, mode: "insensitive" as const } } },
+        ] } : {}),
+      },
+      orderBy: input.query.sort === "price_asc" ? [{ priceFrom: "asc" }, { id: "desc" }] : input.query.sort === "price_desc" ? [{ priceFrom: "desc" }, { id: "desc" }] : [{ createdAt: "desc" }, { id: "desc" }],
       ...collectionWindow(page, limit),
       include: {
         fashionHouse: {

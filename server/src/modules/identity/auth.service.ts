@@ -221,22 +221,23 @@ export class AuthService {
   async postActivateAccount(input: AuthInput<"postActivateAccount">) {
     const { email, token, password } = input.body;
     const user = await this.database.identityClient.user.findUnique({ where: { email } });
-    if (!user || user.role !== "staff" || user.active || user.passwordHash || user.resetTokenPurpose !== "staff_activation" ||
+    if (!user || user.role !== "staff" || user.active || user.resetTokenPurpose !== "staff_activation" ||
         !user.resetTokenHash || !user.resetTokenExpiresAt || user.resetTokenExpiresAt <= new Date()) {
       return rejectRequest({ error: "This invitation code is invalid or has expired. Ask your admin for a new one." }, 400);
     }
     const attempt = await this.database.identityClient.user.updateMany({
       where: { id: user.id, resetTokenHash: user.resetTokenHash, resetTokenPurpose: "staff_activation",
-        resetTokenExpiresAt: { gt: new Date() }, resetTokenAttempts: { lt: 5 }, active: false, passwordHash: null },
+        resetTokenExpiresAt: { gt: new Date() }, resetTokenAttempts: { lt: 5 }, active: false, passwordHash: user.passwordHash },
       data: { resetTokenAttempts: { increment: 1 } },
     });
     if (!attempt.count || !codeMatches(token, user.resetTokenHash)) {
       return rejectRequest({ error: "That invitation code didn't match. Please check it or ask your admin for a new one." }, 400);
     }
-    const passwordHash = await hashPassword(password);
+    const passwordHash = password ? await hashPassword(password) : user.passwordHash;
+    if (!passwordHash) return rejectRequest({ error: "Set a password to activate your account, or sign in with your invited Google email." }, 400);
     const updated = await this.database.identityClient.user.updateMany({
       where: { id: user.id, resetTokenHash: user.resetTokenHash, resetTokenPurpose: "staff_activation",
-        resetTokenExpiresAt: { gt: new Date() }, resetTokenAttempts: { lte: 5 }, active: false, passwordHash: null },
+        resetTokenExpiresAt: { gt: new Date() }, resetTokenAttempts: { lte: 5 }, active: false, passwordHash: user.passwordHash },
       data: { passwordHash, active: true, emailVerifiedAt: new Date(), resetTokenHash: null,
         resetTokenExpiresAt: null, resetTokenPurpose: null, resetTokenAttempts: 0 },
     });
@@ -308,7 +309,7 @@ export class AuthService {
       const payload = ticket.getPayload();
       if (!payload || !payload.email_verified) throw new Error("Unverified Google identity");
       googleId = payload.sub;
-      email = payload.email!;
+      email = payload.email!.trim().toLowerCase();
       name = payload.name;
     } catch {
       return rejectRequest({ error: "Google sign-in has expired. Please try signing in again." }, 401);
@@ -321,6 +322,14 @@ export class AuthService {
       include: { fashionHouseOwned: true },
     });
 
+    if (user && user.email.toLowerCase() === email && !user.active && user.role === "staff" && user.resetTokenPurpose === "staff_activation" && user.resetTokenExpiresAt && user.resetTokenExpiresAt > new Date() && (!user.googleId || user.googleId === googleId)) {
+      const activated = await this.database.identityClient.user.updateMany({
+        where: { id: user.id, email: user.email, googleId: user.googleId, role: "staff", active: false, resetTokenPurpose: "staff_activation", resetTokenExpiresAt: { gt: new Date() } },
+        data: { active: true, googleId, emailVerifiedAt: new Date(), resetTokenHash: null, resetTokenExpiresAt: null, resetTokenPurpose: null, resetTokenAttempts: 0 },
+      });
+      if (!activated.count) return rejectRequest({ error: "This invitation has expired. Ask your admin for a new invitation." }, 403);
+      user = await this.database.identityClient.user.findUnique({ where: { id: user.id }, include: { fashionHouseOwned: true } });
+    }
     if (user && (!user.active || (user.googleId && user.googleId !== googleId))) {
       return rejectRequest({ error: "Unable to sign in with this account." }, 401);
     }

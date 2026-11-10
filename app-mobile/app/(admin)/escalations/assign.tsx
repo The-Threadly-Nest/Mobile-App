@@ -57,7 +57,7 @@ export default function AssignStaffScreen() {
       try {
           const data = await staffApi.getStaff();
           if (Array.isArray(data) && data.length > 0) {
-            const mapped: TailorOption[] = data.map((st: any) => {
+            const mapped: TailorOption[] = data.filter((st: any) => st.active === true).map((st: any) => {
               const rawName = st.name ? st.name.trim() : "";
               const emailParts = st.email ? st.email.split("@")[0].split(/[._-]/) : ["Staff"];
               const fallbackName = emailParts.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
@@ -68,7 +68,7 @@ export default function AssignStaffScreen() {
               };
             });
             setTailors(mapped);
-            setSelectedTailorId(mapped[0].id);
+            setSelectedTailorId(mapped[0]?.id || "");
           }
       } catch {
         // Silent fallback
@@ -129,7 +129,7 @@ export default function AssignStaffScreen() {
             onPress={() => router.push("/(admin)/escalations" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={18} color="#3B0508" />
+            <BackArrowIcon size={24} color="#3B0508" />
           </Pressable>
           <Text style={styles.headerTitle}>Assign Staff</Text>
         </View>
@@ -181,6 +181,7 @@ export default function AssignStaffScreen() {
           <Text style={styles.selectTailorHeadline}>Assign Tailor / Stylist</Text>
 
           {/* Staff List */}
+          {!loadingStaff && !tailors.length ? <View style={styles.sectionCard}><Text style={styles.subtitle}>No activated staff are available. Invite a staff member and wait for them to activate before assigning.</Text><Pressable onPress={() => router.push("/(admin)/staff/invite")}><Text style={{ color: "#F96951", fontFamily: "InstrumentSans-SemiBold" }}>Invite staff</Text></Pressable></View> : null}
           {loadingStaff ? (
             <ActivityIndicator size="small" color="#453332" style={{ marginVertical: 24 }} />
           ) : (
@@ -220,7 +221,7 @@ export default function AssignStaffScreen() {
         <View style={styles.bottomBar}>
           <Pressable
             onPress={handleConfirm}
-            disabled={saving || loadingStaff}
+            disabled={saving || loadingStaff || !tailors.length}
             style={({ pressed }) => [
               styles.confirmBtn,
               { opacity: pressed ? 0.85 : 1 },

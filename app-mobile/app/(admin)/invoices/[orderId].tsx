@@ -603,7 +603,7 @@ export default function InvoiceDetailScreen() {
             }}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={18} color="#3B0508" />
+            <BackArrowIcon size={24} color="#3B0508" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Invoice</Text>

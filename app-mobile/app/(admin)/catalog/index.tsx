@@ -111,7 +111,7 @@ export default function AdminCatalogListScreen() {
           onPress={() => router.push("/(admin)/settings" as any)}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={18} color="#3B0508" />
+          <BackArrowIcon size={24} color="#3B0508" />
         </Pressable>
         <Text style={styles.headerTitle}>Garment Catalog</Text>
       </View>

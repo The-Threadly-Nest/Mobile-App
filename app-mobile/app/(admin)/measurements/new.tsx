@@ -68,6 +68,8 @@ export default function NewMeasurementScreen() {
   const params = useLocalSearchParams<{
     customerName?: string;
     bookingId?: string;
+    orderId?: string;
+    fulfillmentType?: string;
     serviceTitle?: string;
     appointmentTime?: string;
     returnToAssign?: string;
@@ -206,6 +208,7 @@ export default function NewMeasurementScreen() {
   };
 
   const handleSave = async () => {
+    if (saving) return;
     if (!customerName.trim()) {
       showAlert("Missing Name", "Please enter the customer's name before saving.");
       return;
@@ -225,25 +228,19 @@ export default function NewMeasurementScreen() {
         method: "POST",
         body: JSON.stringify(payload),
         silent: true,
-      }).catch(() => {});
+      });
 
-      if (params.returnToAssign === "true") {
-        showAlert("Measurements Saved!", "Redirecting to staff assignment...");
-        setTimeout(() => {
-          router.replace({
+      router.replace({
             pathname: "/(admin)/escalations/assign",
             params: {
               bookingId: params.bookingId,
+              orderId: params.orderId,
+              fulfillmentType: params.fulfillmentType || "custom_fit",
               customerName: customerName.trim(),
               serviceTitle: params.serviceTitle,
               appointmentTime: params.appointmentTime,
             },
           } as any);
-        }, 1200);
-      } else {
-        showAlert("Saved!", "Measurement sheet saved to customer profile.");
-        setTimeout(() => router.push("/(admin)/settings" as any), 1400);
-      }
     } catch (err) {
       showAlert("Save Failed", "Could not save the measurement sheet. Please try again.");
     } finally {
@@ -272,7 +269,7 @@ export default function NewMeasurementScreen() {
               onPress={() => router.push("/(admin)/settings" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={18} color="#3B0508" />
+              <BackArrowIcon size={24} color="#3B0508" />
             </Pressable>
 
             <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>

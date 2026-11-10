@@ -40,11 +40,11 @@ export default function UpdateProgressScreen() {
     initialStage?: string;
   }>();
 
-  const orderId = params.orderId || "1";
-  const customerName = params.customerName || "Chiamaka O.";
-  const orderNumber = params.orderNumber || "#TFH-2291";
-  const garmentDetails = params.garmentDetails || "Aso-Ebi (2 pcs)";
-  const dueDate = params.dueDate || "Due Sep 27";
+  const orderId = params.orderId || "";
+  const customerName = params.customerName || "Customer";
+  const orderNumber = params.orderNumber || "";
+  const garmentDetails = params.garmentDetails || "Custom garment";
+  const dueDate = params.dueDate || "";
 
   const [activeStageKey, setActiveStageKey] = useState<string>(
     params.initialStage || "in_production"
@@ -56,6 +56,7 @@ export default function UpdateProgressScreen() {
   const activeIndex = STAGES.findIndex((s) => s.key === activeStageKey);
 
   const handleUpdateStatus = async () => {
+    if (!token || !orderId || submitting) { showAlert("Order unavailable", "Please reopen your assigned order before updating it."); return; }
     setSubmitting(true);
     try {
       if (token && orderId) {
@@ -100,7 +101,7 @@ export default function UpdateProgressScreen() {
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={20} color="#453332" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
 
         <Text style={styles.headerTitleText}>Update Progress</Text>

@@ -103,7 +103,7 @@ function ChatIcon({ color, focused, unreadCount }: { color: string; focused: boo
             position: "absolute",
             top: -2,
             right: -4,
-            backgroundColor: "#D32F2F",
+            backgroundColor: "#F96951",
             minWidth: 14,
             height: 14,
             borderRadius: 7,

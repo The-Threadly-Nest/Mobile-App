@@ -222,7 +222,7 @@ export default function AdminProfileEditScreen({
               onPress={handleHeaderBack}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={18} color="#3B0508" />
+              <BackArrowIcon size={24} color="#3B0508" />
             </Pressable>
             <Text style={styles.headerTitle}>Personal Info</Text>
           </View>

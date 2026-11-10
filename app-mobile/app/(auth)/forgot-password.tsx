@@ -59,7 +59,7 @@ export default function ForgotPasswordScreen() {
         ]}
       >
         <Pressable onPress={handleBack} style={{ marginBottom: 24, width: 40, height: 40, justifyContent: "center" }}>
-          <BackArrowIcon size={20} color="#453332" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
 
         <Headline className="text-2xl mb-2">Reset your password</Headline>

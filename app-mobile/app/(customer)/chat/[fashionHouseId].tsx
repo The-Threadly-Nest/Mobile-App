@@ -494,7 +494,7 @@ export default function BookingChatScreen() {
           className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-3"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={18} color="#000000" />
+          <BackArrowIcon size={24} color="#000000" />
         </Pressable>
 
         <View className="w-10 h-10 rounded-full bg-oxblood items-center justify-center mr-3">

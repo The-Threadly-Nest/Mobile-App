@@ -8,8 +8,10 @@ import Svg, { Rect, Path } from "react-native-svg";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
+import { useGoogleAuth } from "@/shared/hooks/useGoogleAuth";
 
 export default function ActivateAccountScreen() {
+  const google = useGoogleAuth("customer", "login");
   const params = useLocalSearchParams<{ token?: string | string[]; email?: string | string[] }>();
   const routeToken = Array.isArray(params.token) ? params.token[0] : params.token;
   const routeEmail = Array.isArray(params.email) ? params.email[0] : params.email;
@@ -73,8 +75,8 @@ export default function ActivateAccountScreen() {
       setError("This activation link is missing the email address. Ask your Admin to resend the invitation.");
       return;
     }
-    if (password.length < 8 || !/\d/.test(password)) {
-      setError("Password must be at least 8 characters and include a number.");
+    if (password && (password.length < 8 || !/\d/.test(password) || !/[A-Z]/.test(password))) {
+      setError("Password must be at least 8 characters with an uppercase letter and a number.");
       return;
     }
 
@@ -82,10 +84,10 @@ export default function ActivateAccountScreen() {
     try {
       const body = await apiFetch<any>("/api/auth/activate-account", {
         method: "POST",
-        body: JSON.stringify({ email: inputEmail, token: fullCode, password }),
+        body: JSON.stringify({ email: inputEmail, token: fullCode, ...(password ? { password } : {}) }),
       });
 
-      setSession({ token: body.token, email: body.user.email, role: body.user.role, isVerified: true });
+      setSession({ userId: body.user.id, token: body.token, email: body.user.email, role: body.user.role, isVerified: true });
       setIsVerified(true);
     } catch (e: any) {
       setError(e?.message || "Could not activate account. Please try again.");
@@ -95,7 +97,7 @@ export default function ActivateAccountScreen() {
   };
 
   const handleContinueExperience = () => {
-    router.replace("/(staff)/dashboard");
+    router.replace("/(auth)/loading");
   };
 
   // If verified, show "You're verified!" screen
@@ -142,7 +144,7 @@ export default function ActivateAccountScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           {/* Back Button */}
           <Pressable style={styles.backBtn} onPress={() => router.back()}>
-            <BackArrowIcon size={20} color="#3A2E1A" />
+            <BackArrowIcon size={24} color="#3A2E1A" />
           </Pressable>
 
           {/* Top Phone Icon */}
@@ -207,7 +209,10 @@ export default function ActivateAccountScreen() {
               {showPassword ? <EyeOff size={20} color="#453332" /> : <Eye size={20} color="#453332" />}
             </Pressable>
           </View>
-          <Text style={styles.passwordHint}>At least 8 characters and one number.</Text>
+          <Text style={styles.passwordHint}>Set a password with 8+ characters, an uppercase letter and a number. Leave blank to keep the password your admin provided.</Text>
+          <Pressable onPress={() => void google.promptAsync()} disabled={google.loading} style={styles.submitBtn}><Text style={styles.submitBtnText}>{google.loading ? "Connecting…" : "Activate with Google"}</Text></Pressable>
+          <Text style={styles.passwordHint}>Use the exact email address that received the invitation.</Text>
+          {google.error ? <Text style={styles.errorText}>{google.error}</Text> : null}
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
@@ -223,10 +228,10 @@ export default function ActivateAccountScreen() {
             <Pressable
               style={[
                 styles.submitBtn,
-                (code.join("").length < 4 || !password || loading) && styles.submitBtnDisabled,
+                (code.join("").length < 4 || loading) && styles.submitBtnDisabled,
               ]}
               onPress={handleActivate}
-              disabled={code.join("").length < 4 || !password || loading}
+              disabled={code.join("").length < 4 || loading}
             >
               <Text style={styles.submitBtnText}>{loading ? "Activating..." : "Activate Account"}</Text>
             </Pressable>

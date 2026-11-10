@@ -6,3 +6,8 @@ export const collectionPaginationSchema = z.object({
 });
 
 export type CollectionPagination = z.infer<typeof collectionPaginationSchema>;
+export const discoveryQuerySchema = collectionPaginationSchema.extend({
+  q: z.string().trim().max(100).optional(),
+  fulfillmentType: z.enum(["ready_to_wear", "custom_fit"]).optional(),
+  sort: z.enum(["newest", "price_asc", "price_desc"]).default("newest"),
+});

@@ -125,7 +125,7 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
             position: "absolute",
             top: -2,
             right: -4,
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "#F96951",
             minWidth: 14,
             height: 14,
             borderRadius: 7,
@@ -134,7 +134,7 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
             justifyContent: "center",
           }}
         >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FF6347", textAlign: "center" }}>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
             {unreadCount}
           </Text>
         </View>
@@ -305,7 +305,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "More",
+          title: "Profile",
           tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><MoreIcon color={String(color)} focused={focused} unreadCount={unreadCount} /></FloatingTabIcon>,
         }}
       />

@@ -10,10 +10,10 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
 import { formatChatDate } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import { type MessageThread, unreadMessages, visibleMessageThreads } from "@/shared/utils/messageThreads";
 
 const assets = {
-  back: require("../../../assets/messages/back.svg"),
   badge: require("../../../assets/messages/unread.svg"),
   divider: require("../../../assets/messages/tab-line.svg"),
   active: require("../../../assets/messages/active-line.svg"),
@@ -99,7 +99,6 @@ export default function CustomerMessagesScreen() {
         <View style={styles.trailing}>
           <Text style={[styles.time, isUnread && styles.unreadPreview]} numberOfLines={1}>{formatThreadTime(item.latestAt)}</Text>
           {isUnread ? <View style={styles.badge}>
-            <AssetImage source={assets.badge} style={styles.badgeAsset} contentFit="contain" />
             <Text style={styles.badgeText}>{item.unreadCount > 99 ? "99+" : item.unreadCount}</Text>
           </View> : <View style={styles.badgeSpacer} />}
         </View>
@@ -112,7 +111,7 @@ export default function CustomerMessagesScreen() {
       <View style={styles.header}>
         <Pressable accessibilityRole="button" accessibilityLabel="Back" hitSlop={4} style={styles.back}
           onPress={() => router.canGoBack() ? router.back() : router.replace("/(customer)/(tabs)/browse")}>
-          <AssetImage source={assets.back} style={styles.backAsset} contentFit="contain" />
+          <BackArrowIcon />
         </Pressable>
         <Text style={styles.title}>Messages</Text>
       </View>
@@ -165,7 +164,7 @@ const styles = StyleSheet.create({
   unreadPreview: { color: "#373738" },
   trailing: { alignItems: "flex-end", gap: 6, maxWidth: 64 },
   time: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#AFAFAF" },
-  badge: { width: 19.4532, height: 19.4532, alignItems: "center", justifyContent: "center" },
+  badge: { minWidth: 20, height: 20, paddingHorizontal: 4, borderRadius: 10, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
   badgeAsset: { position: "absolute", width: 19.4532, height: 19.4532 },
   badgeText: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#F6F7FC" },
   badgeSpacer: { height: 19.4532 },

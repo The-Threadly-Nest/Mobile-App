@@ -104,7 +104,7 @@ export default function AdminSketchDetailScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={20} color="#000000" />
+            <BackArrowIcon size={24} color="#000000" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketch Detail</Text>
         </View>

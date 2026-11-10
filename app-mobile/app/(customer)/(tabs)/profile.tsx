@@ -267,7 +267,7 @@ export default function CustomerProfileScreen() {
               <ProfileDesignIcon name="settings" />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
-              Settings
+              Profile
             </Text>
             <ChevronRight size={18} color="#746765" />
           </Pressable>
@@ -307,7 +307,7 @@ export default function CustomerProfileScreen() {
             {totalUnread > 0 && (
               <View
                 style={{
-                  backgroundColor: '#453332',
+                    backgroundColor: '#F96951',
                   minWidth: 22,
                   height: 22,
                   borderRadius: 11,
