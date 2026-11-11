@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect, useCallback } from "react";
 import { View, ScrollView, Pressable, ActivityIndicator, RefreshControl, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -241,7 +242,7 @@ export default function OrderDetailScreen() {
               </View>
               <View style={[styles.statusBadge, { backgroundColor: statusMeta.bg }]}>
                 <Text style={[styles.statusText, { color: statusMeta.text }]}>
-                  {statusMeta.label}
+                  {readyToWear && ["in_production", "fabric_sourced", "quality_check"].includes(currentStatus) ? "Preparing order" : statusMeta.label}
                 </Text>
               </View>
             </View>
@@ -462,16 +463,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 24,
-    lineHeight: 28,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
     letterSpacing: -0.2,
   },
-  headerSubtitle: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 12,
+  headerSubtitle: { ...typeScale.caption,
     color: "#7A7265",
     marginTop: 2,
   },
@@ -545,7 +541,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
   },
-  heroDivider: {
+  heroDivider: { display: "none",
     height: 1,
     backgroundColor: "rgba(74, 8, 12, 0.08)",
     marginVertical: 16,
@@ -590,9 +586,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 16,
+  sectionTitle: { ...typeScale.sectionTitle,
     color: "#2B2B2B",
     marginBottom: 14,
   },
@@ -669,7 +663,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 10,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: "rgba(74, 8, 12, 0.05)",
     gap: 12,
   },
@@ -737,9 +731,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  primaryBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 15,
+  primaryBtnText: { ...typeScale.button,
     color: "#FFFFFF",
   },
 });

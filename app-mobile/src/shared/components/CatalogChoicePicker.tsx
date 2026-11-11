@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -47,6 +48,6 @@ const styles = StyleSheet.create({
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
   choice: { minHeight: 44, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
   selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, white: { color: "white" },
-  text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#746765" },
+  text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, hint: { ...typeScale.caption, color: "#746765" },
   done: { flex: 1, minHeight: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
 });

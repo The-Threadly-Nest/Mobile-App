@@ -4,6 +4,12 @@ import { Text } from "@/shared/components/Typography";
 import { StatusBar } from "expo-status-bar";
 import Svg, { Path } from "react-native-svg";
 
+const MARK_HEIGHT = 48;
+const MARK_WIDTH = MARK_HEIGHT * 3485 / 3976;
+// The supplied PNG has transparent margins. Align its visible artwork with
+// the animated vector without stretching or changing the original asset.
+const ASSET_SCALE = MARK_HEIGHT / 3976;
+
 // Exact vector paths from Figma node 295:4412, in their original viewBox.
 const paths = [
   "M1142.09 537.07C1134.45 523.902 1124.53 512.196 1112.8 502.503L693.027 158.309C660.758 133.674 621.285 120.33 580.687 120.33C540.089 120.33 500.617 133.674 468.348 158.309L46.8197 504.262C36.1359 512.586 26.7567 522.459 18.9918 533.555C4.49213 509.351 -0.537665 480.637 4.87085 452.946C10.2794 425.254 25.7435 400.541 48.2849 383.571L469.812 38.2076C502.021 13.4325 541.517 0 582.152 0C622.787 0 662.282 13.4325 694.491 38.2076L1114.26 382.402C1137.99 399.59 1154.14 425.295 1159.32 454.129C1164.51 482.964 1158.34 512.69 1142.09 537.07Z",
@@ -57,19 +63,24 @@ export default function AnimatedBrandSplash({ onComplete, ready }: { onComplete:
 
   return (
     <View style={styles.screen} accessibilityLabel="Owuja" accessibilityRole="image">
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <View style={styles.brand} importantForAccessibility="no-hide-descendants">
         <View style={styles.mark}>
           {paths.map((d, index) => (
             <Animated.View key={index} style={[StyleSheet.absoluteFill, {
-              opacity: pieces[index],
+              opacity: Animated.multiply(pieces[index], name.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })),
               transform: [{ translateY: pieces[index].interpolate({ inputRange: [0, 1], outputRange: [5, 0] }) }],
             }]}>
-              <Svg width={64} height={73.02} viewBox="0 0 1161.52 1325.25" fill="none">
-                <Path d={d} fill="#453332" />
+              <Svg width={MARK_WIDTH} height={MARK_HEIGHT} viewBox="0 0 1161.52 1325.25" fill="none">
+                <Path d={d} fill="#FFFFFF" />
               </Svg>
             </Animated.View>
           ))}
+          <Animated.Image
+            source={require("../../../assets/splash-icon-white.png")}
+            resizeMode="contain"
+            style={[styles.finalMark, { opacity: name }]}
+          />
         </View>
         <Animated.View style={[styles.namePosition, { opacity: name }]}>
           <Text style={styles.name}>Owuja</Text>
@@ -82,9 +93,10 @@ export default function AnimatedBrandSplash({ onComplete, ready }: { onComplete:
 const styles = StyleSheet.create({
   screen: { flex: 1, width: "100%", backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
   // Keep the complete logo-and-name lockup centred throughout the animation.
-  brand: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 14 },
-  mark: { width: 64, height: 73.02 },
-  namePosition: { height: 73.02, justifyContent: "center" },
-  name: { fontFamily: "InstrumentSans-Medium", fontSize: 36, lineHeight: 44, color: "#FFFFFF" },
+  brand: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
+  mark: { width: MARK_WIDTH, height: MARK_HEIGHT, overflow: "hidden" },
+  finalMark: { position: "absolute", width: 4389 * ASSET_SCALE, height: 4389 * ASSET_SCALE, left: -452 * ASSET_SCALE, top: -208 * ASSET_SCALE },
+  namePosition: { height: MARK_HEIGHT, justifyContent: "center" },
+  name: { fontFamily: "InstrumentSans-Medium", fontSize: 40, lineHeight: MARK_HEIGHT, includeFontPadding: false, color: "#FFFFFF" },
 });
 

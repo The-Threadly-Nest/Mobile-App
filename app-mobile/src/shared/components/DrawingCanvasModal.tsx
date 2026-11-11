@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useRef } from "react";
 import { View, Modal, Pressable, PanResponder, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -471,9 +472,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 18,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
   },
   guideToggleRow: {

@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useCallback, useMemo } from "react";
 import { View, Pressable, ScrollView, ActivityIndicator, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -356,10 +357,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 24,
-    lineHeight: 28,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
     letterSpacing: -0.2,
   },
@@ -367,9 +365,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
   },
-  sectionTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 18,
+  sectionTitle: { ...typeScale.sectionTitle,
     color: "#2B2B2B",
     marginBottom: 12,
   },
@@ -429,7 +425,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingBottom: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: "rgba(74, 8, 12, 0.08)",
     marginBottom: 8,
   },
@@ -460,7 +456,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 14,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: "#F4EFEA",
   },
   slotTimeCol: {
@@ -518,7 +514,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#2B2B2B",
   },
-  divider: {
+  divider: { display: "none",
     height: 1,
     backgroundColor: "rgba(74, 8, 12, 0.08)",
     marginBottom: 20,
@@ -540,9 +536,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 16,
+  primaryBtnText: { ...typeScale.button,
     color: "#FFFFFF",
   },
 });

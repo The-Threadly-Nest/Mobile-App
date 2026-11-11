@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { typeScale } from "@/shared/utils/typeScale";
+import React, { useState, useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
 import { View, ScrollView, Pressable, Image, StyleSheet, RefreshControl, ActivityIndicator, AppState, useWindowDimensions } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,6 +23,7 @@ import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import CachedImage from "@/shared/components/CachedImage";
 import CatalogFilters from "@/shared/components/CatalogFilters";
 import { filterCatalogItems } from "@/shared/utils/catalogFilters";
+import { getConnectionStatus, subscribeConnectionStatus } from "@/shared/services/connectionStatus";
 
 interface ProductCardItem {
   id: string;
@@ -49,6 +51,8 @@ interface FashionHouseSummary {
 
 
 export default function BrowseScreen() {
+  const connection = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus);
+  const offline = connection === "offline";
   const { width } = useWindowDimensions();
   const userName = useAuthStore((s) => s.name);
   const token = useAuthStore(s => s.token);
@@ -57,7 +61,7 @@ export default function BrowseScreen() {
   const [notificationsError, setNotificationsError] = useState("");
   const unreadLock = React.useRef(false);
   const loadUnread = useCallback(async (active: () => boolean = () => true) => {
-    if (!token || unreadLock.current || AppState.currentState !== "active") return;
+    if (!token || getConnectionStatus() === "offline" || unreadLock.current || AppState.currentState !== "active") return;
     unreadLock.current = true;
     try {
       const threads = await apiFetch<{ unreadCount: number }[]>("/api/direct-messages/my-threads", { silent: true });
@@ -65,8 +69,8 @@ export default function BrowseScreen() {
         setUnreadCount(threads.reduce((total, thread) => total + Math.max(0, thread.unreadCount || 0), 0));
         setNotificationsError("");
       }
-    } catch {
-      if (active()) setNotificationsError("Couldn't refresh notifications. Tap the bell to open your messages.");
+    } catch (error) {
+      if (active() && getConnectionStatus() !== "offline" && !(error instanceof ApiError && error.details.status === 0)) setNotificationsError("Couldn't refresh notifications. Tap the bell to open your messages.");
     } finally { unreadLock.current = false; }
   }, [token, setUnreadCount]);
   useFocusEffect(useCallback(() => {
@@ -126,8 +130,8 @@ export default function BrowseScreen() {
         { silent: true }
       );
       setFashionHouses([...new Map(res.items.map(house => [house.id, house])).values()]); setHousesError("");
-    } catch {
-      setHousesError("We couldn't load fashion houses. Pull down to retry.");
+    } catch (error) {
+      if (getConnectionStatus() !== "offline" && !(error instanceof ApiError && error.details.status === 0)) setHousesError("We couldn't load fashion houses. Pull down to retry.");
     }
   }, []);
 
@@ -137,13 +141,13 @@ export default function BrowseScreen() {
     setRefreshing(true);
     try {
       const response = await apiFetchCollectionPage<{ id: string; name: string; category: string | null; priceFrom: number | null; imageUrl: string; fulfillmentType: string; createdAt: string }>(
-        `/api/catalog/marketplace?page=${page}&limit=50${fulfillmentFilter ? `&fulfillmentType=${fulfillmentFilter}` : ""}${sort !== "newest" ? `&sort=${sort}` : ""}`, { silent: true, cache: "reload" });
+        `/api/catalog/marketplace?page=${page}&limit=50${fulfillmentFilter ? `&fulfillmentType=${fulfillmentFilter}` : ""}${sort !== "newest" ? `&sort=${sort}` : ""}`, { silent: true });
       if (revision !== catalogRevision.current) return;
       const items = response.items.map(item => ({ id: item.id, name: item.name, category: item.category || "", price: item.priceFrom, imageUrl: item.imageUrl, fulfillmentType: item.fulfillmentType, createdAt: item.createdAt }));
       setProducts(previous => page === 1 ? items : [...new Map([...previous, ...items].map(item => [item.id, item])).values()]);
       setNextPage(response.nextPage);
     } catch (err) {
-      if (revision === catalogRevision.current) setError(err instanceof Error ? err.message : "We couldn't load the catalog. Please try again.");
+      if (revision === catalogRevision.current && getConnectionStatus() !== "offline" && !(err instanceof ApiError && err.details.status === 0)) setError(err instanceof Error ? err.message : "We couldn't load the catalog. Please try again.");
     } finally { if (revision === catalogRevision.current) { setRefreshing(false); setLoading(false); } }
   }, [fulfillmentFilter, sort]);
   useFocusEffect(useCallback(() => {
@@ -152,9 +156,12 @@ export default function BrowseScreen() {
     let active = true;
     loadCatalogFavorites()
       .then(profile => { if (active) setFavorites(Object.fromEntries(profile.savedCatalogIds.map(id => [id, true]))); })
-      .catch(err => { if (active) setError(err instanceof Error ? err.message : "We couldn't load your saved items."); });
+      .catch(err => { if (active && getConnectionStatus() !== "offline" && !(err instanceof ApiError && err.details.status === 0)) setError(err instanceof Error ? err.message : "We couldn't load your saved items."); });
     return () => { active = false; };
   }, [loadCatalog, loadFashionHouses]));
+  useEffect(() => {
+    if (connection === "online") { void loadCatalog(); void loadFashionHouses(); void loadUnread(); }
+  }, [connection, loadCatalog, loadFashionHouses, loadUnread]);
   async function toggleFavorite(id: string) {
     if (favoriteLock.current) return;
     favoriteLock.current = true;
@@ -170,7 +177,7 @@ export default function BrowseScreen() {
   const filteredRecommend = filterCatalogItems(products, fulfillmentFilter, sort).filter(item =>
     (!searchQuery.trim() || item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
     && (!selectedCategory || normalizeCategory(item.category) === selectedCategory));
-  const onRefresh = useCallback(async () => { invalidateReadCache(); await Promise.all([loadCatalog(1), loadUnread(), loadFashionHouses()]); }, [loadCatalog, loadUnread, loadFashionHouses]);
+  const onRefresh = useCallback(async () => { if (getConnectionStatus() !== "offline") invalidateReadCache(); await Promise.all([loadCatalog(1), loadUnread(), loadFashionHouses()]); }, [loadCatalog, loadUnread, loadFashionHouses]);
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -206,7 +213,7 @@ export default function BrowseScreen() {
           </Pressable>
         </View>
 
-        {notificationsError ? <Text style={{ color: "#646464", fontSize: 12, marginBottom: 12 }}>{notificationsError}</Text> : null}
+        {!offline && notificationsError ? <Text style={{ color: "#646464", fontSize: 12, marginBottom: 12 }}>{notificationsError}</Text> : null}
         {/* Search & Filter Bar */}
         <View style={styles.searchBarRow}>
           <View style={styles.searchInputWrapper}>
@@ -248,7 +255,7 @@ export default function BrowseScreen() {
             <Text style={styles.sectionTitle}>Fashion Houses</Text>
             <Pressable onPress={() => router.push("/(customer)/fashion-houses")}><Text style={styles.viewAllText}>View All</Text></Pressable>
           </View>
-          {housesError ? <Text style={{ color: "#9F1239", marginBottom: 12 }}>{housesError}</Text> : !fashionHouses.length && !loading ? <Text style={{ color: "#746765", marginBottom: 12 }}>No fashion houses are available yet.</Text> : null}
+          {!offline && housesError ? <Text style={{ color: "#9F1239", marginBottom: 12 }}>{housesError}</Text> : !offline && !fashionHouses.length && !loading ? <Text style={{ color: "#746765", marginBottom: 12 }}>No fashion houses are available yet.</Text> : null}
           <ScrollView
             ref={fashionHouseScrollRef}
             horizontal
@@ -316,8 +323,8 @@ export default function BrowseScreen() {
           </Pressable>
         </View>
         {loading && <ActivityIndicator color="#453332" />}
-        {error ? <Pressable onPress={() => void loadCatalog()}><Text style={{ color: "#9F1239", paddingVertical: 12 }}>{error} Tap to retry.</Text></Pressable> : null}
-        {!loading && !error && filteredRecommend.length === 0 && <Text style={{ color: "#646464", paddingVertical: 20 }}>No catalog items match yet. Try another category or check back soon.</Text>}
+        {!offline && error ? <Pressable onPress={() => void loadCatalog()}><Text style={{ color: "#9F1239", paddingVertical: 12 }}>{error} Tap to retry.</Text></Pressable> : null}
+        {!offline && !loading && !error && filteredRecommend.length === 0 && <Text style={{ color: "#646464", paddingVertical: 20 }}>No catalog items match yet. Try another category or check back soon.</Text>}
         <View style={styles.gridContainer}>
           {filteredRecommend.map((item) => (
             <Pressable
@@ -518,10 +525,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#FFFFFF",
   },
-  bannerSubtitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 11,
-    lineHeight: 15,
+  bannerSubtitle: { ...typeScale.caption,
     color: "#FFFFFF",
   },
   shopNowBtn: {
@@ -531,9 +535,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     alignSelf: "flex-start",
   },
-  shopNowText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 12,
+  shopNowText: { ...typeScale.button,
     color: "#2B2B2B",
   },
   bannerImageWrapper: {
@@ -555,15 +557,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 14,
   },
-  sectionTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 20,
+  sectionTitle: { ...typeScale.sectionTitle,
     color: "#2B2B2B",
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#F96951",
+    color: "#453332",
     textDecorationLine: "underline",
   },
   fashionHousesSection: {
@@ -611,9 +611,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "#2B2B2B",
   },
-  fashionHouseName: {
-    fontFamily: "InstrumentSans-Medium",
-    fontSize: 11,
+  fashionHouseName: { ...typeScale.compactLabel,
     color: "#2B2B2B",
     textAlign: "center",
     marginTop: 6,
@@ -691,15 +689,10 @@ const styles = StyleSheet.create({
   productInfo: {
     paddingTop: 8,
   },
-  productName: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 13,
+  productName: { ...typeScale.productName,
     color: "#2B2B2B",
-    lineHeight: 17,
-  },
-  productPrice: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 13,
+    },
+  productPrice: { ...typeScale.productPrice,
     color: "#2B2B2B",
     marginTop: 4,
   },

@@ -1,4 +1,6 @@
 import React, { useState, useCallback } from "react";
+import { typeScale } from "@/shared/utils/typeScale";
+import { isReadyToWear, READY_CUSTOMER_STAGES, readyCustomerStage } from "@/shared/utils/orderFulfillment";
 import { View, ScrollView, Pressable, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -101,7 +103,7 @@ export default function CustomerOrdersScreen() {
       >
         {/* Title */}
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", marginBottom: 4 }, isLandscape && { maxWidth: 600 }]}>
-          <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 26, color: "#2B2B2B" }}>
+          <Text style={{ ...typeScale.pageTitle, color: "#2B2B2B" }}>
             My Orders
           </Text>
         </View>
@@ -187,7 +189,8 @@ export default function CustomerOrdersScreen() {
                         estimatedReady: order.estimatedReady,
                         progressPercent: String(order.progressPercent),
                         imageUrl: order.imageUrl,
-                        rawStatus: isCancelled ? "cancelled" : (isDeclined ? "declined" : order.status),
+                        rawStatus: order.rawStatus || order.status,
+                        fulfillmentType: isReadyToWear(order) ? "ready_to_wear" : "custom_fit",
                       },
                     })
                   }
@@ -241,7 +244,7 @@ export default function CustomerOrdersScreen() {
                       </View>
 
                       <Text className="font-body text-[12px] text-black mt-0.5" numberOfLines={1}>
-                        {order.garmentType} · Order: {formattedNum}
+                        {(order.garmentType || "").replace(/^Measurement for\s*:?\s*/i, "").trim() || "Bespoke Garment"} · Order: {formattedNum}
                       </Text>
                     </View>
 
@@ -264,7 +267,7 @@ export default function CustomerOrdersScreen() {
                         </View>
 
                         <Text className="font-body text-[12px] text-[#646464]">
-                          Estimated ready: {order.estimatedReady}
+                          {isReadyToWear(order) ? READY_CUSTOMER_STAGES[readyCustomerStage(order.rawStatus || order.status)].label : `Estimated ready: ${order.estimatedReady}`}
                         </Text>
                       </View>
                     )}

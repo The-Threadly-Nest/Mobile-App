@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -64,15 +65,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     alignItems: "center",
   },
-  profileTitle: {
+  profileTitle: { ...typeScale.pageTitle,
     alignSelf: "flex-start",
     textAlign: "left",
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 26,
     color: "#2B2B2B",
     marginTop: 0,
     marginBottom: 16,
   },
   name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#2B2B2B", textAlign: "center", marginTop: 12 },
-  subtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#2B2B2B", textAlign: "center", marginTop: 6 },
+  subtitle: { ...typeScale.caption, color: "#2B2B2B", textAlign: "center", marginTop: 6 },
 });

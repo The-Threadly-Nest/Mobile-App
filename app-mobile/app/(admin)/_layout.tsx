@@ -125,7 +125,7 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
             position: "absolute",
             top: -2,
             right: -4,
-            backgroundColor: "#F96951",
+            backgroundColor: "#453332",
             minWidth: 14,
             height: 14,
             borderRadius: 7,

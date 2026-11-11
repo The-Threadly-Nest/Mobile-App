@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect } from "react";
 import { View, FlatList, Pressable, Modal, ScrollView, ActivityIndicator, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -555,9 +556,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
   },
-  screenTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 28,
+  screenTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
     marginBottom: 20,
     paddingHorizontal: 4,
@@ -677,9 +676,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  assignBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 15,
+  assignBtnText: { ...typeScale.button,
     color: "#FFFFFF",
   },
   declineBtn: {
@@ -703,7 +700,7 @@ const styles = StyleSheet.create({
     gap: 6,
     marginTop: 14,
     paddingTop: 10,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
     borderTopColor: "rgba(74, 8, 12, 0.08)",
   },
   assignedFooterText: {

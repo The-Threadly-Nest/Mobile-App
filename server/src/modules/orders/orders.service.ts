@@ -5,6 +5,7 @@ import { result, rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
 import { orderAccessWhere, bookingAccessWhere, availableSlotClaimWhere } from "../../lib/authorization";
 import { prepareCatalogOrder } from "../../lib/catalog-commerce";
+import { isReadyOrder, readyOrderProgress, readyOrderLabel } from "../../lib/order-fulfillment";
 import { ConflictError, NotFoundError, BadRequestError } from "../../utils/errors";
 
 import { getOwnFashionHouseId } from "../../core/auth/account-identity";
@@ -224,6 +225,7 @@ export class OrdersService {
         orderId: b.order?.id,
         bookingId: b.id,
         purpose: b.purpose,
+        fulfillmentType: "custom_fit",
         catalogItemId: b.catalogItemId,
         atelierName: b.fashionHouse?.shopName || "Fashion House",
         garmentType: b.styleNotes || "Bespoke Fitting",
@@ -237,6 +239,7 @@ export class OrdersService {
     });
 
     const standaloneFormatted = standaloneOrders.map((order) => {
+      const readyToWear = isReadyOrder(order.items);
       let mappedStatus: "active" | "completed" | "declined" = "active";
       if (["completed", "delivered"].includes(order.status)) mappedStatus = "completed";
       if (["declined", "cancelled"].includes(order.status)) mappedStatus = "declined";
@@ -247,8 +250,9 @@ export class OrdersService {
         atelierName: order.fashionHouse.shopName || "Fashion House",
         garmentType: order.itemName,
         orderNumber: generateOrderNumberServer(order.id),
-        estimatedReady: "Awaiting fashion house confirmation",
-        progressPercent: getProgressPercent(order.status),
+        fulfillmentType: readyToWear ? "ready_to_wear" : "custom_fit",
+        estimatedReady: readyToWear ? readyOrderLabel(order.status) : "Awaiting fashion house confirmation",
+        progressPercent: readyToWear ? readyOrderProgress(order.status) : getProgressPercent(order.status),
         imageUrl: snapshotImage(order.items) || resolveGarmentImageUrl(order.itemName, order.fashionHouse),
         items: order.items,
         status: mappedStatus,
@@ -366,12 +370,15 @@ export class OrdersService {
 
     if (booking) {
       const currentStatus = (booking as any).order?.status || booking.status;
-      const garmentType = (booking as any).order?.itemName || booking.styleNotes || "Bespoke Garment";
+      const snapshot = booking.catalogSnapshot as any;
+      const rawGarment = (booking as any).order?.itemName || snapshot?.name || booking.styleNotes || "Bespoke Garment";
+      const garmentType = rawGarment.replace(/^Measurement for\s*:?\s*/i, "").trim() || "Bespoke Garment";
       const imageUrl = snapshotImage(booking.catalogSnapshot) || resolveGarmentImageUrl(garmentType, booking.fashionHouse);
 
       return {
         id: booking.id,
         orderId: (booking as any).order?.id,
+        fulfillmentType: "custom_fit",
         atelierName: booking.fashionHouse?.shopName || "Luxury Fashion House",
         fashionHouseId: booking.fashionHouseId,
         fashionHousePhone: booking.fashionHouse?.phone,
@@ -400,18 +407,22 @@ export class OrdersService {
 
       const garmentType = order.itemName || "Bespoke Garment";
       const imageUrl = snapshotImage(order.items) || resolveGarmentImageUrl(garmentType, order.fashionHouse);
+      const readyToWear = isReadyOrder(order.items);
 
       return {
         id: order.id,
         orderId: order.id,
+        fulfillmentType: readyToWear ? "ready_to_wear" : "custom_fit",
+        items: order.items,
+        updatedAt: order.updatedAt,
         atelierName: order.fashionHouse?.shopName || "Luxury Fashion House",
         fashionHouseId: order.fashionHouseId,
         fashionHousePhone: order.fashionHouse?.phone,
         fashionHouseLocation: order.fashionHouse?.location,
         garmentType,
         status: order.status,
-        progressPercent: getProgressPercent(order.status),
-        estimatedReady: order.status === "order_placed" ? "Awaiting fashion house confirmation" : order.status.replace(/_/g, " "),
+        progressPercent: readyToWear ? readyOrderProgress(order.status) : getProgressPercent(order.status),
+        estimatedReady: readyToWear ? readyOrderLabel(order.status) : order.status === "order_placed" ? "Awaiting fashion house confirmation" : order.status.replace(/_/g, " "),
         price: order.price,
         imageUrl,
         customer: {
@@ -466,7 +477,7 @@ export class OrdersService {
     const nonCancellable = ["fabric_sourced", "in_production", "quality_check", "ready_for_pickup", "ready", "completed", "delivered"];
     if (nonCancellable.includes(currentStatus)) {
       return rejectRequest({
-        error: "This order is already being made. Please contact the fashion house if you need to cancel.",
+        error: isReadyOrder(order?.items) ? "This order is already being prepared or collected. Please contact the fashion house if you need help." : "This order is already being made. Please contact the fashion house if you need to cancel.",
       }, 400);
     }
 
@@ -687,7 +698,7 @@ export class OrdersService {
       return rejectRequest({ error: "Order not found." }, 404);
     }
 
-    const readyToWear = Array.isArray(order.items) && order.items.length > 0 && order.items.every(item => item && typeof item === "object" && !Array.isArray(item) && typeof item.selectedSize === "string" && item.selectedSize.length > 0);
+    const readyToWear = isReadyOrder(order.items);
     if (input.authRole === "staff" && (readyToWear || order.staffId !== input.authUserId)) {
       return rejectRequest({ error: "You can update only custom-fit orders assigned to you." }, 403);
     }
@@ -708,7 +719,9 @@ export class OrdersService {
     }
 
     // Fire push notification to the customer (non-blocking)
-    const notif = STATUS_LABELS[status];
+    const notif = readyToWear && status === "in_production"
+      ? { title: "Order accepted", body: "Your ready-to-wear order is being prepared for pickup." }
+      : STATUS_LABELS[status];
     const customerUserId = order.customer?.userId;
     if (notif && customerUserId) {
       const shopName = order.fashionHouse?.shopName || "The Fashion House";

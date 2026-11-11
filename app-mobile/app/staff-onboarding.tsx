@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect } from "react";
 import { View, Pressable, ImageBackground, StyleSheet, useWindowDimensions, Platform } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -171,10 +172,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 10,
   },
-  subtitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 15,
-    lineHeight: 22,
+  subtitle: { ...typeScale.caption,
     color: "rgba(255, 255, 255, 0.85)",
     textAlign: "center",
     marginBottom: 24,

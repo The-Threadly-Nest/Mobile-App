@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useRef } from "react";
 import { View, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
@@ -277,11 +278,8 @@ const styles = StyleSheet.create({
     color: "#2B2B2B",
     marginBottom: 8,
   },
-  subtitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 14,
+  subtitle: { ...typeScale.caption,
     color: "#404040",
-    lineHeight: 20,
     marginBottom: 32,
   },
   emailHighlight: {
@@ -446,9 +444,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  continueBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 16,
+  continueBtnText: { ...typeScale.button,
     color: "#FFFFFF",
   },
 });

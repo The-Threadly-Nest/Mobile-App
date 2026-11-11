@@ -153,7 +153,7 @@ export class CatalogService {
 
     const { page, limit } = input.query as unknown as CollectionPagination;
     const catalog = await this.database.client.catalogItem.findMany({
-      where: { fashionHouseId: routeParam(input, "fashionHouseId") },
+      where: { fashionHouseId: routeParam(input, "fashionHouseId"), ...(input.query.fulfillmentType ? { fulfillmentType: input.query.fulfillmentType } : {}) },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       ...collectionWindow(page, limit),
     });

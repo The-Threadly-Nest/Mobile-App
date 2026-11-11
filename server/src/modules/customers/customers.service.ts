@@ -23,6 +23,7 @@ export class CustomersService {
     const { skip, take } = collectionWindow(page, limit);
     const rows = await this.database.client.$queryRaw<Array<{
       id: string;
+      userId: string | null;
       name: string;
       phone: string | null;
       email: string | null;
@@ -79,7 +80,7 @@ export class CustomersService {
           SELECT * FROM "associatedAccounts"
         ) combined
       )
-      SELECT "id", "name", "phone", "email", "status", "ordersCount"
+      SELECT "id", "userId", "name", "phone", "email", "status", "ordersCount"
       FROM "rankedCustomers"
       WHERE "rowNumber" = 1
       ORDER BY LOWER("name") ASC, "id" ASC

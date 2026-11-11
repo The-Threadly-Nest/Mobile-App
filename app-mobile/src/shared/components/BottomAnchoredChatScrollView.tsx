@@ -1,8 +1,7 @@
-import React, { type ReactNode } from 'react';
+import React, { useRef, type ReactNode } from 'react';
 import {
   ScrollView,
   StyleSheet,
-  View,
   type ScrollViewProps,
   type StyleProp,
   type ViewStyle,
@@ -15,37 +14,53 @@ interface BottomAnchoredChatScrollViewProps
 }
 
 /**
- * Starts at the visual bottom without calling scrollToEnd. The viewport and
- * its single content cell are inverted together, keeping content upright while
- * making offset zero the newest end of the conversation.
+ * Short conversations start directly below the header. Keep the existing
+ * import name for screens, but use a normal, upright chronological scroll view.
  */
 export default function BottomAnchoredChatScrollView({
   children,
   contentContainerStyle,
   style,
+  onScroll,
+  onContentSizeChange,
+  onLayout,
   ...scrollViewProps
 }: BottomAnchoredChatScrollViewProps) {
+  const scroll = useRef<ScrollView>(null);
+  const nearBottom = useRef(true);
   return (
     <ScrollView
       {...scrollViewProps}
-      style={[style, styles.invertedViewport]}
-      contentContainerStyle={styles.viewportContent}
+      ref={scroll}
+      style={style}
+      contentContainerStyle={[styles.viewportContent, contentContainerStyle, styles.topAligned]}
+      scrollEventThrottle={16}
+      onScroll={event => {
+        const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+        nearBottom.current = contentSize.height - layoutMeasurement.height - contentOffset.y < 80;
+        onScroll?.(event);
+      }}
+      onContentSizeChange={(width, height) => {
+        // Short conversations remain at offset zero; long conversations follow
+        // new messages only when the person is already near the latest message.
+        if (nearBottom.current) scroll.current?.scrollToEnd({ animated: false });
+        onContentSizeChange?.(width, height);
+      }}
+      onLayout={event => {
+        if (nearBottom.current) scroll.current?.scrollToEnd({ animated: false });
+        onLayout?.(event);
+      }}
     >
-      <View style={[styles.uprightContent, contentContainerStyle]}>{children}</View>
+      {children}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  invertedViewport: {
-    transform: [{ scaleY: -1 }],
-  },
   viewportContent: {
     flexGrow: 1,
   },
-  uprightContent: {
-    minHeight: '100%',
-    justifyContent: 'flex-end',
-    transform: [{ scaleY: -1 }],
+  topAligned: {
+    justifyContent: 'flex-start',
   },
 });

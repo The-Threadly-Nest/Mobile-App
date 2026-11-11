@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState } from "react";
 import { View, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -227,10 +228,7 @@ const styles = StyleSheet.create({
     color: "#3B0508",
     marginBottom: 6,
   },
-  subtitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 14,
-    lineHeight: 20,
+  subtitle: { ...typeScale.caption,
     color: "#746765",
   },
   cardsContainer: {
@@ -332,9 +330,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  continueBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 15,
+  continueBtnText: { ...typeScale.button,
     color: "#FFFFFF",
     letterSpacing: 0.2,
   },

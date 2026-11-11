@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect, useCallback } from "react";
 import { View, ScrollView, Pressable, Image, Linking, ActivityIndicator, StyleSheet, RefreshControl, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -13,6 +14,7 @@ import {
   Ruler,
   Sparkles,
   XCircle,
+  Package,
 } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import CachedImage from "@/shared/components/CachedImage";
@@ -22,6 +24,7 @@ import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { alertEmitter } from "@/shared/utils/alertEmitter";
 import { useOrdersStore } from "@/stores/useOrdersStore";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
+import { isReadyToWear, READY_CUSTOMER_STAGES, readyCustomerStage } from "@/shared/utils/orderFulfillment";
 
 const STAGES = [
   { key: "booked", label: "Appointment Booked", desc: "Fitting session scheduled" },
@@ -61,17 +64,19 @@ export default function CustomerOrderDetailScreen() {
     imageUrl?: string;
     fashionHouseId?: string;
     rawStatus?: string;
+    fulfillmentType?: string;
   }>();
 
-  const [orderData, setOrderData] = useState<any>(null);
+  const storedOrder = useOrdersStore(s => s.orders.find(order => [order.id, order.orderId, order.bookingId].includes(params.orderId)));
+  const [orderData, setOrderData] = useState<any>(() => storedOrder || null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [cancelling, setCancelling] = useState(false);
 
   const handleCancelOrder = () => {
     alertEmitter.emit({
-      title: "Cancel Fitting / Order",
-      message: "Are you sure you want to cancel this order? This action will invalidate your fitting appointment slot.",
+      title: readyToWear ? "Cancel order?" : "Cancel fitting / order?",
+      message: readyToWear ? "Do you want to cancel this ready-to-wear order?" : "Do you want to cancel this order and release your fitting appointment?",
       confirmLabel: "Yes, Cancel",
       cancelLabel: "Keep Order",
       onConfirm: async () => {
@@ -83,7 +88,7 @@ export default function CustomerOrderDetailScreen() {
           await apiFetch(`/api/orders/track/${encodeURIComponent(orderId)}/cancel`, {
             method: "POST",
           });
-          setOrderData((prev: any) => ({ ...(prev || {}), status: "cancelled" }));
+          setOrderData((prev: any) => ({ ...(prev || {}), status: "cancelled", rawStatus: "cancelled" }));
           updateOrderStatus(orderId, "cancelled");
           alertEmitter.emit({ title: "Order Cancelled", message: "Your order has been successfully cancelled." });
         } catch (err: any) {
@@ -101,7 +106,7 @@ export default function CustomerOrderDetailScreen() {
       return;
     }
     try {
-      setOrderData(await apiFetch<any>(`/api/orders/track/${params.orderId}`, { silent: true }));
+      setOrderData(await apiFetch<any>(`/api/orders/track/${params.orderId}`, { silent: true, cache: "reload" }));
     } catch (err) {
       console.warn("Failed to fetch order tracking details:", err);
     } finally {
@@ -127,18 +132,23 @@ export default function CustomerOrderDetailScreen() {
 
   const fashionHouseName =
     orderData?.atelierName || params.atelierName || "Luxury Fashion House";
-  const garmentTitle =
+  const rawGarmentTitle =
     orderData?.garmentType || params.garmentType || "Bespoke Garment";
+  const garmentTitle =
+    rawGarmentTitle.replace(/^Measurement for\s*:?\s*/i, "").trim() || "Bespoke Garment";
   const orderNumber =
     params.orderNumber || generateOrderNumber(orderData?.orderId || params.orderId);
-  const estimatedReady =
-    orderData?.estimatedReady || params.estimatedReady || "Fitting In 2 weeks";
-  const currentStatus = orderData?.status || "booked";
+  const readyToWear = isReadyToWear(orderData?.fulfillmentType ? orderData : storedOrder || orderData || params);
+  const currentStatus = orderData?.rawStatus || orderData?.status || params.rawStatus || (readyToWear ? "order_placed" : "booked");
+  const stages = readyToWear ? READY_CUSTOMER_STAGES : STAGES;
+  const activeStageIdx = readyToWear ? readyCustomerStage(currentStatus) : STAGE_INDEX_MAP[currentStatus] ?? 0;
+  const completed = ["completed", "delivered"].includes(currentStatus);
+  const estimatedReady = readyToWear ? READY_CUSTOMER_STAGES[activeStageIdx].label : orderData?.estimatedReady || params.estimatedReady || "Appointment details pending";
   const isDeclined = currentStatus === "declined" || params.rawStatus === "declined";
   const isCancelled = currentStatus === "cancelled" || params.rawStatus === "cancelled";
   const isEnded = isDeclined || isCancelled;
-  const activeStageIdx = STAGE_INDEX_MAP[currentStatus] ?? 0;
   const coverImage = orderData?.imageUrl || params.imageUrl || "";
+  const lastUpdated = orderData?.updatedAt ? new Date(orderData.updatedAt) : null;
 
   const fashionHouseId = orderData?.fashionHouseId || params.fashionHouseId;
 
@@ -197,7 +207,7 @@ export default function CustomerOrderDetailScreen() {
               {garmentTitle}
             </Text>
             <View style={styles.dateRow}>
-              <Calendar size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#453332" : "#8A7550"} />
+              {readyToWear ? <Package size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#453332" : "#8A7550"} /> : <Calendar size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#453332" : "#8A7550"} />}
               <Text
                 style={[
                   styles.dateText,
@@ -206,7 +216,7 @@ export default function CustomerOrderDetailScreen() {
                 ]}
                 numberOfLines={1}
               >
-                {isDeclined ? "Fitting Request Declined" : isCancelled ? "Order Cancelled by You" : estimatedReady}
+                {isDeclined ? (readyToWear ? "Order declined" : "Fitting request declined") : isCancelled ? "Order cancelled" : estimatedReady}
               </Text>
             </View>
           </View>
@@ -216,14 +226,15 @@ export default function CustomerOrderDetailScreen() {
         {!isEnded && (
           <View style={styles.progressSection}>
             <View style={styles.cardHeaderRow}>
-              <Text style={styles.cardHeadline}>Production Progress</Text>
+              <Text style={styles.cardHeadline}>{readyToWear ? "Order progress" : "Production progress"}</Text>
               {loading && <ActivityIndicator size="small" color="#453332" />}
             </View>
+            {readyToWear && lastUpdated && !Number.isNaN(lastUpdated.getTime()) ? <Text style={styles.stepDesc}>Updated {lastUpdated.toLocaleString()}</Text> : null}
             <View style={styles.timelineContainer}>
-              {STAGES.map((stg, idx) => {
+              {stages.map((stg, idx) => {
                 const isDone = idx <= activeStageIdx;
                 const isCurrent = idx === activeStageIdx;
-                const isLast = idx === STAGES.length - 1;
+                const isLast = idx === stages.length - 1;
 
                 return (
                   <View key={stg.key} style={styles.stepRow}>
@@ -266,6 +277,17 @@ export default function CustomerOrderDetailScreen() {
           </View>
         )}
 
+        {readyToWear && Array.isArray(orderData?.items) && orderData.items.length > 0 ? (
+          <View style={styles.progressSection}>
+            <Text style={styles.cardHeadline}>Your items</Text>
+            {orderData.items.map((item: any, index: number) => <View key={`${item.catalogItemId || index}-${item.selectedSize}-${item.selectedColor}`} style={{ paddingTop: 12, gap: 4 }}>
+              <Text style={styles.stepLabel}>{item.quantity} × {item.name}</Text>
+              <Text style={styles.stepDesc}>{[item.selectedSize && `Size ${item.selectedSize}`, item.selectedColor].filter(Boolean).join(" · ")}</Text>
+            </View>)}
+            {orderData?.fashionHouseLocation ? <View style={{ paddingTop: 16, gap: 4 }}><Text style={styles.stepLabel}>Pickup location</Text><Text style={styles.stepDesc}>{orderData.fashionHouseLocation}</Text></View> : null}
+          </View>
+        ) : null}
+
         {/* Action Pill Buttons */}
         <View style={styles.actionButtonRow}>
           <Pressable
@@ -285,13 +307,16 @@ export default function CustomerOrderDetailScreen() {
                 });
               }
             }}
-            style={({ pressed }) => [styles.pillBtn, { opacity: pressed ? 0.85 : 1 }]}
+            style={({ pressed }) => [
+              styles.pillBtn,
+              { backgroundColor: "#453332", opacity: pressed ? 0.85 : 1 },
+            ]}
           >
             <MessageCircle size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
             <Text style={styles.pillBtnText}>Message</Text>
           </Pressable>
 
-          {!isEnded && currentStatus !== "completed" && currentStatus !== "delivered" && (
+          {!isEnded && !completed && (readyToWear ? activeStageIdx === 0 : activeStageIdx < 3) && (
             <Pressable
               onPress={handleCancelOrder}
               disabled={cancelling}
@@ -333,32 +358,32 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
   },
-  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 26, color: "#2B2B2B" },
+  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
   heroSection: {
-    paddingBottom: 16,
-    marginBottom: 20,
+    paddingBottom: 20,
+    marginBottom: 24,
     flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: "#F4EEE5",
   },
-  compactImage: { width: 80, height: 80, borderRadius: 14 },
-  compactContent: { flex: 1, marginLeft: 14, justifyContent: "center" },
-  badgeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
+  compactImage: { width: 88, height: 88, borderRadius: 16 },
+  compactContent: { flex: 1, marginLeft: 16, justifyContent: "center", gap: 9 },
+  badgeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   orderBadge: {
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 3.5,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: "#453332",
   },
   orderBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#2B2B2B" },
   fhNameText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B", flexShrink: 1, marginLeft: 6 },
-  garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 16, color: "#2B2B2B", marginBottom: 4 },
-  dateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#2B2B2B", flexShrink: 1 },
+  garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 17, lineHeight: 22, color: "#2B2B2B" },
+  dateRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12.5, lineHeight: 17, color: "#2B2B2B", flexShrink: 1 },
   progressSection: {
     marginBottom: 24,
   },

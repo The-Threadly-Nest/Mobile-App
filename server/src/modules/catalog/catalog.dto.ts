@@ -9,7 +9,7 @@ export const catalogInputs = {
   patchById: { params: idParamSchema, body: updateCatalogItemSchema },
   deleteById: { params: idParamSchema },
   getMarketplace: { query: discoveryQuerySchema },
-  getFashionHouseByFashionHouseId: { params: fashionHouseIdParamSchema, query: collectionPaginationSchema },
+  getFashionHouseByFashionHouseId: { params: fashionHouseIdParamSchema, query: discoveryQuerySchema },
   getItemById: { params: idParamSchema },
   getMeasurementSlots: { params: idParamSchema },
 } as const;

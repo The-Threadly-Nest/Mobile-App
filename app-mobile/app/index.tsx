@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { View, Image, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
-import { router, Redirect } from "expo-router";
+import { router, Redirect, usePathname } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useVideoPlayer, VideoView } from "expo-video";
@@ -14,9 +14,12 @@ import { useStartupReady } from "@/shared/components/StartupContext";
 
 export default function VideoSplashScreen() {
   const ready = useStartupReady();
+  const focused = usePathname() === "/";
   const token = useAuthStore(state => state.token);
   const role = useAuthStore(state => state.role);
-  if (!ready) return null;
+  // The welcome route stays mounted behind login. Only the focused route may
+  // redirect, otherwise setting the login session triggers two navigations.
+  if (!ready || !focused) return null;
   if (token && role) return <Redirect href="/(auth)/loading" />;
   return <VideoWelcomeScreen />;
 }

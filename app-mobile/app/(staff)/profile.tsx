@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React from "react";
 import { View, Pressable, StyleSheet, ScrollView } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -93,9 +94,7 @@ const styles = StyleSheet.create({
     paddingTop: 36,
     paddingBottom: 40,
   },
-  pageTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 26,
+  pageTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
     marginBottom: 20,
   },
@@ -158,9 +157,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  sectionHeader: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 11,
+  sectionHeader: { ...typeScale.sectionTitle,
     letterSpacing: 1,
     color: "#2B2B2B",
     marginBottom: 16,
@@ -184,7 +181,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#2B2B2B",
   },
-  divider: {
+  divider: { display: "none",
     height: 1,
     backgroundColor: "#F4EFE6",
     marginVertical: 14,

@@ -1,5 +1,6 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Pressable, StyleSheet, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, ScrollView, Pressable, StyleSheet, ActivityIndicator, useWindowDimensions, Alert, Share } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, router } from "expo-router";
@@ -109,6 +110,7 @@ export default function FashionHouseScreen() {
           name: r.user?.name || r.name || "Customer",
           text: r.comment || r.text || "",
           rating: r.rating || 0,
+          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : (r.date || ""),
         }))
       : [];
 
@@ -130,6 +132,36 @@ export default function FashionHouseScreen() {
       return `${count}+`;
     }
     return "0";
+  };
+
+  const handleMoreOptions = () => {
+    Alert.alert(
+      displayName,
+      "Fashion House Options",
+      [
+        {
+          text: "Share Profile",
+          onPress: async () => {
+            try {
+              await Share.share({
+                title: displayName,
+                message: `Check out ${displayName} on The Fashion House!`,
+              });
+            } catch {
+              // User dismissed
+            }
+          },
+        },
+        {
+          text: "Report Fashion House",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert("Report Received", "Thank you. Our moderation team will review this fashion house.");
+          },
+        },
+        { text: "Cancel", style: "cancel" },
+      ]
+    );
   };
 
   if (loading && !fhData && !initialName) {
@@ -186,6 +218,7 @@ export default function FashionHouseScreen() {
             </Pressable>
 
             <Pressable
+              onPress={handleMoreOptions}
               accessibilityRole="button"
               accessibilityLabel="Options"
               style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
@@ -204,31 +237,34 @@ export default function FashionHouseScreen() {
           <View style={styles.houseHeaderRow}>
             <Text style={styles.displayName}>{displayName}</Text>
             <View style={styles.heroRatingRow}>
-              {renderStars(rating)}
+              <View style={{ flexDirection: "row", gap: 3, alignItems: "center" }}>
+                {renderStars(rating)}
+              </View>
               <Text style={styles.heroRatingScore}>{rating > 0 ? rating.toFixed(1) : "Not rated yet"}</Text>
+              <Text style={styles.heroRatingDot}>·</Text>
               <Text style={styles.heroOrdersCount}>
-                · {formatOrdersText(rawOrdersCount)} completed orders
+                {formatOrdersText(rawOrdersCount)} completed orders
               </Text>
             </View>
           </View>
 
-          {/* Stats Row - Moved down below hero photo */}
+          {/* Stats Row - Segments with distinct spacing & margins */}
           <View style={[styles.statsCard, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>Contact house</Text>
-            <Text style={styles.statLabel}>TURNAROUND</Text>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>Contact house</Text>
+              <Text style={styles.statLabel}>TURNAROUND</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{minimumPrice ? `From ${formatCurrency(minimumPrice)}` : "On request"}</Text>
+              <Text style={styles.statLabel}>PRICE RANGE</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <Text style={styles.statValue} numberOfLines={1}>{displayLocation}</Text>
+              <Text style={styles.statLabel}>LOCATION</Text>
+            </View>
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{minimumPrice ? `From ${formatCurrency(minimumPrice)}` : "On request"}</Text>
-            <Text style={styles.statLabel}>PRICE RANGE</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue} numberOfLines={1}>{displayLocation}</Text>
-            <Text style={styles.statLabel}>LOCATION</Text>
-          </View>
-        </View>
 
         {/* About Section */}
         <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
@@ -290,55 +326,65 @@ export default function FashionHouseScreen() {
           )}
         </View>
 
-        {/* Reviews Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>REVIEWS</Text>
-          <View style={styles.reviewsCard}>
-            {reviews.length === 0 ? <Text style={styles.reviewText}>No customer reviews yet.</Text> : null}
-            {reviews.map((review: any, i: number) => (
-              <View key={i}>
-                <View style={styles.reviewItem}>
-                  <View style={styles.reviewHeader}>
-                    <Text style={styles.reviewName}>{review.name}</Text>
-                    <View style={styles.reviewStars}>{renderStars(review.rating)}</View>
+        {/* Reviews Section — hidden when there are no reviews */}
+        {reviews.length > 0 && (
+          <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <Text style={styles.sectionTitle}>Reviews</Text>
+              <Pressable onPress={() => router.push(`/(customer)/reviews/${targetId}`)}>
+                <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#453332", textDecorationLine: "underline" }}>
+                  See all reviews
+                </Text>
+              </Pressable>
+            </View>
+
+            {reviews.slice(0, 3).map((review: any, i: number) => (
+              <View
+                key={i}
+                style={{
+                  backgroundColor: "#EBE7E1",
+                  borderRadius: 14,
+                  padding: 14,
+                  marginBottom: 10,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#000000", alignItems: "center", justifyContent: "center" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" }}>
+                        {review.name.charAt(0).toUpperCase()}
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#2B2B2B" }}>
+                        {review.name}
+                      </Text>
+                      <View style={{ flexDirection: "row", gap: 2, marginTop: 2 }}>
+                        {renderStars(review.rating)}
+                      </View>
+                    </View>
                   </View>
-                  <Text style={styles.reviewText}>{review.text}</Text>
+                  {review.date ? (
+                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#746765" }}>
+                      {review.date}
+                    </Text>
+                  ) : null}
                 </View>
-                {i < reviews.length - 1 && <View style={styles.reviewDashedDivider} />}
+                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 19, color: "#2B2B2B" }}>
+                  {review.text}
+                </Text>
               </View>
             ))}
-
-            <Pressable
-              style={styles.seeAllBtn}
-              onPress={() => router.push(`/(customer)/reviews/${targetId}`)}
-            >
-              <Text style={styles.seeAllText}>See all reviews</Text>
-            </Pressable>
           </View>
-        </View>
+        )}
 
-        {/* Action Buttons - Below Reviews */}
-        <View style={{ marginTop: 28, flexDirection: 'row', gap: 12 }}>
+        {/* Action Button - Single Primary CTA */}
+        <View style={{ marginTop: 28, width: "100%", alignItems: "center" }}>
           <Pressable
-            style={({ pressed }) => [
-              styles.bookingBtn,
-              { flex: 1, backgroundColor: '#EFECE6', opacity: pressed ? 0.9 : 1 },
-            ]}
-            onPress={() =>
-              router.push({
-                pathname: `/(customer)/direct-chat/${targetId}`,
-                params: { fashionHouseName: displayName, startNew: String(Date.now()) },
-              })
-            }
-          >
-            <Text style={[styles.bookingBtnText, { color: "#2B2B2B" }]}>Message</Text>
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [styles.bookingBtn, { flex: 1.4, opacity: pressed ? 0.9 : 1 }]}
+            style={({ pressed }) => [styles.bookingBtn, { opacity: pressed ? 0.9 : 1 }]}
             onPress={() => router.push({
               pathname: "/(customer)/chat/[fashionHouseId]",
-              params: { fashionHouseId: targetId, fashionHouseName: displayName },
+              params: { fashionHouseId: targetId, fashionHouseName: displayName, startNew: String(Date.now()) },
             })}
           >
             <Text style={styles.bookingBtnText}>Book an appointment</Text>
@@ -409,48 +455,55 @@ const styles = StyleSheet.create({
   heroRatingRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
+    marginTop: 2,
   },
   heroRatingScore: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
     color: "#2B2B2B",
-    marginLeft: 6,
+  },
+  heroRatingDot: {
+    color: "#8A7550",
+    fontSize: 13,
   },
   heroOrdersCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
-    marginLeft: 4,
+    color: "#746765",
   },
   statsCard: {
     flexDirection: "row",
     backgroundColor: "#FBF7EF",
     borderRadius: 16,
-    paddingVertical: 14,
-    marginBottom: 10,
+    paddingVertical: 18,
+    marginTop: 14,
+    marginBottom: 6,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.08)",
   },
   statItem: {
     flex: 1,
     alignItems: "center",
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
   },
   statValue: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 15,
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 14,
     color: "#2B2B2B",
     marginBottom: 4,
+    textAlign: "center",
   },
   statLabel: {
-    fontFamily: "InstrumentSans-Medium",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#2B2B2B",
-    letterSpacing: 0.6,
+    color: "#8A7550",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#E8E1D5",
+    backgroundColor: "rgba(69, 51, 50, 0.12)",
     marginVertical: 4,
   },
   section: {
@@ -462,9 +515,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 14,
   },
-  sectionTitle: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 13,
+  sectionTitle: { ...typeScale.sectionTitle,
     color: "#2B2B2B",
     letterSpacing: 1.2,
   },
@@ -555,7 +606,7 @@ const styles = StyleSheet.create({
   reviewItem: {
     paddingVertical: 14,
   },
-  reviewDashedDivider: {
+  reviewDashedDivider: { display: "none",
     borderBottomWidth: 1,
     borderBottomColor: "#C8BFB0",
     borderStyle: "dashed",

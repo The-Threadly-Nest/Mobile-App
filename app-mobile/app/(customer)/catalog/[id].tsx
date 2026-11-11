@@ -1,5 +1,6 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useEffect, useState, useCallback } from "react";
-import { View, ScrollView, Pressable, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
+import { View, ScrollView, Pressable, Image, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
@@ -8,6 +9,7 @@ import {
   Eye,
   Heart,
   ShoppingCart,
+  ChevronRight,
 } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import CachedImage from "@/shared/components/CachedImage";
@@ -100,6 +102,7 @@ export default function CatalogItemDetailScreen() {
         fashionHouseId: targetHouseId,
         fashionHouseName: vendorName,
         garmentName: garmentData.name,
+        catalogItemId: garmentData.id,
         garmentPrice: garmentPriceFormatted,
         startNew: String(Date.now()),
       },
@@ -126,7 +129,7 @@ export default function CatalogItemDetailScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: 110 + insets.bottom },
+          { paddingBottom: 24 + insets.bottom },
           isLandscape && { maxWidth: 840, alignSelf: "center", width: "100%" },
         ]}
         showsVerticalScrollIndicator={false}
@@ -188,8 +191,32 @@ export default function CatalogItemDetailScreen() {
           </View>
 
           <View style={styles.priceRatingRow}><Text style={styles.mainPrice}>{garmentPriceFormatted}</Text></View>
-          <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#746765", marginBottom: 12 }}>{isCustomFit ? "Custom fit ? Measurement appointment required" : "Ready for pickup"}</Text>
-          {vendorName ? <Pressable onPress={() => router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId } })}><Text style={{ color: "#2B2B2B", textDecorationLine: "underline", marginBottom: 12 }}>{vendorName}</Text></Pressable> : null}
+          {!isCustomFit && (
+            <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#746765", marginTop: 4, marginBottom: 8 }}>
+              Ready for pickup
+            </Text>
+          )}
+          {vendorName ? (
+            <Pressable
+              onPress={() => router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId } })}
+              style={({ pressed }) => [styles.vendorCard, { opacity: pressed ? 0.8 : 1 }]}
+              accessibilityRole="button"
+              accessibilityLabel={`Visit ${vendorName}`}
+            >
+              <View style={styles.vendorAvatar}>
+                {garmentData?.fashionHouse?.brandLogoUrl ? (
+                  <Image source={{ uri: garmentData.fashionHouse.brandLogoUrl }} style={styles.vendorAvatarImg} resizeMode="cover" />
+                ) : (
+                  <Text style={styles.vendorAvatarLetter}>{vendorName.charAt(0).toUpperCase()}</Text>
+                )}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.vendorNameText}>{vendorName}</Text>
+                <Text style={styles.vendorSubtitle}>Fashion House</Text>
+              </View>
+              <ChevronRight size={18} color="#453332" />
+            </Pressable>
+          ) : null}
 
           {/* Description */}
           <Text style={styles.descriptionText}>
@@ -198,11 +225,8 @@ export default function CatalogItemDetailScreen() {
 
 
 
-          {/* Divider */}
-          <View style={styles.divider} />
-
           {/* Size Variant Selector (Small circular buttons) */}
-          {!isCustomFit && <View style={styles.sectionBlock}>
+          {!isCustomFit && <View style={[styles.sectionBlock, colors.length === 0 && { marginBottom: 0 }]}>
             <Text style={styles.sectionTitle}>Size</Text>
             <View style={styles.variantRow}>
               {variants.map((v) => {
@@ -234,7 +258,7 @@ export default function CatalogItemDetailScreen() {
           </View>}
 
           {/* Color Selector */}
-          {!isCustomFit && colors.length > 0 && <View style={styles.sectionBlock}>
+          {!isCustomFit && colors.length > 0 && <View style={[styles.sectionBlock, { marginBottom: 0 }]}>
             <Text style={styles.sectionTitle}>Color</Text>
             <View style={styles.colorRow}>
               {colors.map((c) => {
@@ -244,29 +268,35 @@ export default function CatalogItemDetailScreen() {
                     key={c.name}
                     onPress={() => setSelectedColor(c.name)}
                     style={[
-                      styles.colorSwatchWrap,
-                      { width: "auto", minWidth: 44, paddingHorizontal: 12 },
-                      isSelected && styles.colorSwatchWrapActive,
+                      styles.colorPill,
+                      isSelected && styles.colorPillActive,
                     ]}
                     accessibilityLabel={c.name}
                   >
-                    <Text style={styles.roundPillText}>{c.name}</Text>
+                    <Text
+                      style={[
+                        styles.roundPillText,
+                        isSelected && styles.roundPillTextActive,
+                      ]}
+                    >
+                      {c.name}
+                    </Text>
                   </Pressable>
                 );
               })}
             </View>
           </View>}
-        </View>
-      </ScrollView>
 
-      {/* ─── Bottom Floating Sticky Bar (Figma 95:7449) ─── */}
+      {/* Purchase actions follow size and colour choices. */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
         {isCustomFit ? <Pressable disabled={!garmentData || loading || Boolean(error)} style={styles.addToCartBtn} onPress={handleBookMeasurement}><Text style={styles.addToCartText}>Book measurement</Text></Pressable>
           : <View style={{ flexDirection: "row", gap: 10, width: "100%" }}>
-            <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined }]} onPress={() => handleAddToCart()}><Text style={styles.addToCartText}>Add to cart</Text></Pressable>
+            <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#453332" }]} onPress={() => handleAddToCart()}><Text style={styles.addToCartText}>Add to cart</Text></Pressable>
             <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#F96951" }]} onPress={() => handleAddToCart(true)}><Text style={styles.addToCartText}>Buy now</Text></Pressable>
           </View>}
       </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -277,7 +307,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   scrollContent: {
-    paddingBottom: 110,
+    paddingBottom: 24,
   },
   heroContainer: {
     width: "100%",
@@ -422,10 +452,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#2B2B2B",
   },
-  descriptionText: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 13,
-    lineHeight: 19,
+  descriptionText: { ...typeScale.body,
     color: "#5A5A5A",
     marginBottom: 16,
   },
@@ -445,7 +472,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#4A4A4A",
   },
-  divider: {
+  divider: { display: "none",
     height: 1,
     backgroundColor: "#F0EBE1",
     marginBottom: 18,
@@ -453,9 +480,7 @@ const styles = StyleSheet.create({
   sectionBlock: {
     marginBottom: 20,
   },
-  sectionTitle: {
-    fontFamily: "InstrumentSans-Bold",
-    fontSize: 15,
+  sectionTitle: { ...typeScale.sectionTitle,
     color: "#2B2B2B",
     marginBottom: 10,
   },
@@ -499,33 +524,65 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: "center",
   },
-  colorSwatchWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  colorPill: {
+    height: 38,
+    minWidth: 44,
+    borderRadius: 19,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: "#DCDCDC",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "transparent",
   },
-  colorSwatchWrapActive: {
+  colorPillActive: {
+    backgroundColor: "#FDEEE9",
     borderColor: "#F96951",
   },
-  colorSwatch: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.08)",
+  vendorCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: "#FBF7EF",
+    borderRadius: 16,
+    marginVertical: 12,
+  },
+  vendorAvatar: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#453332",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  vendorAvatarImg: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+  },
+  vendorAvatarLetter: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 16,
+    color: "#FFFFFF",
+  },
+  vendorNameText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 14,
+    color: "#2B2B2B",
+  },
+  vendorSubtitle: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 11,
+    color: "#8A7550",
+    marginTop: 1,
   },
   bottomBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingTop: 12,
+      marginTop: 12,
+      paddingTop: 0,
     alignItems: "center",
   },
   addToCartBtn: {

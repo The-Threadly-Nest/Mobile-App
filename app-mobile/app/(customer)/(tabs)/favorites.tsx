@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { typeScale } from "@/shared/utils/typeScale";
 import { View, ScrollView, Pressable, Image, ActivityIndicator, RefreshControl } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -59,8 +60,7 @@ export default function FavoritesScreen() {
         <Text
           accessibilityRole="header"
           style={{
-            fontFamily: "InstrumentSans-Regular",
-            fontSize: 26,
+            ...typeScale.pageTitle,
             color: "#2B2B2B",
             textAlign: "left",
             alignSelf: "flex-start",

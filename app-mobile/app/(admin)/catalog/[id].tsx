@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect } from "react";
 import { View, Pressable, ScrollView, Image, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
@@ -309,10 +310,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 24,
-    lineHeight: 28,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
     letterSpacing: -0.2,
   },
@@ -328,9 +326,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 36,
   },
-  fieldLabel: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 14,
+  fieldLabel: { ...typeScale.label,
     color: "#2B2B2B",
     marginBottom: 8,
   },
@@ -426,7 +422,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 24,
-    borderTopWidth: 1,
+    borderTopWidth: 0,
     borderTopColor: "rgba(0,0,0,0.05)",
   },
   submitBtn: {

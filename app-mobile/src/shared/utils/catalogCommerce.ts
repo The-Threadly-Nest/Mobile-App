@@ -2,7 +2,7 @@ export type FulfillmentType = "ready_to_wear" | "custom_fit";
 export interface CatalogProduct {
   id: string; fashionHouseId: string; name: string; description: string | null; category: string | null;
   imageUrl: string; priceFrom: number | null; sizes: string[]; colors: string[]; fulfillmentType: FulfillmentType;
-  fashionHouse?: { id: string; shopName: string; location?: string | null; timezone?: string };
+  fashionHouse?: { id: string; shopName: string; location?: string | null; timezone?: string; brandLogoUrl?: string | null };
 }
 export const catalogOptions = (text: string) => [...new Set(text.split(",").map(value => value.trim()).filter(Boolean))];
 export function catalogPrice(text: string): number | null {

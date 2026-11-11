@@ -15,6 +15,7 @@ import {
 } from "@/shared/services/chatCache";
 import { createIdempotencyKey } from "@/shared/utils/idempotency";
 import BookingSlotPicker from "@/shared/components/BookingSlotPicker";
+import BookingSpecializationPicker from "@/shared/components/BookingSpecializationPicker";
 
 interface Slot {
   id: string;
@@ -30,6 +31,8 @@ interface Turn {
   slots?: Slot[];
   slotStage?: "dates" | "times";
   slotPickerComplete?: boolean;
+  garmentPicker?: boolean;
+  garmentPickerComplete?: boolean;
 }
 
 function sanitizeText(text: string): string {
@@ -54,17 +57,19 @@ function cleanRawSlotText(text: string): string {
 const DEFAULT_INITIAL_TURNS: Turn[] = [
   {
     role: "model",
-    text: "Welcome! What garment would you like us to make? Tell us once, then choose your measurement date and time.",
+    text: "Welcome! Here's what this fashion house specializes in. What would you like us to make?",
+    garmentPicker: true,
   },
 ];
 
 export default function BookingChatScreen() {
   const insets = useSafeAreaInsets();
-  const { fashionHouseId, fashionHouseName: paramFhName, garmentName, garmentPrice, startNew } = useLocalSearchParams<{
+  const { fashionHouseId, fashionHouseName: paramFhName, garmentName, garmentPrice, catalogItemId, startNew } = useLocalSearchParams<{
     fashionHouseId: string;
     fashionHouseName?: string;
     garmentName?: string;
     garmentPrice?: string;
+    catalogItemId?: string;
     startNew?: string;
   }>();
 
@@ -88,6 +93,8 @@ export default function BookingChatScreen() {
   const [selectedSlotLabel, setSelectedSlotLabel] = useState<string | null>(null);
   const [fashionHouseName, setFashionHouseName] = useState(paramFhName || "Fashion House");
   const [selectedGarment, setSelectedGarment] = useState(garmentName || "Bespoke Fitting Session");
+  const [selectedCatalogIds, setSelectedCatalogIds] = useState<string[]>(catalogItemId ? [catalogItemId] : []);
+  const [selectedSpecialization, setSelectedSpecialization] = useState<string | null>(null);
   const [selectedEstimate, setSelectedEstimate] = useState(garmentPrice || "Finalized at fitting");
   const [houseCategories, setHouseCategories] = useState<string[]>([]);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -111,6 +118,9 @@ export default function BookingChatScreen() {
       setBookingConfirmed(false);
       setSelectedSlotLabel(null);
       setSelectedGarment(garmentName || "Bespoke Fitting Session");
+      setSelectedCatalogIds(catalogItemId ? [catalogItemId] : []);
+      setSelectedSpecialization(null);
+      setHouseCategories([]);
       setSelectedEstimate(garmentPrice || "Finalized at fitting");
       slotRequestKeysRef.current = {};
       try {
@@ -169,7 +179,12 @@ export default function BookingChatScreen() {
             const humanHandoffActive = body.conversationState && body.conversationState !== "automated";
             setEscalatedToHuman(Boolean(humanHandoffActive));
             setAvailableSlots(serverSlots);
-            if (garmentName && startNew && !humanHandoffActive) {
+            if (!garmentName && startNew && !humanHandoffActive) {
+              const welcome: Turn[] = [{ role: "model", text: `Welcome to ${paramFhName || "this fashion house"}! Here's what we specialize in. What would you like us to make?`, garmentPicker: true }];
+              setHistory(welcome);
+              hydratedConversationIdRef.current = fashionHouseId;
+              void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, welcome);
+            } else if (garmentName && startNew && !humanHandoffActive) {
               const welcome: Turn[] = [{
                 role: "model",
                 text: serverSlots.length
@@ -228,7 +243,7 @@ export default function BookingChatScreen() {
     return () => {
       cancelled = true;
     };
-  }, [cacheOwner, fashionHouseId, startNew, token, garmentName, garmentPrice]);
+  }, [cacheOwner, fashionHouseId, startNew, token, garmentName, garmentPrice, catalogItemId]);
 
   useEffect(() => {
     if (
@@ -239,7 +254,7 @@ export default function BookingChatScreen() {
     void writeChatCache(cacheOwner, "customer-booking", fashionHouseId, history);
   }, [cacheOwner, fashionHouseId, history, loadingSession]);
 
-  const handleSend = async (messageText?: string, availableSlotId?: string) => {
+  const handleSend = async (messageText?: string, availableSlotId?: string, specialization?: string) => {
     const textToSend = (messageText ?? draft).trim();
     if (!textToSend || sending || sendLockRef.current || bookingConfirmed) return;
     if (escalatedToHuman) {
@@ -264,8 +279,9 @@ export default function BookingChatScreen() {
     const lower = textToSend.toLowerCase();
 
     // Dynamically update selected garment if customer chose/typed a style
-    let activeGarment = selectedGarment;
+    let activeGarment = specialization || selectedGarment;
     if (
+      !specialization &&
       !lower.startsWith("book slot") &&
       !lower.includes("fabric") &&
       !lower.includes("bring my own") &&
@@ -325,6 +341,8 @@ export default function BookingChatScreen() {
               fashionHouseId,
               message: textToSend,
               garmentName: activeGarment === "Bespoke Fitting Session" ? undefined : activeGarment,
+              catalogItemIds: selectedCatalogIds.length ? selectedCatalogIds : undefined,
+              specialization: specialization || selectedSpecialization || undefined,
               availableSlotId,
               idempotencyKey: chatRequestKey,
             }),
@@ -420,6 +438,7 @@ export default function BookingChatScreen() {
       }
 
       const hasGarment = Boolean(activeGarment && activeGarment !== "Bespoke Fitting Session");
+      if (availableSlotId) setSelectedSlotLabel(null);
       const responseTurn: Turn = hasGarment
         ? {
             role: "model",
@@ -436,6 +455,7 @@ export default function BookingChatScreen() {
       setHistory((prev) => [...prev, responseTurn]);
     } catch {
       if (availableSlotId) setSelectedSlotLabel(null);
+      if (specialization) setHistory(previous => previous.map(turn => turn.garmentPicker ? { ...turn, garmentPickerComplete: false } : turn));
       const responseTurn: Turn = {
         role: "model",
         text: "We couldn't reach the booking assistant. Please try again, or use Talk to Admin.",
@@ -488,7 +508,7 @@ export default function BookingChatScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Top Header */}
-      <View className="flex-row items-center px-6 py-4 bg-white border-b border-grey100">
+      <View className="flex-row items-center px-6 py-4 bg-white border-grey100">
         <Pressable
           onPress={() => router.back()}
           className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-3"
@@ -551,11 +571,11 @@ export default function BookingChatScreen() {
               if (isSessionEnded) {
                 return (
                   <View key={index} style={{ flexDirection: "row", alignItems: "center", marginVertical: 24, paddingHorizontal: 12 }}>
-                    <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
+                    <View style={{ display: "none", flex: 1, height: 1, backgroundColor: "#C4A763" }} />
                     <Text style={{ marginHorizontal: 16, fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#453332", letterSpacing: 2, textTransform: "uppercase" }}>
                       ENDED
                     </Text>
-                    <View style={{ flex: 1, height: 1, backgroundColor: "#C4A763" }} />
+                    <View style={{ display: "none", flex: 1, height: 1, backgroundColor: "#C4A763" }} />
                   </View>
                 );
               }
@@ -637,6 +657,14 @@ export default function BookingChatScreen() {
                       ))}
                     </View>
                   )}
+
+                  {turn.garmentPicker && !turn.garmentPickerComplete && !escalatedToHuman ? <BookingSpecializationPicker categories={houseCategories} disabled={sending || bookingConfirmed}
+                    onConfirm={category => {
+                      if (sending || bookingConfirmed || sendLockRef.current) return;
+                      setSelectedGarment(category); setSelectedCatalogIds([]); setSelectedSpecialization(category);
+                      setHistory(previous => previous.map((entry, i) => i === index ? { ...entry, garmentPickerComplete: true } : entry));
+                      void handleSend(`I'd like a measurement appointment for ${category}.`, undefined, category);
+                    }} /> : null}
 
                   {turn.slots && turn.slots.length > 0 && (
                     <BookingSlotPicker slots={turn.slots} selectedLabel={selectedSlotLabel} disabled={sending || bookingConfirmed || !!turn.slotPickerComplete}

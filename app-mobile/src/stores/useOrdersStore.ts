@@ -14,6 +14,8 @@ export interface OrderItem {
   imageUrl: string;
   status: "active" | "completed" | "declined" | "cancelled";
   rawStatus?: string;
+  fulfillmentType?: "ready_to_wear" | "custom_fit";
+  items?: { name: string; selectedSize: string; selectedColor?: string; quantity: number; unitPrice?: number }[];
 }
 
 interface OrdersState {

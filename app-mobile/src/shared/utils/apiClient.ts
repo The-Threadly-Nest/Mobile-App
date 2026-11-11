@@ -2,6 +2,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { API_BASE_URL } from "@/api/config";
 import { alertEmitter } from "@/shared/utils/alertEmitter";
 import { getConnectionStatus, refreshConnectionStatus, OFFLINE_MESSAGE } from "../services/connectionStatus";
+import { createPageCacheOwner, readPageCache, writePageCache } from "../services/pageCache";
 
 export interface ApiErrorDetail {
   status: number;
@@ -73,6 +74,15 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
   }
   const version = cacheVersion;
   const token = cacheToken;
+  const session = useAuthStore.getState();
+  const owner = session.token && session.role && session.email ? createPageCacheOwner(session.role, session.email) : null;
+  const restoreOffline = async () => {
+    if (!owner) return undefined;
+    const saved = await readPageCache<CachedResponse>(owner, `api:${endpoint}`);
+    if (!saved || cacheVersion !== version || useAuthStore.getState().token !== token) return undefined;
+    responseCache.set(endpoint, saved);
+    return saved;
+  };
   const load = () => {
     let request = requestsInFlight.get(endpoint) as Promise<T> | undefined;
     if (!request) {
@@ -83,6 +93,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
         if (cacheVersion === version && useAuthStore.getState().token === token) {
           if (responseCache.size >= 150) responseCache.delete(responseCache.keys().next().value!);
           responseCache.set(endpoint, { value, headers, savedAt: Date.now() });
+          if (owner) void writePageCache(owner, `api:${endpoint}`, { value, headers, savedAt: Date.now() });
         }
         return value;
       }).finally(() => { if (requestsInFlight.get(endpoint) === request) requestsInFlight.delete(endpoint); });
@@ -90,13 +101,27 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     }
     return request;
   };
-  const cached = responseCache.get(endpoint);
-  if (cached && options.cache !== "reload") {
+  const offline = getConnectionStatus() === "offline";
+  const cached = responseCache.get(endpoint) ?? (offline ? await restoreOffline() : undefined);
+  if (cached && (options.cache !== "reload" || offline)) {
     options.onResponse?.(new Response(null, { headers: cached.headers }));
     if (Date.now() - cached.savedAt > 30_000 && getConnectionStatus() !== "offline") void load().catch(() => {});
     return cached.value as T;
   }
-  const value = await load();
+  let value: T;
+  try { value = await load(); }
+  catch (error) {
+    // Keep last-known content on connection failures, including explicit refresh.
+    // Never hide authorization errors or use cached data to replay a mutation.
+    if (error instanceof ApiError && error.details.status === 0) {
+      const fallback = responseCache.get(endpoint) ?? await restoreOffline();
+      if (fallback && useAuthStore.getState().token === token) {
+        options.onResponse?.(new Response(null, { headers: fallback.headers }));
+        return fallback.value as T;
+      }
+    }
+    throw error;
+  }
   const saved = responseCache.get(endpoint);
   if (saved) options.onResponse?.(new Response(null, { headers: saved.headers }));
   return value;

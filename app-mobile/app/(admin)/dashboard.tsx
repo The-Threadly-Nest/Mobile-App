@@ -316,18 +316,18 @@ export default function AdminDashboard() {
               <View
                 style={{
                   position: "absolute",
-                  top: -2,
-                  right: -2,
-                  minWidth: 16,
-                  height: 16,
-                  borderRadius: 8,
+                  top: -3,
+                  right: -3,
+                  minWidth: 19,
+                  height: 19,
+                  borderRadius: 9.5,
                   backgroundColor: "#F96951",
                   alignItems: "center",
                   justifyContent: "center",
-                  paddingHorizontal: 3,
+                  paddingHorizontal: 4,
                 }}
               >
-                <Text style={{ fontFamily: "InstrumentSans-Bold", fontSize: 9, color: "#FFFFFF" }}>
+                <Text style={{ fontFamily: "InstrumentSans-Bold", fontSize: 10.5, color: "#FFFFFF" }}>
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </Text>
               </View>
@@ -493,7 +493,7 @@ export default function AdminDashboard() {
                 Order requests
               </Text>
               <Pressable onPress={() => router.push("/(admin)/escalations")}>
-                <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#F96951" }}>
+                <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#453332" }}>
                   View All ({pendingEscalations.length})
                 </Text>
               </Pressable>
@@ -641,7 +641,7 @@ export default function AdminDashboard() {
                 style={{
                   fontFamily: "InstrumentSans-Regular",
                   fontSize: 12,
-                  color: "#F96951",
+                  color: "#453332",
                   textDecorationLine: "underline",
                 }}
               >

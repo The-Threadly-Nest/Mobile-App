@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -204,9 +205,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 4,
   },
-  primaryBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 12,
+  primaryBtnText: { ...typeScale.button,
     color: "#FFFFFF",
   },
 });

@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#EAE3D2",
   },
-  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 18, color: "#2B2B2B" },
+  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28 },
   emptyTitle: {
     fontFamily: "InstrumentSans-SemiBold",

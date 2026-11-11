@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useMemo, useRef, useState } from "react";
 import { Alert, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -242,17 +243,17 @@ const styles = StyleSheet.create({
   },
   headerButton: { width: 44, height: 44, alignItems: "flex-start", justifyContent: "center" },
   headerTitleGroup: { flex: 1, alignItems: "center" },
-  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 26, color: "#2B2B2B" },
-  headerSubtitle: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#2B2B2B", marginTop: 2 },
+  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
+  headerSubtitle: { ...typeScale.caption, color: "#2B2B2B", marginTop: 2 },
   clearButton: { width: 44, height: 44, alignItems: "flex-end", justifyContent: "center" },
   clearText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#9A2C32" },
   content: { paddingHorizontal: 20, paddingBottom: 40 },
   groupSection: { marginBottom: 28 },
-  groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#F0E9DF" },
+  groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 10, borderBottomWidth: 0, borderBottomColor: "#F0E9DF" },
   groupLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 9, letterSpacing: 1, color: "#2B2B2B" },
   groupName: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B", marginTop: 2 },
   groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#2B2B2B" },
-  itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#F4EEE5" },
+  itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 0, borderBottomColor: "#F4EEE5" },
   itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#EBE0D3" },
   itemImageContent: { width: "100%", height: "100%", borderRadius: 14 },
   itemDetails: { flex: 1, marginLeft: 12 },

@@ -1,17 +1,19 @@
 import React, { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { AppState, Pressable, StyleSheet, View } from "react-native";
 import { Text } from "@/shared/components/Typography";
-import { SafeAreaInsetsContext, useSafeAreaInsets } from "react-native-safe-area-context";
-import { WifiOff } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { WifiOff, X } from "lucide-react-native";
 import type { NetInfoState } from "@react-native-community/netinfo";
 import { getConnectionStatus, subscribeConnectionStatus, updateConnectionStatus, onConnectionRefresh, refreshConnectionStatus } from "../services/connectionStatus";
 
-/** Mounted once: cached screens remain interactive; the banner never covers their controls. */
+/** One floating offline notice; cached screens keep their normal safe-area layout. */
 export default function ConnectionFrame({ children }: { children: ReactNode }) {
   const status = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus, () => "unknown" as const);
   const insets = useSafeAreaInsets();
   const [checking, setChecking] = useState(false);
   const offline = status === "offline";
+  const [dismissed, setDismissed] = useState(false);
+  useEffect(() => { if (!offline) setDismissed(false); }, [offline]);
   useEffect(() => {
     let active = true, revision = 0;
     let removeNetwork: (() => void) | undefined;
@@ -39,19 +41,19 @@ export default function ConnectionFrame({ children }: { children: ReactNode }) {
   }, []);
 
   return <View style={styles.frame}>
-    {offline ? <View accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.banner, { paddingTop: insets.top + 10 }]}>
-      <WifiOff size={18} color="#453332" style={{ marginTop: 2 }} />
-      <View style={styles.copy}><Text style={styles.title}>You're offline</Text><Text style={styles.body}>View saved content or manage your cart. Connect to send messages, book or place orders.</Text></View>
+    <View style={styles.frame}>{children}</View>
+    {offline && !dismissed ? <View accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.banner, { bottom: insets.bottom + 100 }]}>
+      <WifiOff size={20} color="#FFFFFF" />
+      <View style={styles.copy}><Text style={styles.title}>You're offline</Text><Text style={styles.body}>Showing saved content</Text></View>
       <Pressable accessibilityRole="button" accessibilityLabel="Check internet connection" disabled={checking} onPress={refreshConnectionStatus} style={styles.retry}><Text style={styles.retryText}>{checking ? "Checking…" : "Retry"}</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss offline notice" onPress={() => setDismissed(true)} style={styles.dismiss}><X size={18} color="#FFFFFF" /></Pressable>
     </View> : null}
-    <SafeAreaInsetsContext.Provider value={offline ? { ...insets, top: 0 } : insets}>
-      <View style={styles.frame}>{children}</View>
-    </SafeAreaInsetsContext.Provider>
   </View>;
 }
 const styles = StyleSheet.create({
-  frame: { flex: 1 }, banner: { backgroundColor: "#EFECE6", paddingHorizontal: 16, paddingBottom: 10, flexDirection: "row", alignItems: "flex-start", gap: 10 },
-  copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#2B2B2B", fontSize: 13 },
-  body: { fontFamily: "InstrumentSans-Regular", color: "#2B2B2B", fontSize: 12, lineHeight: 17, marginTop: 2 },
-  retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#2B2B2B", fontSize: 12 },
+  frame: { flex: 1 }, banner: { position: "absolute", left: 16, right: 16, zIndex: 100, elevation: 12, borderRadius: 18, backgroundColor: "#2B2B2B", paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 10, shadowColor: "#000000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 8 },
+  copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF", fontSize: 13 },
+  body: { fontFamily: "InstrumentSans-Regular", color: "#E6E1DF", fontSize: 12, lineHeight: 17, marginTop: 2 },
+  retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF", fontSize: 12 },
+  dismiss: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
 });

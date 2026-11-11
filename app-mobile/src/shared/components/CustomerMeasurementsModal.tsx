@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useEffect, useMemo, useState } from "react";
 import { Image, Modal, Pressable, ScrollView, StyleSheet, View, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   houseAvatarImg: { width: 52, height: 52, borderRadius: 26 },
   houseAvatarLetter: { fontFamily: "InstrumentSans-SemiBold", fontSize: 20, color: "#FFFFFF" },
   houseInfo: { flex: 1 },
-  houseName: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#2B2B2B" },
+  houseName: { ...typeScale.compactLabel, color: "#2B2B2B" },
   houseCount: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#8A7550", marginTop: 2 },
   content: { gap: 20, paddingBottom: 2 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
@@ -148,11 +149,11 @@ const styles = StyleSheet.create({
   unit: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#2B2B2B" },
   loading: { paddingVertical: 16 },
   text: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#2B2B2B", textAlign: "center" },
-  hint: { fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 20, color: "#2B2B2B", textAlign: "center", maxWidth: 260 },
+  hint: { ...typeScale.caption, color: "#2B2B2B", textAlign: "center", maxWidth: 260 },
   empty: { paddingVertical: 18, gap: 12, alignItems: "center" },
   emptyIcon: { height: 64, width: 64, borderRadius: 20, backgroundColor: "#FFF1ED", justifyContent: "center", alignItems: "center", marginBottom: 4 },
   emptyTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#2B2B2B" },
   retry: { minHeight: 44, paddingHorizontal: 20, backgroundColor: "#F96951", borderRadius: 22, justifyContent: "center" },
   done: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
-  buttonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFFFF" },
+  buttonText: { ...typeScale.button, color: "#FFFFFF" },
 });

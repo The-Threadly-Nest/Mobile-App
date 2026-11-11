@@ -1,8 +1,11 @@
 import { Stack } from "expo-router";
+import { View } from "react-native";
+import FloatingCart from "@/shared/components/FloatingCart";
 
 export default function CustomerLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="fashion-house/[fashionHouseId]" />
       <Stack.Screen name="catalog/[id]" />
@@ -11,5 +14,7 @@ export default function CustomerLayout() {
       <Stack.Screen name="orders/[orderId]" />
       <Stack.Screen name="confirmation" options={{ presentation: "modal" }} />
     </Stack>
+    <FloatingCart />
+    </View>
   );
 }

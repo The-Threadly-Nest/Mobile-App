@@ -5,7 +5,9 @@ import { RecordingPresets } from "expo-audio";
 export const VOICE_RECORDING_OPTIONS = {
   ...RecordingPresets.HIGH_QUALITY,
   numberOfChannels: 1,
-  bitRate: 64000,
+  sampleRate: 24000,
+  bitRate: 32000,
+  web: { ...RecordingPresets.HIGH_QUALITY.web, bitsPerSecond: 32000 },
   isMeteringEnabled: true,
 };
 

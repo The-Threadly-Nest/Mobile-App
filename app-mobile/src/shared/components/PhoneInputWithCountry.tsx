@@ -2,23 +2,10 @@ import React, { useState, useEffect } from "react";
 import { View, Pressable, Modal, ScrollView, StyleSheet, FlatList } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
 import { ChevronDown, Search, X } from "lucide-react-native";
+import { COUNTRIES, DEFAULT_COUNTRY, resolvePhoneCountry, nationalPhoneDigits, searchCountries, type Country } from "../utils/phoneCountries";
 
-export interface Country {
-  name: string;
-  code: string;
-  flag: string;
-}
-
-export const COUNTRIES: Country[] = [
-  { name: "Nigeria", code: "+234", flag: "🇳🇬" },
-  { name: "United Kingdom", code: "+44", flag: "🇬🇧" },
-  { name: "United States", code: "+1", flag: "🇺🇸" },
-  { name: "Canada", code: "+1", flag: "🇨🇦" },
-  { name: "Ghana", code: "+233", flag: "🇬🇭" },
-  { name: "Kenya", code: "+254", flag: "🇰🇪" },
-  { name: "South Africa", code: "+27", flag: "🇿🇦" },
-  { name: "United Arab Emirates", code: "+971", flag: "🇦🇪" },
-];
+export { COUNTRIES } from "../utils/phoneCountries";
+export type { Country } from "../utils/phoneCountries";
 
 interface PhoneInputProps {
   value: string;
@@ -32,10 +19,10 @@ export function PhoneInputWithCountry({
   value,
   onChangePhone,
   label = "Phone Number",
-  placeholder = "801 234 5678",
+  placeholder = "Phone number",
   errorText,
 }: PhoneInputProps) {
-  const [selectedCountry, setSelectedCountry] = useState<Country>(COUNTRIES[0]);
+  const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
   const [nationalNumber, setNationalNumber] = useState<string>("");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -47,30 +34,19 @@ export function PhoneInputWithCountry({
       return;
     }
 
-    const trimmed = value.trim();
-    const matchedCountry = COUNTRIES.find((c) => trimmed.startsWith(c.code));
-
-    if (matchedCountry) {
-      setSelectedCountry(matchedCountry);
-      const digits = trimmed.slice(matchedCountry.code.length).replace(/[^\d]/g, "");
-      setNationalNumber(digits);
-    } else {
-      // Strips leading + or non-digits
-      const digits = trimmed.replace(/^0+/, "").replace(/[^\d]/g, "");
-      setNationalNumber(digits);
-    }
+    const parsed = resolvePhoneCountry(value, selectedCountry);
+    setSelectedCountry(parsed.country);
+    setNationalNumber(parsed.nationalNumber);
   }, [value]);
 
   const handleTextChange = (text: string) => {
-    // Strip non-digits and leading zero if user types local 080... format
-    let cleanDigits = text.replace(/[^\d]/g, "");
-    if (cleanDigits.startsWith("0")) {
-      cleanDigits = cleanDigits.replace(/^0+/, "");
-    }
+    const parsed = text.trim().startsWith("+") ? resolvePhoneCountry(text, selectedCountry) : { country: selectedCountry, nationalNumber: nationalPhoneDigits(text, selectedCountry) };
+    const cleanDigits = parsed.nationalNumber;
+    setSelectedCountry(parsed.country);
     setNationalNumber(cleanDigits);
 
     if (cleanDigits.length > 0) {
-      onChangePhone(`${selectedCountry.code} ${cleanDigits}`);
+      onChangePhone(`${parsed.country.code} ${cleanDigits}`);
     } else {
       onChangePhone("");
     }
@@ -79,16 +55,13 @@ export function PhoneInputWithCountry({
   const handleSelectCountry = (country: Country) => {
     setSelectedCountry(country);
     setModalVisible(false);
+    setSearchQuery("");
     if (nationalNumber) {
       onChangePhone(`${country.code} ${nationalNumber}`);
     }
   };
 
-  const filteredCountries = COUNTRIES.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.code.includes(searchQuery)
-  );
+  const filteredCountries = searchCountries(searchQuery);
 
   return (
     <View style={styles.container}>
@@ -98,6 +71,8 @@ export function PhoneInputWithCountry({
         {/* Country Code Picker Pill */}
         <Pressable
           onPress={() => setModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel={`Select country, ${selectedCountry.name} ${selectedCountry.code}`}
           style={({ pressed }) => [styles.countryBtn, { opacity: pressed ? 0.8 : 1 }]}
         >
           <Text style={styles.flagText}>{selectedCountry.flag}</Text>
@@ -149,10 +124,10 @@ export function PhoneInputWithCountry({
             {/* Country List */}
             <FlatList
               data={filteredCountries}
-              keyExtractor={(item) => item.name}
+              keyExtractor={(item) => item.isoCode}
               keyboardShouldPersistTaps="handled"
               renderItem={({ item }) => {
-                const isSelected = item.code === selectedCountry.code && item.name === selectedCountry.name;
+                const isSelected = item.isoCode === selectedCountry.isoCode;
                 return (
                   <Pressable
                     onPress={() => handleSelectCountry(item)}

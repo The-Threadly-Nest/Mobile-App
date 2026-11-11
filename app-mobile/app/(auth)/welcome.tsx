@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React from "react";
 import { View, Image, Pressable, StyleSheet, useWindowDimensions, ScrollView } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -116,10 +117,7 @@ const styles = StyleSheet.create({
     color: "#2B2B2B",
     marginBottom: 10,
   },
-  subtitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 15,
-    lineHeight: 22,
+  subtitle: { ...typeScale.caption,
     color: "#2B2B2B",
   },
   buttonsContainer: {

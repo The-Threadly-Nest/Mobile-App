@@ -4,6 +4,8 @@ export const sendChatMessageSchema = z.object({
   fashionHouseId: z.string().min(1),
   message: z.string().max(1000).optional(),
   garmentName: z.string().optional(),
+  catalogItemIds: z.array(z.string().uuid()).length(1, "Choose one garment for this appointment.").optional(),
+  specialization: z.string().trim().min(1).max(200).optional(),
   imageUrl: z.string().url().optional(),
   audioUrl: z.string().url().optional(),
   audioDuration: z.number().int().nonnegative().optional(),

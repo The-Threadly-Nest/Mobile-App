@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState } from "react";
 import { View, Pressable, StyleSheet, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -320,9 +321,7 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 28,
   },
-  sectionTitle: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 16,
+  sectionTitle: { ...typeScale.sectionTitle,
     color: "#2B2B2B",
     marginBottom: 4,
   },
@@ -416,9 +415,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  continueBtnText: {
-    fontFamily: "InstrumentSans-SemiBold",
-    fontSize: 16,
+  continueBtnText: { ...typeScale.button,
     color: "#FFFFFF",
     letterSpacing: 0.2,
   },

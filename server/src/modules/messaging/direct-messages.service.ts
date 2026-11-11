@@ -621,8 +621,15 @@ export class DirectMessagesService {
     if (req.authRole === "admin") {
       const fashionHouseId = req.authFashionHouseId;
       if (!fashionHouseId) throw httpError("Fashion house not found for admin.", 404);
-      await this.assertAdminCustomerRelationship(fashionHouseId, targetId);
-      return { fashionHouseId, customerId: targetId, senderRole: "admin", senderId };
+      // Customer-list records have a CRM ID, while message threads use the
+      // linked app account. Also accept CRM IDs from older cached app screens.
+      const crmCustomer = await this.database.client.customer.findFirst({
+        where: { id: targetId, fashionHouseId }, select: { userId: true },
+      });
+      if (crmCustomer && !crmCustomer.userId) throw httpError("This customer doesn't have an Owuja app account yet. They need an account before you can message them.", 409);
+      const customerId = crmCustomer?.userId || targetId;
+      await this.assertAdminCustomerRelationship(fashionHouseId, customerId);
+      return { fashionHouseId, customerId, senderRole: "admin", senderId };
     }
 
     if (req.authRole === "customer") {

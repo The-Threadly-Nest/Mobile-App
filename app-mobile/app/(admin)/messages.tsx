@@ -1,3 +1,5 @@
+import { typeScale } from "@/shared/utils/typeScale";
+import { useVoicePlayback } from "@/shared/hooks/useVoicePlayback";
 import React, { useState, useEffect, useRef } from 'react';
 import { formatChatDate } from '@/shared/utils/formatters';
 import { View, StyleSheet, FlatList, TouchableOpacity, Pressable, KeyboardAvoidingView, Keyboard, Platform, ActivityIndicator, Image, ScrollView, AppState } from 'react-native';
@@ -19,7 +21,7 @@ import {
   Pause,
   Trash2,
 } from 'lucide-react-native';
-import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync, createAudioPlayer } from 'expo-audio';
+import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync } from 'expo-audio';
 import AnimatedWaveform from "@/shared/components/AudioWaveform";
 import { VOICE_RECORDING_OPTIONS, voiceAttachment } from '@/shared/utils/voiceRecording';
 import * as ImagePicker from 'expo-image-picker';
@@ -128,7 +130,7 @@ const ReceivedTail = ({ color = 'rgba(74,8,12,0.12)' }: { color?: string }) => (
 
 export default function AdminMessagesScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ customerId?: string; customerName?: string; activeTab?: string; staffId?: string }>();
+  const params = useLocalSearchParams<{ customerId?: string; customerName?: string; activeTab?: string; staffId?: string; openChat?: string }>();
   const insets = useSafeAreaInsets();
   const { showAlert } = useAppAlert();
   const role = useAuthStore((s) => s.role);
@@ -166,11 +168,11 @@ export default function AdminMessagesScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const { playingAudioId, togglePlayAudio, stopPlayback } = useVoicePlayback();
+  const voiceSendLock = useRef(false);
   const timerRef = useRef<any>(null);
-  const playerRef = useRef<any>(null);
 
-  const initialOpenedRef = useRef(false);
+  const openedRouteRef = useRef<string | null>(null);
   const activeThreadIdRef = useRef<string | null>(null);
   const olderCursorRef = useRef<string | null>(null);
   const latestCursorRef = useRef<string | null>(null);
@@ -186,21 +188,6 @@ export default function AdminMessagesScreen() {
       if (Array.isArray(data)) {
         setThreads(data);
 
-        if (params.customerId && !initialOpenedRef.current) {
-          initialOpenedRef.current = true;
-          const match = data.find((t) => t.customerId === params.customerId);
-          if (match) {
-            openThread(match);
-          } else {
-            const draft: ThreadSummary = {
-              customerId: params.customerId,
-              customerName: params.customerName || 'Customer',
-              customerEmail: '',
-              unreadCount: 0,
-            };
-            openThread(draft);
-          }
-        }
       }
     } catch (err) {
       console.error('Error fetching threads:', err);
@@ -294,12 +281,23 @@ export default function AdminMessagesScreen() {
     } catch (err) {
       console.error('Error fetching thread messages:', err);
     } finally {
-      messageRequestInFlightRef.current = false;
       if (activeThreadIdRef.current === thread.customerId) {
+        messageRequestInFlightRef.current = false;
         setLoadingMessages(false);
       }
     }
   };
+
+  // Open a draft even when the customer has never sent a message. Do not wait
+  // for the existing-thread list, which legitimately won't contain it yet.
+  useEffect(() => {
+    if (!params.customerId || params.activeTab === 'staff') return;
+    const routeKey = `${params.customerId}:${params.openChat || ''}:${cacheOwner}`;
+    if (openedRouteRef.current === routeKey) return;
+    openedRouteRef.current = routeKey;
+    setActiveTab('customers');
+    void openThread({ customerId: params.customerId, customerName: params.customerName || 'Customer', customerEmail: '', unreadCount: 0 });
+  }, [params.customerId, params.customerName, params.openChat, params.activeTab, cacheOwner]);
 
   const closeThread = () => {
     activeThreadIdRef.current = null;
@@ -508,6 +506,8 @@ export default function AdminMessagesScreen() {
   };
 
   const startRecording = async () => {
+    if (sending || voiceSendLock.current) return;
+    stopPlayback();
     try {
       const permission = await AudioModule.requestRecordingPermissionsAsync();
       if (!permission.granted) {
@@ -561,11 +561,13 @@ export default function AdminMessagesScreen() {
 
   const stopAndSendRecording = async () => {
     if (!selectedCustomer) return;
+    if (voiceSendLock.current) return;
+    voiceSendLock.current = true;
+    setSending(true);
     if (timerRef.current) clearInterval(timerRef.current);
 
     try {
       await audioRecorder.stop();
-      await new Promise((resolve) => setTimeout(resolve, 250));
       const uri = audioRecorder.uri;
       const finalDuration = recordingDuration;
       setIsRecording(false);
@@ -575,7 +577,6 @@ export default function AdminMessagesScreen() {
       await setAudioModeAsync({ allowsRecording: false });
       if (!uri) throw new Error('No audio was recorded. Please try again.');
 
-      setSending(true);
       const attachment = voiceAttachment();
       const uploaded = await uploadFile(uri, attachment.filename, attachment.contentType);
       if (!uploaded.fileUrl) throw new Error('The voice note could not be uploaded. Please try again.');
@@ -589,35 +590,8 @@ export default function AdminMessagesScreen() {
     } catch (err: any) {
       showAlert('Error', err.message || 'Failed to send voice note.');
     } finally {
+      voiceSendLock.current = false;
       setSending(false);
-    }
-  };
-
-  const togglePlayAudio = async (audioUrl: string, msgId: string) => {
-    try {
-      if (playerRef.current) {
-        playerRef.current.pause();
-        playerRef.current = null;
-      }
-
-      if (playingAudioId === msgId) {
-        setPlayingAudioId(null);
-        return;
-      }
-
-      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
-      const player = createAudioPlayer(audioUrl);
-      playerRef.current = player;
-      setPlayingAudioId(msgId);
-      player.play();
-
-      player.addListener('playbackStatusUpdate', (status: any) => {
-        if (status.didJustFinish) {
-          setPlayingAudioId(null);
-        }
-      });
-    } catch (err: any) {
-      showAlert('Playback Error', err.message || 'Failed to play audio.');
     }
   };
 
@@ -1056,7 +1030,7 @@ export default function AdminMessagesScreen() {
                     )}
                   </Pressable>
 
-                  <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
+                  <Pressable onPress={stopAndSendRecording} disabled={sending} style={styles.sendCircleBtn}>
                     <Send size={20} color="#FFFFFF" />
                   </Pressable>
                 </View>
@@ -1101,12 +1075,14 @@ export default function AdminMessagesScreen() {
                 ) : (
                   <Pressable
                     onPress={startRecording}
+                    disabled={sending}
+                    accessibilityLabel={sending ? "Sending voice note" : "Record voice note"}
                     style={({ pressed }) => [
                       styles.sendBtn,
                       { opacity: pressed ? 0.85 : 1 },
                     ]}
                   >
-                    <Mic size={20} color="#FFFFFF" />
+                    {sending ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Mic size={20} color="#FFFFFF" />}
                   </Pressable>
                 )}
               </>
@@ -1138,7 +1114,7 @@ const styles = StyleSheet.create({
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 12,
     gap: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: 'rgba(228, 213, 183, 0.4)',
     backgroundColor: '#FFFFFF',
   },
@@ -1161,9 +1137,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#453332',
   },
-  headerSubtitleText: {
-    fontFamily: 'InstrumentSans-Regular',
-    fontSize: 12,
+  headerSubtitleText: { ...typeScale.caption,
     color: '#8A7550',
     marginTop: 2,
   },
@@ -1217,7 +1191,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: '#F0ECE4',
   },
   avatar: {
@@ -1289,7 +1263,7 @@ const styles = StyleSheet.create({
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 13,
   },
-  dividerRow: {
+  dividerRow: { display: "none",
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 16,
@@ -1310,7 +1284,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingBottom: 14,
     marginBottom: 14,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: 'rgba(196, 167, 99, 0.32)',
   },
   historyIcon: {
@@ -1332,13 +1306,13 @@ const styles = StyleSheet.create({
     color: '#8A7550',
     marginTop: 2,
   },
-  dividerLine: {
+  dividerLine: { display: "none",
     flex: 1,
     height: 1,
     backgroundColor: '#C4A763',
     opacity: 0.5,
   },
-  dividerLabel: {
+  dividerLabel: { display: "none",
     marginHorizontal: 12,
     fontSize: 10,
     fontFamily: 'InstrumentSans-SemiBold',

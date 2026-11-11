@@ -387,6 +387,21 @@ export class ChatService {
       });
       if (!fh) return rejectRequest({ error: "Fashion house not found" }, 404);
 
+      const catalogIds = input.body.catalogItemIds;
+      const requestedSpecialization = input.body.specialization;
+      if (requestedSpecialization && catalogIds?.length) return rejectRequest({ error: "Choose a garment or a specialization, not both." }, 400);
+      const specialization = requestedSpecialization ? fh.categories.find(category => category.trim().toLowerCase() === requestedSpecialization.trim().toLowerCase()) : undefined;
+      if (requestedSpecialization && !specialization) return rejectRequest({ error: "This fashion house doesn't offer that specialization. Please choose one of its listed options." }, 400);
+      if (catalogIds && catalogIds.length !== 1) return rejectRequest({ error: "Choose one garment for this appointment." }, 400);
+      const selectedCatalog = catalogIds?.length ? await this.database.client.catalogItem.findMany({
+        where: { id: { in: catalogIds }, fashionHouseId, fulfillmentType: "custom_fit" },
+        select: { id: true, name: true, imageUrl: true, priceFrom: true, fulfillmentType: true },
+      }) : [];
+      if (catalogIds?.length && selectedCatalog.length !== catalogIds.length) {
+        return rejectRequest({ error: "One of those garments is no longer available for a measurement. Please choose again." }, 400);
+      }
+      const targetGarment = selectedCatalog.length ? selectedCatalog[0].name : specialization || garmentName;
+
       // Fetch customer's real name
       const customerUser = await this.database.client.user.findUnique({
         where: { id: authUserId },
@@ -416,7 +431,7 @@ export class ChatService {
         catalogSummary,
         availableSlots,
         clientName: customerUser?.name || undefined,
-        targetGarmentName: garmentName || undefined,
+        targetGarmentName: targetGarment || undefined,
         currentDate: new Date().toISOString().split("T")[0],
       });
 
@@ -492,7 +507,13 @@ export class ChatService {
                     fashionHouseId,
                     customerId,
                     availableSlotId: slot.id,
-                    styleNotes: args.styleNotes,
+                    styleNotes: targetGarment || args.styleNotes,
+                    ...(specialization ? { purpose: "measurement" } : {}),
+                    ...(selectedCatalog.length ? {
+                      purpose: "measurement",
+                      catalogItemId: selectedCatalog[0].id,
+                      catalogSnapshot: selectedCatalog[0] as unknown as Prisma.InputJsonValue,
+                    } : {}),
                     preferredDate,
                     preferredTime: slot.time,
                     isFirstTime: args.isFirstTime ?? true,

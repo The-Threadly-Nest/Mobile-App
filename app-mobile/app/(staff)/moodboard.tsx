@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { View, FlatList, Pressable, Image, ActivityIndicator, Modal, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -331,9 +332,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 26,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
   },
   headerActions: {

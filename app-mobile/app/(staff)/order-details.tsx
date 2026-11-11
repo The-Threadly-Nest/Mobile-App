@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: "rgba(0,0,0,0.05)",
   },
   headerBtn: {

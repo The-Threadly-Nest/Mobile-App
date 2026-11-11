@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useRef, useMemo } from "react";
 import { View, Pressable, PanResponder, ScrollView, Modal, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -792,7 +793,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#2B2B2B" },
+  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
@@ -978,7 +979,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
     borderColor: "#F96951",
   },
-  floatDivider: {
+  floatDivider: { display: "none",
     width: 28,
     height: 1,
     backgroundColor: "#E4D5B7",

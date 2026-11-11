@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState } from "react";
 import { View, Image, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
@@ -301,9 +302,7 @@ const styles = StyleSheet.create({
     width: 104,
     height: 33,
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 26,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
   },
   formContainer: {
@@ -327,9 +326,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     zIndex: 1,
   },
-  labelText: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 13,
+  labelText: { ...typeScale.label,
     color: "#2B2B2B",
   },
   textInput: {
@@ -390,17 +387,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#2B2B2B",
   },
-  dividerContainer: {
+  dividerContainer: { display: "none",
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
   },
-  dividerLine: {
+  dividerLine: { display: "none",
     flex: 1,
     height: 1,
     backgroundColor: "rgba(74, 8, 12, 0.15)",
   },
-  dividerText: {
+  dividerText: { display: "none",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#2B2B2B",

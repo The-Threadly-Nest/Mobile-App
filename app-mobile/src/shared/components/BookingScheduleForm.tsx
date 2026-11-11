@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState } from "react";
 import { View, Pressable, StyleSheet } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
@@ -56,7 +57,7 @@ export function BookingScheduleForm({ value, onChange, timezone, onTimezoneChang
 
 const styles = StyleSheet.create({
   group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#2B2B2B" },
-  hint: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#746765" },
+  hint: { ...typeScale.caption, color: "#746765" },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, row: { flexDirection: "row", alignItems: "center", gap: 10 },
   field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#2B2B2B", backgroundColor: "white" },
   day: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, justifyContent: "center", alignItems: "center" },

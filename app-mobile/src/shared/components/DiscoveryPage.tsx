@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import { typeScale } from "@/shared/utils/typeScale";
+import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { View, FlatList, Pressable, ActivityIndicator, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -8,12 +9,14 @@ import CachedImage from "./CachedImage";
 import BackArrowIcon from "./BackArrowIcon";
 import CatalogFilters from "./CatalogFilters";
 import { SCREEN_TOP_SPACING } from "../utils/screenSpacing";
-import { apiFetchCollectionPage, getCachedResponse } from "../utils/apiClient";
+import { apiFetchCollectionPage, getCachedResponse, ApiError } from "../utils/apiClient";
 import { formatCurrency } from "../utils/formatters";
 import { filterCatalogItems } from "../utils/catalogFilters";
+import { getConnectionStatus, subscribeConnectionStatus } from "../services/connectionStatus";
 
 type Item = { id: string; name: string; imageUrl?: string; image?: string; brandLogoUrl?: string; location?: string; priceFrom?: number | null; category?: string; fulfillmentType?: string; fashionHouse?: { shopName: string } };
 export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses" }) {
+  const offline = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus) === "offline";
   const houses = kind === "houses";
   const params = useLocalSearchParams<{ q?: string; filters?: string }>();
   const base = houses ? "/api/fashion-houses" : "/api/catalog/marketplace";
@@ -35,11 +38,11 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
     if (page === 1) setLoading(true); else setMore(true);
     setError("");
     try {
-      const data = await apiFetchCollectionPage<Item>(`${base}?page=${page}&limit=${limit}${querySuffix}`, { silent: true, cache: "reload" });
+      const data = await apiFetchCollectionPage<Item>(`${base}?page=${page}&limit=${limit}${querySuffix}`, { silent: true });
       if (generation !== revision.current) return;
       setItems(previous => page === 1 ? data.items : [...new Map([...previous, ...data.items].map(item => [item.id, item])).values()]);
       setNextPage(data.nextPage);
-    } catch (err) { if (generation === revision.current) setError(err instanceof Error ? err.message : "We couldn't load this page. Please try again."); }
+    } catch (err) { if (generation === revision.current && getConnectionStatus() !== "offline" && !(err instanceof ApiError && err.details.status === 0)) setError(err instanceof Error ? err.message : "We couldn't load this page. Please try again."); }
     finally { if (generation === revision.current) { setLoading(false); setMore(false); } moreLock.current = false; }
   };
   useEffect(() => {
@@ -55,11 +58,11 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
       <Pressable accessibilityLabel="Search" onPress={() => setQuery(input.trim())} style={styles.primaryIcon}><Search size={20} color="#FFFFFF" /></Pressable>
       {!houses ? <Pressable accessibilityLabel="Filter marketplace" onPress={() => setFilters(true)} style={styles.primaryIcon}><SlidersHorizontal size={20} color="#FFFFFF" /></Pressable> : null}
     </View>
-    {error ? <Pressable onPress={() => void load(1, revision.current)} style={styles.notice}><Text style={styles.body}>{error} Tap to retry.</Text></Pressable> : null}
+    {!offline && error ? <Pressable onPress={() => void load(1, revision.current)} style={styles.notice}><Text style={styles.body}>{error} Tap to retry.</Text></Pressable> : null}
     {loading && !items.length ? <ActivityIndicator color="#F96951" style={styles.notice} /> : null}
     <FlatList key={houses ? "houses" : "products"} data={houses ? items : filterCatalogItems(items, type, sort)} numColumns={houses ? 3 : 2} keyExtractor={item => item.id} contentContainerStyle={styles.list} columnWrapperStyle={styles.columns}
-      ListEmptyComponent={!loading && !error ? <Text style={styles.body}>No matches. Try another search or filter.</Text> : null}
-      onEndReached={() => { if (nextPage && !loading && !more && !moreLock.current) { moreLock.current = true; void load(nextPage, revision.current); } }} onEndReachedThreshold={0.5}
+      ListEmptyComponent={!offline && !loading && !error ? <Text style={styles.body}>No matches. Try another search or filter.</Text> : null}
+      onEndReached={() => { if (!offline && nextPage && !loading && !more && !moreLock.current) { moreLock.current = true; void load(nextPage, revision.current); } }} onEndReachedThreshold={0.5}
       ListFooterComponent={more ? <ActivityIndicator color="#F96951" /> : null}
       renderItem={({ item }) => <Pressable accessibilityRole="button" style={houses ? styles.houseCard : styles.card} onPress={() => houses ? router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId: item.id, initialName: item.name, initialImage: item.image || item.brandLogoUrl || "", initialLocation: item.location || "" } }) : router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } })}>
         <View style={houses ? styles.houseLogo : styles.imageFrame}>
@@ -73,7 +76,7 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "#FFFFFF" },
   header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 },
-  title: { flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 26, color: "#2B2B2B" },
+  title: { flex: 1, ...typeScale.pageTitle, color: "#2B2B2B" },
   backBtn: { width: 36, height: 36, alignItems: "flex-start", justifyContent: "center" },
   searchRow: { flexDirection: "row", gap: 8, paddingHorizontal: 20, marginBottom: 18 },
   searchInput: { flex: 1, borderWidth: 1, borderColor: "#DADADA", borderRadius: 24, paddingHorizontal: 16, color: "#2B2B2B", minHeight: 48 },
@@ -82,11 +85,11 @@ const styles = StyleSheet.create({
   card: { flex: 1, maxWidth: "48%", marginBottom: 24 },
   imageFrame: { width: "100%", aspectRatio: 156 / 206, borderRadius: 14, overflow: "hidden", backgroundColor: "#F5F5F5" },
   image: { width: "100%", height: "100%" }, copy: { paddingTop: 8, gap: 4 },
-  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, lineHeight: 17, color: "#2B2B2B" },
-  price: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" },
+  name: { ...typeScale.productName, color: "#2B2B2B" },
+  price: { ...typeScale.productPrice, color: "#2B2B2B" },
   houseCard: { flex: 1, maxWidth: "30%", alignItems: "center", marginBottom: 24 },
   houseLogo: { width: 64, height: 64, borderRadius: 32, borderWidth: 1.5, borderColor: "rgba(69, 51, 50, 0.12)", backgroundColor: "#FBF7EF", alignItems: "center", justifyContent: "center", overflow: "hidden" },
   initial: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#2B2B2B" },
-  houseName: { fontFamily: "InstrumentSans-Medium", fontSize: 11, color: "#2B2B2B", textAlign: "center", marginTop: 6, maxWidth: 68 },
-  body: { fontFamily: "InstrumentSans-Regular", color: "#2B2B2B", fontSize: 14 }, notice: { padding: 20 },
+  houseName: { ...typeScale.compactLabel, color: "#2B2B2B", textAlign: "center", marginTop: 6, maxWidth: 68 },
+  body: { ...typeScale.body, color: "#2B2B2B", }, notice: { padding: 20 },
 });

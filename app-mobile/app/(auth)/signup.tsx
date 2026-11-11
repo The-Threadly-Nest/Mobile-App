@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState } from "react";
 import { View, Image, Pressable, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
@@ -403,9 +404,7 @@ const styles = StyleSheet.create({
     color: "#4A080C",
     textDecorationLine: "underline",
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 24,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
   },
   formContainer: {
@@ -462,9 +461,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     zIndex: 1,
   },
-  labelText: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 11.5,
+  labelText: { ...typeScale.label,
     color: "#2B2B2B",
   },
   textInput: {
@@ -479,9 +476,7 @@ const styles = StyleSheet.create({
     right: 14,
     top: 18,
   },
-  helperText: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 11.5,
+  helperText: { ...typeScale.caption,
     color: "#746765",
     marginBottom: 24,
     marginTop: 0,
@@ -524,18 +519,18 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     letterSpacing: 0.2,
   },
-  dividerContainer: {
+  dividerContainer: { display: "none",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
   },
-  dividerLine: {
+  dividerLine: { display: "none",
     flex: 1,
     height: 1,
     backgroundColor: "rgba(74, 8, 12, 0.15)",
   },
-  dividerText: {
+  dividerText: { display: "none",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#746765",

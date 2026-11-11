@@ -1,3 +1,5 @@
+import { typeScale } from "@/shared/utils/typeScale";
+import { useVoicePlayback } from "@/shared/hooks/useVoicePlayback";
 import React, { useState, useEffect, useRef } from 'react';
 import { formatChatDate } from '@/shared/utils/formatters';
 import { View, ScrollView, Pressable, KeyboardAvoidingView, Keyboard, Platform, ActivityIndicator, StyleSheet, Image, AppState } from 'react-native';
@@ -20,7 +22,7 @@ import {
   Pause,
   Trash2,
 } from 'lucide-react-native';
-import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync, createAudioPlayer } from 'expo-audio';
+import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync } from 'expo-audio';
 import AnimatedWaveform from "@/shared/components/AudioWaveform";
 import { VOICE_RECORDING_OPTIONS, voiceAttachment } from '@/shared/utils/voiceRecording';
 import * as ImagePicker from 'expo-image-picker';
@@ -149,9 +151,9 @@ export default function CustomerDirectChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const { playingAudioId, togglePlayAudio, stopPlayback } = useVoicePlayback();
+  const voiceSendLock = useRef(false);
   const timerRef = useRef<any>(null);
-  const playerRef = useRef<any>(null);
 
   const activeConversationIdRef = useRef<string | null>(null);
   const hydratedConversationIdRef = useRef<string | null>(null);
@@ -459,6 +461,8 @@ export default function CustomerDirectChatScreen() {
 
   // Audio Recording Handlers
   const startRecording = async () => {
+    if (sending || voiceSendLock.current) return;
+    stopPlayback();
     try {
       const permission = await AudioModule.requestRecordingPermissionsAsync();
       if (!permission.granted) {
@@ -511,11 +515,13 @@ export default function CustomerDirectChatScreen() {
   };
 
   const stopAndSendRecording = async () => {
+    if (voiceSendLock.current) return;
+    voiceSendLock.current = true;
+    setSending(true);
     if (timerRef.current) clearInterval(timerRef.current);
 
     try {
       await audioRecorder.stop();
-      await new Promise((resolve) => setTimeout(resolve, 250));
       const uri = audioRecorder.uri;
       const finalDuration = recordingDuration;
       setIsRecording(false);
@@ -525,7 +531,6 @@ export default function CustomerDirectChatScreen() {
       await setAudioModeAsync({ allowsRecording: false });
       if (!uri) throw new Error('No audio was recorded. Please try again.');
 
-      setSending(true);
       const attachment = voiceAttachment();
       const uploaded = await uploadFile(uri, attachment.filename, attachment.contentType);
       if (!uploaded.fileUrl) throw new Error('The voice note could not be uploaded. Please try again.');
@@ -549,35 +554,8 @@ export default function CustomerDirectChatScreen() {
     } catch (err: any) {
       showAlert('Error', err.message || 'Failed to send voice note.');
     } finally {
+      voiceSendLock.current = false;
       setSending(false);
-    }
-  };
-
-  const togglePlayAudio = async (audioUrl: string, msgId: string) => {
-    try {
-      if (playerRef.current) {
-        playerRef.current.pause();
-        playerRef.current = null;
-      }
-
-      if (playingAudioId === msgId) {
-        setPlayingAudioId(null);
-        return;
-      }
-
-      await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
-      const player = createAudioPlayer(audioUrl);
-      playerRef.current = player;
-      setPlayingAudioId(msgId);
-      player.play();
-
-      player.addListener('playbackStatusUpdate', (status: any) => {
-        if (status.didJustFinish) {
-          setPlayingAudioId(null);
-        }
-      });
-    } catch (err: any) {
-      showAlert('Playback Error', err.message || 'Failed to play audio.');
     }
   };
 
@@ -949,7 +927,7 @@ export default function CustomerDirectChatScreen() {
                   )}
                 </Pressable>
 
-                <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
+                <Pressable onPress={stopAndSendRecording} disabled={sending} style={styles.sendCircleBtn}>
                   <Send size={20} color="#FFFFFF" />
                 </Pressable>
               </View>
@@ -959,11 +937,12 @@ export default function CustomerDirectChatScreen() {
               <View style={styles.textInputWrapper}>
                 <Pressable
                   onPress={startRecording}
+                  disabled={sending}
+                  accessibilityLabel={sending ? "Sending voice note" : "Record voice note"}
                   accessibilityRole="button"
-                  accessibilityLabel="Hold and Speak"
                   style={styles.composerIconBtn}
                 >
-                  <Mic size={20} color="#8A7550" />
+                  {sending ? <ActivityIndicator size="small" color="#F96951" /> : <Mic size={20} color="#8A7550" />}
                 </Pressable>
                 <TextInput
                   style={styles.textInput}
@@ -1062,9 +1041,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#3B0508',
   },
-  headerSubtitleText: {
-    fontFamily: 'InstrumentSans-Regular',
-    fontSize: 11,
+  headerSubtitleText: { ...typeScale.caption,
     color: '#9F9F9F',
     marginTop: 1,
   },
@@ -1127,7 +1104,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  dividerRow: {
+  dividerRow: { display: "none",
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 16,
@@ -1148,7 +1125,7 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingBottom: 14,
     marginBottom: 14,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: 'rgba(196, 167, 99, 0.32)',
   },
   historyIcon: {
@@ -1170,13 +1147,13 @@ const styles = StyleSheet.create({
     color: '#8A7550',
     marginTop: 2,
   },
-  dividerLine: {
+  dividerLine: { display: "none",
     flex: 1,
     height: 1,
     backgroundColor: '#C4A763',
     opacity: 0.5,
   },
-  dividerLabel: {
+  dividerLabel: { display: "none",
     marginHorizontal: 12,
     fontSize: 10,
     fontFamily: 'InstrumentSans-SemiBold',

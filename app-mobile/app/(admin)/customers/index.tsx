@@ -1,3 +1,4 @@
+import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect } from "react";
 import { View, Pressable, FlatList, Modal, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
@@ -12,6 +13,7 @@ import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/se
 
 interface CustomerRecord {
   id: string;
+  userId?: string | null;
   name: string;
   phone: string;
   ordersCount: number;
@@ -245,7 +247,7 @@ export default function CustomersScreen() {
                 setModalVisible(false);
                 router.push({
                   pathname: "/(admin)/messages",
-                  params: { customerId: selectedCustomer?.id, customerName: selectedCustomer?.name },
+                  params: { customerId: selectedCustomer?.userId || selectedCustomer?.id, customerName: selectedCustomer?.name, activeTab: "customers", openChat: String(Date.now()) },
                 } as any);
               }}
               style={({ pressed }) => [
@@ -334,10 +336,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 24,
-    lineHeight: 28,
+  headerTitle: { ...typeScale.pageTitle,
     color: "#2B2B2B",
     letterSpacing: -0.2,
   },

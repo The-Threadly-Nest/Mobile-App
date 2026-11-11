@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
   container: { flex: 1, padding: 16, alignItems: "center", justifyContent: "center" },
   card: { width: "100%", maxWidth: 440, maxHeight: "100%", flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 24, padding: 20, borderWidth: 1, borderColor: "#E5E0D5" },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: "#EBE7DF" },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingBottom: 12, borderBottomWidth: 0, borderBottomColor: "#EBE7DF" },
   heading: { flexDirection: "row", alignItems: "center", gap: 10 },
   title: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B" },
   close: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#EBE7DF", alignItems: "center", justifyContent: "center" },

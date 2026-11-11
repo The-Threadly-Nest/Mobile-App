@@ -1,3 +1,5 @@
+import { typeScale } from "@/shared/utils/typeScale";
+import { useVoicePlayback } from "@/shared/hooks/useVoicePlayback";
 import React, { useState, useEffect, useRef } from "react";
 import { formatChatDate } from "@/shared/utils/formatters";
 import { View, ScrollView, Pressable, KeyboardAvoidingView, Keyboard, Platform, ActivityIndicator, StyleSheet, Image, Animated, Easing } from "react-native";
@@ -19,7 +21,9 @@ import {
   Pause,
   Trash2,
 } from "lucide-react-native";
-import { useAudioRecorder, AudioModule, RecordingPresets, createAudioPlayer } from "expo-audio";
+import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync } from "expo-audio";
+import { VOICE_RECORDING_OPTIONS, voiceAttachment } from "@/shared/utils/voiceRecording";
+import AnimatedWaveform from "@/shared/components/AudioWaveform";
 import * as ImagePicker from "expo-image-picker";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -58,61 +62,6 @@ interface ChatMessage {
 }
 
 const EMOJIS = ["😊", "👍", "✂️", "👗", "✨", "🪡", "🧵", "❤️", "🙌", "🔥", "👌", "👏"];
-
-function AnimatedWaveform({
-  isAnimating,
-  color,
-  inactiveColor,
-  barCount = 34,
-  height = 14,
-}: {
-  isAnimating: boolean;
-  color: string;
-  inactiveColor?: string;
-  barCount?: number;
-  height?: number;
-}) {
-  const [bars, setBars] = useState<number[]>(() =>
-    Array.from({ length: barCount }, () => 0.2)
-  );
-
-  useEffect(() => {
-    if (!isAnimating) return;
-
-    // Smoother, relaxed audio amplitude visualizer (updates every 150ms)
-    const interval = setInterval(() => {
-      setBars((prev) => {
-        const isLull = Math.random() < 0.15;
-        const newSample = isLull
-          ? 0.15 + Math.random() * 0.15
-          : 0.25 + Math.random() * 0.6;
-
-        return [...prev.slice(1), newSample];
-      });
-    }, 150);
-
-    return () => clearInterval(interval);
-  }, [isAnimating, barCount]);
-
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", height, flex: 1 }}>
-      {bars.map((amplitude, i) => {
-        const barH = Math.max(2, amplitude * height);
-        return (
-          <View
-            key={i}
-            style={{
-              width: 2.5,
-              height: barH,
-              borderRadius: 1.5,
-              backgroundColor: isAnimating ? color : inactiveColor || color,
-            }}
-          />
-        );
-      })}
-    </View>
-  );
-}
 
 // WhatsApp-style message tail components
 const SentTail = () => (
@@ -167,13 +116,14 @@ export default function AdminStaffChatScreen() {
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
 
   // Audio Recording & Playback state via expo-audio
-  const audioRecorder = useAudioRecorder(RecordingPresets.LOW_QUALITY);
+  const audioRecorder = useAudioRecorder(VOICE_RECORDING_OPTIONS);
+  const recordingState = useAudioRecorderState(audioRecorder, 100);
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const { playingAudioId, togglePlayAudio, stopPlayback } = useVoicePlayback();
+  const voiceSendLock = useRef(false);
   const timerRef = useRef<any>(null);
-  const playerRef = useRef<any>(null);
 
   const { showAlert } = useAppAlert();
   const insets = useSafeAreaInsets();
@@ -379,12 +329,15 @@ export default function AdminStaffChatScreen() {
 
   // Audio Recording Handlers (expo-audio)
   const startRecording = async () => {
+    if (sending || voiceSendLock.current) return;
+    stopPlayback();
     try {
       const permission = await AudioModule.requestRecordingPermissionsAsync();
       if (!permission.granted) {
         showAlert("Permission Denied", "Microphone permission is required to record voice notes.");
         return;
       }
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setIsRecording(true);
@@ -404,6 +357,7 @@ export default function AdminStaffChatScreen() {
     try {
       await audioRecorder.stop();
     } catch {}
+    await setAudioModeAsync({ allowsRecording: false }).catch(() => {});
     setIsRecording(false);
     setIsPaused(false);
     setRecordingDuration(0);
@@ -429,22 +383,26 @@ export default function AdminStaffChatScreen() {
   };
 
   const stopAndSendRecording = async () => {
+    if (voiceSendLock.current) return;
+    voiceSendLock.current = true;
+    setSending(true);
     if (timerRef.current) clearInterval(timerRef.current);
 
     try {
       await audioRecorder.stop();
-      await new Promise((resolve) => setTimeout(resolve, 250));
       const uri = audioRecorder.uri;
       const finalDuration = recordingDuration;
       setIsRecording(false);
       setIsPaused(false);
       setRecordingDuration(0);
 
-      if (!uri) return;
+      await setAudioModeAsync({ allowsRecording: false });
+      if (!uri) throw new Error("No audio was recorded. Please try again.");
 
-      setSending(true);
-      const uploaded = await uploadFile(uri, `voice-${Date.now()}.m4a`, "audio/m4a");
-      const audioUrl = uploaded.fileUrl || uri;
+      const attachment = voiceAttachment();
+      const uploaded = await uploadFile(uri, attachment.filename, attachment.contentType);
+      if (!uploaded.fileUrl) throw new Error("The voice note could not be uploaded. Please try again.");
+      const audioUrl = uploaded.fileUrl;
 
       const newMsg: ChatMessage = {
         id: `temp-${Date.now()}`,
@@ -473,6 +431,7 @@ export default function AdminStaffChatScreen() {
     } catch (err: any) {
       showAlert("Error", err.message || "Failed to send voice note.");
     } finally {
+      voiceSendLock.current = false;
       setSending(false);
     }
   };
@@ -524,33 +483,6 @@ export default function AdminStaffChatScreen() {
       showAlert("Couldn't delete message", error?.message || "Please try again.");
     } finally {
       setDeletingMessageId(null);
-    }
-  };
-
-  const togglePlayAudio = async (audioUrl: string, msgId: string) => {
-    try {
-      if (playerRef.current) {
-        playerRef.current.pause();
-        playerRef.current = null;
-      }
-
-      if (playingAudioId === msgId) {
-        setPlayingAudioId(null);
-        return;
-      }
-
-      const player = createAudioPlayer({ uri: audioUrl });
-      playerRef.current = player;
-      setPlayingAudioId(msgId);
-      player.play();
-
-      player.addListener("playbackStatusUpdate", (status: any) => {
-        if (status.didJustFinish) {
-          setPlayingAudioId(null);
-        }
-      });
-    } catch (err: any) {
-      showAlert("Playback Error", err.message || "Failed to play audio.");
     }
   };
 
@@ -790,6 +722,8 @@ export default function AdminStaffChatScreen() {
                 <View style={{ flex: 1, marginLeft: 12, justifyContent: "center" }}>
                   <AnimatedWaveform
                     isAnimating={!isPaused}
+                    live
+                    metering={recordingState.metering}
                     color="#453332"
                     inactiveColor="rgba(74, 8, 12, 0.2)"
                     barCount={34}
@@ -818,7 +752,7 @@ export default function AdminStaffChatScreen() {
                   )}
                 </Pressable>
 
-                <Pressable onPress={stopAndSendRecording} style={styles.sendCircleBtn}>
+                <Pressable onPress={stopAndSendRecording} disabled={sending} style={styles.sendCircleBtn}>
                   <Send size={20} color="#FFFFFF" />
                 </Pressable>
               </View>
@@ -863,12 +797,14 @@ export default function AdminStaffChatScreen() {
               ) : (
                 <Pressable
                   onPress={startRecording}
+                    disabled={sending}
+                    accessibilityLabel={sending ? "Sending voice note" : "Record voice note"}
                   style={({ pressed }) => [
                     styles.sendBtn,
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Mic size={20} color="#FFFFFF" />
+                  {sending ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Mic size={20} color="#FFFFFF" />}
                 </Pressable>
               )}
             </>
@@ -920,15 +856,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#453332",
   },
-  headerSubtitleText: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 12,
+  headerSubtitleText: { ...typeScale.caption,
     color: "#8A7550",
     marginTop: 2,
   },
   staffSelectorWrapper: {
     paddingVertical: 10,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: "rgba(228, 213, 183, 0.4)",
     backgroundColor: "#FFFFFF",
   },

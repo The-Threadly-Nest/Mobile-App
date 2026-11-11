@@ -38,6 +38,7 @@
     "expo-status-bar": "~57.0.1",
     "expo-video": "~57.0.5",
     "expo-web-browser": "~57.0.3",
+    "libphonenumber-js": "^1.13.16",
     "lucide-react-native": "^0.376.0",
     "nativewind": "^4.2.7",
     "react": "19.2.3",
