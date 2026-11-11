@@ -1,5 +1,5 @@
 import { typeScale } from "@/shared/utils/typeScale";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Pressable, ScrollView, Image, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { Text, TextInput } from "@/shared/components/Typography";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,6 +25,8 @@ export default function AdminNewGarmentScreen() {
   const [price, setPrice] = useState("");
   const [details, setDetails] = useState("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [imagePreviewUri, setImagePreviewUri] = useState("");
+  const imagePickerBusy = useRef(false);
   const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("custom_fit");
   const [sizesText, setSizesText] = useState("");
   const [colorsText, setColorsText] = useState("");
@@ -35,6 +37,8 @@ export default function AdminNewGarmentScreen() {
   const [error, setError] = useState("");
 
   const handlePickImage = async () => {
+    if (imagePickerBusy.current || saving) return;
+    imagePickerBusy.current = true;
     try {
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
@@ -51,6 +55,8 @@ export default function AdminNewGarmentScreen() {
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
+        setImagePreviewUri(asset.uri);
+        setImageUrl("");
         setUploadingImage(true);
         setError("");
 
@@ -58,20 +64,25 @@ export default function AdminNewGarmentScreen() {
         const contentType = asset.mimeType || "image/jpeg";
 
         const uploaded = await uploadFile(asset.uri, filename, contentType);
+        if (!uploaded.fileUrl) throw new Error("The photo upload didn't finish. Please choose the photo again.");
         setImageUrl(uploaded.fileUrl);
       }
     } catch (err: any) {
+      setError("Your photo hasn't finished uploading. Choose the photo again to retry before saving.");
       showAlert("Upload Error", err.message || "Failed to upload image.");
     } finally {
+      imagePickerBusy.current = false;
       setUploadingImage(false);
     }
   };
 
   const handleReset = () => {
+    if (imagePickerBusy.current || saving) return;
     setName("");
     setPrice("");
     setDetails("");
     setImageUrl("");
+    setImagePreviewUri("");
     setFulfillmentType("custom_fit"); setSizesText(""); setColorsText(""); setCategory("");
     setError("");
   };
@@ -129,7 +140,7 @@ export default function AdminNewGarmentScreen() {
               onPress={handleBack}
               accessibilityRole="button"
               accessibilityLabel="Go back"
-              style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 }]}
+              style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             >
               <BackArrowIcon />
             </Pressable>
@@ -178,16 +189,22 @@ export default function AdminNewGarmentScreen() {
             <Text style={styles.fieldLabel}>UPLOAD PHOTO</Text>
             <View style={styles.photoRow}>
               {/* Slot 1: Image Preview or Upload Slot */}
-              {uploadingImage ? (
+              {uploadingImage && !imagePreviewUri ? (
                 <View style={[styles.photoCard, styles.loadingSlot]}>
                   <ActivityIndicator size="small" color="#F96951" />
                   <Text style={styles.uploadingText}>Uploading</Text>
                 </View>
-              ) : imageUrl ? (
+              ) : imagePreviewUri || imageUrl ? (
                 <View style={styles.photoPreviewCard}>
-                  <Image source={{ uri: imageUrl }} style={styles.photoImage} resizeMode="cover" />
+                  <Image source={{ uri: imagePreviewUri || imageUrl }} style={styles.photoImage} resizeMode="cover" onError={() => {
+                    if (imagePreviewUri) setImagePreviewUri("");
+                    else setError("We couldn't display that photo. Please choose it again.");
+                  }} />
+                  {uploadingImage ? <View style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(43, 43, 43, 0.3)" }}><ActivityIndicator color="#FFFFFF" /></View> : null}
                   <Pressable
-                    onPress={() => setImageUrl("")}
+                    disabled={uploadingImage || saving}
+                    accessibilityLabel="Remove photo"
+                    onPress={() => { setImageUrl(""); setImagePreviewUri(""); }}
                     hitSlop={8}
                     style={styles.removePhotoBtn}
                   >
@@ -284,7 +301,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 8,
   },
   circularBackBtn: {
     width: 44,
@@ -295,7 +312,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerTitle: {
     ...typeScale.pageTitle,
     color: "#4A403B",
@@ -341,15 +358,17 @@ const styles = StyleSheet.create({
   },
   photoRow: {
     flexDirection: "row",
+    alignItems: "flex-start",
     gap: 12,
   },
   photoCard: {
     width: 92,
-    height: 92,
+    height: 92 * 4 / 3,
     borderRadius: 14,
   },
   photoPreviewCard: {
     width: 92,
+    height: 92 * 4 / 3,
     aspectRatio: 3 / 4,
     borderRadius: 16,
     overflow: "hidden",
@@ -385,6 +404,7 @@ const styles = StyleSheet.create({
   },
   photoAddSlot: {
     width: 92,
+    height: 92 * 4 / 3,
     aspectRatio: 3 / 4,
     borderRadius: 12,
     borderWidth: 1,

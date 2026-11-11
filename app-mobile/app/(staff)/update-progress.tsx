@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   noteInput: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#453332",

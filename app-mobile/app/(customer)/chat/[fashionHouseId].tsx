@@ -90,6 +90,15 @@ export default function BookingChatScreen() {
   const [sending, setSending] = useState(false);
   const [loadingSession, setLoadingSession] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [showBookingSuccess, setShowBookingSuccess] = useState(false);
+  const bookingExitHandled = useRef(false);
+  const finishBooking = () => {
+    if (bookingExitHandled.current) return;
+    bookingExitHandled.current = true;
+    setShowBookingSuccess(false);
+    if (router.canGoBack()) router.back();
+    else router.replace("/(customer)/(tabs)/browse");
+  };
   const [selectedSlotLabel, setSelectedSlotLabel] = useState<string | null>(null);
   const [fashionHouseName, setFashionHouseName] = useState(paramFhName || "Fashion House");
   const [selectedGarment, setSelectedGarment] = useState(garmentName || "Bespoke Fitting Session");
@@ -408,7 +417,7 @@ export default function BookingChatScreen() {
       }
 
       if (responseType === "booking_created") {
-        if (!createdBooking) {
+        if (!createdBooking?.id) {
           throw new Error("The server did not return the saved booking request.");
         }
         const confirmedBooking = createdBooking;
@@ -434,6 +443,8 @@ export default function BookingChatScreen() {
           "Fitting time to be confirmed";
 
         setSelectedSlotLabel(requestedSlot);
+        bookingExitHandled.current = false;
+        setShowBookingSuccess(true);
         return;
       }
 
@@ -507,11 +518,22 @@ export default function BookingChatScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+      <Modal visible={showBookingSuccess} transparent animationType="fade" onRequestClose={finishBooking}>
+        <View style={{ flex: 1, backgroundColor: "rgba(43, 43, 43, 0.4)", justifyContent: "center", alignItems: "center", padding: 24 }}>
+          <View accessibilityViewIsModal style={{ width: "100%", maxWidth: 380, padding: 24, borderRadius: 24, backgroundColor: "#F9E8D3", gap: 16 }}>
+            <Text accessibilityRole="header" style={{ fontFamily: "InstrumentSans-Medium", fontSize: 20, color: "#4A403B" }}>Order placed</Text>
+            <Text style={{ fontSize: 14, lineHeight: 22, color: "#4A403B" }}>Your measurement booking has been saved. The fashion house will confirm your appointment.</Text>
+            <Pressable accessibilityRole="button" onPress={finishBooking} style={{ minHeight: 48, borderRadius: 999, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFFFF" }}>OK</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
       {/* Top Header */}
       <View className="flex-row items-center px-6 py-4 bg-white border-oxblood">
         <Pressable
           onPress={() => router.back()}
-          className="w-10 h-10 43, 43,0.2)] items-center justify-center mr-3"
+          className="w-10 h-10 items-center justify-center mr-3"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
           <BackArrowIcon size={24} color="#2B2B2B" />

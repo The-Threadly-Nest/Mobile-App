@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 46,
     paddingHorizontal: 12,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   inputRowError: {
     borderColor: "#453332",
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 46,

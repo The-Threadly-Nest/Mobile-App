@@ -87,7 +87,7 @@ export default function ResetPasswordScreen() {
 
   return (
     <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: "#FFFFFF" }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 80, justifyContent: "center" }}>
-      <Pressable onPress={handleBack} className="absolute top-14 left-6">
+      <Pressable onPress={handleBack} className="absolute top-14 left-6 w-11 h-11 mr-0">
         <BackArrowIcon size={24} color="#453332" />
       </Pressable>
 

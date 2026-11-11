@@ -100,7 +100,7 @@ export default function AdminStaffMoodBoardScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
-      <View style={{ paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 }} className="flex-row items-center px-5 gap-3">
+      <View style={{ paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 }} className="flex-row items-center px-5 gap-2">
         <Pressable
           onPress={() => router.push("/(admin)/staff" as any)}
           style={{
@@ -112,7 +112,7 @@ export default function AdminStaffMoodBoardScreen() {
             backgroundColor: "#F9E8D3",
             alignItems: "center",
             justifyContent: "center",
-            marginRight: 4,
+            marginRight: 0,
           }}
         >
           <BackArrowIcon size={24} color="#453332" />

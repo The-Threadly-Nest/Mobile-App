@@ -103,7 +103,7 @@ export default function AdminSketchDetailScreen() {
         <View style={styles.headerRow}>
           <Pressable
             onPress={() => router.back()}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
           >
             <BackArrowIcon size={24} color="#2B2B2B" />
           </Pressable>
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 8,
     marginBottom: 24,
   },
   backBtn: {
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerTitle: {
     ...typeScale.pageTitle,
     color: "#4A403B",

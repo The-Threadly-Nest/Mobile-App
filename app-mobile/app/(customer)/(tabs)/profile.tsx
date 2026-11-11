@@ -478,7 +478,7 @@ export default function CustomerProfileScreen() {
                     onChangeText={setTempLocation}
                     placeholder="e.g. Lagos, Nigeria"
                     style={{ height: 46, width: "100%", alignSelf: "stretch" }}
-                    className="bg-white border border-[#FFFDF9] rounded-xl px-3.5 text-[14px] text-black font-body"
+                    className="bg-white border border-[#FFFFFF] rounded-xl px-3.5 text-[14px] text-black font-body"
                   />
                 </View>
               </View>

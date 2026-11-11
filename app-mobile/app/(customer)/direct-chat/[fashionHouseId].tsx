@@ -1308,7 +1308,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#453332',
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,

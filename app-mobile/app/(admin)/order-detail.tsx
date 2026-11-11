@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 14,
-  },
+  gap: 8, },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
 
     justifyContent: "center",
     alignItems: "center",
-  },
+  marginRight: 0, },
   headerTitle: {
     ...typeScale.pageTitle,
     color: "#4A403B",

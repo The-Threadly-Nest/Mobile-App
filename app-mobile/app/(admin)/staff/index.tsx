@@ -120,7 +120,7 @@ export default function StaffScreen() {
         <View style={styles.header}>
           <Pressable
             onPress={() => router.push("/(admin)/settings" as any)}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
           >
             <BackArrowIcon size={24} color="#453332" />
           </Pressable>
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
-  },
+  gap: 8, },
   backBtn: {
     width: 44,
     height: 44,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    marginRight: 0,
   },
   headerTitle: {
     ...typeScale.pageTitle,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   searchBar: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,

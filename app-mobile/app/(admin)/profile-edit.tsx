@@ -221,7 +221,7 @@ export default function AdminProfileEditScreen({
           <View style={styles.header}>
             <Pressable
               onPress={handleHeaderBack}
-              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             >
               <BackArrowIcon size={24} color="#453332" />
             </Pressable>
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 8,
   },
   backBtn: {
     width: 44,
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerTitle: {
     ...typeScale.pageTitle,
     color: "#4A403B",

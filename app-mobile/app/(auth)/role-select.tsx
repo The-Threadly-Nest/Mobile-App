@@ -35,7 +35,7 @@ export default function RoleSelectScreen() {
         <View style={styles.navRow}>
           <Pressable
             onPress={() => (router.canGoBack() ? router.back() : router.replace("/(auth)/login"))}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             hitSlop={8}
           >
             <BackArrowIcon size={24} color="#453332" />
@@ -205,12 +205,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   backBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
 
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   titleSection: {
     marginBottom: 22,
   },

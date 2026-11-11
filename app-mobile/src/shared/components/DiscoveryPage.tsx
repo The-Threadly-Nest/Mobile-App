@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   title: { flex: 1, ...typeScale.pageTitle, color: "#4A403B" },
   backBtn: { width: 36, height: 36, alignItems: "flex-start", justifyContent: "center" },
   searchRow: { flexDirection: "row", gap: 8, paddingHorizontal: 20, marginBottom: 18 },
-  searchInput: { flex: 1, backgroundColor: "#FFFDF9", borderRadius: 24, paddingHorizontal: 16, color: "#4A403B", minHeight: 48 },
+  searchInput: { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 24, paddingHorizontal: 16, color: "#4A403B", minHeight: 48 },
   primaryIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#F96951", justifyContent: "center", alignItems: "center" },
   list: { paddingHorizontal: 16, paddingBottom: 40 }, columns: { justifyContent: "space-between", gap: 14 },
   card: { flex: 1, maxWidth: "48%", marginBottom: 24 },

@@ -175,7 +175,7 @@ export default function AdminMoodBoardRedesignScreen() {
           <View style={styles.headerLeft}>
             <Pressable
               onPress={() => router.push("/(admin)/settings" as any)}
-              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             >
               <BackArrowIcon size={24} color="#2B2B2B" />
             </Pressable>
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 8,
   },
   backBtn: {
     width: 44,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerTitle: {
     ...typeScale.pageTitle,
     color: "#4A403B",

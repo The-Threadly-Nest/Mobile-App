@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { View, FlatList, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl, StyleSheet } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, router } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { apiFetchCollectionPage, escalationsApi, getCachedResponse, invalidateReadCache } from "@/shared/utils/apiClient";
@@ -119,6 +119,8 @@ export default function AdminOrdersScreen() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [nextPage, setNextPage] = useState<number | null>(null);
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const { view } = useLocalSearchParams<{ view?: string }>();
+  useEffect(() => { if (view?.startsWith("all:")) setSelectedFilter("All"); }, [view]);
 
   const fetchOrders = useCallback(async () => {
     if (!token) {

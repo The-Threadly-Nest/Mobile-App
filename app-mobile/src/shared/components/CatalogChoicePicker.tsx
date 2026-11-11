@@ -59,7 +59,7 @@ export function CatalogChoicePicker({ label, value, choices, onChange, multiple 
   </>;
 }
 const styles = StyleSheet.create({
-  input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#453332", padding: 12, backgroundColor: "#FFFDF9", flexDirection: "row", alignItems: "center", gap: 10 },
+  input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#453332", padding: 12, backgroundColor: "#FFFFFF", flexDirection: "row", alignItems: "center", gap: 10 },
   value: { flex: 1, fontSize: 15, fontFamily: "InstrumentSans-Regular", color: "#4A403B" },
   overlay: { flex: 1, backgroundColor: "rgba(43, 43, 43,0.4)", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingVertical: 36 },
   modal: { width: "100%", maxWidth: 480, maxHeight: "100%", flexShrink: 1, backgroundColor: "#FFFDF9", borderRadius: 24, padding: 20, gap: 12 },

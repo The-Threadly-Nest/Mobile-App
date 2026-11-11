@@ -93,7 +93,7 @@ export default function AdminSettingsScreen() {
               onPress={handleBack}
               accessibilityRole="button"
               accessibilityLabel="Go back"
-              style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 }]}
+              style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             >
               <BackArrowIcon color="#FFFDF9" />
             </Pressable>
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 8,
     marginBottom: 24,
   },
   circularBackBtn: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerTitle: {
     ...typeScale.pageTitle,
     flex: 1,

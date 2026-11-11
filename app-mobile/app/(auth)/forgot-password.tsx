@@ -58,7 +58,7 @@ export default function ForgotPasswordScreen() {
           isLandscape && { maxWidth: 620, alignSelf: "center", width: "100%" },
         ]}
       >
-        <Pressable onPress={handleBack} style={{ marginBottom: 24, width: 40, height: 40, justifyContent: "center" }}>
+        <Pressable onPress={handleBack} style={{ marginBottom: 24, width: 44, height: 44, justifyContent: "center" , alignItems: "center", marginRight: 0, }}>
           <BackArrowIcon size={24} color="#453332" />
         </Pressable>
 

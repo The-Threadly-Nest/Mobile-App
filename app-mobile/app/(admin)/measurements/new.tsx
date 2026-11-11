@@ -267,8 +267,8 @@ export default function NewMeasurementScreen() {
           {/* Top Header */}
           <View style={[styles.header, isLandscape && { marginBottom: 16 }]}>
             <Pressable
-              onPress={() => router.push("/(admin)/settings" as any)}
-              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+                onPress={() => router.canGoBack() ? router.back() : router.replace("/(admin)/dashboard")}
+              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             >
               <BackArrowIcon size={24} color="#453332" />
             </Pressable>
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
-  },
+  gap: 8, },
   backBtn: {
     width: 44,
     height: 44,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    marginRight: 0,
   },
   headerTitle: {
     ...typeScale.pageTitle,
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.3)",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -699,7 +699,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "transparent",
   },
   saveBtn: {
     width: "100%",

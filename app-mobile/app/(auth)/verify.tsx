@@ -240,7 +240,7 @@ export default function VerifyEmailScreen() {
           ]}
         >
           {/* Back Button */}
-          <Pressable style={[styles.backBtn, isLandscape && { marginBottom: 12 }]} onPress={handleBackNav}>
+          <Pressable style={[styles.backBtn, isLandscape && { marginBottom: 12 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]} onPress={handleBackNav}>
             <BackArrowIcon size={24} color="#453332" />
           </Pressable>
 
@@ -330,8 +330,8 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   backBtn: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
 
 
     alignItems: "center",
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
 
 
-  },
+  marginRight: 0, },
   iconContainer: {
     alignSelf: "center",
     alignItems: "center",
@@ -381,12 +381,12 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   otpBoxEmpty: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
   },
   otpBoxFilled: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
   },

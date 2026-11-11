@@ -369,7 +369,7 @@ export default function AdminDashboard() {
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 16 }}>
           {/* Running Orders Card */}
           <Pressable
-            onPress={() => router.push("/(admin)/orders")}
+            onPress={() => router.push({ pathname: "/(admin)/orders", params: { view: `all:${Date.now()}` } })}
             style={({ pressed }) => ({
               flex: 1,
               backgroundColor: "#FFFFFF",

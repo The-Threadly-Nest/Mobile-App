@@ -534,7 +534,7 @@ export default function AdminStaffChatScreen() {
             if (router.canGoBack()) router.back();
             else router.replace("/(admin)/staff" as any);
           }}
-          style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
+          style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
         >
           <BackArrowIcon size={24} color="#453332" />
         </Pressable>
@@ -834,19 +834,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 12,
-    gap: 12,
+    gap: 8,
     backgroundColor: "#FFFFFF",
   },
   headerBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     
     
     
     
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerInfoCol: {
     flex: 1,
     alignItems: "flex-start",

@@ -502,7 +502,7 @@ export default function AdminDrawScreen() {
             {/* Back */}
             <Pressable
               onPress={() => router.back()}
-              style={({ pressed }) => [styles.floatBtn, { opacity: pressed ? 0.7 : 1 }]}
+              style={({ pressed }) => [styles.floatBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
             >
               <BackArrowIcon size={24} color="#453332" />
             </Pressable>
@@ -594,7 +594,7 @@ export default function AdminDrawScreen() {
         <View style={styles.headerLeft}>
           <Pressable
             onPress={() => router.back()}
-            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
+            style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 , width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: 0, }]}
           >
             <BackArrowIcon size={24} color="#2B2B2B" />
           </Pressable>
@@ -821,17 +821,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   backBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
 
 
 
 
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   headerTitle: { ...typeScale.pageTitle, color: "#4A403B" },
   guideToggleRow: {
     flexDirection: "row",
@@ -1019,15 +1019,15 @@ const styles = StyleSheet.create({
     borderColor: "rgba(69, 51, 50,0.07)",
   },
   floatBtn: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     
     
     
     
     alignItems: "center",
     justifyContent: "center",
-  },
+  marginRight: 0, },
   floatBtnActive: {
     backgroundColor: "#F96951",
     borderColor: "#F96951",

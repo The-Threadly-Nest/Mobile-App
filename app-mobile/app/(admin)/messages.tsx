@@ -1113,21 +1113,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 12,
-    gap: 12,
+    gap: 8,
     borderBottomWidth: 0,
     borderBottomColor: 'rgba(69, 51, 50, 0.4)',
     backgroundColor: "#FFFFFF",
   },
   headerBtn: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     
     
     
     
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    alignItems: "center",
+    justifyContent: "center",
+  marginRight: 0, },
   headerInfoCol: {
     flex: 1,
     alignItems: 'flex-start',
