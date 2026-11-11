@@ -72,12 +72,12 @@ export default function StaffOrderDetailScreen() {
     Array.isArray(rawMeasurements)
       ? rawMeasurements
       : rawMeasurements && typeof rawMeasurements === "object"
-      ? Object.entries(rawMeasurements).map(([field, value]) => ({
+        ? Object.entries(rawMeasurements).map(([field, value]) => ({
           field,
           value: value as string | number,
           unit: "in",
         }))
-      : [];
+        : [];
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -185,7 +185,7 @@ export default function StaffOrderDetailScreen() {
           style={({ pressed }) => [styles.actionBtn, { opacity: pressed ? 0.85 : 1 }]}
         >
           <Text style={styles.actionBtnText}>Update Order Progress</Text>
-          <ArrowRight size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
+          <ArrowRight size={18} color="#FFFDF9" style={{ marginLeft: 8 }} />
         </Pressable> : null}
       </ScrollView>
     </SafeAreaView>
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   heroCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
@@ -230,14 +230,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 14,
   },
-  avatarText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#FFFFFF" },
+  avatarText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#FFFDF9" },
   heroInfoCol: { flex: 1 },
   customerNameText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#4A403B" },
   orderNumberText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B", marginTop: 2 },
-  card: { backgroundColor: "#FFFFFF", borderRadius: 20, padding: 18, marginBottom: 16 },
+  card: { backgroundColor: "#FFFDF9", borderRadius: 20, padding: 18, marginBottom: 16 },
   cardHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
   cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#4A403B" },
-  statusBadge: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#453332", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
+  statusBadge: { backgroundColor: "#FFFDF9", borderWidth: 1, borderColor: "#453332", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
   statusBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#4A403B" },
   progressTrack: { height: 8, backgroundColor: "rgba(43, 43, 43,0.06)", borderRadius: 4, overflow: "hidden", marginBottom: 6 },
   progressFill: { height: "100%", backgroundColor: "#453332", borderRadius: 4 },
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   phoneRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   phoneText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B" },
   measurementsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  measurementItem: { width: "47%", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 10 },
+  measurementItem: { width: "47%", backgroundColor: "#FFFDF9", borderRadius: 12, padding: 10 },
   measurementLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#4A403B", marginBottom: 2 },
   measurementVal: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#4A403B" },
   noMeasurementsText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#4A403B", fontStyle: "italic", lineHeight: 20 },
@@ -259,5 +259,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
   },
-  actionBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFFFF" },
+  actionBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFDF9" },
 });

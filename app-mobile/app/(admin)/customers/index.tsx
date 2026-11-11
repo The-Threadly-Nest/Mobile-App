@@ -150,41 +150,41 @@ export default function CustomersScreen() {
             onEndReached={() => void loadMoreCustomers()}
             onEndReachedThreshold={0.4}
             ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
-          renderItem={({ item }) => {
-            const initial = (item.name || "C").charAt(0).toUpperCase();
+            renderItem={({ item }) => {
+              const initial = (item.name || "C").charAt(0).toUpperCase();
 
-            return (
-              <Pressable
-                onPress={() => handleCustomerPress(item)}
-                style={({ pressed }) => [
-                  styles.card,
-                  { opacity: pressed ? 0.92 : 1 },
-                ]}
-              >
-                {/* Initial Avatar */}
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{initial}</Text>
-                </View>
+              return (
+                <Pressable
+                  onPress={() => handleCustomerPress(item)}
+                  style={({ pressed }) => [
+                    styles.card,
+                    { opacity: pressed ? 0.92 : 1 },
+                  ]}
+                >
+                  {/* Initial Avatar */}
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>{initial}</Text>
+                  </View>
 
-                {/* Customer Details — Phone number hidden */}
-                <View style={styles.detailsContainer}>
-                  <Text style={styles.customerName}>{item.name}</Text>
-                </View>
+                  {/* Customer Details — Phone number hidden */}
+                  <View style={styles.detailsContainer}>
+                    <Text style={styles.customerName}>{item.name}</Text>
+                  </View>
 
-                {/* Orders Badge */}
-                <View style={styles.ordersBadge}>
-                  <Text style={styles.ordersBadgeText}>
-                    {item.ordersCount} {item.ordersCount === 1 ? "orders" : "orders"}
-                  </Text>
-                </View>
-              </Pressable>
-            );
-          }}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No customers matching "{searchQuery}"</Text>
-            </View>
-          }
+                  {/* Orders Badge */}
+                  <View style={styles.ordersBadge}>
+                    <Text style={styles.ordersBadgeText}>
+                      {item.ordersCount} {item.ordersCount === 1 ? "orders" : "orders"}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No customers matching "{searchQuery}"</Text>
+              </View>
+            }
           />
         )}
       </View>
@@ -212,7 +212,7 @@ export default function CustomersScreen() {
                         {selectedCustomer.name}
                       </Text>
                       <View style={{
-                        backgroundColor: selectedCustomer.status === "inactive" ? "#FFFFFF" : "#FFFFFF",
+                        backgroundColor: selectedCustomer.status === "inactive" ? "#FFFDF9" : "#FFFDF9",
                         paddingHorizontal: 8,
                         paddingVertical: 2,
                         borderRadius: 8
@@ -255,7 +255,7 @@ export default function CustomersScreen() {
                 { opacity: pressed ? 0.85 : 1, marginBottom: 10, backgroundColor: "#F96951" },
               ]}
             >
-              <MessageSquare size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <MessageSquare size={18} color="#FFFDF9" style={{ marginRight: 8 }} />
               <Text style={styles.measActionBtnText}>Chat with {selectedCustomer?.name || "Customer"}</Text>
             </Pressable>
 
@@ -266,7 +266,7 @@ export default function CustomersScreen() {
                 { opacity: pressed ? 0.85 : 1, marginBottom: 10 },
               ]}
             >
-              <Ruler size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Ruler size={18} color="#FFFDF9" style={{ marginRight: 8 }} />
               <Text style={styles.measActionBtnText}>Take / Edit Measurements</Text>
             </Pressable>
 
@@ -336,14 +336,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
   searchBar: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -360,7 +361,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 18,
     marginBottom: 16,
@@ -384,7 +385,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   detailsContainer: {
     flex: 1,
@@ -401,7 +402,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   ordersBadge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -446,7 +447,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     padding: 12,
     borderRadius: 14,
     borderWidth: 1,
@@ -469,6 +470,6 @@ const styles = StyleSheet.create({
   measActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

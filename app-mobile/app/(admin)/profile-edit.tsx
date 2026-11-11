@@ -380,7 +380,7 @@ export default function AdminProfileEditScreen({
                           selected && styles.categoryPillActive,
                         ]}
                       >
-                        {selected && <Check size={16} color="#FFFFFF" />}
+                        {selected && <Check size={16} color="#FFFDF9" />}
                         <Text
                           numberOfLines={1}
                           style={[
@@ -498,7 +498,7 @@ export default function AdminProfileEditScreen({
                 ]}
               >
                 {saving ? (
-                  <ActivityIndicator color="#FFFFFF" />
+                  <ActivityIndicator color="#FFFDF9" />
                 ) : (
                   <Text style={styles.primaryBtnText}>Save Changes</Text>
                 )}
@@ -530,7 +530,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -582,13 +583,14 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 8,
   },
-  fieldLabel: { ...typeScale.label,
+  fieldLabel: {
+    ...typeScale.label,
     color: "#4A403B",
     marginBottom: 8,
   },
   logoPickerBox: {
     height: 120,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.20)",
@@ -609,7 +611,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   textInput: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 52,
@@ -632,7 +634,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   bioInput: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -655,7 +657,7 @@ const styles = StyleSheet.create({
     width: "48%",
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50,0.1)",
     alignItems: "center",
@@ -674,12 +676,12 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   categoryTextActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   slotsLinkCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -723,8 +725,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  primaryBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
   secondaryBtn: {
     width: 90,
@@ -732,7 +735,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -134,7 +134,7 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
             justifyContent: "center",
           }}
         >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFDF9", textAlign: "center" }}>
             {unreadCount}
           </Text>
         </View>
@@ -186,21 +186,21 @@ export default function AdminLayout() {
         let latestSender = "Customer";
         let latestMsg = "You have a new customer message.";
 
-          if (Array.isArray(threads)) {
-            threadsUnread = threads.reduce((acc: number, t: any) => acc + (t.unreadCount || 0), 0);
-            const activeThread = threads.find((t: any) => t.unreadCount > 0);
-            if (activeThread) {
-              latestSender = activeThread.customerName || "Customer";
-              latestMsg = activeThread.latestMessage || latestMsg;
-            }
+        if (Array.isArray(threads)) {
+          threadsUnread = threads.reduce((acc: number, t: any) => acc + (t.unreadCount || 0), 0);
+          const activeThread = threads.find((t: any) => t.unreadCount > 0);
+          if (activeThread) {
+            latestSender = activeThread.customerName || "Customer";
+            latestMsg = activeThread.latestMessage || latestMsg;
           }
+        }
 
         // 2. Fetch pending AI escalations count
         const escData = await escalationsApi.getEscalations();
 
         let escUnread = 0;
-          const escalationsList = Array.isArray(escData) ? escData : [];
-          escUnread = escalationsList.filter((e: any) => !e.resolved).length;
+        const escalationsList = Array.isArray(escData) ? escData : [];
+        escUnread = escalationsList.filter((e: any) => !e.resolved).length;
 
         const totalUnread = threadsUnread + escUnread;
         const isOnChatScreen =
@@ -249,8 +249,8 @@ export default function AdminLayout() {
       )}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#FFFFFF",
-        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarActiveTintColor: "#FFFDF9",
+        tabBarInactiveTintColor: "#FFFDF9",
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 54, paddingTop: 0, paddingBottom: 0, borderRadius: 27, borderTopWidth: 0,

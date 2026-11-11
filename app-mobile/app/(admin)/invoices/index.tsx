@@ -189,7 +189,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -197,7 +198,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 18,
@@ -245,10 +246,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pendingPill: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   paidPill: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   statusText: {
     fontFamily: "InstrumentSans-SemiBold",

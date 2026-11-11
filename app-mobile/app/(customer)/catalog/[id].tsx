@@ -71,7 +71,7 @@ export default function CatalogItemDetailScreen() {
 
   useFocusEffect(useCallback(() => {
     let active = true;
-    if (id) loadCatalogFavorites().then(profile => { if (active) setIsFavorite(profile.savedCatalogIds.includes(id)); }).catch(() => {});
+    if (id) loadCatalogFavorites().then(profile => { if (active) setIsFavorite(profile.savedCatalogIds.includes(id)); }).catch(() => { });
     return () => { active = false; };
   }, [id]));
 
@@ -152,7 +152,7 @@ export default function CatalogItemDetailScreen() {
               accessibilityLabel="Back"
               style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#FFFFFF" />
+              <BackArrowIcon size={24} color="#FFFDF9" />
             </Pressable>
 
           </View>
@@ -287,14 +287,14 @@ export default function CatalogItemDetailScreen() {
             </View>
           </View>}
 
-      {/* Purchase actions follow size and colour choices. */}
-      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
-        {isCustomFit ? <Pressable disabled={!garmentData || loading || Boolean(error)} style={styles.addToCartBtn} onPress={handleBookMeasurement}><Text style={styles.addToCartText}>Book measurement</Text></Pressable>
-          : <View style={{ flexDirection: "row", gap: 10, width: "100%" }}>
-            <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#453332" }]} onPress={() => handleAddToCart()}><Text style={styles.addToCartText}>Add to cart</Text></Pressable>
-            <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#F96951" }]} onPress={() => handleAddToCart(true)}><Text style={styles.addToCartText}>Buy now</Text></Pressable>
-          </View>}
-      </View>
+          {/* Purchase actions follow size and colour choices. */}
+          <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
+            {isCustomFit ? <Pressable disabled={!garmentData || loading || Boolean(error)} style={styles.addToCartBtn} onPress={handleBookMeasurement}><Text style={styles.addToCartText}>Book measurement</Text></Pressable>
+              : <View style={{ flexDirection: "row", gap: 10, width: "100%" }}>
+                <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#453332" }]} onPress={() => handleAddToCart()}><Text style={styles.addToCartText}>Add to cart</Text></Pressable>
+                <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#F96951" }]} onPress={() => handleAddToCart(true)}><Text style={styles.addToCartText}>Buy now</Text></Pressable>
+              </View>}
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignSelf: "center",
     marginBottom: 16,
   },
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   discountBadgeText: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 11,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   ratingBadge: {
     flexDirection: "row",
@@ -452,7 +452,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#4A403B",
   },
-  descriptionText: { ...typeScale.body,
+  descriptionText: {
+    ...typeScale.body,
     color: "#4A403B",
     marginBottom: 16,
   },
@@ -472,15 +473,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#4A403B",
   },
-  divider: { display: "none",
+  divider: {
+    display: "none",
     height: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     marginBottom: 18,
   },
   sectionBlock: {
     marginBottom: 20,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
     marginBottom: 10,
   },
@@ -500,11 +503,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   roundPillActive: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderColor: "#F96951",
   },
   roundPillDisabled: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderColor: "transparent",
   },
   roundPillText: {
@@ -531,12 +534,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignItems: "center",
     justifyContent: "center",
   },
   colorPillActive: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderColor: "#F96951",
   },
   vendorCard: {
@@ -545,7 +548,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     marginVertical: 12,
   },
@@ -566,7 +569,7 @@ const styles = StyleSheet.create({
   vendorAvatarLetter: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   vendorNameText: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -581,8 +584,8 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     backgroundColor: "#F9E8D3",
-      marginTop: 12,
-      paddingTop: 0,
+    marginTop: 12,
+    paddingTop: 0,
     alignItems: "center",
   },
   addToCartBtn: {
@@ -602,6 +605,6 @@ const styles = StyleSheet.create({
   addToCartText: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

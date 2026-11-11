@@ -118,7 +118,8 @@ const styles = StyleSheet.create({
     color: "#4A403B",
     marginBottom: 10,
   },
-  subtitle: { ...typeScale.caption,
+  subtitle: {
+    ...typeScale.caption,
     color: "#4A403B",
   },
   buttonsContainer: {
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
   createAccountText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
   logInBtn: {

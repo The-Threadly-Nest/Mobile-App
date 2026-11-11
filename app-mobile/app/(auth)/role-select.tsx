@@ -72,7 +72,7 @@ export default function RoleSelectScreen() {
               >
                 <ShoppingBag
                   size={22}
-                  color={selectedRole === "customer" ? "#FFFFFF" : "#453332"}
+                  color={selectedRole === "customer" ? "#FFFDF9" : "#453332"}
                   strokeWidth={1.8}
                 />
               </View>
@@ -84,7 +84,7 @@ export default function RoleSelectScreen() {
                   selectedRole === "customer" ? styles.radioSelected : styles.radioUnselected,
                 ]}
               >
-                {selectedRole === "customer" && <Check size={14} color="#FFFFFF" strokeWidth={2.5} />}
+                {selectedRole === "customer" && <Check size={14} color="#FFFDF9" strokeWidth={2.5} />}
               </View>
             </View>
 
@@ -127,7 +127,7 @@ export default function RoleSelectScreen() {
               >
                 <Scissors
                   size={22}
-                  color={selectedRole === "admin" ? "#FFFFFF" : "#453332"}
+                  color={selectedRole === "admin" ? "#FFFDF9" : "#453332"}
                   strokeWidth={1.8}
                 />
               </View>
@@ -139,7 +139,7 @@ export default function RoleSelectScreen() {
                   selectedRole === "admin" ? styles.radioSelected : styles.radioUnselected,
                 ]}
               >
-                {selectedRole === "admin" && <Check size={14} color="#FFFFFF" strokeWidth={2.5} />}
+                {selectedRole === "admin" && <Check size={14} color="#FFFDF9" strokeWidth={2.5} />}
               </View>
             </View>
 
@@ -228,7 +228,8 @@ const styles = StyleSheet.create({
     color: "#453332",
     marginBottom: 6,
   },
-  subtitle: { ...typeScale.caption,
+  subtitle: {
+    ...typeScale.caption,
     color: "#4A403B",
   },
   cardsContainer: {
@@ -242,11 +243,11 @@ const styles = StyleSheet.create({
   },
   roleCardSelected: {
     borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   roleCardUnselected: {
     borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   cardHeaderRow: {
     flexDirection: "row",
@@ -330,8 +331,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  continueBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  continueBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
   loginRow: {

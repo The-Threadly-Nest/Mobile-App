@@ -203,7 +203,7 @@ export default function CustomerOrdersScreen() {
                       flexDirection: "row",
                       alignItems: "center",
                       gap: 16,
-                      backgroundColor: isDeclined ? "#FFFFFF" : "#FFFFFF",
+                      backgroundColor: isDeclined ? "#FFFDF9" : "#FFFDF9",
                       borderRadius: 20,
                       padding: 12,
                       transform: [{ scale: pressed ? 0.985 : 1 }],
@@ -227,13 +227,13 @@ export default function CustomerOrdersScreen() {
                           {order.atelierName}
                         </Text>
                         {isDeclined ? (
-                          <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
+                          <View style={{ backgroundColor: "#FFFDF9", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
                             <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#F96951" }}>
                               Declined
                             </Text>
                           </View>
                         ) : isCancelled ? (
-                          <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#453332" }}>
+                          <View style={{ backgroundColor: "#FFFDF9", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#453332" }}>
                             <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#4A403B" }}>
                               Cancelled
                             </Text>

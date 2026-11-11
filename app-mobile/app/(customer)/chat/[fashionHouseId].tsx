@@ -77,12 +77,12 @@ export default function BookingChatScreen() {
 
   const initialTurns: Turn[] = garmentName
     ? [
-        {
-          role: "model",
-          text: `Welcome! Let's arrange your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Choose an available date, then a time below.`,
-          slots: availableSlots,
-        },
-      ]
+      {
+        role: "model",
+        text: `Welcome! Let's arrange your fitting for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Choose an available date, then a time below.`,
+        slots: availableSlots,
+      },
+    ]
     : DEFAULT_INITIAL_TURNS;
 
   const [history, setHistory] = useState<Turn[]>(initialTurns);
@@ -368,19 +368,19 @@ export default function BookingChatScreen() {
           }
           throw error;
         }
-          replyText = sanitizeText(body.reply);
-          responseType = body.type;
-          if (Array.isArray(body.availableSlots)) {
-            responseSlots = body.availableSlots;
-            setAvailableSlots(body.availableSlots);
+        replyText = sanitizeText(body.reply);
+        responseType = body.type;
+        if (Array.isArray(body.availableSlots)) {
+          responseSlots = body.availableSlots;
+          setAvailableSlots(body.availableSlots);
+        }
+        if (body.booking && typeof body.booking.id === "string") {
+          createdBooking = body.booking;
+          if (body.booking.styleNotes) {
+            activeGarment = body.booking.styleNotes;
+            setSelectedGarment(body.booking.styleNotes);
           }
-          if (body.booking && typeof body.booking.id === "string") {
-            createdBooking = body.booking;
-            if (body.booking.styleNotes) {
-              activeGarment = body.booking.styleNotes;
-              setSelectedGarment(body.booking.styleNotes);
-            }
-          }
+        }
       }
 
       const lowerReply = replyText.toLowerCase();
@@ -441,16 +441,16 @@ export default function BookingChatScreen() {
       if (availableSlotId) setSelectedSlotLabel(null);
       const responseTurn: Turn = hasGarment
         ? {
-            role: "model",
-            text: responseSlots.length
-              ? "Let's book your measurement appointment. Choose an available date, then a time below."
-              : "There are no available appointments right now. Use Talk to Admin for help.",
-            slots: responseSlots.length ? responseSlots : undefined,
-          }
+          role: "model",
+          text: responseSlots.length
+            ? "Let's book your measurement appointment. Choose an available date, then a time below."
+            : "There are no available appointments right now. Use Talk to Admin for help.",
+          slots: responseSlots.length ? responseSlots : undefined,
+        }
         : {
-            role: "model",
-            text: cleanRawSlotText(replyText) || "What garment would you like us to make?",
-          };
+          role: "model",
+          text: cleanRawSlotText(replyText) || "What garment would you like us to make?",
+        };
 
       setHistory((prev) => [...prev, responseTurn]);
     } catch {
@@ -598,15 +598,15 @@ export default function BookingChatScreen() {
                       },
                       isUser
                         ? {
-                            backgroundColor: "rgba(69, 51, 50, 0.25)",
-                            alignSelf: "flex-end",
-                            borderBottomRightRadius: 4,
-                          }
+                          backgroundColor: "rgba(69, 51, 50, 0.25)",
+                          alignSelf: "flex-end",
+                          borderBottomRightRadius: 4,
+                        }
                         : {
-                            backgroundColor: "#453332",
-                            alignSelf: "flex-start",
-                            borderBottomLeftRadius: 4,
-                          },
+                          backgroundColor: "#453332",
+                          alignSelf: "flex-start",
+                          borderBottomLeftRadius: 4,
+                        },
                     ]}
                   >
                     <Text
@@ -614,7 +614,7 @@ export default function BookingChatScreen() {
                         fontFamily: "InstrumentSans-Regular",
                         fontSize: 15,
                         lineHeight: 22,
-                        color: isUser ? "#453332" : "#FFFFFF",
+                        color: isUser ? "#453332" : "#FFFDF9",
                       }}
                     >
                       {sanitizeText(turn.text)}
@@ -631,7 +631,7 @@ export default function BookingChatScreen() {
                           style={({ pressed }) => [
                             {
                               width: turn.options!.length > 1 ? "48.5%" : "100%",
-                              backgroundColor: "#FFFFFF",
+                              backgroundColor: "#FFFDF9",
                               borderWidth: 1,
                               borderColor: "#F96951",
                               paddingHorizontal: 12,
@@ -695,7 +695,7 @@ export default function BookingChatScreen() {
                 {fashionHouseName} Assistant
               </Text>
               <View className="bg-oxblood rounded-t-[16px] rounded-r-[16px] rounded-bl-[4px] px-6 py-4">
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color="#FFFDF9" />
               </View>
             </View>
           )}
@@ -717,7 +717,7 @@ export default function BookingChatScreen() {
               paddingHorizontal: 24,
               paddingTop: 6,
               paddingBottom: Math.max(insets.bottom, 16),
-              backgroundColor: "#FFFFFF",
+              backgroundColor: "#FFFDF9",
             }}
           >
             {escalatedToHuman ? (
@@ -739,27 +739,26 @@ export default function BookingChatScreen() {
                 </Pressable>
               </View>
             ) : (
-            <View className="flex-row items-center gap-3">
-              <TextInput
-                value={draft}
-                onChangeText={setDraft}
-                placeholder="Type a message..."
-                placeholderTextColor="rgba(69, 51, 50, 0.7)"
-                className="flex-1 bg-white border border-oxblood rounded-full px-5 py-3 font-body text-[14px] text-oxblood"
-                onSubmitEditing={() => handleSend()}
-                returnKeyType="send"
-              />
-              <Pressable
-                onPress={() => handleSend()}
-                disabled={sending || !draft.trim()}
-                className={`w-11 h-11 bg-tomato rounded-full items-center justify-center ${
-                  !draft.trim() || sending ? "opacity-50" : "opacity-100"
-                }`}
-                style={({ pressed }) => [{ opacity: pressed ? 0.8 : draft.trim() ? 1 : 0.5 }]}
-              >
-                <ArrowUp size={20} color="#FFFFFF" />
-              </Pressable>
-            </View>
+              <View className="flex-row items-center gap-3">
+                <TextInput
+                  value={draft}
+                  onChangeText={setDraft}
+                  placeholder="Type a message..."
+                  placeholderTextColor="rgba(69, 51, 50, 0.7)"
+                  className="flex-1 bg-white border border-oxblood rounded-full px-5 py-3 font-body text-[14px] text-oxblood"
+                  onSubmitEditing={() => handleSend()}
+                  returnKeyType="send"
+                />
+                <Pressable
+                  onPress={() => handleSend()}
+                  disabled={sending || !draft.trim()}
+                  className={`w-11 h-11 bg-tomato rounded-full items-center justify-center ${!draft.trim() || sending ? "opacity-50" : "opacity-100"
+                    }`}
+                  style={({ pressed }) => [{ opacity: pressed ? 0.8 : draft.trim() ? 1 : 0.5 }]}
+                >
+                  <ArrowUp size={20} color="#FFFDF9" />
+                </Pressable>
+              </View>
             )}
           </View>
         )}

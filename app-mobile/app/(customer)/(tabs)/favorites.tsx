@@ -74,7 +74,7 @@ export default function FavoritesScreen() {
           <Heart size={36} color="#F96951" />
           <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#4A403B", textAlign: "center" }}>Save items with the heart in Discover to find them here.</Text>
         </View> : null}
-        {items.map(item => <View key={item.id} style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 15, padding: 14, gap: 12 }}>
+        {items.map(item => <View key={item.id} style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#FFFDF9", borderRadius: 15, padding: 14, gap: 12 }}>
           <Pressable onPress={() => router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } })}
             accessibilityRole="button" accessibilityLabel={`View ${item.name}`} style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 14 }}>
             <Image source={{ uri: item.imageUrl }} style={{ width: 64, height: 78, borderRadius: 10 }} resizeMode="cover" />

@@ -24,7 +24,7 @@ export function ProfilePhoto() {
     async function loadPhoto() {
       const cached = await SecureStore.getItemAsync(STORAGE_KEY).catch(() => null);
       if (active && cached) {
-        try { const saved = JSON.parse(cached); if (saved.owner === owner && typeof saved.url === "string") setPhoto(saved); } catch {}
+        try { const saved = JSON.parse(cached); if (saved.owner === owner && typeof saved.url === "string") setPhoto(saved); } catch { }
       }
       try {
         const profile = await apiFetch<{ photoUrl: string | null }>("/api/preferences", { silent: true });
@@ -61,7 +61,7 @@ export function ProfilePhoto() {
       if (`${useAuthStore.getState().role}:${useAuthStore.getState().email.trim().toLowerCase()}` !== owner) return;
       const saved = { owner, url: profile.photoUrl };
       setPhoto(saved);
-      await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(saved)).catch(() => {});
+      await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(saved)).catch(() => { });
     } catch (error) {
       showAlert("Photo upload failed", error instanceof Error ? error.message : "We couldn't save your photo. Please check your connection and try again.");
     } finally { setBusy(false); }
@@ -70,7 +70,7 @@ export function ProfilePhoto() {
   return <View style={{ alignItems: "center", marginTop: 16, marginBottom: 12 }}>
     <Pressable onPress={choosePhoto} disabled={busy} accessibilityRole="button" accessibilityLabel="Upload profile photo"
       accessibilityState={{ disabled: busy, busy }} style={{ width: 88, height: 88 }}>
-      <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: "#FFFFFF", overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: "#FFFDF9", overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
         {busy ? <ActivityIndicator color="#453332" /> : photo?.owner === owner
           ? <Image source={{ uri: photo.url }} style={{ width: 88, height: 88 }} resizeMode="cover" />
           : <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 30, color: "#4A403B" }}>{displayName.charAt(0).toUpperCase()}</Text>}

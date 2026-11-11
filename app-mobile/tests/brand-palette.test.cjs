@@ -5,7 +5,7 @@ const path = require('node:path');
 const ts = require('typescript');
 
 const root = path.resolve(__dirname, '..');
-const palette = new Set(['#F96951', '#453332', '#2B2B2B', '#4A403B', '#FFFFFF', '#F9E8D3']);
+const palette = new Set(['#F96951', '#453332', '#2B2B2B', '#4A403B', '#FFFDF9', '#F9E8D3']);
 const rgbPalette = new Set(['249,105,81', '69,51,50', '43,43,43', '255,255,255', '249,232,211']);
 
 function sourceFiles(directory) {
@@ -62,8 +62,8 @@ test('theme aliases use brand colors and filled status badges retain white label
 
 test('fashion-house screen is cream while its cards stay white', () => {
   const screen = fs.readFileSync(path.join(root, 'app/(customer)/fashion-house/[fashionHouseId].tsx'), 'utf8');
-  assert.match(screen, /statsCard:\s*\{[^}]*backgroundColor: "#FFFFFF"/);
-  assert.match(screen, /seeAllBtn:\s*\{[^}]*backgroundColor: "#FFFFFF"/);
+  assert.match(screen, /statsCard:\s*\{[^}]*backgroundColor: "#FFFDF9"/);
+  assert.match(screen, /seeAllBtn:\s*\{[^}]*backgroundColor: "#FFFDF9"/);
   assert.match(screen, /container:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
   assert.match(screen, /sheetCard:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
 });
@@ -79,7 +79,7 @@ test('customer, admin, staff and navigation surfaces consistently use cream', ()
     assert.match(source, new RegExp(`${name}: \\{[^}]*backgroundColor: "#F9E8D3"`));
   }
   const profile = fs.readFileSync(path.join(root, 'src/shared/components/ProfileDesign.tsx'), 'utf8');
-  assert.match(profile, /key=\{index\} style=\{\{ backgroundColor: "#FFFFFF"/);
+  assert.match(profile, /key=\{index\} style=\{\{ backgroundColor: "#FFFDF9"/);
   assert.match(profile, /header:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
   for (const file of ['app/_layout.tsx', 'app/(auth)/_layout.tsx', 'app/(customer)/_layout.tsx']) {
     assert.match(fs.readFileSync(path.join(root, file), 'utf8'), /contentStyle: \{ backgroundColor: "#F9E8D3"/);
@@ -95,6 +95,6 @@ test('icon backplates use cream without changing white card surfaces or white bu
   assert.match(admin, /iconCircle:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
   const measurements = read('src/shared/components/CustomerMeasurementsModal.tsx');
   assert.match(measurements, /headingIcon:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
-  assert.match(measurements, /card:\s*\{[^}]*backgroundColor: "#FFFFFF"/);
+  assert.match(measurements, /card:\s*\{[^}]*backgroundColor: "#FFFDF9"/);
   assert.match(read('src/shared/components/Button.tsx'), /primary: \{ container: "bg-tomato", text: "text-white"/);
 });

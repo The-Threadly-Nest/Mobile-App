@@ -70,7 +70,7 @@ export default function AdminFittingSlotsScreen() {
             setBookingSchedule(house.bookingSchedule || null);
             setScheduleTimezone(house.timezone || "Africa/Lagos");
           }
-        } catch {}
+        } catch { }
       }
       void loadProfile();
       void fetchSlots();
@@ -307,7 +307,7 @@ export default function AdminFittingSlotsScreen() {
               ]}
             >
               {savingSchedule ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="#FFFDF9" />
               ) : (
                 <Text style={styles.primaryBtnText}>Save & Generate Slots</Text>
               )}
@@ -357,7 +357,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -365,7 +366,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
     marginBottom: 12,
   },
@@ -377,7 +379,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 76,
     borderRadius: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.08)",
     alignItems: "center",
@@ -403,7 +405,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   dateDayNumActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   countBadge: {
     marginTop: 2,
@@ -474,7 +476,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   availableBadge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -486,7 +488,7 @@ const styles = StyleSheet.create({
     color: "#453332",
   },
   bookedBadge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -514,7 +516,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#4A403B",
   },
-  divider: { display: "none",
+  divider: {
+    display: "none",
     height: 1,
     backgroundColor: "rgba(69, 51, 50, 0.08)",
     marginBottom: 20,
@@ -536,7 +539,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  primaryBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
 });

@@ -534,7 +534,7 @@ export default function AdminMessagesScreen() {
     try {
       await audioRecorder.stop();
     } catch { }
-    await setAudioModeAsync({ allowsRecording: false }).catch(() => {});
+    await setAudioModeAsync({ allowsRecording: false }).catch(() => { });
     setIsRecording(false);
     setIsPaused(false);
     setRecordingDuration(0);
@@ -781,15 +781,15 @@ export default function AdminMessagesScreen() {
                 >
                   <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isFashionHouse ? 'rgba(255, 255, 255,0.25)' : 'rgba(69, 51, 50,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {playingAudioId === item.id ? (
-                      <Pause size={16} color={isFashionHouse ? '#FFFFFF' : '#453332'} />
+                      <Pause size={16} color={isFashionHouse ? '#FFFDF9' : '#453332'} />
                     ) : (
-                      <Play size={16} color={isFashionHouse ? '#FFFFFF' : '#453332'} style={{ marginLeft: 2 }} />
+                      <Play size={16} color={isFashionHouse ? '#FFFDF9' : '#453332'} style={{ marginLeft: 2 }} />
                     )}
                   </View>
                   <View style={{ flex: 1, justifyContent: 'center' }}>
                     <AnimatedWaveform
                       isAnimating={playingAudioId === item.id}
-                      color={isFashionHouse ? '#FFFFFF' : '#453332'}
+                      color={isFashionHouse ? '#FFFDF9' : '#453332'}
                       inactiveColor={isFashionHouse ? 'rgba(255, 255, 255,0.4)' : 'rgba(69, 51, 50,0.4)'}
                       barCount={16}
                       height={24}
@@ -1031,7 +1031,7 @@ export default function AdminMessagesScreen() {
                   </Pressable>
 
                   <Pressable onPress={stopAndSendRecording} disabled={sending} style={styles.sendCircleBtn}>
-                    <Send size={20} color="#FFFFFF" />
+                    <Send size={20} color="#FFFDF9" />
                   </Pressable>
                 </View>
               </View>
@@ -1070,7 +1070,7 @@ export default function AdminMessagesScreen() {
                       { opacity: pressed ? 0.85 : 1 },
                     ]}
                   >
-                    <Send size={20} color="#FFFFFF" />
+                    <Send size={20} color="#FFFDF9" />
                   </Pressable>
                 ) : (
                   <Pressable
@@ -1082,7 +1082,7 @@ export default function AdminMessagesScreen() {
                       { opacity: pressed ? 0.85 : 1 },
                     ]}
                   >
-                    {sending ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Mic size={20} color="#FFFFFF" />}
+                    {sending ? <ActivityIndicator size="small" color="#FFFDF9" /> : <Mic size={20} color="#FFFDF9" />}
                   </Pressable>
                 )}
               </>
@@ -1137,7 +1137,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#453332',
   },
-  headerSubtitleText: { ...typeScale.caption,
+  headerSubtitleText: {
+    ...typeScale.caption,
     color: '#453332',
     marginTop: 2,
   },
@@ -1190,7 +1191,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderBottomWidth: 0,
     borderBottomColor: '#453332',
   },
@@ -1204,7 +1205,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   avatarText: {
-    color: '#FFFFFF',
+    color: '#FFFDF9',
     fontSize: 18,
     fontFamily: 'InstrumentSans-Regular',
   },
@@ -1240,7 +1241,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   unreadBadgeText: {
-    color: '#FFFFFF',
+    color: '#FFFDF9',
     fontSize: 11,
     fontFamily: 'InstrumentSans-SemiBold',
   },
@@ -1263,7 +1264,8 @@ const styles = StyleSheet.create({
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 13,
   },
-  dividerRow: { display: "none",
+  dividerRow: {
+    display: "none",
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 16,
@@ -1306,13 +1308,15 @@ const styles = StyleSheet.create({
     color: '#453332',
     marginTop: 2,
   },
-  dividerLine: { display: "none",
+  dividerLine: {
+    display: "none",
     flex: 1,
     height: 1,
     backgroundColor: '#453332',
     opacity: 0.5,
   },
-  dividerLabel: { display: "none",
+  dividerLabel: {
+    display: "none",
     marginHorizontal: 12,
     fontSize: 10,
     fontFamily: 'InstrumentSans-SemiBold',
@@ -1356,7 +1360,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   sentText: {
-    color: '#FFFFFF',
+    color: '#FFFDF9',
   },
   receivedText: {
     color: '#453332',
@@ -1385,7 +1389,7 @@ const styles = StyleSheet.create({
   },
   recordingContainer: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -1460,7 +1464,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#453332',
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
@@ -1498,7 +1502,7 @@ const styles = StyleSheet.create({
     bottom: 74,
     left: 16,
     right: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -1523,7 +1527,7 @@ const styles = StyleSheet.create({
   },
   segmentedContainer: {
     flexDirection: 'row',
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 32,
     padding: 3,
     marginHorizontal: 24,
@@ -1547,6 +1551,6 @@ const styles = StyleSheet.create({
     color: '#453332',
   },
   segmentedTextActive: {
-    color: '#FFFFFF',
+    color: '#FFFDF9',
   },
 });

@@ -8,17 +8,17 @@ const filename = path.resolve(__dirname, '../src/shared/components/BackArrowIcon
 const compiled = new Module(filename, module);
 compiled.paths = Module._nodeModulePaths(path.dirname(filename));
 const originalRequire = compiled.require.bind(compiled);
-function ChevronLeft() {}
+function ChevronLeft() { }
 compiled.require = id => id === 'lucide-react-native' ? { ChevronLeft } : originalRequire(id);
 compiled._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX }
 }).outputText, filename);
 
 test('shared back icon uses the existing chevron and preserves screen colors and sizes', () => {
-  const icon = compiled.exports.BackArrowIcon({ size: 18, color: '#FFFFFF' });
+  const icon = compiled.exports.BackArrowIcon({ size: 18, color: '#FFFDF9' });
   assert.equal(icon.type, ChevronLeft);
   assert.equal(icon.props.size, 18);
-  assert.equal(icon.props.color, '#FFFFFF');
+  assert.equal(icon.props.color, '#FFFDF9');
   assert.equal(compiled.exports.BackArrowIcon({}).props.size, 24);
   assert.equal(compiled.exports.BackArrowIcon({}).props.color, '#2B2B2B');
 });

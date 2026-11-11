@@ -55,8 +55,8 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
     <View style={styles.header}><Pressable accessibilityLabel="Back" accessibilityRole="button" hitSlop={4} onPress={() => router.back()} style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}><BackArrowIcon size={24} color="#453332" /></Pressable><Text style={styles.title}>{houses ? "Fashion houses" : "Marketplace"}</Text></View>
     <View style={styles.searchRow}>
       <TextInput accessibilityLabel={houses ? "Search fashion houses or cities" : "Search clothes or designers"} placeholder={houses ? "Name or city" : "Clothes, style or designer"} value={input} onChangeText={setInput} returnKeyType="search" onSubmitEditing={() => setQuery(input.trim())} style={styles.searchInput} />
-      <Pressable accessibilityLabel="Search" onPress={() => setQuery(input.trim())} style={styles.primaryIcon}><Search size={20} color="#FFFFFF" /></Pressable>
-      {!houses ? <Pressable accessibilityLabel="Filter marketplace" onPress={() => setFilters(true)} style={styles.primaryIcon}><SlidersHorizontal size={20} color="#FFFFFF" /></Pressable> : null}
+      <Pressable accessibilityLabel="Search" onPress={() => setQuery(input.trim())} style={styles.primaryIcon}><Search size={20} color="#FFFDF9" /></Pressable>
+      {!houses ? <Pressable accessibilityLabel="Filter marketplace" onPress={() => setFilters(true)} style={styles.primaryIcon}><SlidersHorizontal size={20} color="#FFFDF9" /></Pressable> : null}
     </View>
     {!offline && error ? <Pressable onPress={() => void load(1, revision.current)} style={styles.notice}><Text style={styles.body}>{error} Tap to retry.</Text></Pressable> : null}
     {loading && !items.length ? <ActivityIndicator color="#F96951" style={styles.notice} /> : null}
@@ -79,11 +79,11 @@ const styles = StyleSheet.create({
   title: { flex: 1, ...typeScale.pageTitle, color: "#4A403B" },
   backBtn: { width: 36, height: 36, alignItems: "flex-start", justifyContent: "center" },
   searchRow: { flexDirection: "row", gap: 8, paddingHorizontal: 20, marginBottom: 18 },
-  searchInput: { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 24, paddingHorizontal: 16, color: "#4A403B", minHeight: 48 },
+  searchInput: { flex: 1, backgroundColor: "#FFFDF9", borderRadius: 24, paddingHorizontal: 16, color: "#4A403B", minHeight: 48 },
   primaryIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#F96951", justifyContent: "center", alignItems: "center" },
   list: { paddingHorizontal: 16, paddingBottom: 40 }, columns: { justifyContent: "space-between", gap: 14 },
   card: { flex: 1, maxWidth: "48%", marginBottom: 24 },
-  imageFrame: { width: "100%", aspectRatio: 156 / 206, borderRadius: 14, overflow: "hidden", backgroundColor: "#FFFFFF" },
+  imageFrame: { width: "100%", aspectRatio: 156 / 206, borderRadius: 14, overflow: "hidden", backgroundColor: "#FFFDF9" },
   image: { width: "100%", height: "100%" }, copy: { paddingTop: 8, gap: 4 },
   name: { ...typeScale.productName, color: "#4A403B" },
   price: { ...typeScale.productPrice, color: "#4A403B" },

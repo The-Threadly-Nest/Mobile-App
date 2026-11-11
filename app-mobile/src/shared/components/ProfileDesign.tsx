@@ -21,7 +21,7 @@ export function ProfileMenuGroups({ children }: { children: React.ReactNode }) {
   const rows = React.Children.toArray(children).filter(React.isValidElement);
   return <View style={{ paddingHorizontal: 24, gap: 14 }}>
     {Array.from({ length: Math.ceil(rows.length / 2) }, (_, index) => (
-      <View key={index} style={{ backgroundColor: "#FFFFFF", borderRadius: 15, overflow: "hidden" }}>
+      <View key={index} style={{ backgroundColor: "#FFFDF9", borderRadius: 15, overflow: "hidden" }}>
         {rows.slice(index * 2, index * 2 + 2)}
       </View>
     ))}
@@ -47,8 +47,10 @@ export function ProfileDesignHeader({ balance }: {
       <Text style={styles.name}>{balance}</Text>
       <Pressable disabled accessibilityRole="button" accessibilityState={{ disabled: true }}
         accessibilityLabel="Withdraw unavailable until wallet is connected"
-        style={{ borderWidth: 1, borderColor: "#F96951", borderRadius: 10, paddingHorizontal: 22, minHeight: 38,
-          alignItems: "center", justifyContent: "center", marginTop: 14, marginBottom: 8, opacity: 0.65 }}>
+        style={{
+          borderWidth: 1, borderColor: "#F96951", borderRadius: 10, paddingHorizontal: 22, minHeight: 38,
+          alignItems: "center", justifyContent: "center", marginTop: 14, marginBottom: 8, opacity: 0.65
+        }}>
         <Text style={{ color: "#4A403B", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
       </Pressable>
       <Text style={[styles.subtitle, { fontSize: 12, opacity: 0.8 }]}>Wallet balance is not connected yet</Text>
@@ -65,7 +67,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     alignItems: "center",
   },
-  profileTitle: { ...typeScale.pageTitle,
+  profileTitle: {
+    ...typeScale.pageTitle,
     alignSelf: "flex-start",
     textAlign: "left",
     color: "#4A403B",

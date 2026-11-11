@@ -31,7 +31,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
           onPress={() => this.setState({ error: null })}
           style={({ pressed }) => ({ marginTop: 24, minWidth: 140, alignItems: "center", borderRadius: 24, paddingHorizontal: 24, paddingVertical: 12, backgroundColor: "#F96951", opacity: pressed ? 0.8 : 1 })}
         >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFFFF" }}>Try again</Text>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#FFFDF9" }}>Try again</Text>
         </Pressable>
       </View>
     );

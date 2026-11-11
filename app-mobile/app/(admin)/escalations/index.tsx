@@ -164,24 +164,24 @@ export default function BookingsScreen() {
               serviceTitle: item.reason ? item.reason.replace(/_/g, " ") : "Order request",
               appointmentTime: item.preferredDate
                 ? `${formatDate(item.preferredDate, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                  })}${item.preferredTime ? `, ${item.preferredTime}` : ""}`
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}${item.preferredTime ? `, ${item.preferredTime}` : ""}`
                 : formatDate(item.createdAt, {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  }),
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                }),
               summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
               status:
                 normalizeStatus(item.bookingStatus) === "declined" || normalizeStatus(item.status) === "declined"
                   ? "declined"
                   : item.resolved
-                  ? "assigned"
-                  : "pending",
+                    ? "assigned"
+                    : "pending",
               createdAt: item.createdAt,
             });
           }
@@ -219,31 +219,31 @@ export default function BookingsScreen() {
         return;
       }
       if (token && !booking.readyToWear) {
-          const data = await measurementsApi.checkCustomer(booking.customerName);
-          if (data.hasMeasurements === false) {
-            showConfirm(
-              "Measurement Required",
-              `No measurements found for ${booking.customerName}. Please record measurement details before assigning staff.`,
-              {
-                confirmLabel: "Add Measurement",
-                onConfirm: () => {
-                  router.push({
-                    pathname: "/(admin)/measurements/new",
-                    params: {
-                      bookingId: booking.orderId ? undefined : booking.id,
-                      orderId: booking.orderId,
-                      fulfillmentType: "custom_fit",
-                      customerName: booking.customerName,
-                      serviceTitle: booking.serviceTitle,
-                      appointmentTime: booking.appointmentTime,
-                      returnToAssign: "true",
-                    },
-                  } as any);
-                },
-              }
-            );
-            return;
-          }
+        const data = await measurementsApi.checkCustomer(booking.customerName);
+        if (data.hasMeasurements === false) {
+          showConfirm(
+            "Measurement Required",
+            `No measurements found for ${booking.customerName}. Please record measurement details before assigning staff.`,
+            {
+              confirmLabel: "Add Measurement",
+              onConfirm: () => {
+                router.push({
+                  pathname: "/(admin)/measurements/new",
+                  params: {
+                    bookingId: booking.orderId ? undefined : booking.id,
+                    orderId: booking.orderId,
+                    fulfillmentType: "custom_fit",
+                    customerName: booking.customerName,
+                    serviceTitle: booking.serviceTitle,
+                    appointmentTime: booking.appointmentTime,
+                    returnToAssign: "true",
+                  },
+                } as any);
+              },
+            }
+          );
+          return;
+        }
       }
     } catch (error) {
       if (booking.orderId && booking.readyToWear) {
@@ -413,7 +413,7 @@ export default function BookingsScreen() {
                         ]}
                       >
                         {checkingBookingId === item.id ? (
-                          <ActivityIndicator size="small" color="#FFFFFF" />
+                          <ActivityIndicator size="small" color="#FFFDF9" />
                         ) : (
                           <Text style={styles.assignBtnText}>{item.readyToWear && item.orderId ? "Accept order" : "Assign"}</Text>
                         )}
@@ -556,7 +556,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "100%",
   },
-  screenTitle: { ...typeScale.pageTitle,
+  screenTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     marginBottom: 20,
     paddingHorizontal: 4,
@@ -577,14 +578,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   pillInactive: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   pillText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
   },
   pillTextActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   pillTextInactive: {
     color: "#4A403B",
@@ -598,7 +599,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 18,
     marginBottom: 16,
@@ -624,7 +625,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   customerInfo: {
     flex: 1,
@@ -641,16 +642,16 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   badge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 12,
   },
   badgeAssigned: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   badgeDeclined: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   badgeText: {
     fontFamily: "InstrumentSans-Medium",
@@ -676,14 +677,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  assignBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  assignBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
   declineBtn: {
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1.5,
     borderColor: "#F96951",
     alignItems: "center",
@@ -714,7 +716,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -737,7 +739,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   staffItem: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 14,
     padding: 16,
     marginBottom: 10,
@@ -750,7 +752,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   summaryCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -788,7 +790,7 @@ const styles = StyleSheet.create({
   },
   modelBubble: {
     alignSelf: "flex-start",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.1)",
   },
@@ -797,7 +799,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   userChatText: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   modelChatText: {
     color: "#4A403B",

@@ -168,11 +168,12 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 36,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     textAlign: "center",
     marginBottom: 10,
   },
-  subtitle: { ...typeScale.caption,
+  subtitle: {
+    ...typeScale.caption,
     color: "rgba(255, 255, 255, 0.85)",
     textAlign: "center",
     marginBottom: 24,
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     width: 32,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   inactiveDot: {
     width: 6,
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   fullWidthBtn: {
     width: "100%",

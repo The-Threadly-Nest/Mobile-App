@@ -49,7 +49,7 @@ function FloatingAddCircle({ onPress }: { onPress: () => void }) {
         },
       ]}
     >
-      <Plus size={28} color="#FFFFFF" strokeWidth={2.5} />
+      <Plus size={28} color="#FFFDF9" strokeWidth={2.5} />
     </Pressable>
   );
 }
@@ -194,7 +194,7 @@ export default function StaffScreen() {
                           justifyContent: "center",
                         }}
                       >
-                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#FFFFFF" }}>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#FFFDF9" }}>
                           {item.unreadCount}
                         </Text>
                       </View>
@@ -288,14 +288,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
   searchBar: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -321,7 +322,7 @@ const styles = StyleSheet.create({
     maxWidth: 376,
     height: 114,
     alignSelf: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 24,
     paddingVertical: 24,
@@ -347,7 +348,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 17,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   detailsContainer: {
     flex: 1,
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     marginVertical: 12,
     borderWidth: 1,
@@ -446,7 +447,7 @@ const styles = StyleSheet.create({
   emptyActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   floatingCircle: {
     position: "absolute",

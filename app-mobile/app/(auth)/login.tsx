@@ -147,12 +147,11 @@ export default function LoginScreen() {
           <View style={styles.formContainer}>
             {/* Email Input */}
             <View style={[styles.inputContainer, isLandscape && { height: 48, marginBottom: 14 }]}>
-              <View style={styles.labelWrapper}>
-                <Text style={styles.labelText}>Email</Text>
-              </View>
               <TextInput
                 disableFullscreenUI={true}
                 style={styles.textInput}
+                placeholder="Email"
+                placeholderTextColor="rgba(74, 64, 59, 0.5)"
                 value={email}
                 onChangeText={(text) => {
                   setEmail(text);
@@ -165,12 +164,11 @@ export default function LoginScreen() {
 
             {/* Password Input */}
             <View style={[styles.inputContainer, { marginBottom: 8 }, isLandscape && { height: 48, marginBottom: 4 }]}>
-              <View style={styles.labelWrapper}>
-                <Text style={styles.labelText}>Password</Text>
-              </View>
               <TextInput
                 disableFullscreenUI={true}
                 style={styles.textInput}
+                placeholder="Password"
+                placeholderTextColor="rgba(74, 64, 59, 0.5)"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -212,7 +210,7 @@ export default function LoginScreen() {
               ]}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="#FFFDF9" />
               ) : (
                 <Text style={styles.logInBtnText}>Log In</Text>
               )}
@@ -284,7 +282,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -301,6 +299,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 104,
     height: 33,
+    tintColor: "#453332",
   },
   headerTitle: {
     ...typeScale.pageTitle,
@@ -311,8 +310,9 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: "relative",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.35)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     borderRadius: 14,
     height: 58,
     justifyContent: "center",
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   logInBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
   signupLinkRow: {

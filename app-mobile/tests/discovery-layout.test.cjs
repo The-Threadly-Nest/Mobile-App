@@ -33,7 +33,7 @@ test("search bars retain rounded white fills without outlines", () => {
   ]) {
     const block = read(file).match(new RegExp(`${name}: \\{([^}]+)\\}`))?.[1];
     assert.ok(block, `${file} defines ${name}`);
-    assert.match(block, /backgroundColor: "#FFFFFF"/);
+    assert.match(block, /backgroundColor: "#FFFDF9"/);
     assert.match(block, /borderRadius:/);
     assert.doesNotMatch(block, /border(?:Width|Color):/);
   }

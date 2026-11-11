@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 360,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     overflow: "hidden",
     shadowColor: "#453332",
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.5,
   },
   actionsStack: { flexDirection: "column-reverse", alignItems: "stretch" },

@@ -75,7 +75,7 @@ test('profile uses native icons; admin circles retain their distinct requested s
   const nav = read('app/(admin)/_layout.tsx');
   assert.match(nav, /Circle cx=\{19\} cy=\{19\} r=\{19\} fill="#453332"/);
   assert.match(nav, /width: 38, height: 38, minWidth: 38, minHeight: 38, flexShrink: 0, borderRadius: 19/);
-  assert.match(nav, /width: 42, height: 42, flexShrink: 0, borderRadius: 21, backgroundColor: "#FFFFFF"/);
+  assert.match(nav, /width: 42, height: 42, flexShrink: 0, borderRadius: 21, backgroundColor: "#FFFDF9"/);
   assert.match(nav, /<Plus size=\{22\} color="#F96951"/);
   assert.match(nav, /ADMIN_ALLOWED_TAB_ROUTES = \["dashboard", "escalations\/index", "orders", "settings"\]/);
   const newItem = read('app/(admin)/catalog/new.tsx');

@@ -190,7 +190,7 @@ export default function StaffMoodBoardScreen() {
               onPress={() => router.push("/(staff)/draw")}
               style={({ pressed }) => [styles.drawBtn, { opacity: pressed ? 0.85 : 1 }]}
             >
-              <Paintbrush size={14} color="#FFFFFF" />
+              <Paintbrush size={14} color="#FFFDF9" />
               <Text style={styles.drawBtnText}>Draw</Text>
             </Pressable>
 
@@ -198,7 +198,7 @@ export default function StaffMoodBoardScreen() {
               onPress={handlePickImage}
               style={({ pressed }) => [styles.addBtn, { opacity: pressed ? 0.85 : 1 }]}
             >
-              <Plus size={20} color="#FFFFFF" strokeWidth={2.5} />
+              <Plus size={20} color="#FFFDF9" strokeWidth={2.5} />
             </Pressable>
           </View>
         </View>
@@ -239,7 +239,7 @@ export default function StaffMoodBoardScreen() {
                 {/* Promoted Badge */}
                 {item.promotedToCatalog && (
                   <View style={styles.promotedBadge}>
-                    <CheckCircle2 size={12} color="#FFFFFF" />
+                    <CheckCircle2 size={12} color="#FFFDF9" />
                     <Text style={styles.promotedText}>Promoted</Text>
                   </View>
                 )}
@@ -249,7 +249,7 @@ export default function StaffMoodBoardScreen() {
                   onPress={() => handleDeleteSketch(item.id, item.title)}
                   style={({ pressed }) => [styles.deleteBtn, { opacity: pressed ? 0.7 : 1 }]}
                 >
-                  <Trash2 size={13} color="#FFFFFF" />
+                  <Trash2 size={13} color="#FFFDF9" />
                 </Pressable>
 
                 {/* Card Title Footer */}
@@ -332,7 +332,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
   },
   headerActions: {
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
   drawBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   addBtn: {
     width: 38,
@@ -384,7 +385,7 @@ const styles = StyleSheet.create({
     flex: 1,
     aspectRatio: 0.95,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.5)",
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
   promotedText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   deleteBtn: {
     position: "absolute",
@@ -430,7 +431,7 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     height: "22%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     justifyContent: "center",
     paddingHorizontal: 10,
   },
@@ -441,7 +442,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   emptyContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 32,
     alignItems: "center",
@@ -478,7 +479,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,

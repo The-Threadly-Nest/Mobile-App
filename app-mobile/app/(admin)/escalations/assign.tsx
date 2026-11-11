@@ -56,21 +56,21 @@ export default function AssignStaffScreen() {
         return;
       }
       try {
-          const data = await staffApi.getStaff();
-          if (Array.isArray(data) && data.length > 0) {
-            const mapped: TailorOption[] = data.filter((st: any) => st.active === true).map((st: any) => {
-              const rawName = st.name ? st.name.trim() : "";
-              const emailParts = st.email ? st.email.split("@")[0].split(/[._-]/) : ["Staff"];
-              const fallbackName = emailParts.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
-              return {
-                id: st.id,
-                name: rawName || fallbackName,
-                activeOrders: typeof st.activeOrders === "number" ? st.activeOrders : 0,
-              };
-            });
-            setTailors(mapped);
-            setSelectedTailorId(mapped[0]?.id || "");
-          }
+        const data = await staffApi.getStaff();
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped: TailorOption[] = data.filter((st: any) => st.active === true).map((st: any) => {
+            const rawName = st.name ? st.name.trim() : "";
+            const emailParts = st.email ? st.email.split("@")[0].split(/[._-]/) : ["Staff"];
+            const fallbackName = emailParts.map((p: string) => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+            return {
+              id: st.id,
+              name: rawName || fallbackName,
+              activeOrders: typeof st.activeOrders === "number" ? st.activeOrders : 0,
+            };
+          });
+          setTailors(mapped);
+          setSelectedTailorId(mapped[0]?.id || "");
+        }
       } catch {
         // Silent fallback
       } finally {
@@ -266,10 +266,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
   },
-  subtitle: { ...typeScale.caption,
+  subtitle: {
+    ...typeScale.caption,
     color: "#4A403B",
     marginBottom: 20,
     paddingHorizontal: 2,
@@ -278,7 +280,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   sectionCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
@@ -291,13 +293,14 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.2)",
@@ -330,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   measInput: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.2)",
@@ -358,11 +361,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cardSelected: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderColor: "rgba(69, 51, 50, 0.5)",
   },
   cardUnselected: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderColor: "rgba(69, 51, 50, 0.15)",
   },
   avatar: {
@@ -377,7 +380,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   tailorName: {
     flex: 1,
@@ -404,8 +407,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  confirmBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  confirmBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
 });

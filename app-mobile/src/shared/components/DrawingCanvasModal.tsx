@@ -30,7 +30,7 @@ const COLORS = [
   "#D32F2F", // Red
   "#1E88E5", // Blue
   "#43A047", // Green
-  "#FFFFFF", // Eraser (Background cream)
+  "#FFFDF9", // Eraser (Background cream)
 ];
 
 const STROKE_WIDTHS = [
@@ -187,13 +187,13 @@ export default function DrawingCanvasModal({
                   bgGuide === "croquis" && styles.guideBtnActive,
                 ]}
               >
-                <User size={13} color={bgGuide === "croquis" ? "#FFFFFF" : "#453332"} />
+                <User size={13} color={bgGuide === "croquis" ? "#FFFDF9" : "#453332"} />
               </Pressable>
               <Pressable
                 onPress={() => setBgGuide("grid")}
                 style={[styles.guideBtn, bgGuide === "grid" && styles.guideBtnActive]}
               >
-                <Grid size={13} color={bgGuide === "grid" ? "#FFFFFF" : "#453332"} />
+                <Grid size={13} color={bgGuide === "grid" ? "#FFFDF9" : "#453332"} />
               </Pressable>
               <Pressable
                 onPress={() => setBgGuide("blank")}
@@ -202,7 +202,7 @@ export default function DrawingCanvasModal({
                 <Text
                   style={[
                     styles.guideBtnText,
-                    bgGuide === "blank" && { color: "#FFFFFF" },
+                    bgGuide === "blank" && { color: "#FFFDF9" },
                   ]}
                 >
                   Clear
@@ -261,7 +261,7 @@ export default function DrawingCanvasModal({
           {/* Canvas Area */}
           <View ref={canvasCaptureRef} collapsable={false} style={styles.canvasContainer} {...panResponder.panHandlers}>
             <Svg width={340} height={340} viewBox="0 0 340 340">
-              <Rect width="100%" height="100%" fill="#FFFFFF" />
+              <Rect width="100%" height="100%" fill="#FFFDF9" />
 
               {/* Background Guide: Fashion Croquis (Mannequin Silhouette) */}
               {bgGuide === "croquis" && (
@@ -335,14 +335,14 @@ export default function DrawingCanvasModal({
                   paddingHorizontal: 10,
                   paddingVertical: 5,
                   borderRadius: 12,
-                  backgroundColor: title === chip ? "#F96951" : "#FFFFFF",
+                  backgroundColor: title === chip ? "#F96951" : "#FFFDF9",
                 }}
               >
                 <Text
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
-                    color: title === chip ? "#FFFFFF" : "#4A403B",
+                    color: title === chip ? "#FFFDF9" : "#4A403B",
                   }}
                 >
                   + {chip}
@@ -387,7 +387,7 @@ export default function DrawingCanvasModal({
                       width: w.value * 1.5 + 4,
                       height: w.value * 1.5 + 4,
                       borderRadius: 10,
-                      backgroundColor: selectedWidth === w.value ? "#FFFFFF" : "#453332",
+                      backgroundColor: selectedWidth === w.value ? "#FFFDF9" : "#453332",
                     }}
                   />
                 </Pressable>
@@ -398,7 +398,7 @@ export default function DrawingCanvasModal({
           {/* Color Palette */}
           <View style={styles.colorPaletteRow}>
             {COLORS.map((c) => {
-              const isEraser = c === "#FFFFFF";
+              const isEraser = c === "#FFFDF9";
               const isSelected = selectedColor === c;
               return (
                 <Pressable
@@ -415,7 +415,7 @@ export default function DrawingCanvasModal({
                   ) : isSelected ? (
                     <Check
                       size={14}
-                      color={c === "#FFFFFF" || c === "#453332" ? "#453332" : "#FFFFFF"}
+                      color={c === "#FFFDF9" || c === "#453332" ? "#453332" : "#FFFDF9"}
                     />
                   ) : null}
                 </Pressable>
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 20,
@@ -472,13 +472,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
   },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     padding: 3,
     borderRadius: 14,
   },
@@ -508,7 +509,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1.5,
     borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     marginBottom: 12,
   },
   toolbarRow: {

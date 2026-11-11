@@ -73,7 +73,7 @@ function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
       />
       <Path
         d="M9 8H21"
-        stroke={focused ? "#FFFFFF" : activeColor}
+        stroke={focused ? "#FFFDF9" : activeColor}
         strokeWidth="1.8"
         strokeMiterlimit="10"
         strokeLinecap="round"
@@ -111,10 +111,10 @@ function ChatIcon({ color, focused, unreadCount }: { color: string; focused: boo
             alignItems: "center",
             justifyContent: "center",
             borderWidth: 1.5,
-            borderColor: "#FFFFFF",
+            borderColor: "#FFFDF9",
           }}
         >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFFFF", textAlign: "center" }}>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFDF9", textAlign: "center" }}>
             {unreadCount}
           </Text>
         </View>
@@ -270,8 +270,8 @@ export default function StaffLayout() {
       tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#FFFFFF",
-        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarActiveTintColor: "#FFFDF9",
+        tabBarInactiveTintColor: "#FFFDF9",
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 54, paddingTop: 0, paddingBottom: 0, borderRadius: 27, borderTopWidth: 0,

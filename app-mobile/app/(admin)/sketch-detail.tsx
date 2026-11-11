@@ -55,8 +55,8 @@ export default function AdminSketchDetailScreen() {
     params.id && LOCAL_SKETCHES[params.id]
       ? LOCAL_SKETCHES[params.id]
       : params.imageUrl
-      ? { uri: params.imageUrl }
-      : null;
+        ? { uri: params.imageUrl }
+        : null;
 
   const handlePromoteToCatalog = async () => {
     setLoading(true);
@@ -136,7 +136,7 @@ export default function AdminSketchDetailScreen() {
         {/* Primary Action Button */}
         {isPromoted ? (
           <View style={styles.promotedBanner}>
-            <CheckCircle2 size={18} color="#FFFFFF" />
+            <CheckCircle2 size={18} color="#FFFDF9" />
             <Text style={styles.promotedBannerText}>Featured in Public Catalog</Text>
           </View>
         ) : (
@@ -231,7 +231,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
   },
   imageCard: {
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
   authorBadgeText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12.5,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   statusSubtext: {
     fontFamily: "InstrumentSans-Regular",
@@ -281,7 +282,7 @@ const styles = StyleSheet.create({
   promoteBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   promotedBanner: {
     width: "100%",
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
   promotedBannerText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   modalOverlay: {
     flex: 1,
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 20,
   },

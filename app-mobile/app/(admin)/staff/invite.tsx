@@ -140,7 +140,7 @@ export default function InviteStaffScreen() {
               ]}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="#FFFDF9" />
               ) : (
                 <Text style={styles.sendBtnText}>Send Invite</Text>
               )}
@@ -182,11 +182,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
-  subtitle: { ...typeScale.caption,
+  subtitle: {
+    ...typeScale.caption,
     color: "#4A403B",
     marginBottom: 32,
     paddingHorizontal: 2,
@@ -208,7 +210,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -9,
     left: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 6,
     zIndex: 1,
   },
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
   sendBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
 });

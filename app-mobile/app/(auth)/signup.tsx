@@ -170,7 +170,7 @@ export default function SignupScreen() {
               >
                 <User
                   size={16}
-                  color={role === "customer" ? "#FFFFFF" : "#2B2B2B"}
+                  color={role === "customer" ? "#FFFDF9" : "#2B2B2B"}
                   strokeWidth={2}
                 />
                 <Text style={[styles.roleTabText, role === "customer" && styles.roleTabTextActive]}>
@@ -184,7 +184,7 @@ export default function SignupScreen() {
               >
                 <Scissors
                   size={16}
-                  color={role === "admin" ? "#FFFFFF" : "#2B2B2B"}
+                  color={role === "admin" ? "#FFFDF9" : "#2B2B2B"}
                   strokeWidth={2}
                 />
                 <Text style={[styles.roleTabText, role === "admin" && styles.roleTabTextActive]}>
@@ -293,7 +293,7 @@ export default function SignupScreen() {
               ]}
             >
               {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color="#FFFDF9" />
               ) : (
                 <Text style={styles.createAccountText}>Create Account</Text>
               )}
@@ -385,6 +385,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 104,
     height: 33,
+    tintColor: "#453332",
   },
   headerLoginChip: {
     flexDirection: "row",
@@ -404,7 +405,8 @@ const styles = StyleSheet.create({
     color: "#453332",
     textDecorationLine: "underline",
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
   },
   formContainer: {
@@ -412,7 +414,7 @@ const styles = StyleSheet.create({
   },
   roleTabContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     borderRadius: 999,
     padding: 3.5,
     marginBottom: 26,
@@ -441,12 +443,13 @@ const styles = StyleSheet.create({
   },
   roleTabTextActive: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   inputContainer: {
     position: "relative",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.35)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     borderRadius: 12,
     height: 56,
     justifyContent: "center",
@@ -457,11 +460,12 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -9,
     left: 14,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 5,
     zIndex: 1,
   },
-  labelText: { ...typeScale.label,
+  labelText: {
+    ...typeScale.label,
     color: "#4A403B",
   },
   textInput: {
@@ -476,7 +480,8 @@ const styles = StyleSheet.create({
     right: 14,
     top: 18,
   },
-  helperText: { ...typeScale.caption,
+  helperText: {
+    ...typeScale.caption,
     color: "#4A403B",
     marginBottom: 24,
     marginTop: 0,
@@ -516,21 +521,24 @@ const styles = StyleSheet.create({
   createAccountText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15.5,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
-  dividerContainer: { display: "none",
+  dividerContainer: {
+    display: "none",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
   },
-  dividerLine: { display: "none",
+  dividerLine: {
+    display: "none",
     flex: 1,
     height: 1,
     backgroundColor: "rgba(69, 51, 50, 0.15)",
   },
-  dividerText: { display: "none",
+  dividerText: {
+    display: "none",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     color: "#4A403B",

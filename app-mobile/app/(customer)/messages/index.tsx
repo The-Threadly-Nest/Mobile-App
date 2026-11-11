@@ -85,9 +85,11 @@ export default function CustomerMessagesScreen() {
     const isUnread = item.unreadCount > 0;
     return (
       <Pressable accessibilityRole="button" accessibilityLabel={`${item.fashionHouseName}${isUnread ? `, ${item.unreadCount} unread messages` : ""}`}
-        onPress={() => router.push({ pathname: `/(customer)/direct-chat/${item.fashionHouseId}`, params: {
-          fashionHouseName: item.fashionHouseName, fashionHouseLogo: item.fashionHouseLogo || undefined,
-        } })} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+        onPress={() => router.push({
+          pathname: `/(customer)/direct-chat/${item.fashionHouseId}`, params: {
+            fashionHouseName: item.fashionHouseName, fashionHouseLogo: item.fashionHouseLogo || undefined,
+          }
+        })} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
         <View style={styles.avatar}>
           {item.fashionHouseLogo ? <Image source={{ uri: item.fashionHouseLogo }} style={styles.avatarImage} resizeMode="cover" />
             : <Text style={styles.initials}>{initials}</Text>}
@@ -168,7 +170,7 @@ const styles = StyleSheet.create({
   badgeAsset: { position: "absolute", width: 19.4532, height: 19.4532 },
   badgeText: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#4A403B" },
   badgeSpacer: { height: 19.4532 },
-  separator: { display: "none", height: 1, backgroundColor: "#FFFFFF" },
+  separator: { display: "none", height: 1, backgroundColor: "#FFFDF9" },
   emptyList: { flexGrow: 1, justifyContent: "center" },
   empty: { alignItems: "center", gap: 12, paddingHorizontal: 24, paddingBottom: 80 },
   emptyTitle: { fontFamily: "InstrumentSans-Medium", fontSize: 18, color: "#4A403B" },

@@ -204,7 +204,7 @@ export default function InvoiceDetailScreen() {
           * { box-sizing: border-box; margin: 0; padding: 0; }
           html, body {
             height: 100%;
-            background-color: #FFFFFF;
+            background-color: #FFFDF9;
             font-family: 'Instrument Sans', sans-serif;
             color: #2B2B2B;
           }
@@ -231,7 +231,7 @@ export default function InvoiceDetailScreen() {
             line-height: 1.2;
           }
           .card {
-            background-color: #FFFFFF;
+            background-color: #FFFDF9;
             border-radius: 28px;
             padding: 36px 32px;
             border: 1px solid rgba(69, 51, 50, 0.12);
@@ -258,7 +258,7 @@ export default function InvoiceDetailScreen() {
             border-radius: 24px;
             background-color: #453332;
             border: 1.5px solid #453332;
-            color: #FFFFFF;
+            color: #FFFDF9;
             font-family: 'Instrument Sans', sans-serif;
             font-size: 22px;
             font-weight: 700;
@@ -284,11 +284,11 @@ export default function InvoiceDetailScreen() {
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            background-color: ${isPaid ? 'rgba(69, 51, 50, 0.12)' : '#FFFFFF'};
+            background-color: ${isPaid ? 'rgba(69, 51, 50, 0.12)' : '#FFFDF9'};
             color: ${isPaid ? '#453332' : '#453332'};
           }
           .dashed-line {
-            border-top: 1.5px dashed #FFFFFF;
+            border-top: 1.5px dashed #FFFDF9;
             margin: 24px 0;
           }
           .info-row {
@@ -321,7 +321,7 @@ export default function InvoiceDetailScreen() {
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid #FFFFFF;
+            border-bottom: 1px solid #FFFDF9;
           }
           .item-name { font-size: 15px; color: #2B2B2B; }
           .item-price { font-size: 15px; font-weight: 600; color: #2B2B2B; }
@@ -347,7 +347,7 @@ export default function InvoiceDetailScreen() {
             color: #453332;
           }
           .payment-card {
-            background-color: #FFFFFF;
+            background-color: #FFFDF9;
             border: 1px solid rgba(69, 51, 50, 0.12);
             border-radius: 14px;
             padding: 16px;
@@ -385,9 +385,9 @@ export default function InvoiceDetailScreen() {
               <div class="atelier-row">
                 <div class="brand-left">
                   ${shopLogo
-                    ? `<img src="${shopLogo}" style="width: 48px; height: 48px; border-radius: 24px; border: 1.5px solid #453332; object-fit: cover;" />`
-                    : `<div class="logo-badge">${initial}</div>`
-                  }
+        ? `<img src="${shopLogo}" style="width: 48px; height: 48px; border-radius: 24px; border: 1.5px solid #453332; object-fit: cover;" />`
+        : `<div class="logo-badge">${initial}</div>`
+      }
                   <div>
                     <div class="atelier-name">${safeAtelierName}</div>
                     <div class="app-tag">Owuja • ${invoice.invoiceNumber}</div>
@@ -419,15 +419,15 @@ export default function InvoiceDetailScreen() {
                 </div>
 
                 ${invoice.items
-                  .map(
-                    (item) => `
+        .map(
+          (item) => `
                     <div class="item-row">
                       <div class="item-name">${escapeHtml(item.name)}</div>
                       <div class="item-price">${htmlMoney(item.amount)}</div>
                     </div>
                   `
-                  )
-                  .join('')}
+        )
+        .join('')}
               </div>
 
               <div class="summary-row">
@@ -618,7 +618,7 @@ export default function InvoiceDetailScreen() {
             <ActivityIndicator color="#453332" style={{ marginBottom: 16 }} />
           ) : null}
           {invoiceError ? (
-            <View style={{ backgroundColor: "#FFFFFF", borderRadius: 12, padding: 12, marginBottom: 16 }}>
+            <View style={{ backgroundColor: "#FFFDF9", borderRadius: 12, padding: 12, marginBottom: 16 }}>
               <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#F96951", textAlign: "center" }}>
                 {invoiceError}
               </Text>
@@ -680,7 +680,7 @@ export default function InvoiceDetailScreen() {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#FFFFFF" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#FFFDF9" }}>
                         {invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A"}
                       </Text>
                     </View>
@@ -770,7 +770,7 @@ export default function InvoiceDetailScreen() {
                 style={{
                   marginTop: 18,
                   padding: 14,
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: "#FFFDF9",
                   borderRadius: 14,
                   borderWidth: 1,
                   borderColor: "rgba(69, 51, 50, 0.12)",
@@ -871,7 +871,7 @@ export default function InvoiceDetailScreen() {
               onPress={handleShareAsPDF}
               style={({ pressed }) => [
                 styles.modalOption,
-                { backgroundColor: pressed ? "#FFFFFF" : "#FFFFFF" },
+                { backgroundColor: pressed ? "#FFFDF9" : "#FFFDF9" },
               ]}
             >
               <View style={styles.optionIconContainer}>
@@ -888,7 +888,7 @@ export default function InvoiceDetailScreen() {
               onPress={handleShareAsImage}
               style={({ pressed }) => [
                 styles.modalOption,
-                { backgroundColor: pressed ? "#FFFFFF" : "#FFFFFF" },
+                { backgroundColor: pressed ? "#FFFDF9" : "#FFFDF9" },
               ]}
             >
               <View style={styles.optionIconContainer}>
@@ -936,7 +936,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -944,7 +945,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 28,
     padding: 24,
     shadowColor: "#2B2B2B",
@@ -982,7 +983,8 @@ const styles = StyleSheet.create({
   infoCol: {
     flex: 1,
   },
-  fieldLabel: { ...typeScale.label,
+  fieldLabel: {
+    ...typeScale.label,
     color: "#4A403B",
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -1047,7 +1049,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pendingPill: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   paidPill: {
     backgroundColor: "rgba(69, 51, 50, 0.12)",
@@ -1078,8 +1080,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  primaryBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
   outlineBtn: {
     flex: 1,
@@ -1100,7 +1103,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -1119,7 +1122,7 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
   },
   modalCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 28,
     padding: 24,
     shadowColor: "#2B2B2B",

@@ -59,10 +59,10 @@ const styles = StyleSheet.create({
   group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#4A403B" },
   hint: { ...typeScale.caption, color: "#4A403B" },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, row: { flexDirection: "row", alignItems: "center", gap: 10 },
-  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#453332", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#4A403B", backgroundColor: "#FFFFFF" },
+  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#453332", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#4A403B", backgroundColor: "#FFFDF9" },
   day: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, borderWidth: 1, borderColor: "#453332", borderRadius: 12, justifyContent: "center", alignItems: "center" },
   dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, selectedText: { color: "white" },
-  block: { borderRadius: 10, padding: 10, backgroundColor: "#FFFFFF" }, add: { minHeight: 48, paddingHorizontal: 12, justifyContent: "center", borderRadius: 12, backgroundColor: "#FFFFFF" },
+  block: { borderRadius: 10, padding: 10, backgroundColor: "#FFFDF9" }, add: { minHeight: 48, paddingHorizontal: 12, justifyContent: "center", borderRadius: 12, backgroundColor: "#FFFDF9" },
   primary: { minHeight: 48, alignItems: "center", justifyContent: "center", backgroundColor: "#F96951", borderRadius: 12, padding: 12 }, primaryText: { fontFamily: "InstrumentSans-SemiBold", color: "white", fontSize: 14 },
   error: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#F96951" },
 });

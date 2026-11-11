@@ -232,16 +232,16 @@ export default function NewMeasurementScreen() {
       });
 
       router.replace({
-            pathname: "/(admin)/escalations/assign",
-            params: {
-              bookingId: params.bookingId,
-              orderId: params.orderId,
-              fulfillmentType: params.fulfillmentType || "custom_fit",
-              customerName: customerName.trim(),
-              serviceTitle: params.serviceTitle,
-              appointmentTime: params.appointmentTime,
-            },
-          } as any);
+        pathname: "/(admin)/escalations/assign",
+        params: {
+          bookingId: params.bookingId,
+          orderId: params.orderId,
+          fulfillmentType: params.fulfillmentType || "custom_fit",
+          customerName: customerName.trim(),
+          serviceTitle: params.serviceTitle,
+          appointmentTime: params.appointmentTime,
+        },
+      } as any);
     } catch (err) {
       showAlert("Save Failed", "Could not save the measurement sheet. Please try again.");
     } finally {
@@ -346,7 +346,7 @@ export default function NewMeasurementScreen() {
               ]}
             >
               <View style={styles.voiceIconWrapper}>
-                <RecordVoiceIcon color={isRecording ? "#FFFFFF" : "#453332"} />
+                <RecordVoiceIcon color={isRecording ? "#FFFDF9" : "#453332"} />
               </View>
               <Text
                 style={[
@@ -431,7 +431,7 @@ export default function NewMeasurementScreen() {
                       onPress={handleAddCustomField}
                       style={({ pressed }) => [styles.addCustomConfirmBtn, { opacity: pressed ? 0.8 : 1 }]}
                     >
-                      <Check size={16} color="#FFFFFF" />
+                      <Check size={16} color="#FFFDF9" />
                     </Pressable>
                   </View>
                 </View>
@@ -461,7 +461,7 @@ export default function NewMeasurementScreen() {
             ]}
           >
             {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#FFFDF9" />
             ) : (
               <Text style={styles.saveBtnText}>Save to Customer Profile</Text>
             )}
@@ -497,7 +497,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     flex: 1,
   },
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.3)",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     padding: 4,
     alignItems: "center",
   },
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   segmentTextActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   segmentTextInactive: {
     color: "#4A403B",
@@ -590,7 +591,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.3)",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -612,7 +613,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   addCustomBox: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
@@ -671,10 +672,10 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   voiceRecordTextActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   transcriptBanner: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
@@ -710,8 +711,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  saveBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  saveBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
 });

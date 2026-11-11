@@ -133,7 +133,7 @@ export default function PersonalizeScreen() {
                   {isSelected && (
                     <Check
                       size={isLandscape ? 14 : 16}
-                      color="#FFFFFF"
+                      color="#FFFDF9"
                       style={{ position: "absolute", left: 12 }}
                     />
                   )}
@@ -216,7 +216,7 @@ export default function PersonalizeScreen() {
                   {isSelected && (
                     <Check
                       size={isLandscape ? 14 : 16}
-                      color="#FFFFFF"
+                      color="#FFFDF9"
                       style={{ position: "absolute", left: 12 }}
                     />
                   )}
@@ -249,7 +249,7 @@ export default function PersonalizeScreen() {
             ]}
           >
             {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#FFFDF9" />
             ) : (
               <Text style={styles.continueBtnText}>Continue</Text>
             )}
@@ -321,7 +321,8 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 28,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
     marginBottom: 4,
   },
@@ -365,11 +366,11 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   pillTextSelected: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   budgetSegmentContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 28,
     padding: 4,
     height: 60,
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   budgetTextSelected: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   actionsContainer: {
     marginTop: 20,
@@ -415,8 +416,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  continueBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  continueBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
   skipBtn: {

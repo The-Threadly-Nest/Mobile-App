@@ -126,7 +126,7 @@ export default function CustomerMeasurementsModal({ visible, onClose, rows, load
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(43, 43, 43,0.4)", alignItems: "center", justifyContent: "center", paddingHorizontal: 20, paddingVertical: 20 },
-  card: { width: "100%", maxWidth: 440, flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 28, padding: 20, gap: 18 },
+  card: { width: "100%", maxWidth: 440, flexShrink: 1, backgroundColor: "#FFFDF9", borderRadius: 28, padding: 20, gap: 18 },
   header: { flexDirection: "row", alignItems: "center", gap: 10 },
   headingIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
   title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 19, color: "#4A403B" },
@@ -136,13 +136,13 @@ const styles = StyleSheet.create({
   houseRow: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 16 },
   houseAvatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#453332", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 },
   houseAvatarImg: { width: 52, height: 52, borderRadius: 26 },
-  houseAvatarLetter: { fontFamily: "InstrumentSans-SemiBold", fontSize: 20, color: "#FFFFFF" },
+  houseAvatarLetter: { fontFamily: "InstrumentSans-SemiBold", fontSize: 20, color: "#FFFDF9" },
   houseInfo: { flex: 1 },
   houseName: { ...typeScale.compactLabel, color: "#4A403B" },
   houseCount: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#453332", marginTop: 2 },
   content: { gap: 20, paddingBottom: 2 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  metric: { flexBasis: "45%", flexGrow: 1, backgroundColor: "#FFFFFF", borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, minHeight: 94, gap: 10 },
+  metric: { flexBasis: "45%", flexGrow: 1, backgroundColor: "#FFFDF9", borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, minHeight: 94, gap: 10 },
   label: { fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 18, color: "#4A403B" },
   reading: { flexDirection: "row", alignItems: "baseline", flexWrap: "wrap", gap: 6 },
   value: { fontFamily: "InstrumentSans-SemiBold", fontSize: 27, lineHeight: 34, color: "#4A403B" },
@@ -155,5 +155,5 @@ const styles = StyleSheet.create({
   emptyTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#4A403B" },
   retry: { minHeight: 44, paddingHorizontal: 20, backgroundColor: "#F96951", borderRadius: 22, justifyContent: "center" },
   done: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
-  buttonText: { ...typeScale.button, color: "#FFFFFF" },
+  buttonText: { ...typeScale.button, color: "#FFFDF9" },
 });

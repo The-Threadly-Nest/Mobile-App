@@ -40,7 +40,7 @@ export default function BookingConfirmationScreen() {
         <View className="flex-row items-center px-6 py-3 bg-cream">
           <Pressable
             onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-            className="w-10 h-10 rounded-full border border-[#FFFFFF] bg-cream items-center justify-center mr-4"
+            className="w-10 h-10 rounded-full border border-[#FFFDF9] bg-cream items-center justify-center mr-4"
             style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
           >
             <BackArrowIcon size={24} color="#453332" />
@@ -75,7 +75,7 @@ export default function BookingConfirmationScreen() {
       <View className="flex-row items-center px-6 py-3 bg-cream">
         <Pressable
           onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-          className="w-10 h-10 rounded-full border border-[#FFFFFF] bg-cream items-center justify-center mr-4"
+          className="w-10 h-10 rounded-full border border-[#FFFDF9] bg-cream items-center justify-center mr-4"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
           <BackArrowIcon size={24} color="#2B2B2B" />
@@ -93,7 +93,7 @@ export default function BookingConfirmationScreen() {
         {/* Hero Success Icon & Message */}
         <View className="items-center mt-0 mb-2">
           <View className="w-12 h-12 rounded-full bg-[#453332] items-center justify-center mb-3">
-              <Check size={30} color="#FFFFFF" strokeWidth={3} />
+            <Check size={30} color="#FFFDF9" strokeWidth={3} />
           </View>
           <Text className="font-display text-[24px] font-semibold text-black mb-1.5 text-center">
             Booking Request Received
@@ -180,8 +180,8 @@ export default function BookingConfirmationScreen() {
           <Switch
             value={isFavourite}
             onValueChange={setIsFavourite}
-            trackColor={{ false: "#FFFFFF", true: "#453332" }}
-            thumbColor={isFavourite ? "#FFFFFF" : "#FFFFFF"}
+            trackColor={{ false: "#FFFDF9", true: "#453332" }}
+            thumbColor={isFavourite ? "#FFFDF9" : "#FFFDF9"}
           />
         </View>
 

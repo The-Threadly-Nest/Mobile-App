@@ -72,9 +72,9 @@ export default function AdminDashboard() {
     storeEmail && storeRole ? `${storeRole}:${storeEmail.trim().toLowerCase()}` : null;
   const cacheIsFresh = Boolean(
     expectedCacheOwner &&
-      cacheOwnerKey === expectedCacheOwner &&
-      cacheUpdatedAt &&
-      Date.now() - cacheUpdatedAt <= APP_DATA_CACHE_TTL_MS
+    cacheOwnerKey === expectedCacheOwner &&
+    cacheUpdatedAt &&
+    Date.now() - cacheUpdatedAt <= APP_DATA_CACHE_TTL_MS
   );
 
   const [shopName, setShopName] = useState(
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
           const total = threads.reduce((acc: number, t: any) => acc + (t.unreadCount || 0), 0);
           setUnreadCount(total);
         }
-      } catch {}
+      } catch { }
     } catch (err) {
       console.warn("Failed to load dashboard data", err);
     } finally {
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
           const latestSummary = await adminApi.getDashboardSummary();
           setSummary(latestSummary);
           setCachedSummary(latestSummary);
-        } catch {}
+        } catch { }
       }, 30_000);
       return () => clearInterval(interval);
     }, [])
@@ -327,7 +327,7 @@ export default function AdminDashboard() {
                   paddingHorizontal: 4,
                 }}
               >
-                <Text style={{ fontFamily: "InstrumentSans-Bold", fontSize: 10.5, color: "#FFFFFF" }}>
+                <Text style={{ fontFamily: "InstrumentSans-Bold", fontSize: 10.5, color: "#FFFDF9" }}>
                   {unreadCount > 99 ? "99+" : unreadCount}
                 </Text>
               </View>
@@ -342,7 +342,7 @@ export default function AdminDashboard() {
             onPress={() => router.push("/(admin)/orders")}
             style={({ pressed }) => ({
               flex: 1,
-              backgroundColor: "#FFFFFF",
+              backgroundColor: "#FFFDF9",
               borderRadius: 18,
               paddingVertical: 18,
               paddingHorizontal: 16,
@@ -382,7 +382,7 @@ export default function AdminDashboard() {
             onPress={() => router.push("/(admin)/escalations")}
             style={({ pressed }) => ({
               flex: 1,
-              backgroundColor: "#FFFFFF",
+              backgroundColor: "#FFFDF9",
               borderRadius: 18,
               paddingVertical: 18,
               paddingHorizontal: 16,
@@ -421,7 +421,7 @@ export default function AdminDashboard() {
         {/* ─── 3. Total Revenue Card with Curve Chart (Figma Spec) ─── */}
         <View
           style={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "#FFFDF9",
             borderRadius: 20,
             padding: 18,
             marginBottom: 16,
@@ -507,7 +507,7 @@ export default function AdminDashboard() {
                 <View
                   key={item.id}
                   style={{
-                    backgroundColor: "#FFFFFF",
+                    backgroundColor: "#FFFDF9",
                     borderRadius: 16,
                     padding: 14,
                     marginBottom: 10,
@@ -526,7 +526,7 @@ export default function AdminDashboard() {
                         {detail}
                       </Text>
                     </View>
-                    <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                    <View style={{ backgroundColor: "#FFFDF9", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
                       <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#453332" }}>Pending</Text>
                     </View>
                   </View>
@@ -586,22 +586,24 @@ export default function AdminDashboard() {
                       }}
                     >
                       {assignLoadingId === item.id ? (
-                        <ActivityIndicator size="small" color="#FFFFFF" />
+                        <ActivityIndicator size="small" color="#FFFDF9" />
                       ) : (
-                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF" }}>{item.orderId && isReadyToWear(item) ? "Accept order" : "Assign"}</Text>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFDF9" }}>{item.orderId && isReadyToWear(item) ? "Accept order" : "Assign"}</Text>
                       )}
                     </Pressable>
 
                     <Pressable
-                      onPress={() => item.orderId ? showConfirm("Decline order", `Decline the order for ${customerName}?`, { confirmLabel: "Decline", onConfirm: async () => {
-                        try { await apiFetch(`/api/orders/${item.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) }); await fetchData(); }
-                        catch { showAlert("Couldn't decline order", "Please try again."); }
-                      } }) : handleDeclineBooking(item.id, customerName)}
+                      onPress={() => item.orderId ? showConfirm("Decline order", `Decline the order for ${customerName}?`, {
+                        confirmLabel: "Decline", onConfirm: async () => {
+                          try { await apiFetch(`/api/orders/${item.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) }); await fetchData(); }
+                          catch { showAlert("Couldn't decline order", "Please try again."); }
+                        }
+                      }) : handleDeclineBooking(item.id, customerName)}
                       style={{
                         flex: 1,
                         height: 38,
                         borderRadius: 19,
-                        backgroundColor: "#FFFFFF",
+                        backgroundColor: "#FFFDF9",
                         borderWidth: 1.5,
                         borderColor: "#F96951",
                         alignItems: "center",
@@ -668,7 +670,7 @@ export default function AdminDashboard() {
                 }}
                 style={({ pressed }) => ({
                   width: 150,
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: "#FFFDF9",
                   borderRadius: 18,
                   overflow: "hidden",
                   elevation: 2,
@@ -679,7 +681,7 @@ export default function AdminDashboard() {
                   opacity: pressed ? 0.9 : 1,
                 })}
               >
-                <View style={{ width: "100%", height: 145, backgroundColor: "#FFFFFF" }}>
+                <View style={{ width: "100%", height: 145, backgroundColor: "#FFFDF9" }}>
                   <CachedImage
                     source={{ uri: prod.imageUrl }}
                     style={{ width: "100%", height: "100%" }}
@@ -733,7 +735,7 @@ export default function AdminDashboard() {
                 borderWidth: 1.5,
                 borderStyle: "dashed",
                 borderColor: "#453332",
-                backgroundColor: "#FFFFFF",
+                backgroundColor: "#FFFDF9",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,

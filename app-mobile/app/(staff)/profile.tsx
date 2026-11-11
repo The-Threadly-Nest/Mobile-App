@@ -94,12 +94,13 @@ const styles = StyleSheet.create({
     paddingTop: 36,
     paddingBottom: 40,
   },
-  pageTitle: { ...typeScale.pageTitle,
+  pageTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     marginBottom: 20,
   },
   profileCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 24,
     alignItems: "center",
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   userName: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   roleBadge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     color: "#453332",
   },
   infoCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 20,
     marginBottom: 24,
@@ -157,7 +158,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  sectionHeader: { ...typeScale.sectionTitle,
+  sectionHeader: {
+    ...typeScale.sectionTitle,
     letterSpacing: 1,
     color: "#4A403B",
     marginBottom: 16,
@@ -181,9 +183,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#4A403B",
   },
-  divider: { display: "none",
+  divider: {
+    display: "none",
     height: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     marginVertical: 14,
   },
   logoutBtn: {
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
     gap: 8,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.3)",
   },

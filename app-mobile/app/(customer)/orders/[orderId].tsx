@@ -185,8 +185,8 @@ export default function CustomerOrderDetailScreen() {
               <View
                 style={[
                   styles.orderBadge,
-                  isDeclined && { borderColor: "#453332", backgroundColor: "#FFFFFF" },
-                  isCancelled && { borderColor: "#453332", backgroundColor: "#FFFFFF" },
+                  isDeclined && { borderColor: "#453332", backgroundColor: "#FFFDF9" },
+                  isCancelled && { borderColor: "#453332", backgroundColor: "#FFFDF9" },
                 ]}
               >
                 <Text
@@ -242,7 +242,7 @@ export default function CustomerOrderDetailScreen() {
                     <View style={styles.indicatorCol}>
                       <View style={[styles.circle, isDone ? styles.circleDone : styles.circlePending]}>
                         {isDone ? (
-                          <Check size={13} color="#FFFFFF" strokeWidth={3} />
+                          <Check size={13} color="#FFFDF9" strokeWidth={3} />
                         ) : (
                           <Text style={styles.circleNumber}>{idx + 1}</Text>
                         )}
@@ -312,7 +312,7 @@ export default function CustomerOrderDetailScreen() {
               { backgroundColor: "#453332", opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <MessageCircle size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+            <MessageCircle size={18} color="#FFFDF9" style={{ marginRight: 8 }} />
             <Text style={styles.pillBtnText}>Message</Text>
           </Pressable>
 
@@ -326,10 +326,10 @@ export default function CustomerOrderDetailScreen() {
               ]}
             >
               {cancelling ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color="#FFFDF9" />
               ) : (
                 <>
-                  <XCircle size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+                  <XCircle size={18} color="#FFFDF9" style={{ marginRight: 8 }} />
                   <Text style={styles.pillBtnText}>Cancel Order</Text>
                 </>
               )}
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   compactContent: { flex: 1, marginLeft: 16, justifyContent: "center", gap: 9 },
   badgeRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   orderBadge: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 10,
     paddingVertical: 3.5,
     borderRadius: 10,
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#4A403B" },
   connector: { width: 2, flex: 1, marginVertical: 3 },
   connectorDone: { backgroundColor: "#453332" },
-  connectorPending: { backgroundColor: "#FFFFFF" },
+  connectorPending: { backgroundColor: "#FFFDF9" },
   stepInfoCol: { flex: 1, paddingBottom: 14 },
   stepLabel: { fontFamily: "InstrumentSans-Medium", fontSize: 13.5, color: "#4A403B" },
   stepLabelCurrent: { color: "#4A403B", fontFamily: "InstrumentSans-SemiBold" },
@@ -433,13 +433,13 @@ const styles = StyleSheet.create({
   pillBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14.5,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   pillBtnSecondary: {
     flex: 1,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.25)",
     flexDirection: "row",

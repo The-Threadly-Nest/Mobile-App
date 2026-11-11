@@ -28,7 +28,7 @@ export function Button({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "secondary" ? "#453332" : "#FFFFFF"} />
+        <ActivityIndicator color={variant === "secondary" ? "#453332" : "#FFFDF9"} />
       ) : (
         <Text className={`${s.text} font-body-semibold text-base`}>{label}</Text>
       )}

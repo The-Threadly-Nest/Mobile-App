@@ -23,8 +23,8 @@ export default function BookingSpecializationPicker({ categories, disabled, onCo
   </View>;
 }
 const styles = StyleSheet.create({
-  picker: { gap: 10, marginTop: 12 }, option: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 14, borderRadius: 16, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "transparent" },
+  picker: { gap: 10, marginTop: 12 }, option: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 14, borderRadius: 16, backgroundColor: "#FFFDF9", borderWidth: 1, borderColor: "transparent" },
   selected: { borderColor: "#453332" }, label: { flex: 1, fontFamily: "InstrumentSans-Medium", fontSize: 14, lineHeight: 20, color: "#4A403B" },
   hint: { fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 18, color: "#4A403B" },
-  continue: { minHeight: 46, borderRadius: 23, backgroundColor: "#453332", alignItems: "center", justifyContent: "center" }, white: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" },
+  continue: { minHeight: 46, borderRadius: 23, backgroundColor: "#453332", alignItems: "center", justifyContent: "center" }, white: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFDF9" },
 });

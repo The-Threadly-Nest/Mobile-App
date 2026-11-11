@@ -140,7 +140,7 @@ function OrdersTabIcon({ color, focused }: { color: string; focused: boolean }) 
       />
       <Path
         d="M9 8H21"
-        stroke={focused ? "#FFFFFF" : activeColor}
+        stroke={focused ? "#FFFDF9" : activeColor}
         strokeWidth="1.8"
         strokeMiterlimit="10"
         strokeLinecap="round"
@@ -197,8 +197,8 @@ export default function TabsLayout() {
       tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#FFFFFF",
-        tabBarInactiveTintColor: "#FFFFFF",
+        tabBarActiveTintColor: "#FFFDF9",
+        tabBarInactiveTintColor: "#FFFDF9",
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 54,
@@ -227,7 +227,7 @@ export default function TabsLayout() {
           title: "Discover",
           tabBarIcon: ({ focused }) => (
             <FloatingTabIcon focused={focused}>
-              <DiscoverTabIcon color="#FFFFFF" focused={focused} />
+              <DiscoverTabIcon color="#FFFDF9" focused={focused} />
             </FloatingTabIcon>
           ),
         }}
@@ -238,7 +238,7 @@ export default function TabsLayout() {
           title: "My Orders",
           tabBarIcon: ({ focused }) => (
             <FloatingTabIcon focused={focused}>
-              <OrdersTabIcon color="#FFFFFF" focused={focused} />
+              <OrdersTabIcon color="#FFFDF9" focused={focused} />
             </FloatingTabIcon>
           ),
         }}
@@ -250,7 +250,7 @@ export default function TabsLayout() {
           tabBarAccessibilityLabel: "Favorites",
           tabBarIcon: ({ focused }) => (
             <FloatingTabIcon focused={focused}>
-              <FavoritesTabIcon color="#FFFFFF" focused={focused} />
+              <FavoritesTabIcon color="#FFFDF9" focused={focused} />
             </FloatingTabIcon>
           ),
         }}
@@ -261,13 +261,13 @@ export default function TabsLayout() {
           title: "Profile",
           tabBarIcon: ({ focused }) => (
             <FloatingTabIcon focused={focused}>
-              <ProfileTabIcon color="#FFFFFF" focused={focused} />
+              <ProfileTabIcon color="#FFFDF9" focused={focused} />
             </FloatingTabIcon>
           ),
           tabBarBadge: unreadMessageCount > 0 ? (unreadMessageCount > 99 ? "99+" : unreadMessageCount) : undefined,
           tabBarBadgeStyle: {
             backgroundColor: "#453332",
-            color: "#FFFFFF",
+            color: "#FFFDF9",
             fontSize: 9,
             minWidth: 16,
             height: 16,

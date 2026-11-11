@@ -15,6 +15,6 @@ test('fashion-house display text uses soft charcoal and primary button stays rea
     assert.ok(block, name);
     assert.match(block[1], /color: "#2B2B2B"/, name);
   }
-  assert.match(source, /bookingBtnText: \{[\s\S]*?color: "#FFFFFF"/);
+  assert.match(source, /bookingBtnText: \{[\s\S]*?color: "#FFFDF9"/);
   assert.match(source, /bookingBtn: \{[\s\S]*?backgroundColor: "#F96951"/);
 });

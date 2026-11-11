@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 360,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingTop: 22,
     paddingBottom: 10,
     shadowColor: "#2B2B2B",

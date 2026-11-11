@@ -418,13 +418,13 @@ export default function CustomerDirectChatScreen() {
 
       const result = await (source === 'camera'
         ? ImagePicker.launchCameraAsync({
-            mediaTypes: ["images"],
-            quality: 0.8,
-          })
+          mediaTypes: ["images"],
+          quality: 0.8,
+        })
         : ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        quality: 0.8,
-          }));
+          mediaTypes: ["images"],
+          quality: 0.8,
+        }));
 
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
@@ -488,8 +488,8 @@ export default function CustomerDirectChatScreen() {
     if (timerRef.current) clearInterval(timerRef.current);
     try {
       await audioRecorder.stop();
-    } catch {}
-    await setAudioModeAsync({ allowsRecording: false }).catch(() => {});
+    } catch { }
+    await setAudioModeAsync({ allowsRecording: false }).catch(() => { });
     setIsRecording(false);
     setIsPaused(false);
     setRecordingDuration(0);
@@ -609,8 +609,8 @@ export default function CustomerDirectChatScreen() {
           const timeStr = turn.createdAt
             ? new Date(turn.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             : turn.timestamp
-            ? new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            : '';
+              ? new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : '';
 
           return (
             <View key={`transcript-${idx}`} style={styles.messageBlock}>
@@ -676,7 +676,7 @@ export default function CustomerDirectChatScreen() {
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontFamily: 'InstrumentSans-Regular', fontSize: 16, color: '#FFFFFF' }}>
+                <Text style={{ fontFamily: 'InstrumentSans-Regular', fontSize: 16, color: '#FFFDF9' }}>
                   {displayName.charAt(0).toUpperCase()}
                 </Text>
               </View>
@@ -774,86 +774,86 @@ export default function CustomerDirectChatScreen() {
                         styles.messageBlock,
                         index === messages.length - 1 && styles.lastMessageBlock,
                       ]}>
-                      {!isMe && (
-                        <Text style={styles.senderNameText}>{displayName}</Text>
-                      )}
-
-                      {/* Bubble + tail wrapper */}
-                      <Pressable
-                        onLongPress={() => openMessageDeleteMenu(msg, isMe)}
-                        delayLongPress={400}
-                        disabled={msg.id.startsWith('temp-') || deletingMessageId === msg.id}
-                        style={{ position: 'relative', alignSelf: isMe ? 'flex-end' : 'flex-start' }}
-                      >
-                        <View
-                          style={[
-                            styles.bubbleBase,
-                            isMe ? styles.sentBubble : styles.receivedBubble,
-                            !isDeleted && msg.imageUrl ? { padding: 4 } : null,
-                          ]}
-                        >
-                          {!isDeleted && msg.imageUrl ? (
-                            <Image
-                              source={{ uri: msg.imageUrl }}
-                              style={{
-                                width: 220,
-                                height: 180,
-                                borderRadius: 14,
-                              }}
-                              resizeMode="cover"
-                            />
-                          ) : null}
-                          {msgBody ? (
-                            <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: 'italic' }]}>
-                              {msgBody}
-                            </Text>
-                          ) : null}
-                          {!isDeleted && msg.audioUrl ? (
-                            <Pressable
-                              onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
-                              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
-                            >
-                              <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? 'rgba(255, 255, 255,0.25)' : 'rgba(69, 51, 50,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                {playingAudioId === msg.id ? (
-                                  <Pause size={16} color={isMe ? '#FFFFFF' : '#453332'} />
-                                ) : (
-                                  <Play size={16} color={isMe ? '#FFFFFF' : '#453332'} style={{ marginLeft: 2 }} />
-                                )}
-                              </View>
-                              <View style={{ flex: 1, justifyContent: 'center' }}>
-                                <AnimatedWaveform
-                                  isAnimating={playingAudioId === msg.id}
-                                  color={isMe ? '#FFFFFF' : '#453332'}
-                                  inactiveColor={isMe ? 'rgba(255, 255, 255,0.4)' : 'rgba(69, 51, 50,0.4)'}
-                                  barCount={16}
-                                  height={24}
-                                />
-                              </View>
-                              <Text style={{ fontFamily: 'InstrumentSans-Medium', fontSize: 12, color: isMe ? 'rgba(255, 255, 255,0.85)' : '#453332', flexShrink: 0 }}>
-                                {formatDuration(msg.audioDuration || 0)}
-                              </Text>
-                            </Pressable>
-                          ) : null}
-                        </View>
-                      </Pressable>
-
-                      {/* Timestamp row — shown for both sent and received */}
-                      <View style={[styles.statusRow, isMe ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]}>
-                        <Text style={styles.statusText}>{timeStr}</Text>
-                        {isMe && (
-                          msg.id.startsWith('temp-') ? (
-                            <Check size={14} color="#453332" />
-                          ) : msg.isRead ? (
-                            <CheckCheck size={14} color="#453332" />
-                          ) : (
-                            <Check size={14} color="#453332" />
-                          )
+                        {!isMe && (
+                          <Text style={styles.senderNameText}>{displayName}</Text>
                         )}
+
+                        {/* Bubble + tail wrapper */}
+                        <Pressable
+                          onLongPress={() => openMessageDeleteMenu(msg, isMe)}
+                          delayLongPress={400}
+                          disabled={msg.id.startsWith('temp-') || deletingMessageId === msg.id}
+                          style={{ position: 'relative', alignSelf: isMe ? 'flex-end' : 'flex-start' }}
+                        >
+                          <View
+                            style={[
+                              styles.bubbleBase,
+                              isMe ? styles.sentBubble : styles.receivedBubble,
+                              !isDeleted && msg.imageUrl ? { padding: 4 } : null,
+                            ]}
+                          >
+                            {!isDeleted && msg.imageUrl ? (
+                              <Image
+                                source={{ uri: msg.imageUrl }}
+                                style={{
+                                  width: 220,
+                                  height: 180,
+                                  borderRadius: 14,
+                                }}
+                                resizeMode="cover"
+                              />
+                            ) : null}
+                            {msgBody ? (
+                              <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: 'italic' }]}>
+                                {msgBody}
+                              </Text>
+                            ) : null}
+                            {!isDeleted && msg.audioUrl ? (
+                              <Pressable
+                                onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
+                                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
+                              >
+                                <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? 'rgba(255, 255, 255,0.25)' : 'rgba(69, 51, 50,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  {playingAudioId === msg.id ? (
+                                    <Pause size={16} color={isMe ? '#FFFDF9' : '#453332'} />
+                                  ) : (
+                                    <Play size={16} color={isMe ? '#FFFDF9' : '#453332'} style={{ marginLeft: 2 }} />
+                                  )}
+                                </View>
+                                <View style={{ flex: 1, justifyContent: 'center' }}>
+                                  <AnimatedWaveform
+                                    isAnimating={playingAudioId === msg.id}
+                                    color={isMe ? '#FFFDF9' : '#453332'}
+                                    inactiveColor={isMe ? 'rgba(255, 255, 255,0.4)' : 'rgba(69, 51, 50,0.4)'}
+                                    barCount={16}
+                                    height={24}
+                                  />
+                                </View>
+                                <Text style={{ fontFamily: 'InstrumentSans-Medium', fontSize: 12, color: isMe ? 'rgba(255, 255, 255,0.85)' : '#453332', flexShrink: 0 }}>
+                                  {formatDuration(msg.audioDuration || 0)}
+                                </Text>
+                              </Pressable>
+                            ) : null}
+                          </View>
+                        </Pressable>
+
+                        {/* Timestamp row — shown for both sent and received */}
+                        <View style={[styles.statusRow, isMe ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }]}>
+                          <Text style={styles.statusText}>{timeStr}</Text>
+                          {isMe && (
+                            msg.id.startsWith('temp-') ? (
+                              <Check size={14} color="#453332" />
+                            ) : msg.isRead ? (
+                              <CheckCheck size={14} color="#453332" />
+                            ) : (
+                              <Check size={14} color="#453332" />
+                            )
+                          )}
+                        </View>
                       </View>
-                    </View>
-                  </React.Fragment>
-                );
-              })
+                    </React.Fragment>
+                  );
+                })
               )}
             </View>
           )}
@@ -928,7 +928,7 @@ export default function CustomerDirectChatScreen() {
                 </Pressable>
 
                 <Pressable onPress={stopAndSendRecording} disabled={sending} style={styles.sendCircleBtn}>
-                  <Send size={20} color="#FFFFFF" />
+                  <Send size={20} color="#FFFDF9" />
                 </Pressable>
               </View>
             </View>
@@ -993,7 +993,7 @@ export default function CustomerDirectChatScreen() {
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Send size={19} color="#FFFFFF" />
+                  <Send size={19} color="#FFFDF9" />
                 </Pressable>
               ) : null}
             </>
@@ -1041,7 +1041,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#453332',
   },
-  headerSubtitleText: { ...typeScale.caption,
+  headerSubtitleText: {
+    ...typeScale.caption,
     color: '#4A403B',
     marginTop: 1,
   },
@@ -1104,7 +1105,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  dividerRow: { display: "none",
+  dividerRow: {
+    display: "none",
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 16,
@@ -1147,13 +1149,15 @@ const styles = StyleSheet.create({
     color: '#453332',
     marginTop: 2,
   },
-  dividerLine: { display: "none",
+  dividerLine: {
+    display: "none",
     flex: 1,
     height: 1,
     backgroundColor: '#453332',
     opacity: 0.5,
   },
-  dividerLabel: { display: "none",
+  dividerLabel: {
+    display: "none",
     marginHorizontal: 12,
     fontSize: 10,
     fontFamily: 'InstrumentSans-SemiBold',
@@ -1195,7 +1199,7 @@ const styles = StyleSheet.create({
   },
   receivedBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderTopLeftRadius: 4,
     borderWidth: 1,
     borderColor: '#453332',
@@ -1206,7 +1210,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   sentText: {
-    color: '#FFFFFF',
+    color: '#FFFDF9',
   },
   receivedText: {
     color: "#4A403B",
@@ -1239,7 +1243,7 @@ const styles = StyleSheet.create({
   },
   recordingContainer: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -1314,7 +1318,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#453332',
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
@@ -1353,7 +1357,7 @@ const styles = StyleSheet.create({
     bottom: 74,
     left: 16,
     right: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 8,

@@ -19,5 +19,5 @@ test('shared filled and outlined buttons keep distinct readable labels', () => {
   assert.match(source, /secondary: \{ container: "bg-white border border-tomato", text: "text-black"/);
   const measurements = fs.readFileSync(path.join(root, 'src/shared/components/CustomerMeasurementsModal.tsx'), 'utf8');
   assert.match(measurements, /label: \{[^}]*color: "#2B2B2B"/);
-  assert.match(measurements, /buttonText: \{[^}]*color: "#FFFFFF"/);
+  assert.match(measurements, /buttonText: \{[^}]*color: "#FFFDF9"/);
 });

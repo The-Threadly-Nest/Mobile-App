@@ -155,7 +155,7 @@ export default function UpdateProgressScreen() {
                     {/* Node Icon */}
                     {isCompleted ? (
                       <View style={styles.completedNode}>
-                        <Check size={11} color="#FFFFFF" strokeWidth={3} />
+                        <Check size={11} color="#FFFDF9" strokeWidth={3} />
                       </View>
                     ) : isActive ? (
                       <View style={styles.activeNodeRing}>
@@ -226,11 +226,11 @@ export default function UpdateProgressScreen() {
           ]}
         >
           {submitting ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
+            <ActivityIndicator color="#FFFDF9" size="small" />
           ) : (
             <>
               <Text style={styles.submitBtnText}>Update Status</Text>
-              <ArrowRight size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
+              <ArrowRight size={18} color="#FFFDF9" style={{ marginLeft: 8 }} />
             </>
           )}
         </Pressable>
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   summaryCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     padding: 16,
     flexDirection: "row",
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   summaryCol: {
     flex: 1,
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   stagesCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 20,
     marginBottom: 20,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   upcomingLine: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   labelColumn: {
     flex: 1,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   noteInput: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#453332",
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
 });

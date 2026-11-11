@@ -56,15 +56,15 @@ test('measurement popup uses a compact responsive two-column layout', () => {
 });
 test('Google account selection signs out the SDK before interactive sign-in without revoking access', async () => {
   const calls = [];
-  const google = { configure: () => {}, hasPlayServices: async () => { calls.push('available'); }, signOut: async () => { calls.push('picker-reset'); }, signIn: async () => { calls.push('choose-account'); return { type: 'cancelled' }; } };
+  const google = { configure: () => { }, hasPlayServices: async () => { calls.push('available'); }, signOut: async () => { calls.push('picker-reset'); }, signIn: async () => { calls.push('choose-account'); return { type: 'cancelled' }; } };
   const hook = compile('hooks/useGoogleAuth.ts', {
-    react: { useState: value => [value, () => {}], useRef: value => ({ current: value }) },
+    react: { useState: value => [value, () => { }], useRef: value => ({ current: value }) },
     'react-native': { NativeModules: { RNGoogleSignin: {} } },
     '@/shared/utils/apiClient': { apiFetch: () => assert.fail('Cancelled picker must not sign into Owuja') },
     '@/stores/useAuthStore': { useAuthStore: selector => selector({ setSession: () => assert.fail('Must preserve current session') }) },
     'expo-router': { router: {} },
-    '@/shared/utils/pushNotifications': { registerPushToken: async () => {} },
-    '@/shared/utils/alertEmitter': { alertEmitter: { emit: () => {} } },
+    '@/shared/utils/pushNotifications': { registerPushToken: async () => { } },
+    '@/shared/utils/alertEmitter': { alertEmitter: { emit: () => { } } },
     '@react-native-google-signin/google-signin': { GoogleSignin: google, isSuccessResponse: response => response.type === 'success', isCancelledResponse: response => response.type === 'cancelled' },
   });
   await hook.useGoogleAuth().promptAsync();
@@ -74,6 +74,6 @@ test('primary shared buttons use tomato and white text without changing chat bub
   const button = fs.readFileSync(path.resolve(__dirname, '../src/shared/components/Button.tsx'), 'utf8');
   assert.match(button, /primary: \{ container: "bg-tomato", text: "text-white"/);
   const chat = fs.readFileSync(path.resolve(__dirname, '../app/(customer)/chat/[fashionHouseId].tsx'), 'utf8');
-  assert.match(chat, /color: isUser \? "#453332" : "#FFFFFF"/);
+  assert.match(chat, /color: isUser \? "#453332" : "#FFFDF9"/);
   assert.match(chat, /<BookingSlotPicker/);
 });

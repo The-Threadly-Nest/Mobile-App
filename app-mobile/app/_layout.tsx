@@ -64,10 +64,10 @@ export default function RootLayout() {
     <AppErrorBoundary>
       <SafeAreaProvider>
         <StatusBar style="dark" />
-        <View style={{ flex: 1, backgroundColor: "#F9E8D3" }} onLayout={onLayoutRootView}>
+        <View style={{ flex: 1, backgroundColor: "#FFFFFF" }} onLayout={onLayoutRootView}>
           <StartupReadyContext.Provider value={!showBrandSplash}>
             <ConnectionFrame>
-              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F9E8D3" } }}>
+              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>
                 <Stack.Screen name="(auth)" options={{ animation: "none" }} />
                 <Stack.Screen name="(customer)" options={{ animation: "none" }} />
                 <Stack.Screen name="(admin)" options={{ animation: "none" }} />
@@ -78,7 +78,7 @@ export default function RootLayout() {
           {showBrandSplash && (
             <View style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}>
               <AnimatedBrandSplash ready={splashReady} onComplete={finishBrandSplash} />
-              {animationFinished && !dataReady ? <View style={{ position: "absolute", bottom: 80, alignSelf: "center" }}><ActivityIndicator color="#FFFFFF" accessibilityLabel="Preparing your screen" /></View> : null}
+              {animationFinished && !dataReady ? <View style={{ position: "absolute", bottom: 80, alignSelf: "center" }}><ActivityIndicator color="#FFFDF9" accessibilityLabel="Preparing your screen" /></View> : null}
             </View>
           )}
         </View>

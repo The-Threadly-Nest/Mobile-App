@@ -361,7 +361,7 @@ export default function StaffDashboard() {
                   ]}
                 >
                   <Text style={styles.actionBtnText}>{getActionButtonLabel(order.status)}</Text>
-                  <ArrowRight size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
+                  <ArrowRight size={18} color="#FFFDF9" style={{ marginLeft: 8 }} />
                 </Pressable>
               </View>
             );
@@ -419,14 +419,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   inactiveTabPill: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   tabText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
   },
   activeTabText: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   inactiveTabText: {
     color: "#4A403B",
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 18,
     marginBottom: 16,
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   customerInfoCol: {
     flex: 1,
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.2,
   },
 });

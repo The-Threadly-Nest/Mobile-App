@@ -47,7 +47,7 @@ function walk(dir) {
           });
         }
         if (!chat && ts.isObjectLiteralExpression(node.initializer) && /(?:button|btn|primary|submit|save|confirm|done|cta|book|send|action).*(?:text|label)$/i.test(name)) {
-          for (const property of node.initializer.properties) if (ts.isPropertyAssignment(property) && property.name.getText(source) === 'color' && ts.isStringLiteral(property.initializer) && ['#ffffff', '#fff', '#fbf7ef'].includes(property.initializer.text.toLowerCase())) edit(property.initializer, '"#000000"');
+          for (const property of node.initializer.properties) if (ts.isPropertyAssignment(property) && property.name.getText(source) === 'color' && ts.isStringLiteral(property.initializer) && ['#FFFDF9', '#fff', '#fbf7ef'].includes(property.initializer.text.toLowerCase())) edit(property.initializer, '"#000000"');
         }
       }
       if ((ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))) {
@@ -73,7 +73,7 @@ function walk(dir) {
   }
 }
 walk(path.join(root, 'app')); walk(path.join(root, 'src/shared/components'));
-if (process.argv.includes('--summary')) { console.log(JSON.stringify(changes.map(({relative, count}) => ({file: relative, edits: count})), null, 2)); process.exit(0); }
+if (process.argv.includes('--summary')) { console.log(JSON.stringify(changes.map(({ relative, count }) => ({ file: relative, edits: count })), null, 2)); process.exit(0); }
 let patch = '*** Begin Patch\n';
 for (const { relative, text, updated } of changes) {
   const before = text.split('\n'), after = updated.split('\n');

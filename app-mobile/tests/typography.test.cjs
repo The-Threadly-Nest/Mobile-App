@@ -10,13 +10,13 @@ test('shared typography defaults labels and inputs to Instrument Sans and forwar
   const filename = path.join(root, 'src/shared/components/Typography.tsx');
   const mod = new Module(filename, module);
   const react = { forwardRef: render => render, createElement: (type, props) => ({ type, props }) };
-  mod.require = id => id === 'react' ? react : id === 'nativewind' ? { cssInterop: () => {} } : {
+  mod.require = id => id === 'react' ? react : id === 'nativewind' ? { cssInterop: () => { } } : {
     Text: 'native-text', TextInput: 'native-input',
     StyleSheet: { flatten: style => style || {} },
   };
   mod._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, esModuleInterop: true } }).outputText, filename);
   for (const Component of [mod.exports.Text, mod.exports.TextInput]) {
-    const explicitStyle = { color: '#FFFFFF' };
+    const explicitStyle = { color: '#FFFDF9' };
     assert.equal(Component({ style: explicitStyle }, {}).props.style[1], explicitStyle);
     for (const [weight, family] of [[undefined, 'Regular'], ['500', 'Medium'], ['600', 'SemiBold'], ['bold', 'Bold']]) {
       const ref = {};
@@ -51,7 +51,7 @@ test('customer orders use gentler title and item weights while keeping current t
 test('video welcome text stays white over the video and tomato button', () => {
   const source = fs.readFileSync(path.join(root, 'app/index.tsx'), 'utf8');
   for (const name of ['brandTagline', 'getStartedText', 'loginText', 'loginBold', 'loadingName']) {
-    assert.match(source, new RegExp(`${name}: \\{[^}]*color: "#FFFFFF"`));
+    assert.match(source, new RegExp(`${name}: \\{[^}]*color: "#FFFDF9"`));
   }
 });
 

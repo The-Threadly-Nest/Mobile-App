@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   videoLoadingCover: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
   loadingBrand: { flexDirection: "row", alignItems: "center", gap: 14 },
   loadingMark: { width: 64, height: 73.02 },
-  loadingName: { fontFamily: "InstrumentSans-Medium", fontSize: 36, lineHeight: 44, color: "#FFFFFF" },
+  loadingName: { fontFamily: "InstrumentSans-Medium", fontSize: 36, lineHeight: 44, color: "#FFFDF9" },
   container: {
     flex: 1,
     backgroundColor: "#2B2B2B",
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
     lineHeight: 34,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     marginBottom: 8,
   },
   actionSection: {
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   getStartedText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: 0.3,
   },
   loginRow: {
@@ -189,12 +189,12 @@ const styles = StyleSheet.create({
   loginText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   loginBold: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     textDecorationLine: "underline",
   },
 });

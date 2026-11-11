@@ -142,7 +142,7 @@ export default function AdminCatalogListScreen() {
               onPress={() => router.push("/(admin)/catalog/new")}
               style={styles.emptyActionBtn}
             >
-              <Plus size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Plus size={18} color="#FFFDF9" style={{ marginRight: 6 }} />
               <Text style={styles.emptyActionBtnText}>Upload First Garment</Text>
             </Pressable>
           </View>
@@ -197,7 +197,7 @@ export default function AdminCatalogListScreen() {
             {nextPage ? (
               <Pressable onPress={() => void loadMoreCatalog()} disabled={loadingMore} style={styles.emptyActionBtn}>
                 {loadingMore ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color="#FFFDF9" />
                 ) : (
                   <Text style={styles.emptyActionBtnText}>Load more</Text>
                 )}
@@ -233,7 +233,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -254,7 +255,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyWrap: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     padding: 32,
     alignItems: "center",
@@ -287,7 +288,7 @@ const styles = StyleSheet.create({
   emptyActionBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   gridContainer: {
     flexDirection: "row",
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

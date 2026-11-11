@@ -30,18 +30,18 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string; step: number }
 > = {
-  order_placed: { label: "Order placed", bg: "#FFFFFF", text: "#453332", step: 1 },
-  pending_admin_review: { label: "Awaiting review", bg: "#FFFFFF", text: "#453332", step: 1 },
-  booked: { label: "Booked", bg: "#FFFFFF", text: "#453332", step: 1 },
-  measurements_confirmed: { label: "Measurements Confirmed", bg: "#FFFFFF", text: "#453332", step: 2 },
-  fabric_sourced: { label: "Fabric Sourced", bg: "#FFFFFF", text: "#453332", step: 2 },
-  in_production: { label: "In Production", bg: "#FFFFFF", text: "#453332", step: 3 },
-  quality_check: { label: "Quality Check", bg: "#FFFFFF", text: "#453332", step: 3 },
-  ready: { label: "Ready for Pickup", bg: "#FFFFFF", text: "#453332", step: 4 },
-  ready_for_pickup: { label: "Ready for Pickup", bg: "#FFFFFF", text: "#453332", step: 4 },
-  completed: { label: "Completed", bg: "#FFFFFF", text: "#453332", step: 5 },
-  delivered: { label: "Delivered", bg: "#FFFFFF", text: "#453332", step: 5 },
-  cancelled: { label: "Cancelled", bg: "#FFFFFF", text: "#2B2B2B", step: 0 },
+  order_placed: { label: "Order placed", bg: "#FFFDF9", text: "#453332", step: 1 },
+  pending_admin_review: { label: "Awaiting review", bg: "#FFFDF9", text: "#453332", step: 1 },
+  booked: { label: "Booked", bg: "#FFFDF9", text: "#453332", step: 1 },
+  measurements_confirmed: { label: "Measurements Confirmed", bg: "#FFFDF9", text: "#453332", step: 2 },
+  fabric_sourced: { label: "Fabric Sourced", bg: "#FFFDF9", text: "#453332", step: 2 },
+  in_production: { label: "In Production", bg: "#FFFDF9", text: "#453332", step: 3 },
+  quality_check: { label: "Quality Check", bg: "#FFFDF9", text: "#453332", step: 3 },
+  ready: { label: "Ready for Pickup", bg: "#FFFDF9", text: "#453332", step: 4 },
+  ready_for_pickup: { label: "Ready for Pickup", bg: "#FFFDF9", text: "#453332", step: 4 },
+  completed: { label: "Completed", bg: "#FFFDF9", text: "#453332", step: 5 },
+  delivered: { label: "Delivered", bg: "#FFFDF9", text: "#453332", step: 5 },
+  cancelled: { label: "Cancelled", bg: "#FFFDF9", text: "#2B2B2B", step: 0 },
 };
 
 const STAGES = [
@@ -145,7 +145,7 @@ export default function OrderDetailScreen() {
 
   const statusMeta = STATUS_CONFIG[currentStatus] ?? {
     label: currentStatus.replace(/_/g, " "),
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     step: 0,
   };
@@ -173,8 +173,8 @@ export default function OrderDetailScreen() {
   };
   const nextReadyStatus = ["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? null
     : isUnassignedOrder(order) ? { status: "in_production", label: "Accept order" }
-    : ["ready", "ready_for_pickup"].includes(currentStatus) ? { status: "completed", label: "Mark completed" }
-    : { status: "ready_for_pickup", label: "Mark ready for pickup" };
+      : ["ready", "ready_for_pickup"].includes(currentStatus) ? { status: "completed", label: "Mark completed" }
+        : { status: "ready_for_pickup", label: "Mark ready for pickup" };
   const advanceReadyOrder = async () => {
     if (!order || !readyToWear || !nextReadyStatus || statusLock.current) return;
     statusLock.current = true;
@@ -287,7 +287,7 @@ export default function OrderDetailScreen() {
                         ]}
                       >
                         {isPassed ? (
-                          <CheckCircle2 size={12} color="#FFFFFF" />
+                          <CheckCircle2 size={12} color="#FFFDF9" />
                         ) : (
                           <Text style={styles.stepNumText}>{i + 1}</Text>
                         )}
@@ -401,14 +401,16 @@ export default function OrderDetailScreen() {
           {/* Bottom Action Cards */}
           <View style={styles.actionContainer}>
             {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={styles.primaryBtn}>
-              <CheckCircle2 size={18} color="#FFFFFF" /><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating…" : nextReadyStatus.label}</Text>
+              <CheckCircle2 size={18} color="#FFFDF9" /><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating…" : nextReadyStatus.label}</Text>
             </Pressable> : null}
             {readyToWear && !order.isBooking && !["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? <Pressable
-              onPress={() => router.push({ pathname: "/(admin)/escalations/assign", params: {
-                orderId: order.id, customerName, serviceTitle: itemName, fulfillmentType: "ready_to_wear",
-              } })}
+              onPress={() => router.push({
+                pathname: "/(admin)/escalations/assign", params: {
+                  orderId: order.id, customerName, serviceTitle: itemName, fulfillmentType: "ready_to_wear",
+                }
+              })}
               style={styles.primaryBtn}
-            ><Scissors size={18} color="#FFFFFF" /><Text style={styles.primaryBtnText}>{order.staff ? "Reassign staff (optional)" : "Assign staff (optional)"}</Text></Pressable> : null}
+            ><Scissors size={18} color="#FFFDF9" /><Text style={styles.primaryBtnText}>{order.staff ? "Reassign staff (optional)" : "Assign staff (optional)"}</Text></Pressable> : null}
             <Pressable
               onPress={handleOpenInvoice}
               style={({ pressed }) => [
@@ -416,7 +418,7 @@ export default function OrderDetailScreen() {
                 { opacity: pressed ? 0.85 : 1 },
               ]}
             >
-              <FileText size={18} color="#FFFFFF" />
+              <FileText size={18} color="#FFFDF9" />
               <Text style={styles.primaryBtnText}>Open & Print Invoice</Text>
             </Pressable>
           </View>
@@ -463,11 +465,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
-  headerSubtitle: { ...typeScale.caption,
+  headerSubtitle: {
+    ...typeScale.caption,
     color: "#4A403B",
     marginTop: 2,
   },
@@ -488,7 +492,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
@@ -515,7 +519,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   heroTitleCol: {
     flex: 1,
@@ -541,7 +545,8 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
   },
-  heroDivider: { display: "none",
+  heroDivider: {
+    display: "none",
     height: 1,
     backgroundColor: "rgba(69, 51, 50, 0.08)",
     marginVertical: 16,
@@ -569,7 +574,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
@@ -586,7 +591,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
     marginBottom: 14,
   },
@@ -594,7 +600,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#4A403B",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -618,7 +624,7 @@ const styles = StyleSheet.create({
   stepConnector: {
     flex: 1,
     height: 2,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   stepConnectorActive: {
     backgroundColor: "#453332",
@@ -696,7 +702,7 @@ const styles = StyleSheet.create({
   },
   measurementItem: {
     width: "48%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
@@ -731,7 +737,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  primaryBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  primaryBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
 });

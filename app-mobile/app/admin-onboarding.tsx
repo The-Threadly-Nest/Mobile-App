@@ -71,7 +71,7 @@ export default function AdminOnboardingSlidesScreen() {
                 fontFamily: "InstrumentSans-Regular",
                 fontSize: 24,
                 lineHeight: 32,
-                color: "#FFFFFF",
+                color: "#FFFDF9",
                 marginBottom: 8,
               }}
             >
@@ -107,7 +107,7 @@ export default function AdminOnboardingSlidesScreen() {
                     height: 8,
                     width: i === currentIndex ? 36 : 8,
                     borderRadius: 4,
-                    backgroundColor: i === currentIndex ? "#FFFFFF" : "#2B2B2B",
+                    backgroundColor: i === currentIndex ? "#FFFDF9" : "#2B2B2B",
                   }}
                 />
               ))}
@@ -133,7 +133,7 @@ export default function AdminOnboardingSlidesScreen() {
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 15,
-                    color: "#FFFFFF",
+                    color: "#FFFDF9",
                     letterSpacing: 0.2,
                   }}
                 >
@@ -160,7 +160,7 @@ export default function AdminOnboardingSlidesScreen() {
                     style={{
                       fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 15,
-                      color: "#FFFFFF",
+                      color: "#FFFDF9",
                       letterSpacing: 0.2,
                     }}
                   >
@@ -187,7 +187,7 @@ export default function AdminOnboardingSlidesScreen() {
                     style={{
                       fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 15,
-                      color: "#FFFFFF",
+                      color: "#FFFDF9",
                       letterSpacing: 0.2,
                     }}
                   >
@@ -242,7 +242,7 @@ export default function AdminOnboardingSlidesScreen() {
             fontFamily: "InstrumentSans-Regular",
             fontSize: 32,
             lineHeight: 40,
-            color: "#FFFFFF",
+            color: "#FFFDF9",
             marginBottom: 12,
             textAlign: "center",
           }}
@@ -281,7 +281,7 @@ export default function AdminOnboardingSlidesScreen() {
                 height: 8,
                 width: i === currentIndex ? 40 : 8,
                 borderRadius: 4,
-                backgroundColor: i === currentIndex ? "#FFFFFF" : "#2B2B2B",
+                backgroundColor: i === currentIndex ? "#FFFDF9" : "#2B2B2B",
               }}
             />
           ))}
@@ -305,7 +305,7 @@ export default function AdminOnboardingSlidesScreen() {
               style={{
                 fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 16,
-                color: "#FFFFFF",
+                color: "#FFFDF9",
                 letterSpacing: 0.2,
               }}
             >
@@ -322,7 +322,7 @@ export default function AdminOnboardingSlidesScreen() {
                 height: 63,
                 borderRadius: 31.5,
                 borderWidth: 1,
-                borderColor: "#FFFFFF",
+                borderColor: "#FFFDF9",
                 alignItems: "center",
                 justifyContent: "center",
                 opacity: pressed ? 0.75 : 1,
@@ -332,7 +332,7 @@ export default function AdminOnboardingSlidesScreen() {
                 style={{
                   fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
-                  color: "#FFFFFF",
+                  color: "#FFFDF9",
                   letterSpacing: 0.2,
                 }}
               >
@@ -357,7 +357,7 @@ export default function AdminOnboardingSlidesScreen() {
                 style={{
                   fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 16,
-                  color: "#FFFFFF",
+                  color: "#FFFDF9",
                   letterSpacing: 0.2,
                 }}
               >

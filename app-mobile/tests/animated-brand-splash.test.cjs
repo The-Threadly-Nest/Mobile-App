@@ -20,10 +20,10 @@ test("splash keeps white Instrument Sans beside the correctly proportioned white
   const source = fs.readFileSync(path.join(root, "src/shared/components/AnimatedBrandSplash.tsx"), "utf8");
   assert.match(source, /const MARK_HEIGHT = 48/);
   assert.match(source, /MARK_HEIGHT \* 3485 \/ 3976/);
-  assert.match(source, /<Path d=\{d\} fill="#FFFFFF"/);
+  assert.match(source, /<Path d=\{d\} fill="#FFFDF9"/);
   assert.match(source, /source=\{require\("\.\.\/\.\.\/\.\.\/assets\/splash-icon-white.png"\)\}/);
   assert.match(source, /brand: \{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12/);
-  assert.match(source, /name: \{ fontFamily: "InstrumentSans-Medium", fontSize: 40, lineHeight: MARK_HEIGHT, includeFontPadding: false, color: "#FFFFFF"/);
+  assert.match(source, /name: \{ fontFamily: "InstrumentSans-Medium", fontSize: 40, lineHeight: MARK_HEIGHT, includeFontPadding: false, color: "#FFFDF9"/);
   assert.match(source, /backgroundColor: "#F96951"/);
   assert.match(source, /<StatusBar style="light"/);
 });

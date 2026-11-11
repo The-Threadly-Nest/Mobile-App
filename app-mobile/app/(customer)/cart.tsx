@@ -197,7 +197,7 @@ export default function CartScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalIconCircle}>
-              <Check size={28} color="#FFFFFF" strokeWidth={2.5} />
+              <Check size={28} color="#FFFDF9" strokeWidth={2.5} />
             </View>
             <Text style={styles.modalTitle}>Order Placed!</Text>
             <Text style={styles.modalSubtitle}>
@@ -254,20 +254,20 @@ const styles = StyleSheet.create({
   groupName: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#4A403B", marginTop: 2 },
   groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#4A403B" },
   itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 0, borderBottomColor: "#453332" },
-  itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#FFFFFF" },
+  itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#FFFDF9" },
   itemImageContent: { width: "100%", height: "100%", borderRadius: 14 },
   itemDetails: { flex: 1, marginLeft: 12 },
   itemName: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, lineHeight: 18, color: "#4A403B" },
   itemOptions: { fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B", marginTop: 4 },
   itemPrice: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B", marginTop: 5 },
   itemActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8 },
-  quantityControl: { flexDirection: "row", alignItems: "center", borderRadius: 14, backgroundColor: "#FFFFFF", padding: 3 },
+  quantityControl: { flexDirection: "row", alignItems: "center", borderRadius: 14, backgroundColor: "#FFFDF9", padding: 3 },
   quantityButton: { width: 28, height: 28, borderRadius: 11, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
   quantityText: { width: 28, textAlign: "center", fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" },
   removeButton: { width: 34, height: 34, borderRadius: 17, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
   continueButton: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", paddingHorizontal: 18, marginTop: 14 },
   continueButtonDisabled: { opacity: 0.6 },
-  continueButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF", textAlign: "center" },
+  continueButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFDF9", textAlign: "center" },
   totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 12, paddingBottom: 4 },
   totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#4A403B" },
   totalPrice: { fontFamily: "InstrumentSans-Regular", fontSize: 24, color: "#4A403B" },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   emptyTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#4A403B" },
   emptyBody: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#4A403B", textAlign: "center", marginTop: 8, marginBottom: 24 },
   browseButton: { height: 52, borderRadius: 26, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", paddingHorizontal: 30 },
-  browseButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" },
+  browseButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFDF9" },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(43, 43, 43, 0.55)",
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: "100%",
     maxWidth: 340,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 24,
     paddingVertical: 28,
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   modalPrimaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   modalSecondaryBtn: {
     marginTop: 12,

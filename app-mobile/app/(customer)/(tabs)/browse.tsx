@@ -227,7 +227,7 @@ export default function BrowseScreen() {
             />
           </View>
           <Pressable accessibilityLabel="Filter dashboard" onPress={() => setFiltersVisible(true)} style={styles.filterBtn}>
-            <SlidersHorizontal size={18} color="#FFFFFF" />
+            <SlidersHorizontal size={18} color="#FFFDF9" />
           </Pressable>
         </View>
 
@@ -349,12 +349,12 @@ export default function BrowseScreen() {
                     event.stopPropagation();
                     void toggleFavorite(item.id);
                   }}
-                  style={[styles.heartBtn, { backgroundColor: favorites[item.id] ? "#F96951" : "#FFFFFF" }]}
+                  style={[styles.heartBtn, { backgroundColor: favorites[item.id] ? "#F96951" : "#FFFDF9" }]}
                 >
                   <Heart
                     size={14}
-                    color={favorites[item.id] ? "#FFFFFF" : "#2B2B2B"}
-                    fill={favorites[item.id] ? "#FFFFFF" : "none"}
+                    color={favorites[item.id] ? "#FFFDF9" : "#2B2B2B"}
+                    fill={favorites[item.id] ? "#FFFDF9" : "none"}
                   />
                 </Pressable>
                 {item.discountBadge && (
@@ -441,10 +441,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: "#FFFFFF",
+    borderColor: "#FFFDF9",
   },
   unreadBadgeText: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     fontSize: 9,
     fontFamily: "InstrumentSans-Bold",
   },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarInitial: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     fontFamily: "InstrumentSans-Bold",
     fontSize: 14,
   },
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 16,
     height: 48,
@@ -521,19 +521,21 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
-  bannerSubtitle: { ...typeScale.caption,
-    color: "#FFFFFF",
+  bannerSubtitle: {
+    ...typeScale.caption,
+    color: "#FFFDF9",
   },
   shopNowBtn: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 999,
     paddingVertical: 6,
     paddingHorizontal: 14,
     alignSelf: "flex-start",
   },
-  shopNowText: { ...typeScale.button,
+  shopNowText: {
+    ...typeScale.button,
     color: "#4A403B",
   },
   bannerImageWrapper: {
@@ -555,7 +557,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 14,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
   },
   viewAllText: {
@@ -600,7 +603,7 @@ const styles = StyleSheet.create({
   fallbackLogo: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -609,7 +612,8 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "#4A403B",
   },
-  fashionHouseName: { ...typeScale.compactLabel,
+  fashionHouseName: {
+    ...typeScale.compactLabel,
     color: "#4A403B",
     textAlign: "center",
     marginTop: 6,
@@ -632,7 +636,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   productImage: {
     width: "100%",
@@ -665,7 +669,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   discountText: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     fontSize: 9,
     fontFamily: "InstrumentSans-Bold",
   },
@@ -680,17 +684,19 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 4,
   },
   featuredText: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     fontSize: 8,
     fontFamily: "InstrumentSans-Bold",
   },
   productInfo: {
     paddingTop: 8,
   },
-  productName: { ...typeScale.productName,
+  productName: {
+    ...typeScale.productName,
     color: "#4A403B",
-    },
-  productPrice: { ...typeScale.productPrice,
+  },
+  productPrice: {
+    ...typeScale.productPrice,
     color: "#4A403B",
     marginTop: 4,
   },
@@ -746,7 +752,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   timerColon: {
     fontFamily: "InstrumentSans-Bold",
@@ -774,6 +780,6 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   filterPillTextActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

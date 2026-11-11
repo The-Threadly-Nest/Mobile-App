@@ -27,73 +27,73 @@ const STATUS_CONFIG: Record<
 > = {
   order_placed: {
     label: "Booked",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Booked",
   },
   pending_admin_review: {
     label: "Booked",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Booked",
   },
   booked: {
     label: "Booked",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Booked",
   },
   measurements_confirmed: {
     label: "Measurements Confirmed",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "In Production",
   },
   fabric_sourced: {
     label: "Fabric Sourced",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "In Production",
   },
   in_production: {
     label: "In Production",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "In Production",
   },
   quality_check: {
     label: "Quality Check",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "In Production",
   },
   ready: {
     label: "Ready",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Ready",
   },
   ready_for_pickup: {
     label: "Ready",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Ready",
   },
   completed: {
     label: "Completed",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Completed",
   },
   delivered: {
     label: "Delivered",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#453332",
     filterKey: "Delivered",
   },
   cancelled: {
     label: "Cancelled",
-    bg: "#FFFFFF",
+    bg: "#FFFDF9",
     text: "#F96951",
     filterKey: "Cancelled",
   },
@@ -299,7 +299,7 @@ export default function AdminOrdersScreen() {
           renderItem={({ item }) => {
             const meta = STATUS_CONFIG[normalizeStatus(item.status)] ?? {
               label: "In Production",
-              bg: "#FFFFFF",
+              bg: "#FFFDF9",
               text: "#453332",
               filterKey: "In Production",
             };
@@ -396,14 +396,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   filterChipInactive: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   filterChipText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
   },
   filterChipTextActive: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   filterChipTextInactive: {
     color: "#4A403B",
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 22,
     padding: 16,
     marginBottom: 14,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   cardBody: {
     flex: 1,

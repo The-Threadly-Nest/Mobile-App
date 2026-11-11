@@ -246,7 +246,7 @@ export default function AdminOnboardingScreen() {
                     <View style={styles.logoPreviewWrap}>
                       <Image source={{ uri: brandLogoUrl }} style={[styles.logoPreviewImage, isLandscape && { width: 60, height: 60, borderRadius: 30 }]} />
                       <View style={styles.logoChangeBadge}>
-                        <Camera size={12} color="#FFFFFF" />
+                        <Camera size={12} color="#FFFDF9" />
                         <Text style={styles.logoChangeText}>Change</Text>
                       </View>
                     </View>
@@ -352,7 +352,7 @@ export default function AdminOnboardingScreen() {
                         selected ? styles.pillSelected : styles.pillUnselected,
                       ]}
                     >
-                      {selected && <Check size={16} color="#FFFFFF" style={{ marginRight: 6 }} />}
+                      {selected && <Check size={16} color="#FFFDF9" style={{ marginRight: 6 }} />}
                       <Text style={selected ? styles.pillTextSelected : styles.pillTextUnselected}>
                         {cat}
                       </Text>
@@ -399,7 +399,7 @@ export default function AdminOnboardingScreen() {
                 ]}
               >
                 {loading ? (
-                  <ActivityIndicator color="#FFFFFF" />
+                  <ActivityIndicator color="#FFFDF9" />
                 ) : (
                   <Text style={styles.nextBtnText}>Complete Setup</Text>
                 )}
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     borderColor: "rgba(69, 51, 50, 0.20)",
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     minHeight: 120,
     alignItems: "center",
     justifyContent: "center",
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
   logoChangeText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   inputWrapper: {
     marginBottom: 20,
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
     color: "#4A403B",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   charCount: {
     fontFamily: "InstrumentSans-Regular",
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   pillTextSelected: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   pillTextUnselected: {
     fontFamily: "InstrumentSans-Medium",
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
   nextBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   addSlotBtn: {
     width: "100%",
@@ -654,6 +654,6 @@ const styles = StyleSheet.create({
   addSlotBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

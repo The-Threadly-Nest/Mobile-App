@@ -82,7 +82,7 @@ export default function FlowMessageCard({
           {primaryButtonLabel && (
             <Pressable onPress={onPrimaryPress} style={styles.primaryBtn}>
               <Text style={styles.primaryBtnText}>{primaryButtonLabel}</Text>
-              <ChevronRight size={13} color="#FFFFFF" />
+              <ChevronRight size={13} color="#FFFDF9" />
             </Pressable>
           )}
         </View>
@@ -93,7 +93,7 @@ export default function FlowMessageCard({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderColor: "#453332",
     borderWidth: 1.5,
     borderRadius: 20,
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   stepNumberText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   stepItemText: {
     fontFamily: "InstrumentSans-Medium",
@@ -205,7 +205,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     gap: 4,
   },
-  primaryBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  primaryBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
 });

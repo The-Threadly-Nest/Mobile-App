@@ -62,7 +62,7 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
         {visibleRoutes.map((route: any) => {
           const options = descriptors[route.key]?.options ?? {};
           const focused = state.routes[state.index]?.key === route.key;
-          const icon = options.tabBarIcon?.({ focused, color: "#FFFFFF", size: 24 });
+          const icon = options.tabBarIcon?.({ focused, color: "#FFFDF9", size: 24 });
           const badge = options.tabBarBadge;
 
           return (
@@ -90,7 +90,7 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
               {icon}
               {badge != null ? (
                 <View style={{ position: "absolute", top: 5, right: 16, minWidth: 16, height: 16, paddingHorizontal: 3, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F96951" }}>
-                  <Text style={{ color: "#FFFFFF", fontSize: 9, fontWeight: "700" }}>{String(badge)}</Text>
+                  <Text style={{ color: "#FFFDF9", fontSize: 9, fontWeight: "700" }}>{String(badge)}</Text>
                 </View>
               ) : null}
             </Pressable>

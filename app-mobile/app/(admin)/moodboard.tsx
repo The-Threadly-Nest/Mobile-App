@@ -187,7 +187,7 @@ export default function AdminMoodBoardRedesignScreen() {
             onPress={() => router.push("/(admin)/draw")}
             style={({ pressed }) => [styles.drawBtn, { opacity: pressed ? 0.85 : 1 }]}
           >
-            <Paintbrush size={14} color="#FFFFFF" />
+            <Paintbrush size={14} color="#FFFDF9" />
             <Text style={styles.drawBtnText}>Draw</Text>
           </Pressable>
         </View>
@@ -248,7 +248,7 @@ export default function AdminMoodBoardRedesignScreen() {
                       )}
                       {sketch.promotedToCatalog && (
                         <View style={styles.promotedBadge}>
-                          <CheckCircle2 size={12} color="#FFFFFF" />
+                          <CheckCircle2 size={12} color="#FFFDF9" />
                         </View>
                       )}
                     </Pressable>
@@ -344,7 +344,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
   },
   drawBtn: {
@@ -359,7 +360,7 @@ const styles = StyleSheet.create({
   drawBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   introSubtext: {
     fontFamily: "InstrumentSans-Regular",
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   tailorName: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -434,7 +435,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     padding: 20,
   },

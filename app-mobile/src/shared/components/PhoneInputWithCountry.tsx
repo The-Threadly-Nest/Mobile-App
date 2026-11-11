@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 46,
     paddingHorizontal: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   inputRowError: {
     borderColor: "#453332",
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     marginHorizontal: 8,
   },
   textInput: {
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 46,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   countryItemSelected: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   itemFlag: {
     fontSize: 22,

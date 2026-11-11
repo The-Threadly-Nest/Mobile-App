@@ -40,7 +40,7 @@ export function ProfileAvatarIcon({ size = 60, name }: ProfileAvatarIconProps) {
         style={{
           fontFamily: "InstrumentSans-Regular",
           fontSize,
-          color: "#FFFFFF",
+          color: "#FFFDF9",
           textAlign: "center",
           includeFontPadding: false,
         }}

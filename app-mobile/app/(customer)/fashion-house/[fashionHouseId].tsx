@@ -107,20 +107,20 @@ export default function FashionHouseScreen() {
   const reviews =
     Array.isArray(fhData?.reviews) && fhData.reviews.length > 0
       ? fhData.reviews.map((r: any) => ({
-          name: r.user?.name || r.name || "Customer",
-          text: r.comment || r.text || "",
-          rating: r.rating || 0,
-          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : (r.date || ""),
-        }))
+        name: r.user?.name || r.name || "Customer",
+        text: r.comment || r.text || "",
+        rating: r.rating || 0,
+        date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : (r.date || ""),
+      }))
       : [];
 
   const rawOrdersCount = fhData?.ordersCount ?? fhData?._count?.orders ?? 0;
 
   const rating = Number(
     fhData?.rating ??
-      (reviews.length > 0
-        ? reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length
-        : 0)
+    (reviews.length > 0
+      ? reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0) / reviews.length
+      : 0)
   );
 
   const formatOrdersText = (count: number) => {
@@ -203,7 +203,7 @@ export default function FashionHouseScreen() {
               contentPosition="top center"
             />
           ) : (
-            <View style={[styles.heroImage, { backgroundColor: "#FFFFFF" }]} />
+            <View style={[styles.heroImage, { backgroundColor: "#FFFDF9" }]} />
           )}
 
           {/* Floating Top Nav (Back Arrow < and More Options) */}
@@ -214,7 +214,7 @@ export default function FashionHouseScreen() {
               accessibilityLabel="Back"
               style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#FFFFFF" />
+              <BackArrowIcon size={24} color="#FFFDF9" />
             </Pressable>
 
             <Pressable
@@ -223,7 +223,7 @@ export default function FashionHouseScreen() {
               accessibilityLabel="Options"
               style={({ pressed }) => [styles.navCircleBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <MoreVertical size={20} color="#FFFFFF" />
+              <MoreVertical size={20} color="#FFFDF9" />
             </Pressable>
           </View>
         </View>
@@ -266,130 +266,130 @@ export default function FashionHouseScreen() {
             </View>
           </View>
 
-        {/* About Section */}
-        <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
-          <Text style={styles.sectionTitle}>ABOUT</Text>
-          <Text style={styles.aboutText}>{displayBio}</Text>
-        </View>
-
-        {/* Portfolio Section */}
-        <View onLayout={event => { portfolioOffset.current = event.nativeEvent.layout.y; }} style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>PORTFOLIO</Text>
+          {/* About Section */}
+          <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
+            <Text style={styles.sectionTitle}>ABOUT</Text>
+            <Text style={styles.aboutText}>{displayBio}</Text>
           </View>
 
-          {catalogItems.length > 0 ? (
-            <View style={styles.portfolioGrid}>
-              {catalogItems.map((item: any) => {
-                const formattedPrice =
-                  typeof item.priceFrom === "number"
-                    ? `From ${formatCurrency(item.priceFrom)}`
-                    : item.priceFrom
-                      ? `From ${item.priceFrom}`
-                      : "Price on Request";
-
-                return (
-                  <Pressable
-                    key={item.id}
-                    style={styles.portfolioItemCard}
-                    onPress={() => {
-                      router.push({
-                        pathname: `/(customer)/catalog/${item.id}`,
-                        params: {
-                          initialName: item.name,
-                          initialPrice: formattedPrice,
-                          initialImage: item.imageUrl,
-                          initialVendorName: displayName,
-                          initialLocation: displayLocation,
-                          initialFashionHouseId: targetId,
-                        },
-                      });
-                    }}
-                  >
-                    <CachedImage source={{ uri: item.imageUrl }} style={styles.portfolioImage} />
-                  </Pressable>
-                );
-              })}
-            </View>
-          ) : fhData ? (
-            <View style={styles.emptyCatalogCard}>
-              <Store size={24} color="#453332" style={{ marginBottom: 6 }} />
-              <Text style={styles.emptyCatalogTitle}>No catalog items listed yet</Text>
-              <Text style={styles.emptyCatalogSubtext}>
-                You can still book a fitting appointment directly with {displayName}!
-              </Text>
-            </View>
-          ) : (
-            <View style={{ paddingVertical: 20, alignItems: "center" }}>
-              <ActivityIndicator size="small" color="#453332" />
-            </View>
-          )}
-        </View>
-
-        {/* Reviews Section — hidden when there are no reviews */}
-        {reviews.length > 0 && (
-          <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <Text style={styles.sectionTitle}>Reviews</Text>
-              <Pressable onPress={() => router.push(`/(customer)/reviews/${targetId}`)}>
-                <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#453332", textDecorationLine: "underline" }}>
-                  See all reviews
-                </Text>
-              </Pressable>
+          {/* Portfolio Section */}
+          <View onLayout={event => { portfolioOffset.current = event.nativeEvent.layout.y; }} style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>PORTFOLIO</Text>
             </View>
 
-            {reviews.slice(0, 3).map((review: any, i: number) => (
-              <View
-                key={i}
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 14,
-                  padding: 14,
-                  marginBottom: 10,
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#2B2B2B", alignItems: "center", justifyContent: "center" }}>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" }}>
-                        {review.name.charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                    <View>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#4A403B" }}>
-                        {review.name}
-                      </Text>
-                      <View style={{ flexDirection: "row", gap: 2, marginTop: 2 }}>
-                        {renderStars(review.rating)}
-                      </View>
-                    </View>
-                  </View>
-                  {review.date ? (
-                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B" }}>
-                      {review.date}
-                    </Text>
-                  ) : null}
-                </View>
-                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 19, color: "#4A403B" }}>
-                  {review.text}
+            {catalogItems.length > 0 ? (
+              <View style={styles.portfolioGrid}>
+                {catalogItems.map((item: any) => {
+                  const formattedPrice =
+                    typeof item.priceFrom === "number"
+                      ? `From ${formatCurrency(item.priceFrom)}`
+                      : item.priceFrom
+                        ? `From ${item.priceFrom}`
+                        : "Price on Request";
+
+                  return (
+                    <Pressable
+                      key={item.id}
+                      style={styles.portfolioItemCard}
+                      onPress={() => {
+                        router.push({
+                          pathname: `/(customer)/catalog/${item.id}`,
+                          params: {
+                            initialName: item.name,
+                            initialPrice: formattedPrice,
+                            initialImage: item.imageUrl,
+                            initialVendorName: displayName,
+                            initialLocation: displayLocation,
+                            initialFashionHouseId: targetId,
+                          },
+                        });
+                      }}
+                    >
+                      <CachedImage source={{ uri: item.imageUrl }} style={styles.portfolioImage} />
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : fhData ? (
+              <View style={styles.emptyCatalogCard}>
+                <Store size={24} color="#453332" style={{ marginBottom: 6 }} />
+                <Text style={styles.emptyCatalogTitle}>No catalog items listed yet</Text>
+                <Text style={styles.emptyCatalogSubtext}>
+                  You can still book a fitting appointment directly with {displayName}!
                 </Text>
               </View>
-            ))}
+            ) : (
+              <View style={{ paddingVertical: 20, alignItems: "center" }}>
+                <ActivityIndicator size="small" color="#453332" />
+              </View>
+            )}
           </View>
-        )}
 
-        {/* Action Button - Single Primary CTA */}
-        <View style={{ marginTop: 28, width: "100%", alignItems: "center" }}>
-          <Pressable
-            style={({ pressed }) => [styles.bookingBtn, { opacity: pressed ? 0.9 : 1 }]}
-            onPress={() => router.push({
-              pathname: "/(customer)/chat/[fashionHouseId]",
-              params: { fashionHouseId: targetId, fashionHouseName: displayName, startNew: String(Date.now()) },
-            })}
-          >
-            <Text style={styles.bookingBtnText}>Book an appointment</Text>
-          </Pressable>
-        </View>
+          {/* Reviews Section — hidden when there are no reviews */}
+          {reviews.length > 0 && (
+            <View style={[styles.section, isLandscape && { maxWidth: 760, alignSelf: "center", width: "100%" }]}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <Text style={styles.sectionTitle}>Reviews</Text>
+                <Pressable onPress={() => router.push(`/(customer)/reviews/${targetId}`)}>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#453332", textDecorationLine: "underline" }}>
+                    See all reviews
+                  </Text>
+                </Pressable>
+              </View>
+
+              {reviews.slice(0, 3).map((review: any, i: number) => (
+                <View
+                  key={i}
+                  style={{
+                    backgroundColor: "#FFFDF9",
+                    borderRadius: 14,
+                    padding: 14,
+                    marginBottom: 10,
+                  }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                      <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#2B2B2B", alignItems: "center", justifyContent: "center" }}>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFDF9" }}>
+                          {review.name.charAt(0).toUpperCase()}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#4A403B" }}>
+                          {review.name}
+                        </Text>
+                        <View style={{ flexDirection: "row", gap: 2, marginTop: 2 }}>
+                          {renderStars(review.rating)}
+                        </View>
+                      </View>
+                    </View>
+                    {review.date ? (
+                      <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B" }}>
+                        {review.date}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 19, color: "#4A403B" }}>
+                    {review.text}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Action Button - Single Primary CTA */}
+          <View style={{ marginTop: 28, width: "100%", alignItems: "center" }}>
+            <Pressable
+              style={({ pressed }) => [styles.bookingBtn, { opacity: pressed ? 0.9 : 1 }]}
+              onPress={() => router.push({
+                pathname: "/(customer)/chat/[fashionHouseId]",
+                params: { fashionHouseId: targetId, fashionHouseName: displayName, startNew: String(Date.now()) },
+              })}
+            >
+              <Text style={styles.bookingBtnText}>Book an appointment</Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     alignSelf: "center",
     marginBottom: 16,
   },
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
   },
   statsCard: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     paddingVertical: 18,
     marginTop: 14,
@@ -515,7 +515,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 14,
   },
-  sectionTitle: { ...typeScale.sectionTitle,
+  sectionTitle: {
+    ...typeScale.sectionTitle,
     color: "#4A403B",
     letterSpacing: 1.2,
   },
@@ -547,7 +548,7 @@ const styles = StyleSheet.create({
   },
   catalogCard: {
     width: "48%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     padding: 10,
     borderWidth: 1,
@@ -571,7 +572,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   emptyCatalogCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     padding: 20,
     alignItems: "center",
@@ -592,7 +593,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   reviewsCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingTop: 8,
@@ -606,7 +607,8 @@ const styles = StyleSheet.create({
   reviewItem: {
     paddingVertical: 14,
   },
-  reviewDashedDivider: { display: "none",
+  reviewDashedDivider: {
+    display: "none",
     borderBottomWidth: 1,
     borderBottomColor: "#453332",
     borderStyle: "dashed",
@@ -635,7 +637,7 @@ const styles = StyleSheet.create({
   seeAllBtn: {
     marginTop: 8,
     paddingVertical: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 50,
     alignItems: "center",
   },
@@ -657,6 +659,6 @@ const styles = StyleSheet.create({
   bookingBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

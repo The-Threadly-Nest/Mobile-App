@@ -195,7 +195,7 @@ export default function AdminNewGarmentScreen() {
                     hitSlop={8}
                     style={styles.removePhotoBtn}
                   >
-                    <X size={12} color="#FFFFFF" strokeWidth={2.5} />
+                    <X size={12} color="#FFFDF9" strokeWidth={2.5} />
                   </Pressable>
                 </View>
               ) : (
@@ -259,7 +259,7 @@ export default function AdminNewGarmentScreen() {
             ]}
           >
             {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#FFFDF9" />
             ) : (
               <Text style={styles.submitBtnText}>Save Changes</Text>
             )}
@@ -300,7 +300,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -321,14 +322,15 @@ const styles = StyleSheet.create({
   fieldSection: {
     marginBottom: 24,
   },
-  fieldLabel: { ...typeScale.label,
+  fieldLabel: {
+    ...typeScale.label,
     color: "#4A403B",
     letterSpacing: 0.8,
     textTransform: "uppercase",
     marginBottom: 8,
   },
   inputContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -356,7 +358,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
   },
   photoImage: {
     width: "100%",
@@ -374,7 +376,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   loadingSlot: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "#453332",
     alignItems: "center",
@@ -409,7 +411,7 @@ const styles = StyleSheet.create({
   priceInputContainer: {
     width: 125,
     height: 50,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -451,7 +453,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   detailsContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -489,6 +491,6 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

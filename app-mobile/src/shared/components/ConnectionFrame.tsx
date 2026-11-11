@@ -43,17 +43,17 @@ export default function ConnectionFrame({ children }: { children: ReactNode }) {
   return <View style={styles.frame}>
     <View style={styles.frame}>{children}</View>
     {offline && !dismissed ? <View accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.banner, { bottom: insets.bottom + 100 }]}>
-      <WifiOff size={20} color="#FFFFFF" />
+      <WifiOff size={20} color="#FFFDF9" />
       <View style={styles.copy}><Text style={styles.title}>You're offline</Text><Text style={styles.body}>Showing saved content</Text></View>
       <Pressable accessibilityRole="button" accessibilityLabel="Check internet connection" disabled={checking} onPress={refreshConnectionStatus} style={styles.retry}><Text style={styles.retryText}>{checking ? "Checking…" : "Retry"}</Text></Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss offline notice" onPress={() => setDismissed(true)} style={styles.dismiss}><X size={18} color="#FFFFFF" /></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss offline notice" onPress={() => setDismissed(true)} style={styles.dismiss}><X size={18} color="#FFFDF9" /></Pressable>
     </View> : null}
   </View>;
 }
 const styles = StyleSheet.create({
   frame: { flex: 1 }, banner: { position: "absolute", left: 16, right: 16, zIndex: 100, elevation: 12, borderRadius: 18, backgroundColor: "#2B2B2B", paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 10, shadowColor: "#2B2B2B", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 8 },
-  copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF", fontSize: 13 },
-  body: { fontFamily: "InstrumentSans-Regular", color: "#FFFFFF", fontSize: 12, lineHeight: 17, marginTop: 2 },
-  retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF", fontSize: 12 },
+  copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFDF9", fontSize: 13 },
+  body: { fontFamily: "InstrumentSans-Regular", color: "#FFFDF9", fontSize: 12, lineHeight: 17, marginTop: 2 },
+  retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFDF9", fontSize: 12 },
   dismiss: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
 });

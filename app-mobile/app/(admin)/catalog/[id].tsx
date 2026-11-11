@@ -195,7 +195,7 @@ export default function AdminEditGarmentScreen() {
             <ActivityIndicator size="large" color="#453332" />
           </View>
         ) : (
-        <KeyboardAwareScrollView
+          <KeyboardAwareScrollView
             contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 + insets.bottom }]}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -224,7 +224,7 @@ export default function AdminEditGarmentScreen() {
                     contentPosition="top center"
                   />
                   <View style={styles.changeBadge}>
-                    <Camera size={14} color="#FFFFFF" />
+                    <Camera size={14} color="#FFFDF9" />
                     <Text style={styles.changeBadgeText}>Change Photo</Text>
                   </View>
                 </View>
@@ -261,7 +261,7 @@ export default function AdminEditGarmentScreen() {
             <CatalogOfferingFields type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving || !loaded} />
             <TextInput accessibilityLabel="Garment details" value={description} onChangeText={setDescription} multiline placeholder="Describe this garment" maxLength={1000} style={{ minHeight: 100, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: "#453332", color: "#4A403B", marginBottom: 20, textAlignVertical: "top" }} />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        </KeyboardAwareScrollView>
+          </KeyboardAwareScrollView>
         )}
 
         {/* Bottom Save Action Bar */}
@@ -275,7 +275,7 @@ export default function AdminEditGarmentScreen() {
             ]}
           >
             {saving ? (
-              <ActivityIndicator color="#FFFFFF" />
+              <ActivityIndicator color="#FFFDF9" />
             ) : (
               <Text style={styles.submitBtnText}>Save Changes</Text>
             )}
@@ -310,7 +310,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 16,
   },
-  headerTitle: { ...typeScale.pageTitle,
+  headerTitle: {
+    ...typeScale.pageTitle,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
@@ -326,7 +327,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 36,
   },
-  fieldLabel: { ...typeScale.label,
+  fieldLabel: {
+    ...typeScale.label,
     color: "#4A403B",
     marginBottom: 8,
   },
@@ -337,7 +339,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: "#F96951",
     borderStyle: "dashed",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     overflow: "hidden",
     marginBottom: 24,
   },
@@ -393,10 +395,10 @@ const styles = StyleSheet.create({
   changeBadgeText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   textInput: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 52,
@@ -435,6 +437,6 @@ const styles = StyleSheet.create({
   submitBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 20,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
 });

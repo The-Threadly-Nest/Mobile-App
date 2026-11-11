@@ -151,23 +151,23 @@ export default function StaffChatScreen() {
         return;
       }
       try {
-          const body = await apiFetch<any>("/api/staff/me", { silent: true });
-          const fetchedStaffName = body.name || body.user?.name || (body.email ? body.email.split("@")[0] : null);
-          const fetchedShopName = body.shopName || body.fashionHouse?.shopName || body.fashionHouse?.name;
+        const body = await apiFetch<any>("/api/staff/me", { silent: true });
+        const fetchedStaffName = body.name || body.user?.name || (body.email ? body.email.split("@")[0] : null);
+        const fetchedShopName = body.shopName || body.fashionHouse?.shopName || body.fashionHouse?.name;
 
-          if (fetchedStaffName) {
-            const formattedName = fetchedStaffName.charAt(0).toUpperCase() + fetchedStaffName.slice(1);
-            setStaffName(formattedName);
-          }
-          if (body.adminName) {
-            setAdminName(body.adminName);
-          }
-          if (fetchedShopName) {
-            setFashionHouseName(fetchedShopName);
-          }
-          if (body.fashionHouseId) {
-            setFashionHouseId(body.fashionHouseId);
-          }
+        if (fetchedStaffName) {
+          const formattedName = fetchedStaffName.charAt(0).toUpperCase() + fetchedStaffName.slice(1);
+          setStaffName(formattedName);
+        }
+        if (body.adminName) {
+          setAdminName(body.adminName);
+        }
+        if (fetchedShopName) {
+          setFashionHouseName(fetchedShopName);
+        }
+        if (body.fashionHouseId) {
+          setFashionHouseId(body.fashionHouseId);
+        }
       } catch (e) {
         console.warn("Failed to fetch staff details", e);
       } finally {
@@ -200,17 +200,17 @@ export default function StaffChatScreen() {
 
         const body = await apiFetch<any>(`/api/chat/session/${fashionHouseId}`, { silent: true });
         if (cancelled) return;
-          if (cancelled) return;
-          if (Array.isArray(body.history) && body.history.length > 0) {
-            const formatted: ChatMessage[] = body.history.map(mapHistoryTurn);
-            setMessages(formatted);
-            hydratedConversationIdRef.current = fashionHouseId;
-            void writeChatCache(cacheOwner, "staff-admin", fashionHouseId, formatted);
-          } else {
-            setMessages([]);
-            hydratedConversationIdRef.current = fashionHouseId;
-            void writeChatCache<ChatMessage[]>(cacheOwner, "staff-admin", fashionHouseId, []);
-          }
+        if (cancelled) return;
+        if (Array.isArray(body.history) && body.history.length > 0) {
+          const formatted: ChatMessage[] = body.history.map(mapHistoryTurn);
+          setMessages(formatted);
+          hydratedConversationIdRef.current = fashionHouseId;
+          void writeChatCache(cacheOwner, "staff-admin", fashionHouseId, formatted);
+        } else {
+          setMessages([]);
+          hydratedConversationIdRef.current = fashionHouseId;
+          void writeChatCache<ChatMessage[]>(cacheOwner, "staff-admin", fashionHouseId, []);
+        }
       } catch (e) {
         console.error("Failed to load chat history", e);
       } finally {
@@ -353,8 +353,8 @@ export default function StaffChatScreen() {
     if (timerRef.current) clearInterval(timerRef.current);
     try {
       await audioRecorder.stop();
-    } catch {}
-    await setAudioModeAsync({ allowsRecording: false }).catch(() => {});
+    } catch { }
+    await setAudioModeAsync({ allowsRecording: false }).catch(() => { });
     setIsRecording(false);
     setIsPaused(false);
     setRecordingDuration(0);
@@ -577,93 +577,93 @@ export default function StaffChatScreen() {
                   )}
                   <View style={styles.messageBlock}>
 
-                  {/* Received Sender Name */}
-                  {!isMe && msg.senderName && (
-                    <Text style={styles.senderNameText}>{msg.senderName}</Text>
-                  )}
-
-                  {/* Message Bubble Container */}
-                  <Pressable
-                    onLongPress={() => openMessageDeleteMenu(msg)}
-                    delayLongPress={400}
-                    disabled={msg.id.startsWith("temp-") || deletingMessageId !== null}
-                    style={{ position: "relative", alignSelf: isMe ? "flex-end" : "flex-start" }}
-                  >
-                    <View
-                      style={[
-                        styles.bubbleBase,
-                        isMe ? styles.sentBubble : styles.receivedBubble,
-                        msg.imageUrl && !isDeleted ? { padding: 4 } : null,
-                      ]}
-                    >
-                      {msg.imageUrl && !isDeleted ? (
-                        <Image
-                          source={{ uri: msg.imageUrl }}
-                          style={{
-                            width: 220,
-                            height: 180,
-                            borderRadius: 14,
-                          }}
-                          resizeMode="cover"
-                        />
-                      ) : null}
-                      {msg.text ? (
-                        <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: "italic" }]}>
-                          {msg.text}
-                        </Text>
-                      ) : null}
-                      {msg.audioUrl && !isDeleted ? (
-                        <Pressable
-                          onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
-                          style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 6, minWidth: 180 }}
-                        >
-                          {/* Play / Pause button */}
-                          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? "rgba(255, 255, 255,0.25)" : "rgba(69, 51, 50,0.15)", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            {playingAudioId === msg.id ? (
-                              <Pause size={16} color={isMe ? "#FFFFFF" : "#453332"} />
-                            ) : (
-                              <Play size={16} color={isMe ? "#FFFFFF" : "#453332"} style={{ marginLeft: 2 }} />
-                            )}
-                          </View>
-                          {/* Animated Waveform */}
-                          <View style={{ flex: 1, justifyContent: "center" }}>
-                            <AnimatedWaveform
-                              isAnimating={playingAudioId === msg.id}
-                              color={isMe ? "#FFFFFF" : "#453332"}
-                              inactiveColor={isMe ? "rgba(255, 255, 255,0.4)" : "rgba(69, 51, 50,0.4)"}
-                              barCount={16}
-                              height={24}
-                            />
-                          </View>
-                          {/* Duration */}
-                          <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: isMe ? "rgba(255, 255, 255,0.85)" : "#453332", flexShrink: 0 }}>
-                            {formatDuration(msg.audioDuration || 0)}
-                          </Text>
-                        </Pressable>
-                      ) : null}
-                    </View>
-                    {isMe ? <SentTail /> : <ReceivedTail />}
-                  </Pressable>
-
-                  {/* Status & Timestamp Row */}
-                  <View style={[styles.statusRow, !isMe && { alignSelf: "flex-start" }]}>
-                    <Text style={styles.statusText}>
-                      {msg.time || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </Text>
-                    {isMe && (
-                      msg.id.startsWith("temp-") || msg.status === "Sent" ? (
-                        <Check size={14} color="#453332" />
-                      ) : msg.status === "Read" ? (
-                        <CheckCheck size={14} color="#453332" />
-                      ) : (
-                        <CheckCheck size={14} color="#453332" />
-                      )
+                    {/* Received Sender Name */}
+                    {!isMe && msg.senderName && (
+                      <Text style={styles.senderNameText}>{msg.senderName}</Text>
                     )}
+
+                    {/* Message Bubble Container */}
+                    <Pressable
+                      onLongPress={() => openMessageDeleteMenu(msg)}
+                      delayLongPress={400}
+                      disabled={msg.id.startsWith("temp-") || deletingMessageId !== null}
+                      style={{ position: "relative", alignSelf: isMe ? "flex-end" : "flex-start" }}
+                    >
+                      <View
+                        style={[
+                          styles.bubbleBase,
+                          isMe ? styles.sentBubble : styles.receivedBubble,
+                          msg.imageUrl && !isDeleted ? { padding: 4 } : null,
+                        ]}
+                      >
+                        {msg.imageUrl && !isDeleted ? (
+                          <Image
+                            source={{ uri: msg.imageUrl }}
+                            style={{
+                              width: 220,
+                              height: 180,
+                              borderRadius: 14,
+                            }}
+                            resizeMode="cover"
+                          />
+                        ) : null}
+                        {msg.text ? (
+                          <Text style={[styles.bubbleText, isMe ? styles.sentText : styles.receivedText, isDeleted && { fontStyle: "italic" }]}>
+                            {msg.text}
+                          </Text>
+                        ) : null}
+                        {msg.audioUrl && !isDeleted ? (
+                          <Pressable
+                            onPress={() => togglePlayAudio(msg.audioUrl!, msg.id)}
+                            style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 6, minWidth: 180 }}
+                          >
+                            {/* Play / Pause button */}
+                            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isMe ? "rgba(255, 255, 255,0.25)" : "rgba(69, 51, 50,0.15)", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              {playingAudioId === msg.id ? (
+                                <Pause size={16} color={isMe ? "#FFFDF9" : "#453332"} />
+                              ) : (
+                                <Play size={16} color={isMe ? "#FFFDF9" : "#453332"} style={{ marginLeft: 2 }} />
+                              )}
+                            </View>
+                            {/* Animated Waveform */}
+                            <View style={{ flex: 1, justifyContent: "center" }}>
+                              <AnimatedWaveform
+                                isAnimating={playingAudioId === msg.id}
+                                color={isMe ? "#FFFDF9" : "#453332"}
+                                inactiveColor={isMe ? "rgba(255, 255, 255,0.4)" : "rgba(69, 51, 50,0.4)"}
+                                barCount={16}
+                                height={24}
+                              />
+                            </View>
+                            {/* Duration */}
+                            <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 12, color: isMe ? "rgba(255, 255, 255,0.85)" : "#453332", flexShrink: 0 }}>
+                              {formatDuration(msg.audioDuration || 0)}
+                            </Text>
+                          </Pressable>
+                        ) : null}
+                      </View>
+                      {isMe ? <SentTail /> : <ReceivedTail />}
+                    </Pressable>
+
+                    {/* Status & Timestamp Row */}
+                    <View style={[styles.statusRow, !isMe && { alignSelf: "flex-start" }]}>
+                      <Text style={styles.statusText}>
+                        {msg.time || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </Text>
+                      {isMe && (
+                        msg.id.startsWith("temp-") || msg.status === "Sent" ? (
+                          <Check size={14} color="#453332" />
+                        ) : msg.status === "Read" ? (
+                          <CheckCheck size={14} color="#453332" />
+                        ) : (
+                          <CheckCheck size={14} color="#453332" />
+                        )
+                      )}
+                    </View>
                   </View>
-                </View>
-              </React.Fragment>
-            );
-          })
+                </React.Fragment>
+              );
+            })
           )}
 
           {uploadingImage && (
@@ -745,7 +745,7 @@ export default function StaffChatScreen() {
                 </Pressable>
 
                 <Pressable onPress={stopAndSendRecording} disabled={sending} style={styles.sendCircleBtn}>
-                  <Send size={20} color="#FFFFFF" />
+                  <Send size={20} color="#FFFDF9" />
                 </Pressable>
               </View>
             </View>
@@ -784,19 +784,19 @@ export default function StaffChatScreen() {
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Send size={20} color="#FFFFFF" />
+                  <Send size={20} color="#FFFDF9" />
                 </Pressable>
               ) : (
                 <Pressable
                   onPress={startRecording}
-                    disabled={sending}
-                    accessibilityLabel={sending ? "Sending voice note" : "Record voice note"}
+                  disabled={sending}
+                  accessibilityLabel={sending ? "Sending voice note" : "Record voice note"}
                   style={({ pressed }) => [
                     styles.sendBtn,
                     { opacity: pressed ? 0.85 : 1 },
                   ]}
                 >
-                  {sending ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Mic size={20} color="#FFFFFF" />}
+                  {sending ? <ActivityIndicator size="small" color="#FFFDF9" /> : <Mic size={20} color="#FFFDF9" />}
                 </Pressable>
               )}
             </>
@@ -854,7 +854,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#453332",
   },
-  headerSubtitleText: { ...typeScale.caption,
+  headerSubtitleText: {
+    ...typeScale.caption,
     color: "#453332",
     marginTop: 2,
   },
@@ -937,7 +938,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   sentText: {
-    color: "#FFFFFF",
+    color: "#FFFDF9",
   },
   receivedText: {
     color: "#453332",
@@ -970,7 +971,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9E8D3",
   },
   recordingContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -1045,7 +1046,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -1083,7 +1084,7 @@ const styles = StyleSheet.create({
     bottom: 74,
     left: 16,
     right: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 8,

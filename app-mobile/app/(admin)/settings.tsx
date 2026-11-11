@@ -95,7 +95,7 @@ export default function AdminSettingsScreen() {
               accessibilityLabel="Go back"
               style={({ pressed }) => [styles.circularBackBtn, { opacity: pressed ? 0.75 : 1 }]}
             >
-              <BackArrowIcon color="#FFFFFF" />
+              <BackArrowIcon color="#FFFDF9" />
             </Pressable>
             <Text style={styles.headerTitle}>My Profile</Text>
           </View>
@@ -250,8 +250,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle,
-    color: "#FFFFFF",
+  headerTitle: {
+    ...typeScale.pageTitle,
+    color: "#FFFDF9",
     letterSpacing: -0.2,
   },
   balanceLabel: {
@@ -263,13 +264,13 @@ const styles = StyleSheet.create({
   balanceValue: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 34,
-    color: "#FFFFFF",
+    color: "#FFFDF9",
     letterSpacing: -0.5,
     marginBottom: 16,
   },
   withdrawBtn: {
     borderWidth: 1,
-    borderColor: "#FFFFFF",
+    borderColor: "#FFFDF9",
     borderRadius: 9,
     paddingHorizontal: 20,
     height: 34,

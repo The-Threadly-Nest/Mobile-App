@@ -25,8 +25,8 @@ async function sendEmail({ to, subject, text, html, idempotencyKey }: { to: stri
     console.error(`Email delivery failed. Resend returned HTTP ${response.status}.`);
     const hint = response.status === 401 ? "Check the backend RESEND_API_KEY."
       : response.status === 403 ? "Check that the sender domain is verified and the API key permits sending."
-      : response.status === 429 ? "The email provider's sending limit was reached."
-      : "Check the email request and sender settings in Resend.";
+        : response.status === 429 ? "The email provider's sending limit was reached."
+          : "Check the email request and sender settings in Resend.";
     console.error(`Email was not accepted. ${hint}`);
     throw Object.assign(new Error(result?.message || "Email delivery failed."), { status: 502, code: `EMAIL_PROVIDER_${response.status}` });
   }
@@ -39,8 +39,8 @@ function emailShell(content: string, logoUrl?: string): string {
     return `<!doctype html><html><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
       <style>@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400;src:url('${escapeHtml(fontUrl)}') format('truetype');}
       @font-face{font-family:'Instrument Sans';font-style:normal;font-weight:700;src:url('${escapeHtml(boldFontUrl)}') format('truetype');}</style>
-      </head><body style="margin:0;background:#FFFFFF;color:#000000;">
-      <div style="font-family:'Instrument Sans',Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px 16px;color:#000000;background:#FFFFFF;">
+      </head><body style="margin:0;background:#FFFDF9;color:#000000;">
+      <div style="font-family:'Instrument Sans',Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px 16px;color:#000000;background:#FFFDF9;">
       <p style="margin:0 0 28px;"><img src="${escapeHtml(logoUrl)}" alt="Owuja" width="150" style="display:block;width:150px;max-width:100%;height:auto;" /></p>
       ${content}
       <p style="font-size:12px;color:#000000;margin:24px 0 0;">Need help? Reply to this email or contact support@owuja.com.</p>
@@ -161,14 +161,14 @@ export async function sendWaitlistConfirmationEmail({
     subject: designer ? "Your next chapter in fashion starts with Owuja" : "You're on the Owuja waitlist",
     idempotencyKey,
     text: [`Hi ${firstName},`, ...paragraphs, `The Owuja team\n${tagline}`,
-      `Know someone who would enjoy Owuja? Share your personal link: ${referralUrl}`,
-      `Unsubscribe: ${unsubscribeUrl}`].join("\n\n"),
+    `Know someone who would enjoy Owuja? Share your personal link: ${referralUrl}`,
+    `Unsubscribe: ${unsubscribeUrl}`].join("\n\n"),
     html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(firstName)}</strong>,</p>
       ${paragraphs.map(paragraph => `<p style="font-size:14px;line-height:1.6;">${escapeHtml(paragraph)}</p>`).join("\n")}
       <p style="font-size:14px;line-height:1.6;">The Owuja team<br /><em>${escapeHtml(tagline)}</em></p>
       <p style="font-size:14px;line-height:1.6;">Know someone who would enjoy ${BRAND_NAME}? Share your personal link:</p>
       <p><a href="${escapeHtml(referralUrl)}" style="color:#000000;text-decoration:underline;">Share ${BRAND_NAME}</a></p>
-      <p style="margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="display:inline-block;padding:10px 20px;border:1px solid #000000;border-radius:999px;background:#FFFFFF;color:#000000;font-family:'Instrument Sans',Arial,sans-serif;font-size:12px;line-height:1.4;text-decoration:none;">Unsubscribe</a></p>`, `${publicUrl}/assets/email-logo.png`),
+      <p style="margin-top:24px;"><a href="${escapeHtml(unsubscribeUrl)}" style="display:inline-block;padding:10px 20px;border:1px solid #000000;border-radius:999px;background:#FFFDF9;color:#000000;font-family:'Instrument Sans',Arial,sans-serif;font-size:12px;line-height:1.4;text-decoration:none;">Unsubscribe</a></p>`, `${publicUrl}/assets/email-logo.png`),
   });
 }
 
@@ -180,6 +180,6 @@ export async function sendWaitlistInviteEmail({ to, name }: { to: string; name: 
     text: `Hi ${name}, your invitation to join ${BRAND_NAME} is ready. Continue here: ${inviteUrl}`,
     html: emailShell(`<p style="font-size:16px;">Hi <strong>${escapeHtml(name)}</strong>,</p>
       <p style="font-size:14px;line-height:1.6;">Your invitation to join ${BRAND_NAME} is ready.</p>
-      <p style="text-align:center;"><a href="${escapeHtml(inviteUrl)}" style="display:inline-block;padding:12px 28px;background:#F96951;color:#FFFFFF;text-decoration:none;border-radius:999px;font-weight:bold;">Join ${BRAND_NAME}</a></p>`),
+      <p style="text-align:center;"><a href="${escapeHtml(inviteUrl)}" style="display:inline-block;padding:12px 28px;background:#F96951;color:#FFFDF9;text-decoration:none;border-radius:999px;font-weight:bold;">Join ${BRAND_NAME}</a></p>`),
   });
 }

@@ -160,7 +160,7 @@ export default function CustomerProfileScreen() {
         if (prefs.phone) setPhone(prefs.phone);
         if (prefs.location) setLocation(prefs.location);
       }
-    } catch {}
+    } catch { }
 
     await loadMeasurements();
   }, [storeOrders.length, setPhone, setLocation, loadMeasurements]);
@@ -180,15 +180,15 @@ export default function CustomerProfileScreen() {
             setUnreadMessageCount(total);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }, [fetchStats, setUnreadMessageCount])
   );
 
   const customerName = storedName?.trim()
     ? storedName.trim()
     : storedEmail?.trim()
-    ? storedEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-    : "Christianah James";
+      ? storedEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+      : "Christianah James";
 
   const memberSinceText = React.useMemo(() => {
     if (!createdAt) return "Member since June 2025";
@@ -307,7 +307,7 @@ export default function CustomerProfileScreen() {
             {totalUnread > 0 && (
               <View
                 style={{
-                    backgroundColor: '#F96951',
+                  backgroundColor: '#F96951',
                   minWidth: 22,
                   height: 22,
                   borderRadius: 11,
@@ -316,7 +316,7 @@ export default function CustomerProfileScreen() {
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ color: '#FFFFFF', fontSize: 11, fontFamily: 'InstrumentSans-Bold' }}>
+                <Text style={{ color: '#FFFDF9', fontSize: 11, fontFamily: 'InstrumentSans-Bold' }}>
                   {totalUnread > 99 ? '99+' : totalUnread}
                 </Text>
               </View>
@@ -380,112 +380,112 @@ export default function CustomerProfileScreen() {
             }}>
               <Image source={{ uri: item.imageUrl }} style={{ width: 60, height: 70, borderRadius: 8 }} />
               <Text className="flex-1 font-body text-black">{item.name}</Text>
-            <ChevronRight size={18} color="#2B2B2B" />
+              <ChevronRight size={18} color="#2B2B2B" />
             </Pressable>)}
           </ScrollView>
         </SafeAreaView>
       </Modal>
       <ProfileSettingsPopup visible={showPersonalInfo} onClose={() => { setShowPersonalInfo(false); setIsEditingInfo(false); }}>
-          <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-        {/* Contact & Location Details Card */}
-        <View className="bg-white rounded-2xl p-4 mb-4">
-          <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-row items-center flex-1">
-              <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
-                <User size={20} color="#F96951" strokeWidth={1.6} />
+        <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+          {/* Contact & Location Details Card */}
+          <View className="bg-white rounded-2xl p-4 mb-4">
+            <View className="flex-row items-center justify-between mb-3">
+              <View className="flex-row items-center flex-1">
+                <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
+                  <User size={20} color="#F96951" strokeWidth={1.6} />
+                </View>
+                <Text className="font-body text-[15px] text-[#4A403B]">Personal Info</Text>
               </View>
-              <Text className="font-body text-[15px] text-[#4A403B]">Personal Info</Text>
+              {!isEditingInfo ? (
+                <Pressable
+                  onPress={() => setIsEditingInfo(true)}
+                  className="flex-row items-center bg-white px-3 py-1.5 rounded-full"
+                >
+                  <Edit2 size={13} color="#453332" style={{ marginRight: 4 }} />
+                  <Text className="font-body text-[12px] text-black font-medium">Edit</Text>
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={handleSaveContactInfo}
+                  disabled={savingContact}
+                  className="flex-row items-center bg-tomato px-3.5 py-1.5 rounded-full"
+                >
+                  <Check size={13} color="#FFFDF9" style={{ marginRight: 4 }} />
+                  <Text className="font-body text-[12px] text-white font-medium">{savingContact ? "Saving..." : "Save"}</Text>
+                </Pressable>
+              )}
             </View>
+
             {!isEditingInfo ? (
-              <Pressable
-                onPress={() => setIsEditingInfo(true)}
-                className="flex-row items-center bg-white px-3 py-1.5 rounded-full"
-              >
-                <Edit2 size={13} color="#453332" style={{ marginRight: 4 }} />
-                <Text className="font-body text-[12px] text-black font-medium">Edit</Text>
-              </Pressable>
+              <View className="gap-2.5">
+                {/* Phone Display */}
+                <View className="flex-row items-center">
+                  <View className="w-8 h-8 rounded-full bg-cream items-center justify-center mr-3">
+                    <Phone size={15} color="#453332" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-body text-[11px] text-black uppercase tracking-wide">Phone Number</Text>
+                    <Text className="font-body text-[14px] text-black">
+                      {storedPhone || "Add phone number"}
+                    </Text>
+                  </View>
+                </View>
+
+                <View className="h-[1px] bg-white" />
+
+                {/* Location Display */}
+                <View className="flex-row items-center">
+                  <View className="w-8 h-8 rounded-full bg-cream items-center justify-center mr-3">
+                    <MapPin size={15} color="#453332" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-body text-[11px] text-black uppercase tracking-wide">Location</Text>
+                    <Text className="font-body text-[14px] text-black">
+                      {storedLocation || "Lagos, Nigeria"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             ) : (
-              <Pressable
-                onPress={handleSaveContactInfo}
-                disabled={savingContact}
-                className="flex-row items-center bg-tomato px-3.5 py-1.5 rounded-full"
-              >
-                <Check size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
-                <Text className="font-body text-[12px] text-white font-medium">{savingContact ? "Saving..." : "Save"}</Text>
-              </Pressable>
+              <View className="gap-3 pt-1 w-full" style={{ width: "100%", alignSelf: "stretch" }}>
+                {/* Phone Input */}
+                <View style={{ width: "100%", alignSelf: "stretch" }}>
+                  <PhoneInputWithCountry
+                    label="Phone Number"
+                    placeholder="801 234 5678"
+                    value={tempPhone}
+                    onChangePhone={setTempPhone}
+                  />
+                </View>
+
+                {/* Location Input & Auto Detect */}
+                <View style={{ width: "100%", alignSelf: "stretch" }}>
+                  <View className="flex-row items-center justify-between mb-1">
+                    <Text className="font-body text-[12px] text-black">Location</Text>
+                    <Pressable
+                      onPress={handleAutoDetectLocation}
+                      className="flex-row items-center"
+                    >
+                      <Navigation size={12} color="#453332" style={{ marginRight: 3 }} />
+                      <Text className="font-body text-[11px] text-black font-semibold">
+                        {isDetecting ? "Detecting..." : "Auto-detect"}
+                      </Text>
+                      {isDetecting && <ActivityIndicator size="small" color="#453332" style={{ marginLeft: 4 }} />}
+                    </Pressable>
+                  </View>
+                  <TextInput
+                    value={tempLocation}
+                    onChangeText={setTempLocation}
+                    placeholder="e.g. Lagos, Nigeria"
+                    style={{ height: 46, width: "100%", alignSelf: "stretch" }}
+                    className="bg-white border border-[#FFFDF9] rounded-xl px-3.5 text-[14px] text-black font-body"
+                  />
+                </View>
+              </View>
             )}
           </View>
 
-          {!isEditingInfo ? (
-            <View className="gap-2.5">
-              {/* Phone Display */}
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-cream items-center justify-center mr-3">
-                  <Phone size={15} color="#453332" />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-body text-[11px] text-black uppercase tracking-wide">Phone Number</Text>
-                  <Text className="font-body text-[14px] text-black">
-                    {storedPhone || "Add phone number"}
-                  </Text>
-                </View>
-              </View>
-
-              <View className="h-[1px] bg-white" />
-
-              {/* Location Display */}
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-cream items-center justify-center mr-3">
-                  <MapPin size={15} color="#453332" />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-body text-[11px] text-black uppercase tracking-wide">Location</Text>
-                  <Text className="font-body text-[14px] text-black">
-                    {storedLocation || "Lagos, Nigeria"}
-                  </Text>
-                </View>
-              </View>
-            </View>
-          ) : (
-            <View className="gap-3 pt-1 w-full" style={{ width: "100%", alignSelf: "stretch" }}>
-              {/* Phone Input */}
-              <View style={{ width: "100%", alignSelf: "stretch" }}>
-                <PhoneInputWithCountry
-                  label="Phone Number"
-                  placeholder="801 234 5678"
-                  value={tempPhone}
-                  onChangePhone={setTempPhone}
-                />
-              </View>
-
-              {/* Location Input & Auto Detect */}
-              <View style={{ width: "100%", alignSelf: "stretch" }}>
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="font-body text-[12px] text-black">Location</Text>
-                  <Pressable
-                    onPress={handleAutoDetectLocation}
-                    className="flex-row items-center"
-                  >
-                    <Navigation size={12} color="#453332" style={{ marginRight: 3 }} />
-                    <Text className="font-body text-[11px] text-black font-semibold">
-                      {isDetecting ? "Detecting..." : "Auto-detect"}
-                    </Text>
-                    {isDetecting && <ActivityIndicator size="small" color="#453332" style={{ marginLeft: 4 }} />}
-                  </Pressable>
-                </View>
-                <TextInput
-                  value={tempLocation}
-                  onChangeText={setTempLocation}
-                  placeholder="e.g. Lagos, Nigeria"
-                  style={{ height: 46, width: "100%", alignSelf: "stretch" }}
-                  className="bg-white border border-[#FFFFFF] rounded-xl px-3.5 text-[14px] text-black font-body"
-                />
-              </View>
-            </View>
-          )}
-        </View>
-
-          </KeyboardAwareScrollView>
+        </KeyboardAwareScrollView>
       </ProfileSettingsPopup>
 
       <CustomerMeasurementsModal visible={isMeasurementsModalVisible} onClose={() => setIsMeasurementsModalVisible(false)} rows={measurements} loading={loadingMeasurements} error={measurementsError} onRetry={() => { void loadMeasurements(); }} />

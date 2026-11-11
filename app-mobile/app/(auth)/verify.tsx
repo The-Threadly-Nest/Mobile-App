@@ -354,7 +354,8 @@ const styles = StyleSheet.create({
     color: "#4A403B",
     marginBottom: 8,
   },
-  subtitle: { ...typeScale.caption,
+  subtitle: {
+    ...typeScale.caption,
     color: "#4A403B",
     marginBottom: 32,
   },
@@ -377,12 +378,12 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   otpBoxEmpty: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "#453332",
   },
   otpBoxFilled: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFDF9",
     borderWidth: 1,
     borderColor: "#453332",
   },
@@ -475,7 +476,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  continueBtnText: { ...typeScale.button,
-    color: "#FFFFFF",
+  continueBtnText: {
+    ...typeScale.button,
+    color: "#FFFDF9",
   },
 });

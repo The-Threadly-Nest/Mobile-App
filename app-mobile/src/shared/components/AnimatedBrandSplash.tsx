@@ -72,7 +72,7 @@ export default function AnimatedBrandSplash({ onComplete, ready }: { onComplete:
               transform: [{ translateY: pieces[index].interpolate({ inputRange: [0, 1], outputRange: [5, 0] }) }],
             }]}>
               <Svg width={MARK_WIDTH} height={MARK_HEIGHT} viewBox="0 0 1161.52 1325.25" fill="none">
-                <Path d={d} fill="#FFFFFF" />
+                <Path d={d} fill="#FFFDF9" />
               </Svg>
             </Animated.View>
           ))}
@@ -97,6 +97,6 @@ const styles = StyleSheet.create({
   mark: { width: MARK_WIDTH, height: MARK_HEIGHT, overflow: "hidden" },
   finalMark: { position: "absolute", width: 4389 * ASSET_SCALE, height: 4389 * ASSET_SCALE, left: -452 * ASSET_SCALE, top: -208 * ASSET_SCALE },
   namePosition: { height: MARK_HEIGHT, justifyContent: "center" },
-  name: { fontFamily: "InstrumentSans-Medium", fontSize: 40, lineHeight: MARK_HEIGHT, includeFontPadding: false, color: "#FFFFFF" },
+  name: { fontFamily: "InstrumentSans-Medium", fontSize: 40, lineHeight: MARK_HEIGHT, includeFontPadding: false, color: "#FFFDF9" },
 });
 
