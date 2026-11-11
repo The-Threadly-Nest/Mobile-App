@@ -8,6 +8,7 @@ import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { apiFetchCollectionPage, escalationsApi, getCachedResponse, invalidateReadCache } from "@/shared/utils/apiClient";
 import { normalizeStatus } from "@/shared/domain/statuses";
 import { isUnassignedOrder } from "@/shared/utils/adminOrderQueues";
+import { isReadyToWear } from "@/shared/utils/orderFulfillment";
 
 interface OrderItem {
   id: string;
@@ -17,6 +18,7 @@ interface OrderItem {
   price: number;
   status: string;
   assignedStaff: string;
+  readyToWear?: boolean;
 }
 
 const FILTER_TABS = ["All", "In Production", "Booked", "Ready", "Completed", "Delivered"];
@@ -127,7 +129,6 @@ export default function AdminOrdersScreen() {
         const data = ordersRes.value.items;
         if (Array.isArray(data)) {
           data.forEach((o: any) => {
-            if (isUnassignedOrder(o)) return;
             merged.push({
               id: o.id,
               orderNumber: generateOrderNumber(o.bookingId || o.id),
@@ -136,6 +137,7 @@ export default function AdminOrdersScreen() {
               price: o.price || 0,
               status: o.status || "in_production",
               assignedStaff: o.staff?.name ? `Assigned to ${o.staff.name}` : "Unassigned",
+              readyToWear: isReadyToWear(o),
             });
           });
         }
@@ -169,7 +171,7 @@ export default function AdminOrdersScreen() {
         }
       }
 
-      setItems(merged);
+      if (ordersRes.status === "fulfilled") setItems(merged);
     } catch {
       // ignore network errors
     } finally {
@@ -194,6 +196,7 @@ export default function AdminOrdersScreen() {
           price: order.price || 0,
           status: order.status || "in_production",
           assignedStaff: order.staff?.name ? `Assigned to ${order.staff.name}` : "Unassigned",
+          readyToWear: isReadyToWear(order),
         }));
         setItems((current) => {
           const byId = new Map(current.map((item) => [item.id, item]));
@@ -268,7 +271,7 @@ export default function AdminOrdersScreen() {
       </View>
 
       {/* Content */}
-      {loading ? (
+      {loading && items.length === 0 ? (
         <ActivityIndicator color="#453332" style={{ marginTop: 40 }} />
       ) : (
         <FlatList
@@ -338,7 +341,7 @@ export default function AdminOrdersScreen() {
                     </Text>
                     <View style={[styles.statusBadge, { backgroundColor: meta.bg }]}>
                       <Text style={[styles.statusText, { color: meta.text }]}>
-                        {meta.label}
+                        {item.readyToWear && meta.filterKey === "In Production" ? "Preparing order" : meta.label}
                       </Text>
                     </View>
                   </View>
@@ -351,9 +354,9 @@ export default function AdminOrdersScreen() {
                     <Text style={styles.itemText} numberOfLines={1}>
                       {item.item}
                     </Text>
-                    <Text style={styles.assignedText} numberOfLines={1}>
+                    {!item.readyToWear && <Text style={styles.assignedText} numberOfLines={1}>
                       {item.assignedStaff}
-                    </Text>
+                    </Text>}
                   </View>
                 </View>
               </TouchableOpacity>
@@ -413,7 +416,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderRadius: 22,
     padding: 16,
     marginBottom: 14,
@@ -490,7 +493,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     padding: 24,
     gap: 6,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
   },
   emptyText: {

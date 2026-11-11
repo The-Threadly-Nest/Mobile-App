@@ -422,13 +422,13 @@ const styles = StyleSheet.create({
   navCircleBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(43, 43, 43, 0.35)",
+    
+    
     alignItems: "center",
     justifyContent: "center",
   },
   sheetCard: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     marginTop: -26,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#E4D5B7",
     alignSelf: "center",
     marginBottom: 16,
   },

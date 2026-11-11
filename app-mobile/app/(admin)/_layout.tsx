@@ -239,7 +239,8 @@ export default function AdminLayout() {
 
   return (
     <Tabs
-      backBehavior="history"
+      initialRouteName="dashboard"
+      backBehavior="initialRoute"
       tabBar={(props) => (
         <FloatingTabBar
           {...props}

@@ -194,6 +194,8 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      initialRouteName="browse"
+      backBehavior="initialRoute"
       tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,

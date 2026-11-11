@@ -21,7 +21,7 @@ export function ProfileMenuGroups({ children }: { children: React.ReactNode }) {
   const rows = React.Children.toArray(children).filter(React.isValidElement);
   return <View style={{ paddingHorizontal: 24, gap: 14 }}>
     {Array.from({ length: Math.ceil(rows.length / 2) }, (_, index) => (
-      <View key={index} style={{ backgroundColor: "#FFFDF9", borderRadius: 15, overflow: "hidden" }}>
+      <View key={index} style={{ backgroundColor: "#F9E8D3", borderRadius: 18, overflow: "hidden" }}>
         {rows.slice(index * 2, index * 2 + 2)}
       </View>
     ))}

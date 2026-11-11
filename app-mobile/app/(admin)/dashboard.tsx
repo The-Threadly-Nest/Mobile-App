@@ -1,3 +1,4 @@
+import { useDashboardBack } from "@/shared/hooks/useDashboardBack";
 import React, { useState, useEffect, useCallback } from "react";
 import { View, ScrollView, Pressable, Modal, ActivityIndicator, RefreshControl, Image, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -47,6 +48,7 @@ interface EscalationItem {
 }
 
 export default function AdminDashboard() {
+  useDashboardBack();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const { showAlert, showConfirm } = useAppAlert();

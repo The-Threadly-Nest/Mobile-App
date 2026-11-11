@@ -1,3 +1,4 @@
+import { useDashboardBack } from "@/shared/hooks/useDashboardBack";
 import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
 import { View, ScrollView, Pressable, Image, StyleSheet, RefreshControl, ActivityIndicator, AppState, useWindowDimensions } from "react-native";
@@ -51,6 +52,7 @@ interface FashionHouseSummary {
 
 
 export default function BrowseScreen() {
+  useDashboardBack();
   const connection = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus);
   const offline = connection === "offline";
   const { width } = useWindowDimensions();

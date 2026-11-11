@@ -980,17 +980,17 @@ const styles = StyleSheet.create({
     zIndex: 30,
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255,0.92)",
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50,0.10)",
+    
+    
+    
+    
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#2B2B2B",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 5,
+    
+    
+    
+    
+    
   },
   // Floating toolbar pill — vertical left side
   pillCenterWrapper: {

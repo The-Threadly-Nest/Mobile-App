@@ -688,17 +688,7 @@ export default function CustomerDirectChatScreen() {
           </View>
         </View>
 
-        {/* Right Action Icons: More */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="More options"
-            hitSlop={8}
-            style={({ pressed }) => [{ opacity: pressed ? 0.6 : 1 }]}
-          >
-            <MoreVertical size={20} color="#2B2B2B" />
-          </Pressable>
-        </View>
+
       </View>
 
       {/* Main Chat Area */}

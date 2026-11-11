@@ -70,7 +70,7 @@ export default function AdminSettingsScreen() {
       cancelLabel: "Cancel",
       onConfirm: () => {
         logout();
-        router.replace("/");
+        router.replace("/(auth)/login");
       },
     });
   };

@@ -2,11 +2,13 @@ import { isOrderCancelled, isOrderDelivered, isOrderWorkActive } from "../domain
 import { isReadyToWear } from "./orderFulfillment";
 
 export function isUnassignedOrder(order: any): boolean {
+  if (!order || typeof order !== "object") return false;
   if (isReadyToWear(order)) return ["order_placed", "booked", "pending", "pending_admin_review"].includes(String(order.status || "order_placed").toLowerCase());
   return !order.staffId && !order.staff?.id && !isOrderCancelled(order.status) && !isOrderDelivered(order.status);
 }
 
 export function isRunningOrder(order: any): boolean {
+  if (!order || typeof order !== "object") return false;
   return (Boolean(order.staffId || order.staff?.id) || (isReadyToWear(order) && !isUnassignedOrder(order))) && isOrderWorkActive(order.status);
 }
 

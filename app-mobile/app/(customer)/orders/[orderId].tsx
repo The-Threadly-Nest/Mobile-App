@@ -152,12 +152,20 @@ export default function CustomerOrderDetailScreen() {
 
   const fashionHouseId = orderData?.fashionHouseId || params.fashionHouseId;
 
+  const handleBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(customer)/(tabs)/orders" as any);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Top Navigation */}
       <View style={styles.headerBar}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={handleBack}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
           <BackArrowIcon size={24} color="#453332" />
@@ -280,11 +288,24 @@ export default function CustomerOrderDetailScreen() {
         {readyToWear && Array.isArray(orderData?.items) && orderData.items.length > 0 ? (
           <View style={styles.progressSection}>
             <Text style={styles.cardHeadline}>Your items</Text>
-            {orderData.items.map((item: any, index: number) => <View key={`${item.catalogItemId || index}-${item.selectedSize}-${item.selectedColor}`} style={{ paddingTop: 12, gap: 4 }}>
-              <Text style={styles.stepLabel}>{item.quantity} × {item.name}</Text>
-              <Text style={styles.stepDesc}>{[item.selectedSize && `Size ${item.selectedSize}`, item.selectedColor].filter(Boolean).join(" · ")}</Text>
-            </View>)}
-            {orderData?.fashionHouseLocation ? <View style={{ paddingTop: 16, gap: 4 }}><Text style={styles.stepLabel}>Pickup location</Text><Text style={styles.stepDesc}>{orderData.fashionHouseLocation}</Text></View> : null}
+            {orderData.items.map((item: any, index: number) => (
+              <View key={`${item.catalogItemId || index}-${item.selectedSize}-${item.selectedColor}`} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingTop: 14 }}>
+                {item.imageUrl ? (
+                  <CachedImage source={{ uri: item.imageUrl }} style={{ width: 52, height: 52, borderRadius: 10, backgroundColor: "#F0EDE8" }} contentFit="cover" />
+                ) : null}
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Text style={styles.stepLabel}>{item.quantity} × {item.name}</Text>
+                  <Text style={styles.stepDesc}>{[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedColor && `Color: ${item.selectedColor}`].filter(Boolean).join(" · ")}</Text>
+                  {item.unitPrice ? <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" }}>{`₦${Number(item.unitPrice).toLocaleString()}`}</Text> : null}
+                </View>
+              </View>
+            ))}
+            {orderData?.fashionHouseLocation ? (
+              <View style={{ paddingTop: 16, gap: 4 }}>
+                <Text style={styles.stepLabel}>Pickup location</Text>
+                <Text style={styles.stepDesc}>{orderData.fashionHouseLocation}</Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
 
@@ -399,11 +420,11 @@ const styles = StyleSheet.create({
   indicatorCol: { alignItems: "center", width: 26, marginRight: 12 },
   circle: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   circleDone: { backgroundColor: "#453332" },
-  circlePending: { backgroundColor: "#F9E8D3" },
+  circlePending: { backgroundColor: "#F0EDE8" },
   circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#4A403B" },
   connector: { width: 2, flex: 1, marginVertical: 3 },
   connectorDone: { backgroundColor: "#453332" },
-  connectorPending: { backgroundColor: "#FFFDF9" },
+  connectorPending: { backgroundColor: "#F0EDE8" },
   stepInfoCol: { flex: 1, paddingBottom: 14 },
   stepLabel: { fontFamily: "InstrumentSans-Medium", fontSize: 13.5, color: "#4A403B" },
   stepLabelCurrent: { color: "#4A403B", fontFamily: "InstrumentSans-SemiBold" },

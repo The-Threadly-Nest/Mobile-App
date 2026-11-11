@@ -40,7 +40,7 @@ export default function BookingConfirmationScreen() {
         <View className="flex-row items-center px-6 py-3 bg-cream">
           <Pressable
             onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-            className="w-10 h-10 rounded-full border border-[#FFFDF9] bg-cream items-center justify-center mr-4"
+            className="w-10 h-10 items-center justify-center mr-4"
             style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
           >
             <BackArrowIcon size={24} color="#453332" />
@@ -75,7 +75,7 @@ export default function BookingConfirmationScreen() {
       <View className="flex-row items-center px-6 py-3 bg-cream">
         <Pressable
           onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-          className="w-10 h-10 rounded-full border border-[#FFFDF9] bg-cream items-center justify-center mr-4"
+          className="w-10 h-10 items-center justify-center mr-4"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
           <BackArrowIcon size={24} color="#2B2B2B" />

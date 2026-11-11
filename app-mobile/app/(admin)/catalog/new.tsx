@@ -77,11 +77,7 @@ export default function AdminNewGarmentScreen() {
   };
 
   const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/(admin)/dashboard" as any);
-    }
+    router.replace("/(admin)/dashboard" as any);
   };
 
   const handleSubmit = async () => {
@@ -330,7 +326,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputContainer: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -358,7 +354,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   photoImage: {
     width: "100%",
@@ -394,7 +390,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#453332",
     borderStyle: "dashed",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
@@ -411,7 +407,7 @@ const styles = StyleSheet.create({
   priceInputContainer: {
     width: 125,
     height: 50,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -435,7 +431,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1.5,
     borderColor: "#453332",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },

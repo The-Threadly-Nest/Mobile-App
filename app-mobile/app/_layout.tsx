@@ -15,17 +15,18 @@ import { isRunningInExpoGo } from "expo";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 SplashScreen.preventAutoHideAsync();
+let brandSplashShown = false;
 if (!isRunningInExpoGo()) {
   SplashScreen.setOptions({ fade: false, duration: 0 });
 }
 
 export default function RootLayout() {
-  const [showBrandSplash, setShowBrandSplash] = useState(true);
+  const [showBrandSplash, setShowBrandSplash] = useState(!brandSplashShown);
   const [splashReady, setSplashReady] = useState(false);
   const nativeSplashHidden = useRef(false);
-  const [animationFinished, setAnimationFinished] = useState(false);
+  const [animationFinished, setAnimationFinished] = useState(brandSplashShown);
   const [dataReady, setDataReady] = useState(false);
-  const finishBrandSplash = useCallback(() => setAnimationFinished(true), []);
+  const finishBrandSplash = useCallback(() => { brandSplashShown = true; setAnimationFinished(true); }, []);
   useEffect(() => {
     let active = true;
     let started = false;
@@ -69,8 +70,8 @@ export default function RootLayout() {
             <ConnectionFrame>
               <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>
                 <Stack.Screen name="(auth)" options={{ animation: "none" }} />
-                <Stack.Screen name="(customer)" options={{ animation: "none" }} />
-                <Stack.Screen name="(admin)" options={{ animation: "none" }} />
+                <Stack.Screen name="(customer)" options={{ animation: "none", gestureEnabled: false }} />
+                <Stack.Screen name="(admin)" options={{ animation: "none", gestureEnabled: false }} />
                 <Stack.Screen name="(staff)" options={{ animation: "none" }} />
               </Stack>
             </ConnectionFrame>

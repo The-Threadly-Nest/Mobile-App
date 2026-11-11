@@ -639,9 +639,9 @@ const styles = StyleSheet.create({
   topBackBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+    
+    
+    
     alignItems: "center",
     justifyContent: "center",
   },

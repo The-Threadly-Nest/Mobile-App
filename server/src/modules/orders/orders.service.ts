@@ -702,9 +702,6 @@ export class OrdersService {
     if (input.authRole === "staff" && (readyToWear || order.staffId !== input.authUserId)) {
       return rejectRequest({ error: "You can update only custom-fit orders assigned to you." }, 403);
     }
-    if (input.authRole === "admin" && !readyToWear && status !== "cancelled" && status !== "declined") {
-      return rejectRequest({ error: "The assigned staff member updates custom-fit progress. You can update ready-to-wear orders." }, 403);
-    }
 
     const updated = await this.database.client.order.update({
       where: { id: routeParam(input, "id"), fashionHouseId: fhId },

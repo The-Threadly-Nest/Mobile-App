@@ -15,14 +15,17 @@ import {
   Phone,
   Ruler,
   Layers,
+  Package,
+  MapPin,
 } from "lucide-react-native";
+import CachedImage from "@/shared/components/CachedImage";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
-import { apiFetch } from "@/shared/utils/apiClient";
+import { apiFetch, invalidateReadCache } from "@/shared/utils/apiClient";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { normalizeStatus } from "@/shared/domain/statuses";
 import { formatCurrency, formatShortDate } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
-import { isReadyToWear, READY_ORDER_STAGES } from "@/shared/utils/orderFulfillment";
+import { isReadyToWear, READY_ORDER_STAGES, READY_CUSTOMER_STAGES } from "@/shared/utils/orderFulfillment";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { isUnassignedOrder } from "@/shared/utils/adminOrderQueues";
 
@@ -50,6 +53,13 @@ const STAGES = [
   { step: 3, label: "Production" },
   { step: 4, label: "Ready" },
   { step: 5, label: "Delivered" },
+];
+
+const READY_STAGES = [
+  { step: 1, label: "Placed" },
+  { step: 2, label: "Preparing" },
+  { step: 3, label: "Ready" },
+  { step: 4, label: "Completed" },
 ];
 
 export default function OrderDetailScreen() {
@@ -136,7 +146,7 @@ export default function OrderDetailScreen() {
     generateOrderNumber(order?.bookingId || order?.id || orderId || "2000");
   const currentStatus = normalizeStatus(order?.status || initialStatus || "pending_admin_review");
   const readyToWear = isReadyToWear(order);
-  const stages = readyToWear ? READY_ORDER_STAGES : STAGES;
+  const stages = readyToWear ? READY_STAGES : STAGES;
   const price = order?.price ?? null;
   const staffName =
     order?.staff?.name ||
@@ -149,7 +159,15 @@ export default function OrderDetailScreen() {
     text: "#453332",
     step: 0,
   };
-  const progressStep = readyToWear && statusMeta.step === 2 ? 3 : statusMeta.step;
+  const readyStep = ["completed", "delivered"].includes(currentStatus) ? 4
+    : ["ready", "ready_for_pickup"].includes(currentStatus) ? 3
+    : ["in_production", "fabric_sourced", "quality_check"].includes(currentStatus) ? 2
+    : 1;
+  const progressStep = readyToWear ? readyStep : statusMeta.step;
+
+  const handleBack = () => {
+    router.navigate("/(admin)/orders" as any);
+  };
 
   // Extract measurements if available
   const measurementsList =
@@ -171,7 +189,7 @@ export default function OrderDetailScreen() {
       },
     });
   };
-  const nextReadyStatus = ["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? null
+  const nextReadyStatus = !order || ["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? null
     : isUnassignedOrder(order) ? { status: "in_production", label: "Accept order" }
       : ["ready", "ready_for_pickup"].includes(currentStatus) ? { status: "completed", label: "Mark completed" }
         : { status: "ready_for_pickup", label: "Mark ready for pickup" };
@@ -181,6 +199,7 @@ export default function OrderDetailScreen() {
     setUpdatingStatus(true);
     try {
       await apiFetch(`/api/orders/${encodeURIComponent(order.id)}/status`, { method: "PATCH", body: JSON.stringify({ status: nextReadyStatus.status }) });
+      invalidateReadCache();
       await fetchOrderDetail();
     } catch (error) {
       showAlert("Couldn't update order", error instanceof Error ? error.message : "Please try again.");
@@ -188,7 +207,7 @@ export default function OrderDetailScreen() {
   };
 
   if (!order) return <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-    <View style={[styles.header, { paddingTop: SCREEN_TOP_SPACING }]}><Pressable accessibilityLabel="Back" onPress={() => router.back()} style={styles.backBtn}><BackArrowIcon color="#453332" /></Pressable><Text style={styles.headerTitle}>Order Details</Text></View>
+    <View style={[styles.header, { paddingTop: SCREEN_TOP_SPACING }]}><Pressable accessibilityLabel="Back" onPress={handleBack} style={styles.backBtn}><BackArrowIcon color="#453332" /></Pressable><Text style={styles.headerTitle}>Order Details</Text></View>
     {loading ? <ActivityIndicator color="#453332" /> : <View style={{ padding: 24, gap: 16 }}><Text accessibilityRole="alert">{loadError}</Text><Pressable onPress={() => { setLoading(true); void fetchOrderDetail(); }}><Text>Try again</Text></Pressable></View>}
   </SafeAreaView>;
 
@@ -199,7 +218,7 @@ export default function OrderDetailScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable
-              onPress={() => router.back()}
+              onPress={handleBack}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
               <BackArrowIcon size={24} color="#453332" />
@@ -261,74 +280,98 @@ export default function OrderDetailScreen() {
             </View>
           </View>
 
-          {/* Timeline / Progress Bar */}
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Production Progress</Text>
-            <View style={styles.timelineRow}>
-              {stages.map((st, i) => {
-                const isPassed = progressStep >= st.step;
-                const isCurrent = progressStep === st.step;
-                return (
-                  <View key={st.step} style={styles.timelineStepContainer}>
-                    <View style={styles.stepCircleRow}>
-                      {i > 0 && (
-                        <View
-                          style={[
-                            styles.stepConnector,
-                            isPassed && styles.stepConnectorActive,
-                          ]}
-                        />
-                      )}
-                      <View
-                        style={[
-                          styles.stepCircle,
-                          isPassed && styles.stepCirclePassed,
-                          isCurrent && styles.stepCircleCurrent,
-                        ]}
-                      >
-                        {isPassed ? (
-                          <CheckCircle2 size={12} color="#FFFDF9" />
-                        ) : (
-                          <Text style={styles.stepNumText}>{i + 1}</Text>
-                        )}
-                      </View>
-                      {i < stages.length - 1 && (
-                        <View
-                          style={[
-                            styles.stepConnector,
-                            progressStep > st.step && styles.stepConnectorActive,
-                          ]}
-                        />
-                      )}
-                    </View>
-                    <Text
-                      style={[
-                        styles.stepLabel,
-                        isPassed && styles.stepLabelActive,
-                        isCurrent && styles.stepLabelCurrent,
-                      ]}
-                    >
-                      {st.label}
-                    </Text>
+            <Text style={styles.sectionTitle}>{readyToWear ? "Order tracking" : "Production progress"}</Text>
+            {stages.map((stage, index) => {
+              const reached = progressStep >= stage.step;
+              return <View key={stage.step} style={{ flexDirection: "row", minHeight: 68 }}>
+                <View style={{ width: 28, alignItems: "center", marginRight: 14 }}>
+                  <View style={{ width: 26, height: 26, borderRadius: 13, alignItems: "center", justifyContent: "center", backgroundColor: reached ? "#453332" : "#F9E8D3" }}>
+                    {reached ? <CheckCircle2 size={16} color="#FFFFFF" /> : <Text style={{ fontSize: 12 }}>{index + 1}</Text>}
                   </View>
-                );
-              })}
-            </View>
+                  {index < stages.length - 1 ? <View style={{ width: 2, flex: 1, marginVertical: 4, backgroundColor: reached ? "#453332" : "#F9E8D3" }} /> : null}
+                </View>
+                <View style={{ flex: 1, minWidth: 0, paddingBottom: 18 }}>
+                  <Text style={{ color: "#4A403B", fontFamily: progressStep === stage.step ? "InstrumentSans-SemiBold" : "InstrumentSans-Medium", fontSize: 15, textAlign: "left" }}>{readyToWear ? READY_CUSTOMER_STAGES[index].label : stage.label}</Text>
+                  {readyToWear ? <Text style={{ color: "#4A403B", fontSize: 13, lineHeight: 19, marginTop: 4 }}>{READY_CUSTOMER_STAGES[index].desc}</Text> : null}
+                </View>
+              </View>;
+            })}
+            {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={[styles.primaryBtn, { marginTop: 10, opacity: updatingStatus ? 0.6 : 1 }]}><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating?" : nextReadyStatus.label}</Text></Pressable> : null}
           </View>
 
-          {/* Customer & Staff Info Card */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Assignment & Contact</Text>
+          {/* Ready-to-Wear: Ordered Items & Specifications Card */}
+          {readyToWear && (
+            <View style={styles.card}>
+              <View style={styles.cardHeaderRow}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Package size={18} color="#453332" />
+                  <Text style={styles.sectionTitle}>Ordered Items & Specifications</Text>
+                </View>
+                <Text style={styles.unitBadge}>READY TO WEAR</Text>
+              </View>
 
-            <View style={styles.infoRow}>
-              <View style={styles.infoIconBox}>
-                <Scissors size={18} color="#453332" />
-              </View>
-              <View style={styles.infoTextBox}>
-                <Text style={styles.infoFieldLabel}>Tailor / Staff In Charge</Text>
-                <Text style={styles.infoFieldValue}>{staffName}</Text>
-              </View>
+              {Array.isArray(order?.items) && order.items.length > 0 ? (
+                order.items.map((it: any, idx: number) => (
+                  <View key={it.catalogItemId || idx} style={styles.orderItemRow}>
+                    {it.imageUrl ? (
+                      <CachedImage source={{ uri: it.imageUrl }} style={styles.itemThumb} contentFit="cover" />
+                    ) : null}
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.itemTitle}>{it.name || itemName}</Text>
+                      <View style={styles.itemSpecsRow}>
+                        {it.selectedSize ? (
+                          <View style={styles.specBadge}>
+                            <Text style={styles.specBadgeText}>Size: {it.selectedSize}</Text>
+                          </View>
+                        ) : null}
+                        {it.selectedColor ? (
+                          <View style={styles.specBadge}>
+                            <Text style={styles.specBadgeText}>Color: {it.selectedColor}</Text>
+                          </View>
+                        ) : null}
+                        <Text style={styles.qtyText}>Qty: {it.quantity || 1}</Text>
+                      </View>
+                      <Text style={styles.itemPriceText}>{formatCurrency(it.unitPrice || price || 0)}</Text>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.orderItemRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemTitle}>{itemName}</Text>
+                    <Text style={styles.qtyText}>Off-the-rack garment • Standard ready-to-wear sizing</Text>
+                  </View>
+                </View>
+              )}
             </View>
+          )}
+
+          {/* Customer & Assignment Info Card */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>{readyToWear ? "Customer & Pickup Details" : "Assignment & Contact"}</Text>
+
+            {readyToWear ? (
+              <View style={styles.infoRow}>
+                <View style={styles.infoIconBox}>
+                  <MapPin size={18} color="#453332" />
+                </View>
+                <View style={styles.infoTextBox}>
+                  <Text style={styles.infoFieldLabel}>Fulfillment Method</Text>
+                  <Text style={styles.infoFieldValue}>In-Store Pickup</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.infoRow}>
+                <View style={styles.infoIconBox}>
+                  <Scissors size={18} color="#453332" />
+                </View>
+                <View style={styles.infoTextBox}>
+                  <Text style={styles.infoFieldLabel}>Tailor / Staff In Charge</Text>
+                  <Text style={styles.infoFieldValue}>{staffName}</Text>
+                </View>
+              </View>
+            )}
 
             {customerPhone && (
               <View style={styles.infoRow}>
@@ -351,6 +394,18 @@ export default function OrderDetailScreen() {
                 <Text style={styles.infoFieldValue}>{customerName}</Text>
               </View>
             </View>
+
+            {!readyToWear && order?.staff?.name ? (
+              <View style={styles.infoRow}>
+                <View style={styles.infoIconBox}>
+                  <Scissors size={18} color="#453332" />
+                </View>
+                <View style={styles.infoTextBox}>
+                  <Text style={styles.infoFieldLabel}>Assigned Staff</Text>
+                  <Text style={styles.infoFieldValue}>{order.staff.name}</Text>
+                </View>
+              </View>
+            ) : null}
           </View>
 
           {/* Measurements Card (if available) */}
@@ -400,17 +455,6 @@ export default function OrderDetailScreen() {
 
           {/* Bottom Action Cards */}
           <View style={styles.actionContainer}>
-            {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={styles.primaryBtn}>
-              <CheckCircle2 size={18} color="#FFFDF9" /><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating…" : nextReadyStatus.label}</Text>
-            </Pressable> : null}
-            {readyToWear && !order.isBooking && !["cancelled", "declined", "completed", "delivered"].includes(currentStatus) ? <Pressable
-              onPress={() => router.push({
-                pathname: "/(admin)/escalations/assign", params: {
-                  orderId: order.id, customerName, serviceTitle: itemName, fulfillmentType: "ready_to_wear",
-                }
-              })}
-              style={styles.primaryBtn}
-            ><Scissors size={18} color="#FFFDF9" /><Text style={styles.primaryBtnText}>{order.staff ? "Reassign staff (optional)" : "Assign staff (optional)"}</Text></Pressable> : null}
             <Pressable
               onPress={handleOpenInvoice}
               style={({ pressed }) => [
@@ -492,7 +536,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroCard: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
@@ -574,7 +618,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   card: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
@@ -587,12 +631,16 @@ const styles = StyleSheet.create({
   },
   cardHeaderRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
   sectionTitle: {
     ...typeScale.sectionTitle,
+    flexShrink: 1,
+    textAlign: "left",
     color: "#4A403B",
     marginBottom: 14,
   },
@@ -633,7 +681,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#F0EDE8",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -677,12 +725,13 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#F0EDE8",
     justifyContent: "center",
     alignItems: "center",
   },
   infoTextBox: {
     flex: 1,
+    minWidth: 0,
   },
   infoFieldLabel: {
     fontFamily: "InstrumentSans-Regular",
@@ -694,6 +743,54 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#4A403B",
     marginTop: 2,
+  },
+  orderItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(69, 51, 50, 0.06)",
+  },
+  itemThumb: {
+    width: 58,
+    height: 58,
+    borderRadius: 12,
+    backgroundColor: "#F0EDE8",
+  },
+  itemTitle: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 15,
+    color: "#4A403B",
+  },
+  itemSpecsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 4,
+    flexWrap: "wrap",
+  },
+  specBadge: {
+    backgroundColor: "rgba(69, 51, 50, 0.07)",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  specBadgeText: {
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 11,
+    color: "#4A403B",
+  },
+  qtyText: {
+    fontFamily: "InstrumentSans-Regular",
+    fontSize: 12,
+    color: "#4A403B",
+  },
+  itemPriceText: {
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 14,
+    color: "#4A403B",
+    marginTop: 4,
   },
   measurementsGrid: {
     flexDirection: "row",
