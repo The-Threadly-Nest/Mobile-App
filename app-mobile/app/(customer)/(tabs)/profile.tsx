@@ -263,7 +263,7 @@ export default function CustomerProfileScreen() {
         <ProfileMenuGroups>
           {/* Settings */}
           <Pressable onPress={() => { setIsEditingInfo(true); setShowPersonalInfo(true); }} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <ProfileDesignIcon name="settings" />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
@@ -277,7 +277,7 @@ export default function CustomerProfileScreen() {
             onPress={() => { setIsMeasurementsModalVisible(true); void loadMeasurements(); }}
             className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <MeasurementIcon />
             </View>
             <View className="flex-1">
@@ -300,7 +300,7 @@ export default function CustomerProfileScreen() {
             }}
             className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <MessagesIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">My Messages</Text>
@@ -327,7 +327,7 @@ export default function CustomerProfileScreen() {
 
           {/* Favorite Houses */}
           <Pressable onPress={() => setShowSavedItems(true)} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <FavoritesIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
@@ -338,7 +338,7 @@ export default function CustomerProfileScreen() {
 
           {/* Notifications */}
           <Pressable onPress={() => void Linking.openSettings().catch(() => showAlert("Notification settings", "Open your device settings to manage Owuja notification permissions."))} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <NotificationsIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
@@ -355,7 +355,7 @@ export default function CustomerProfileScreen() {
             }}
             className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <LogOut size={20} color="#F96951" strokeWidth={1.6} />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
@@ -391,7 +391,7 @@ export default function CustomerProfileScreen() {
           <View className="bg-white rounded-2xl p-4 mb-4">
             <View className="flex-row items-center justify-between mb-3">
               <View className="flex-row items-center flex-1">
-                <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+                <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
                   <User size={20} color="#F96951" strokeWidth={1.6} />
                 </View>
                 <Text className="font-body text-[15px] text-[#4A403B]">Personal Info</Text>

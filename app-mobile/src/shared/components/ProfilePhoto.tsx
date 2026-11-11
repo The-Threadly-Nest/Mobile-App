@@ -70,7 +70,7 @@ export function ProfilePhoto() {
   return <View style={{ alignItems: "center", marginTop: 16, marginBottom: 12 }}>
     <Pressable onPress={choosePhoto} disabled={busy} accessibilityRole="button" accessibilityLabel="Upload profile photo"
       accessibilityState={{ disabled: busy, busy }} style={{ width: 88, height: 88 }}>
-      <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: "#FFFDF9", overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: "#F9E8D3", borderWidth: 1, borderColor: "rgba(69, 51, 50, 0.18)", overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
         {busy ? <ActivityIndicator color="#453332" /> : photo?.owner === owner
           ? <Image source={{ uri: photo.url }} style={{ width: 88, height: 88 }} resizeMode="cover" />
           : <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 30, color: "#4A403B" }}>{displayName.charAt(0).toUpperCase()}</Text>}

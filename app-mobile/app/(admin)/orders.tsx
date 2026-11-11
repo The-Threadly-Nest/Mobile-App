@@ -7,7 +7,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { generateOrderNumber } from "@/shared/utils/orderUtils";
 import { apiFetchCollectionPage, escalationsApi, getCachedResponse, invalidateReadCache } from "@/shared/utils/apiClient";
 import { normalizeStatus } from "@/shared/domain/statuses";
-import { isUnassignedOrder } from "@/shared/utils/adminOrderQueues";
+import { isAcceptedOrder } from "@/shared/utils/adminOrderQueues";
 import { isReadyToWear } from "@/shared/utils/orderFulfillment";
 
 interface OrderItem {
@@ -106,7 +106,7 @@ export default function AdminOrdersScreen() {
   const [items, setItems] = useState<OrderItem[]>(() => {
     const cached = getCachedResponse<any>("/api/orders?page=1&limit=50");
     const rows = Array.isArray(cached) ? cached : cached?.items || cached?.data || [];
-    return Array.isArray(rows) ? rows.map((order: any) => ({
+    return Array.isArray(rows) ? rows.filter(isAcceptedOrder).map((order: any) => ({
       id: order.id, orderNumber: generateOrderNumber(order.bookingId || order.id),
       customer: order.customer?.name || "Customer", item: order.itemName || "Bespoke Fitting",
       price: order.price || 0, status: order.status || "order_placed",
@@ -138,7 +138,7 @@ export default function AdminOrdersScreen() {
         setNextPage(ordersRes.value.nextPage);
         const data = ordersRes.value.items;
         if (Array.isArray(data)) {
-          data.forEach((o: any) => {
+          data.filter(isAcceptedOrder).forEach((o: any) => {
             merged.push({
               id: o.id,
               orderNumber: generateOrderNumber(o.bookingId || o.id),
@@ -198,7 +198,7 @@ export default function AdminOrdersScreen() {
       const data = result.items;
       setNextPage(result.nextPage);
       if (Array.isArray(data)) {
-        const incoming: OrderItem[] = data.filter((order: any) => !isUnassignedOrder(order)).map((order: any) => ({
+        const incoming: OrderItem[] = data.filter(isAcceptedOrder).map((order: any) => ({
           id: order.id,
           orderNumber: generateOrderNumber(order.bookingId || order.id),
           customer: order.customer?.name || "Customer",
@@ -401,12 +401,15 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   filterChip: {
+    borderWidth: 1,
+    borderColor: "rgba(69, 51, 50, 0.3)",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 999,
   },
   filterChipActive: {
     backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   filterChipInactive: {
     backgroundColor: "#FFFFFF",
@@ -470,7 +473,9 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(69, 51, 50, 0.3)",
   },
   statusText: {
     fontFamily: "InstrumentSans-Medium",

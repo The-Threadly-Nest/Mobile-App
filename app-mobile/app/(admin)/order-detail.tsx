@@ -207,79 +207,21 @@ export default function OrderDetailScreen() {
   };
 
   if (!order) return <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-    <View style={[styles.header, { paddingTop: SCREEN_TOP_SPACING }]}><Pressable accessibilityLabel="Back" onPress={handleBack} style={styles.backBtn}><BackArrowIcon color="#453332" /></Pressable><Text style={styles.headerTitle}>Order Details</Text></View>
+    <View style={[styles.header, { paddingTop: SCREEN_TOP_SPACING }]}><Pressable accessibilityLabel="Back to orders" onPress={handleBack} style={styles.backBtn}><BackArrowIcon color="#453332" /></Pressable><View style={{ flex: 1, minWidth: 0 }}><Text style={styles.headerTitle}>Order Details</Text><Text style={{ color: "#4A403B", fontSize: 13, marginTop: 4 }}>{orderNum}</Text></View></View>
     {loading ? <ActivityIndicator color="#453332" /> : <View style={{ padding: 24, gap: 16 }}><Text accessibilityRole="alert">{loadError}</Text><Pressable onPress={() => { setLoading(true); void fetchOrderDetail(); }}><Text>Try again</Text></Pressable></View>}
   </SafeAreaView>;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
-      <View style={[styles.container, isLandscape && styles.containerLandscape]}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Pressable
-              onPress={handleBack}
-              style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
-            >
-              <BackArrowIcon size={24} color="#453332" />
-            </Pressable>
-            <View>
-              <Text style={styles.headerTitle}>Order Details</Text>
-              {orderNum ? <Text style={styles.headerSubtitle}>{orderNum}</Text> : null}
-            </View>
+      <View style={{ flex: 1 }}>
+        <View style={[styles.header, { paddingTop: SCREEN_TOP_SPACING }]}>
+          <Pressable accessibilityLabel="Back to orders" onPress={handleBack} style={styles.backBtn}><BackArrowIcon color="#453332" /></Pressable>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.headerTitle}>Order Details</Text>
+            <Text style={{ color: "#4A403B", fontSize: 13, marginTop: 4 }}>{orderNum}</Text>
           </View>
-          <Pressable
-            onPress={handleOpenInvoice}
-            disabled={!order || order.isBooking || price === null}
-            style={({ pressed }) => [styles.invoiceHeaderBtn, { opacity: pressed ? 0.7 : 1 }]}
-          >
-            <FileText size={18} color="#453332" />
-          </Pressable>
         </View>
-
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />
-          }
-        >
-          {loading ? <ActivityIndicator color="#453332" /> : null}
-          {loadError ? <Text accessibilityRole="alert">{loadError}</Text> : null}
-          {/* Main Status & Order Hero Card */}
-          <View style={styles.heroCard}>
-            <View style={styles.heroTopRow}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {customerName.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <View style={styles.heroTitleCol}>
-                <Text style={styles.customerName}>{customerName}</Text>
-                <Text style={styles.garmentTitle}>{itemName}</Text>
-              </View>
-              <View style={[styles.statusBadge, { backgroundColor: statusMeta.bg }]}>
-                <Text style={[styles.statusText, { color: statusMeta.text }]}>
-                  {readyToWear && ["in_production", "fabric_sourced", "quality_check"].includes(currentStatus) ? "Preparing order" : statusMeta.label}
-                </Text>
-              </View>
-            </View>
-
-            {/* Price & Date Row */}
-            <View style={styles.heroDivider} />
-            <View style={styles.heroMetaRow}>
-              <View>
-                <Text style={styles.metaLabel}>TOTAL PRICE</Text>
-                <Text style={styles.priceValue}>{price === null ? "Quote not set" : formatCurrency(price)}</Text>
-              </View>
-              <View style={{ alignItems: "flex-end" }}>
-                <Text style={styles.metaLabel}>CREATED</Text>
-                <Text style={styles.dateValue}>{createdAt}</Text>
-              </View>
-            </View>
-          </View>
-
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { width: "100%", maxWidth: 720, alignSelf: "center", paddingBottom: 40 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#453332" />}>
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>{readyToWear ? "Order tracking" : "Production progress"}</Text>
             {stages.map((stage, index) => {
@@ -297,173 +239,16 @@ export default function OrderDetailScreen() {
                 </View>
               </View>;
             })}
-            {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={[styles.primaryBtn, { marginTop: 10, opacity: updatingStatus ? 0.6 : 1 }]}><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating..." : nextReadyStatus.label}</Text></Pressable> : null}
           </View>
 
-          {/* Ready-to-Wear: Ordered Items & Specifications Card */}
-          {readyToWear && (
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
-                  <Package size={18} color="#453332" />
-                  <Text style={styles.sectionTitle}>Ordered Items & Specifications</Text>
-                </View>
-                <Text style={styles.unitBadge}>READY TO WEAR</Text>
-              </View>
-
-              {Array.isArray(order?.items) && order.items.length > 0 ? (
-                order.items.map((it: any, idx: number) => (
-                  <View key={it.catalogItemId || idx} style={styles.orderItemRow}>
-                    {it.imageUrl ? (
-                      <CachedImage source={{ uri: it.imageUrl }} style={styles.itemThumb} contentFit="cover" />
-                    ) : null}
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.itemTitle}>{it.name || itemName}</Text>
-                      <View style={styles.itemSpecsRow}>
-                        {it.selectedSize ? (
-                          <View style={styles.specBadge}>
-                            <Text style={styles.specBadgeText}>Size: {it.selectedSize}</Text>
-                          </View>
-                        ) : null}
-                        {it.selectedColor ? (
-                          <View style={styles.specBadge}>
-                            <Text style={styles.specBadgeText}>Color: {it.selectedColor}</Text>
-                          </View>
-                        ) : null}
-                        <Text style={styles.qtyText}>Qty: {it.quantity || 1}</Text>
-                      </View>
-                      <Text style={styles.itemPriceText}>{formatCurrency(it.unitPrice || price || 0)}</Text>
-                    </View>
-                  </View>
-                ))
-              ) : (
-                <View style={styles.orderItemRow}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.itemTitle}>{itemName}</Text>
-                    <Text style={styles.qtyText}>Off-the-rack garment • Standard ready-to-wear sizing</Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          )}
-
-          {/* Customer & Assignment Info Card */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>{readyToWear ? "Customer & Pickup Details" : "Assignment & Contact"}</Text>
-
-            {readyToWear ? (
-              <View style={styles.infoRow}>
-                <View style={styles.infoIconBox}>
-                  <MapPin size={18} color="#453332" />
-                </View>
-                <View style={styles.infoTextBox}>
-                  <Text style={styles.infoFieldLabel}>Fulfillment Method</Text>
-                  <Text style={styles.infoFieldValue}>In-Store Pickup</Text>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.infoRow}>
-                <View style={styles.infoIconBox}>
-                  <Scissors size={18} color="#453332" />
-                </View>
-                <View style={styles.infoTextBox}>
-                  <Text style={styles.infoFieldLabel}>Tailor / Staff In Charge</Text>
-                  <Text style={styles.infoFieldValue}>{staffName}</Text>
-                </View>
-              </View>
-            )}
-
-            {customerPhone && (
-              <View style={styles.infoRow}>
-                <View style={styles.infoIconBox}>
-                  <Phone size={18} color="#453332" />
-                </View>
-                <View style={styles.infoTextBox}>
-                  <Text style={styles.infoFieldLabel}>Phone Number</Text>
-                  <Text style={styles.infoFieldValue}>{customerPhone}</Text>
-                </View>
-              </View>
-            )}
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoIconBox}>
-                <User size={18} color="#453332" />
-              </View>
-              <View style={styles.infoTextBox}>
-                <Text style={styles.infoFieldLabel}>Customer Name</Text>
-                <Text style={styles.infoFieldValue}>{customerName}</Text>
-              </View>
-            </View>
-
-            {!readyToWear && order?.staff?.name ? (
-              <View style={styles.infoRow}>
-                <View style={styles.infoIconBox}>
-                  <Scissors size={18} color="#453332" />
-                </View>
-                <View style={styles.infoTextBox}>
-                  <Text style={styles.infoFieldLabel}>Assigned Staff</Text>
-                  <Text style={styles.infoFieldValue}>{order.staff.name}</Text>
-                </View>
-              </View>
-            ) : null}
-          </View>
-
-          {/* Measurements Card (if available) */}
-          {!readyToWear && measurementsList && (
-            <View style={styles.card}>
-              <View style={styles.cardHeaderRow}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Ruler size={18} color="#453332" />
-                  <Text style={styles.sectionTitle}>Client Measurements</Text>
-                </View>
-                {measurementsList.unit && (
-                  <Text style={styles.unitBadge}>{measurementsList.unit.toUpperCase()}</Text>
-                )}
-              </View>
-
-              <View style={styles.measurementsGrid}>
-                {Object.entries(measurementsList)
-                  .filter(([k, v]) => {
-                    return (
-                      ![
-                        "id",
-                        "customerId",
-                        "customer",
-                        "recordedAt",
-                        "createdAt",
-                        "updatedAt",
-                        "unit",
-                      ].includes(k) &&
-                      v !== null &&
-                      v !== undefined &&
-                      v !== ""
-                    );
-                  })
-                  .map(([key, value]) => (
-                    <View key={key} style={styles.measurementItem}>
-                      <Text style={styles.measurementKey}>
-                        {key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
-                      </Text>
-                      <Text style={styles.measurementVal}>
-                        {String(value)} {measurementsList.unit || "in"}
-                      </Text>
-                    </View>
-                  ))}
-              </View>
-            </View>
-          )}
-
-          {/* Bottom Action Cards */}
-          <View style={styles.actionContainer}>
-            <Pressable
-              onPress={handleOpenInvoice}
-              style={({ pressed }) => [
-                styles.primaryBtn,
-                { opacity: pressed ? 0.85 : 1 },
-              ]}
-            >
-              <FileText size={18} color="#FFFDF9" />
-              <Text style={styles.primaryBtnText}>Open & Print Invoice</Text>
+          {readyToWear && nextReadyStatus ? <Text style={{ color: "#4A403B", fontSize: 13, marginBottom: 14 }}>Next: {nextReadyStatus.label}</Text> : null}
+          {!readyToWear ? <Text style={{ color: "#4A403B", fontSize: 13, lineHeight: 20, marginBottom: 14 }}>The assigned staff member updates custom-fit progress.</Text> : null}
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            <Pressable accessibilityRole="button" onPress={advanceReadyOrder} disabled={!readyToWear || !nextReadyStatus || updatingStatus} style={{ flex: 1, minHeight: 52, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "#453332", alignItems: "center", justifyContent: "center", opacity: !readyToWear || !nextReadyStatus || updatingStatus ? 0.5 : 1 }}>
+              <Text style={{ color: "#FFFFFF", fontFamily: "InstrumentSans-SemiBold", fontSize: 14 }}>{updatingStatus ? "Updating..." : "Update"}</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={handleOpenInvoice} disabled={order.isBooking || price === null} style={{ flex: 1, minHeight: 52, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", opacity: order.isBooking || price === null ? 0.5 : 1 }}>
+              <Text style={{ color: "#FFFFFF", fontFamily: "InstrumentSans-SemiBold", fontSize: 14, textAlign: "center" }}>Generate invoice</Text>
             </Pressable>
           </View>
         </ScrollView>

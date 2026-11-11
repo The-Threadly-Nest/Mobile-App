@@ -580,6 +580,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   pill: {
+    borderWidth: 1,
+    borderColor: "rgba(69, 51, 50, 0.3)",
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 999,
@@ -588,6 +590,7 @@ const styles = StyleSheet.create({
   },
   pillActive: {
     backgroundColor: "#F96951",
+    borderColor: "#F96951",
   },
   pillInactive: {
     backgroundColor: "#FFFFFF",
@@ -657,7 +660,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 5,
-    borderRadius: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(69, 51, 50, 0.3)",
   },
   badgeAssigned: {
     backgroundColor: "#FFFFFF",

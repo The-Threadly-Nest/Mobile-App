@@ -40,7 +40,7 @@ export class FashionHouseAdminService {
     const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
     const fashionHouseId = fashionHouse.id;
 
-    const [activeOrdersCount, pendingBookingsCount, revenue, selectedRevenue] = await Promise.all([
+    const [activeOrdersCount, pendingBookingsCount, revenue, selectedRevenue, acceptedOrdersCount] = await Promise.all([
       this.database.client.order.count({
         where: {
           fashionHouseId,
@@ -64,10 +64,19 @@ export class FashionHouseAdminService {
           order: { fashionHouseId },
         },
       }),
+      this.database.client.order.count({ where: {
+        fashionHouseId,
+        status: { not: "declined" },
+        OR: [
+          { staffId: { not: null } },
+          { status: { in: ["assigned", "active", "measurements_confirmed", "fabric_sourced", "in_production", "quality_check", "ready", "ready_for_pickup", "completed", "delivered"] } },
+        ],
+      } }),
     ]);
 
     return {
       activeOrdersCount,
+      acceptedOrdersCount,
       pendingBookingsCount,
       revenueThisMonth: revenue._sum.total ?? 0,
       revenue: (selectedRevenue ?? revenue)._sum.total ?? 0,

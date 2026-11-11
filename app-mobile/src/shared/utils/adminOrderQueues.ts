@@ -1,4 +1,4 @@
-import { isOrderCancelled, isOrderDelivered, isOrderWorkActive } from "../domain/statuses";
+import { isOrderCancelled, isOrderDelivered, isOrderWorkActive, normalizeStatus } from "../domain/statuses";
 import { isReadyToWear } from "./orderFulfillment";
 
 export function isUnassignedOrder(order: any): boolean {
@@ -10,6 +10,11 @@ export function isUnassignedOrder(order: any): boolean {
 export function isRunningOrder(order: any): boolean {
   if (!order || typeof order !== "object") return false;
   return (Boolean(order.staffId || order.staff?.id) || (isReadyToWear(order) && !isUnassignedOrder(order))) && isOrderWorkActive(order.status);
+}
+
+export function isAcceptedOrder(order: any): boolean {
+  if (!order || typeof order !== "object" || normalizeStatus(order.status) === "declined") return false;
+  return Boolean(order.staffId || order.staff?.id) || ["assigned", "active", "measurements_confirmed", "fabric_sourced", "in_production", "quality_check", "ready", "ready_for_pickup", "completed", "delivered"].includes(normalizeStatus(order.status));
 }
 
 /** Use record IDs, not customer names: one customer can place several orders. */

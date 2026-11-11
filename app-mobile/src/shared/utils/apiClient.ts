@@ -332,7 +332,7 @@ export type RevenuePeriod = "this_month" | "last_month" | "this_year" | "all_tim
 export type AdminDashboardSummary = Pick<
   AdminSummary,
   "activeOrdersCount" | "pendingBookingsCount" | "revenueThisMonth"
-> & { revenue?: number; period?: RevenuePeriod };
+> & { revenue?: number; period?: RevenuePeriod; acceptedOrdersCount?: number };
 
 export const adminApi = {
   getProfile: async () => {

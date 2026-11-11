@@ -23,7 +23,7 @@ import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { isBookingPending, isOrderWorkActive, isPaymentPaid } from "@/shared/domain/statuses";
 import { formatCurrency } from "@/shared/utils/formatters";
 import CachedImage from "@/shared/components/CachedImage";
-import { adminOrderRequests, isRunningOrder } from "@/shared/utils/adminOrderQueues";
+import { adminOrderRequests, isAcceptedOrder } from "@/shared/utils/adminOrderQueues";
 import { isReadyToWear } from "@/shared/utils/orderFulfillment";
 import { invalidateReadCache } from "@/shared/utils/apiClient";
 
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
   const effectiveOrders = realOrders;
   const effectiveEscalations = realEscalations;
 
-  const pageActiveOrdersCount = effectiveOrders.filter(isRunningOrder).length;
+  const pageActiveOrdersCount = effectiveOrders.filter(isAcceptedOrder).length;
   const paidOrders = realOrders.filter(
     (o) => o.isPaid === true || isPaymentPaid(o.paymentStatus || o.invoice?.paymentStatus || o.invoiceStatus)
   );
@@ -264,7 +264,7 @@ export default function AdminDashboard() {
   });
   const pendingEscalations = adminOrderRequests(realOrders, realEscalations);
 
-  const activeOrdersCount = pageActiveOrdersCount;
+  const activeOrdersCount = summary?.acceptedOrdersCount ?? pageActiveOrdersCount;
   const pendingBookingsCount = pendingEscalations.length;
   const totalRevenue = periodRevenue?.period === revenuePeriod ? periodRevenue.value : revenuePeriod === "this_month" ? summary?.revenueThisMonth : undefined;
 
@@ -403,7 +403,7 @@ export default function AdminDashboard() {
                 textTransform: "uppercase",
               }}
             >
-              Running Orders
+              Total Orders
             </Text>
           </Pressable>
 
