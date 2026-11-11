@@ -840,10 +840,10 @@ const styles = StyleSheet.create({
   headerBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    
+    
+    
+    
     alignItems: "center",
     justifyContent: "center",
   },

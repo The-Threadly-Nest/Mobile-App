@@ -960,10 +960,10 @@ const styles = StyleSheet.create({
   floatBtn: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: "#F9E8D3",
-    borderWidth: 1,
-    borderColor: "#453332",
+    
+    
+    
+    
     alignItems: "center",
     justifyContent: "center",
   },

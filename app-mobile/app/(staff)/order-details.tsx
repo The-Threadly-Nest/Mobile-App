@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
   headerBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F9E8D3",
+    
+    
     alignItems: "center",
     justifyContent: "center",
   },

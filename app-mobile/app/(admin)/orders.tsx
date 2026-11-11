@@ -103,7 +103,17 @@ const STATUS_CONFIG: Record<
 
 export default function AdminOrdersScreen() {
   const token = useAuthStore((s) => s.token);
-  const [items, setItems] = useState<OrderItem[]>([]);
+  const [items, setItems] = useState<OrderItem[]>(() => {
+    const cached = getCachedResponse<any>("/api/orders?page=1&limit=50");
+    const rows = Array.isArray(cached) ? cached : cached?.items || cached?.data || [];
+    return Array.isArray(rows) ? rows.map((order: any) => ({
+      id: order.id, orderNumber: generateOrderNumber(order.bookingId || order.id),
+      customer: order.customer?.name || "Customer", item: order.itemName || "Bespoke Fitting",
+      price: order.price || 0, status: order.status || "order_placed",
+      assignedStaff: order.staff?.name ? `Assigned to ${order.staff.name}` : "Unassigned",
+      readyToWear: isReadyToWear(order),
+    })) : [];
+  });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);

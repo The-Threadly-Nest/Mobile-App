@@ -1,8 +1,11 @@
-import { Stack } from "expo-router";
+import { Stack, Redirect } from "expo-router";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { View } from "react-native";
 import FloatingCart from "@/shared/components/FloatingCart";
 
 export default function CustomerLayout() {
+  const token = useAuthStore(state => state.token);
+  if (!token) return <Redirect href="/(auth)/login" />;
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { AppState, View } from "react-native";
 import { Text } from "@/shared/components/Typography";
-import { Tabs, usePathname } from "expo-router";
+import { Tabs, Redirect, usePathname } from "expo-router";
 import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect } from "react-native-svg";
@@ -237,6 +237,7 @@ export default function AdminLayout() {
     };
   }, [token]);
 
+  if (!token) return <Redirect href="/(auth)/login" />;
   return (
     <Tabs
       initialRouteName="dashboard"

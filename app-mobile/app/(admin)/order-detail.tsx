@@ -297,14 +297,14 @@ export default function OrderDetailScreen() {
                 </View>
               </View>;
             })}
-            {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={[styles.primaryBtn, { marginTop: 10, opacity: updatingStatus ? 0.6 : 1 }]}><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating?" : nextReadyStatus.label}</Text></Pressable> : null}
+            {readyToWear && nextReadyStatus ? <Pressable disabled={updatingStatus} onPress={advanceReadyOrder} style={[styles.primaryBtn, { marginTop: 10, opacity: updatingStatus ? 0.6 : 1 }]}><Text style={styles.primaryBtnText}>{updatingStatus ? "Updating..." : nextReadyStatus.label}</Text></Pressable> : null}
           </View>
 
           {/* Ready-to-Wear: Ordered Items & Specifications Card */}
           {readyToWear && (
             <View style={styles.card}>
               <View style={styles.cardHeaderRow}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}>
                   <Package size={18} color="#453332" />
                   <Text style={styles.sectionTitle}>Ordered Items & Specifications</Text>
                 </View>

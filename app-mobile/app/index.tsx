@@ -120,7 +120,7 @@ function VideoWelcomeScreen() {
       </View>
       {!videoReady ? <View style={styles.videoLoadingCover}>
         <View style={styles.loadingBrand}>
-          <Image source={require("../assets/splash-icon-black.png")} style={styles.loadingMark} resizeMode="contain" />
+          <Image source={require("../assets/splash-icon-white.png")} style={styles.loadingMark} resizeMode="contain" />
           <Text style={styles.loadingName}>Owuja</Text>
         </View>
       </View> : null}

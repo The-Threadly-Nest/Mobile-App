@@ -91,6 +91,7 @@ export default function InvoicesListScreen() {
         {/* Invoice Cards List */}
         <FlatList
           data={invoices}
+          ListEmptyComponent={<View style={{ padding: 24, marginTop: 16, borderRadius: 20, backgroundColor: "#F9E8D3", gap: 8 }}><Text style={{ fontSize: 17, fontFamily: "InstrumentSans-Medium" }}>No invoices yet</Text><Text style={{ fontSize: 14, lineHeight: 21 }}>Your customer invoices will appear here once they're created.</Text></View>}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
