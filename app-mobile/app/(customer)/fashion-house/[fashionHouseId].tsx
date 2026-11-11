@@ -399,7 +399,7 @@ export default function FashionHouseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   heroContainer: {
     width: "100%",

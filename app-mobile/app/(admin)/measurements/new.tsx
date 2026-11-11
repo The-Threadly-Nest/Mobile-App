@@ -475,7 +475,7 @@ export default function NewMeasurementScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -490,9 +490,9 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.3)",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     padding: 4,
     alignItems: "center",
   },
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.3)",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     justifyContent: "center",
   },
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   addCustomBox: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
   },
   voiceRecordPill: {
     height: 56,
-    borderRadius: 28,
+    borderRadius: 999,
     backgroundColor: "rgba(69, 51, 50, 0.25)",
     flexDirection: "row",
     alignItems: "center",
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
     color: "#FFFDF9",
   },
   transcriptBanner: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,

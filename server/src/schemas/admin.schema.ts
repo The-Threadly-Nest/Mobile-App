@@ -17,7 +17,7 @@ export const adminOnboardingSchema = z.object({
     )
     .optional(),
   bio: z.string().max(500).optional(),
-  categories: z.array(z.string()).min(1, "Select at least one specialization category"),
+  categories: z.array(z.string().trim().min(1).max(100)).min(1, "Select at least one specialization category").max(30),
   brandLogoUrl: z.string().url().optional().or(z.literal("")),
   currency: z.string().default("NGN"),
   timezone: z.string().trim().min(1).max(100).default("Africa/Lagos"),

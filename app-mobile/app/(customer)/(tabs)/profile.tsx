@@ -249,7 +249,7 @@ export default function CustomerProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <ScrollView
         className="flex-1"
         contentContainerStyle={[
@@ -367,7 +367,7 @@ export default function CustomerProfileScreen() {
       </ScrollView>
 
       <Modal visible={showSavedItems} animationType="slide" onRequestClose={() => setShowSavedItems(false)}>
-        <SafeAreaView className="flex-1 bg-cream px-6">
+        <SafeAreaView className="flex-1 bg-white px-6">
           <View className="flex-row items-center justify-between py-5">
             <Text className="font-body text-xl text-black">Saved Items</Text>
             <Pressable accessibilityLabel="Close saved items" onPress={() => setShowSavedItems(false)}><X size={24} color="#453332" /></Pressable>

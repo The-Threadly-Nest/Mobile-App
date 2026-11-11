@@ -203,7 +203,7 @@ export default function AdminSketchDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -224,10 +224,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.15)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
   },
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     padding: 20,
   },

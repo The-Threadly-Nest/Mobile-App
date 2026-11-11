@@ -55,8 +55,26 @@ test('video welcome text stays white over the video and tomato button', () => {
   }
 });
 
-test('signup field labels blend into the cream page rather than showing white patches', () => {
-  const source = fs.readFileSync(path.join(root, 'app/(auth)/signup.tsx'), 'utf8');
-  assert.match(source, /labelWrapper:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
-  assert.match(source, /safeArea:\s*\{[^}]*backgroundColor: "#F9E8D3"/);
+test('login and signup share white outlined inputs with labels notched into the border', () => {
+  const blocks = [];
+  for (const page of ['signup', 'login']) {
+    const source = fs.readFileSync(path.join(root, `app/(auth)/${page}.tsx`), 'utf8');
+    const input = source.match(/inputContainer:\s*\{([^}]+)\}/)[1];
+    const label = source.match(/labelWrapper:\s*\{([^}]+)\}/)[1];
+    assert.match(input, /backgroundColor: "#FFFFFF"/);
+    assert.match(input, /borderRadius: 14/);
+    assert.match(label, /top: -10/);
+    assert.match(label, /backgroundColor: "#FFFFFF"/);
+    blocks.push(input + label);
+  }
+  assert.equal(blocks[0], blocks[1]);
+});
+
+test('login actually renders its Email and Password labels on the border', () => {
+  const source = fs.readFileSync(path.join(root, 'app/(auth)/login.tsx'), 'utf8');
+  for (const label of ['Email', 'Password']) {
+    assert.ok(source.includes(`<Text style={styles.labelText}>${label}</Text>`));
+    assert.ok(source.includes(`accessibilityLabel="${label}"`));
+    assert.ok(!source.includes(`placeholder="${label}"`));
+  }
 });

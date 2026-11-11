@@ -48,7 +48,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream">
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"

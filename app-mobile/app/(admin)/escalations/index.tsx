@@ -111,7 +111,7 @@ export default function BookingsScreen() {
   const isLandscape = width > height;
   const { showAlert, showConfirm } = useAppAlert();
 
-  const [activeTab, setActiveTab] = useState<"pending" | "assigned" | "declined">("pending");
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "assigned" | "declined">("all");
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -204,7 +204,7 @@ export default function BookingsScreen() {
   const pendingCount = bookings.filter((b) => b.status === "pending").length;
   const assignedCount = bookings.filter((b) => b.status === "assigned").length;
   const declinedCount = bookings.filter((b) => b.status === "declined").length;
-  const currentList = bookings;
+  const currentList = activeTab === "all" ? bookings : bookings.filter(booking => booking.status === activeTab);
 
   const [checkingBookingId, setCheckingBookingId] = useState<string | null>(null);
 
@@ -342,7 +342,15 @@ export default function BookingsScreen() {
         {/* Screen Title */}
         <Text style={styles.screenTitle}>Order requests</Text>
 
-        <Text style={styles.serviceSubtitle}>{bookings.length} awaiting assignment</Text>
+        <View style={{ marginBottom: 20 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingRight: 20 }}>
+            {([['all', 'All', bookings.length], ['pending', 'Pending', pendingCount], ['assigned', 'Assigned', assignedCount], ['declined', 'Declined', declinedCount]] as const).map(([key, label, count]) => (
+              <Pressable key={key} accessibilityRole="button" accessibilityState={{ selected: activeTab === key }} onPress={() => setActiveTab(key)} style={[styles.pill, { flexShrink: 0 }, activeTab === key ? styles.pillActive : styles.pillInactive]}>
+                <Text style={[styles.pillText, activeTab === key ? styles.pillTextActive : styles.pillTextInactive]}>{label} ({count})</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
 
         {/* Bookings List */}
         {loading && bookings.length === 0 ? (
@@ -355,6 +363,10 @@ export default function BookingsScreen() {
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
+            ListEmptyComponent={<View style={{ backgroundColor: "#F9E8D3", borderRadius: 20, padding: 24, gap: 8, marginTop: 16 }}>
+              <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 17, color: "#4A403B" }}>{activeTab === "all" ? "No order requests yet" : `No ${activeTab} requests`}</Text>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#4A403B" }}>New requests will appear here when customers book or place an order.</Text>
+            </View>}
             renderItem={({ item }) => {
               const initial = (item.customerName || "C").charAt(0).toUpperCase();
 
@@ -544,7 +556,7 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -570,7 +582,7 @@ const styles = StyleSheet.create({
   pill: {
     paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 22,
+    borderRadius: 999,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -578,7 +590,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   pillInactive: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   pillText: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -599,7 +611,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     padding: 18,
     marginBottom: 16,
@@ -642,16 +654,16 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   badge: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 12,
   },
   badgeAssigned: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   badgeDeclined: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   badgeText: {
     fontFamily: "InstrumentSans-Medium",
@@ -685,7 +697,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
     borderColor: "#F96951",
     alignItems: "center",
@@ -716,7 +728,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -739,7 +751,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   staffItem: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 16,
     marginBottom: 10,
@@ -752,7 +764,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   summaryCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -790,7 +802,7 @@ const styles = StyleSheet.create({
   },
   modelBubble: {
     alignSelf: "flex-start",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.1)",
   },

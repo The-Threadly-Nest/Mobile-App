@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, ScrollView, Pressable, ActivityIndicator, RefreshControl, Image, useWindowDimensions } from "react-native";
+import { View, ScrollView, Pressable, Modal, ActivityIndicator, RefreshControl, Image, useWindowDimensions } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
@@ -16,6 +16,7 @@ import {
   apiFetch,
   apiFetchCollectionPage,
   type AdminDashboardSummary,
+  type RevenuePeriod,
 } from "@/shared/utils/apiClient";
 import { useAppAlert } from "@/shared/hooks/useAppAlert";
 import { isBookingPending, isOrderWorkActive, isPaymentPaid } from "@/shared/domain/statuses";
@@ -89,6 +90,32 @@ export default function AdminDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(!cacheIsFresh);
   const [refreshing, setRefreshing] = useState(false);
+  const [revenuePeriod, setRevenuePeriod] = useState<RevenuePeriod>("this_month");
+  const [periodPickerOpen, setPeriodPickerOpen] = useState(false);
+  const [periodRevenue, setPeriodRevenue] = useState<{ period: RevenuePeriod; value: number } | null>(null);
+  const [revenueLoading, setRevenueLoading] = useState(false);
+  const [revenueError, setRevenueError] = useState(false);
+  const [revenueRevision, setRevenueRevision] = useState(0);
+  const periodLabels: Record<RevenuePeriod, string> = { this_month: "This month", last_month: "Last month", this_year: "This year", all_time: "All time" };
+
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    const loadRevenue = async () => {
+      setRevenueLoading(true); setRevenueError(false);
+      try {
+        const result = await adminApi.getDashboardSummary(revenuePeriod);
+        if (!active) return;
+        if (revenuePeriod !== "this_month" && result.period !== revenuePeriod) throw new Error("Period not supported");
+        const value = result.revenue ?? (revenuePeriod === "this_month" ? result.revenueThisMonth : undefined);
+        if (typeof value !== "number" || !Number.isFinite(value)) throw new Error("Missing revenue");
+        setPeriodRevenue({ period: revenuePeriod, value });
+      } catch { if (active) setRevenueError(true); }
+      finally { if (active) setRevenueLoading(false); }
+    };
+    void loadRevenue();
+    const interval = setInterval(() => void loadRevenue(), 30_000);
+    return () => { active = false; clearInterval(interval); };
+  }, [revenuePeriod, revenueRevision]));
 
   useEffect(() => {
     if (expectedCacheOwner) activateCache(expectedCacheOwner);
@@ -186,6 +213,7 @@ export default function AdminDashboard() {
 
   const onRefresh = () => {
     invalidateReadCache();
+    setRevenueRevision(value => value + 1);
     setRefreshing(true);
     fetchData();
   };
@@ -236,7 +264,7 @@ export default function AdminDashboard() {
 
   const activeOrdersCount = pageActiveOrdersCount;
   const pendingBookingsCount = pendingEscalations.length;
-  const totalRevenue = summary?.revenueThisMonth;
+  const totalRevenue = periodRevenue?.period === revenuePeriod ? periodRevenue.value : revenuePeriod === "this_month" ? summary?.revenueThisMonth : undefined;
 
   const shopNameDisplay = shopName || storedShopName || "Your fashion house";
   const displayRequests = pendingEscalations.slice(0, 2);
@@ -244,7 +272,7 @@ export default function AdminDashboard() {
   const displayedProducts = catalogItems;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9E8D3" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={["top"]}>
       <ScrollView
         contentContainerStyle={[
           { paddingHorizontal: 20, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 110 },
@@ -300,7 +328,7 @@ export default function AdminDashboard() {
               width: 42,
               height: 42,
               borderRadius: 21,
-              backgroundColor: "#F9E8D3",
+              backgroundColor: "#FFFFFF",
               alignItems: "center",
               justifyContent: "center",
               elevation: 2,
@@ -342,7 +370,7 @@ export default function AdminDashboard() {
             onPress={() => router.push("/(admin)/orders")}
             style={({ pressed }) => ({
               flex: 1,
-              backgroundColor: "#FFFDF9",
+              backgroundColor: "#FFFFFF",
               borderRadius: 18,
               paddingVertical: 18,
               paddingHorizontal: 16,
@@ -382,7 +410,7 @@ export default function AdminDashboard() {
             onPress={() => router.push("/(admin)/escalations")}
             style={({ pressed }) => ({
               flex: 1,
-              backgroundColor: "#FFFDF9",
+              backgroundColor: "#FFFFFF",
               borderRadius: 18,
               paddingVertical: 18,
               paddingHorizontal: 16,
@@ -421,7 +449,7 @@ export default function AdminDashboard() {
         {/* ─── 3. Total Revenue Card with Curve Chart (Figma Spec) ─── */}
         <View
           style={{
-            backgroundColor: "#FFFDF9",
+            backgroundColor: "#FFFFFF",
             borderRadius: 20,
             padding: 18,
             marginBottom: 16,
@@ -439,34 +467,23 @@ export default function AdminDashboard() {
             </Text>
 
             {/* Daily Filter Pill */}
-            <View
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Revenue period: ${periodLabels[revenuePeriod]}`}
+              onPress={() => setPeriodPickerOpen(true)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
                 gap: 4,
                 borderWidth: 1,
                 borderColor: "#453332",
-                borderRadius: 8,
+                borderRadius: 999,
                 paddingHorizontal: 8,
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B" }}>This month</Text>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B" }}>{periodLabels[revenuePeriod]}</Text>
               <ChevronDown size={11} color="#453332" />
-            </View>
-
-            {/* See Details Link */}
-            <Pressable onPress={() => router.push("/(admin)/invoices")}>
-              <Text
-                style={{
-                  fontFamily: "InstrumentSans-Regular",
-                  fontSize: 12,
-                  color: "#F96951",
-                  textDecorationLine: "underline",
-                }}
-              >
-                See Details
-              </Text>
             </Pressable>
           </View>
 
@@ -479,10 +496,23 @@ export default function AdminDashboard() {
               marginBottom: 10,
             }}
           >
-            {loading ? "—" : totalRevenue == null ? "Unavailable" : formatCurrency(totalRevenue)}
+            {totalRevenue != null ? formatCurrency(totalRevenue) : revenueLoading ? "Updating…" : "Unavailable"}
           </Text>
 
-          <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#4A403B", fontSize: 12, marginTop: 12 }}>Revenue from paid invoices this month.</Text>
+          {revenueError ? <Pressable onPress={() => setRevenueRevision(value => value + 1)}><Text style={{ color: "#4A403B", fontSize: 12 }}>Couldn't refresh revenue. Tap to retry.</Text></Pressable> : null}
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginTop: 12 }}>
+            <Text style={{ flex: 1, fontFamily: "InstrumentSans-Regular", color: "#4A403B", fontSize: 12 }}>Paid invoices · {periodLabels[revenuePeriod].toLowerCase()}</Text>
+            <Pressable onPress={() => router.push("/(admin)/invoices")} style={{ minHeight: 44, justifyContent: "center" }}><Text style={{ color: "#F96951", fontSize: 12, textDecorationLine: "underline" }}>See Details</Text></Pressable>
+          </View>
+          <Modal visible={periodPickerOpen} transparent animationType="fade" onRequestClose={() => setPeriodPickerOpen(false)}>
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 24, backgroundColor: "rgba(43, 43, 43, 0.4)" }}>
+              <Pressable accessibilityLabel="Close revenue periods" onPress={() => setPeriodPickerOpen(false)} style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0 }} />
+              <View accessibilityViewIsModal style={{ width: "100%", maxWidth: 380, borderRadius: 24, padding: 20, backgroundColor: "#FFFFFF", gap: 10 }}>
+                <Text style={{ fontSize: 18, fontFamily: "InstrumentSans-Medium", marginBottom: 4 }}>Revenue period</Text>
+                {(Object.keys(periodLabels) as RevenuePeriod[]).map(period => <Pressable key={period} accessibilityRole="radio" accessibilityState={{ selected: revenuePeriod === period }} onPress={() => { setRevenuePeriod(period); setPeriodPickerOpen(false); }} style={{ minHeight: 48, borderRadius: 999, paddingHorizontal: 16, justifyContent: "center", backgroundColor: revenuePeriod === period ? "#453332" : "#F9E8D3" }}><Text style={{ color: revenuePeriod === period ? "#FFFFFF" : "#4A403B" }}>{periodLabels[period]}</Text></Pressable>)}
+              </View>
+            </View>
+          </Modal>
         </View>
 
         {/* ─── 5. Pending Booking Requests (Preserved Admin Actions) ─── */}
@@ -507,7 +537,7 @@ export default function AdminDashboard() {
                 <View
                   key={item.id}
                   style={{
-                    backgroundColor: "#FFFDF9",
+                    backgroundColor: "#FFFFFF",
                     borderRadius: 16,
                     padding: 14,
                     marginBottom: 10,
@@ -526,7 +556,7 @@ export default function AdminDashboard() {
                         {detail}
                       </Text>
                     </View>
-                    <View style={{ backgroundColor: "#FFFDF9", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                    <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
                       <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#453332" }}>Pending</Text>
                     </View>
                   </View>
@@ -603,7 +633,7 @@ export default function AdminDashboard() {
                         flex: 1,
                         height: 38,
                         borderRadius: 19,
-                        backgroundColor: "#FFFDF9",
+                        backgroundColor: "#FFFFFF",
                         borderWidth: 1.5,
                         borderColor: "#F96951",
                         alignItems: "center",
@@ -670,7 +700,7 @@ export default function AdminDashboard() {
                 }}
                 style={({ pressed }) => ({
                   width: 150,
-                  backgroundColor: "#FFFDF9",
+                  backgroundColor: "#FFFFFF",
                   borderRadius: 18,
                   overflow: "hidden",
                   elevation: 2,
@@ -681,7 +711,7 @@ export default function AdminDashboard() {
                   opacity: pressed ? 0.9 : 1,
                 })}
               >
-                <View style={{ width: "100%", height: 145, backgroundColor: "#FFFDF9" }}>
+                <View style={{ width: "100%", height: 145, backgroundColor: "#FFFFFF" }}>
                   <CachedImage
                     source={{ uri: prod.imageUrl }}
                     style={{ width: "100%", height: "100%" }}
@@ -735,7 +765,7 @@ export default function AdminDashboard() {
                 borderWidth: 1.5,
                 borderStyle: "dashed",
                 borderColor: "#453332",
-                backgroundColor: "#FFFDF9",
+                backgroundColor: "#FFFFFF",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 8,
@@ -748,7 +778,7 @@ export default function AdminDashboard() {
                   width: 40,
                   height: 40,
                   borderRadius: 20,
-                  backgroundColor: "#F9E8D3",
+                  backgroundColor: "#FFFFFF",
                   alignItems: "center",
                   justifyContent: "center",
                 }}

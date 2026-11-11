@@ -260,7 +260,7 @@ export default function StaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -281,9 +281,9 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   searchBar: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -320,9 +320,9 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 376,
-    height: 114,
+    minHeight: 114,
     alignSelf: "center",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     paddingHorizontal: 24,
     paddingVertical: 24,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     marginVertical: 12,
     borderWidth: 1,

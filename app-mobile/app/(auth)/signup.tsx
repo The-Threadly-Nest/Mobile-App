@@ -366,7 +366,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -385,7 +385,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 104,
     height: 33,
-    tintColor: "#453332",
   },
   headerLoginChip: {
     flexDirection: "row",
@@ -447,10 +446,10 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: "relative",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    borderRadius: 12,
+    borderColor: "rgba(69, 51, 50, 0.35)",
+    borderRadius: 14,
     height: 56,
     justifyContent: "center",
     paddingHorizontal: 14,
@@ -458,14 +457,15 @@ const styles = StyleSheet.create({
   },
   labelWrapper: {
     position: "absolute",
-    top: -9,
-    left: 14,
+    top: -10,
+    left: 16,
+    paddingHorizontal: 6,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 5,
     zIndex: 1,
   },
   labelText: {
     ...typeScale.label,
+    lineHeight: 20,
     color: "#4A403B",
   },
   textInput: {

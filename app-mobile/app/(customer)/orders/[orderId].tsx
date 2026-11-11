@@ -342,7 +342,7 @@ export default function CustomerOrderDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9E8D3" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 14,
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   pillBtn: {
     flex: 1,
     height: 52,
-    borderRadius: 26,
+    borderRadius: 999,
     backgroundColor: "#F96951",
     flexDirection: "row",
     alignItems: "center",
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
   pillBtnSecondary: {
     flex: 1,
     height: 52,
-    borderRadius: 26,
+    borderRadius: 999,
     backgroundColor: "#FFFDF9",
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.25)",

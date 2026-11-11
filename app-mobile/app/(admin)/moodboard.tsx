@@ -244,7 +244,7 @@ export default function AdminMoodBoardRedesignScreen() {
                       {typeof sketch.image === "object" && sketch.image?.uri && sketch.image.uri.includes(".svg") ? (
                         <SvgUri uri={sketch.image.uri} width="100%" height="100%" />
                       ) : (
-                        <CachedImage source={sketch.image} style={styles.sketchImage} />
+                        <CachedImage source={sketch.image} style={styles.sketchImage} contentFit="contain" />
                       )}
                       {sketch.promotedToCatalog && (
                         <View style={styles.promotedBadge}>
@@ -311,7 +311,7 @@ export default function AdminMoodBoardRedesignScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -337,10 +337,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.15)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
   },
@@ -409,13 +409,14 @@ const styles = StyleSheet.create({
     aspectRatio: 0.95,
     borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: "transparent",
+    backgroundColor: "#F9E8D3",
+    padding: 8,
     position: "relative",
   },
   sketchImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
   },
   promotedBadge: {
     position: "absolute",
@@ -435,7 +436,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     padding: 20,
   },

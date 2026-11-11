@@ -81,7 +81,7 @@ export default function InviteStaffScreen() {
             >
               <BackArrowIcon size={24} color="#453332" />
             </Pressable>
-            <Text style={styles.headerTitle}>Invite Staff</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={styles.headerTitle}>Invite Staff</Text>
           </View>
 
           {/* Subtitle Message */}
@@ -155,7 +155,7 @@ export default function InviteStaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -175,22 +175,25 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: {
     ...typeScale.pageTitle,
+    flex: 1,
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 22,
     color: "#4A403B",
     letterSpacing: -0.2,
   },
   subtitle: {
     ...typeScale.caption,
     color: "#4A403B",
-    marginBottom: 32,
+    marginBottom: 24,
     paddingHorizontal: 2,
   },
   formContainer: {
@@ -210,7 +213,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -9,
     left: 14,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 6,
     zIndex: 1,
   },

@@ -91,7 +91,7 @@ export default function CustomerOrdersScreen() {
         : declinedOrders;
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <ScrollView
         className="flex-1 px-4"
         style={{ paddingTop: SCREEN_TOP_SPACING }}

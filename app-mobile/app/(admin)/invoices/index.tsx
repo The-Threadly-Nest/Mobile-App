@@ -162,7 +162,7 @@ export default function InvoicesListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -182,9 +182,9 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 18,
@@ -241,15 +241,15 @@ const styles = StyleSheet.create({
   statusPill: {
     paddingHorizontal: 14,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
   },
   pendingPill: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   paidPill: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   statusText: {
     fontFamily: "InstrumentSans-SemiBold",

@@ -77,7 +77,7 @@ export default function ResetPasswordScreen() {
 
   if (success) {
     return (
-      <View className="flex-1 bg-cream items-center justify-center px-8">
+      <View className="flex-1 bg-white items-center justify-center px-8">
         <Headline className="text-xl mb-2 text-center">Password updated</Headline>
         <Subtext className="text-center mb-8">You can now log in with your new password.</Subtext>
         <Button label="Go to Login" onPress={() => router.replace("/(auth)/login")} />
@@ -86,7 +86,7 @@ export default function ResetPasswordScreen() {
   }
 
   return (
-    <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: "#F9E8D3" }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 80, justifyContent: "center" }}>
+    <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: "#FFFFFF" }} contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 80, justifyContent: "center" }}>
       <Pressable onPress={handleBack} className="absolute top-14 left-6">
         <BackArrowIcon size={24} color="#453332" />
       </Pressable>

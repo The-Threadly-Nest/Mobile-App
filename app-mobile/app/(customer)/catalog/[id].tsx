@@ -304,7 +304,7 @@ export default function CatalogItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingBottom: 24,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   roundPill: {
     width: 38,
     height: 38,
-    borderRadius: 19,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: "#453332",
     backgroundColor: "#F9E8D3",
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   colorPill: {
     height: 38,
     minWidth: 44,
-    borderRadius: 19,
+    borderRadius: 999,
     paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: "#453332",
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   bottomBar: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     marginTop: 12,
     paddingTop: 0,
     alignItems: "center",

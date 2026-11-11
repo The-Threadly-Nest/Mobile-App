@@ -328,10 +328,11 @@ export interface AdminSummary {
   revenueThisMonth: number;
 }
 
+export type RevenuePeriod = "this_month" | "last_month" | "this_year" | "all_time";
 export type AdminDashboardSummary = Pick<
   AdminSummary,
   "activeOrdersCount" | "pendingBookingsCount" | "revenueThisMonth"
->;
+> & { revenue?: number; period?: RevenuePeriod };
 
 export const adminApi = {
   getProfile: async () => {
@@ -340,8 +341,9 @@ export const adminApi = {
   getSummary: async () => {
     return apiFetch<AdminSummary>("/api/admin/summary", { silent: true });
   },
-  getDashboardSummary: async () => {
-    return apiFetch<AdminDashboardSummary>("/api/admin/dashboard-summary", { silent: true });
+  getDashboardSummary: async (period: RevenuePeriod = "this_month") => {
+    const suffix = period === "this_month" ? "" : `?period=${encodeURIComponent(period)}`;
+    return apiFetch<AdminDashboardSummary>(`/api/admin/dashboard-summary${suffix}`, { silent: true, cache: "reload" });
   },
   completeOnboarding: async (data: AdminOnboardingPayload) => {
     return apiFetch<{ message: string; fashionHouse: any }>("/api/admin/onboarding", {

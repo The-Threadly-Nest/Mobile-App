@@ -514,7 +514,7 @@ export default function AdminDrawScreen() {
               onPress={() => togglePanel("color")}
               style={[
                 styles.floatBtn,
-                { backgroundColor: selectedColor === "#FFFDF9" ? "#FFFDF9" : selectedColor },
+                { backgroundColor: selectedColor === "#FFFFFF" ? "#FFFFFF" : selectedColor },
                 activePanel === "color" && styles.floatBtnRing,
               ]}
             >
@@ -813,7 +813,7 @@ export default function AdminDrawScreen() {
 
 const styles = StyleSheet.create({
   // ── Portrait ────────────────────────────────────────────────────────────────────
-  safeArea: { flex: 1, backgroundColor: "#F9E8D3" },
+  safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -825,10 +825,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50,0.15)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
   },
@@ -836,7 +836,7 @@ const styles = StyleSheet.create({
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     padding: 3,
     borderRadius: 14,
   },
@@ -914,9 +914,9 @@ const styles = StyleSheet.create({
     borderColor: "#F96951",
     transform: [{ scale: 1.15 }],
   },
-  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
+  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
   chipActive: { backgroundColor: "#F96951" },
-  chipInactive: { backgroundColor: "#FFFDF9" },
+  chipInactive: { backgroundColor: "#FFFFFF" },
   chipText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11 },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
@@ -932,7 +932,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1.5,
     borderColor: "#453332",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -950,12 +950,12 @@ const styles = StyleSheet.create({
   landscapeRoot: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   landscapeErrorBanner: {
     position: "absolute",
     alignSelf: "center",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 12,
@@ -1007,7 +1007,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     backgroundColor: "rgba(255, 255, 255,0.95)",
-    borderRadius: 28,
+    borderRadius: 999,
     paddingHorizontal: 6,
     paddingVertical: 10,
     shadowColor: "#2B2B2B",
@@ -1044,7 +1044,7 @@ const styles = StyleSheet.create({
     display: "none",
     width: 28,
     height: 1,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     marginVertical: 1,
   },
   // Pop-up panels — appear to the RIGHT of the pill

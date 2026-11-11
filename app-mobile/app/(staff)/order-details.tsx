@@ -193,7 +193,7 @@ export default function StaffOrderDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9E8D3" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     height: 52,
     paddingHorizontal: 20,

@@ -19,7 +19,7 @@ export default class AppErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#F9E8D3" }}>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32, backgroundColor: "#FFFFFF" }}>
         <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 24, color: "#4A403B", textAlign: "center" }}>
           Something went wrong
         </Text>

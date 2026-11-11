@@ -213,7 +213,7 @@ export default function AdminCatalogListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -225,10 +225,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyWrap: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 32,
     alignItems: "center",
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,

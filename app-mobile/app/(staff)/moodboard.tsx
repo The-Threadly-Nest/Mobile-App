@@ -314,7 +314,7 @@ export default function StaffMoodBoardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,

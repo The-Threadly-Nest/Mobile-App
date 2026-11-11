@@ -618,7 +618,7 @@ export default function InvoiceDetailScreen() {
             <ActivityIndicator color="#453332" style={{ marginBottom: 16 }} />
           ) : null}
           {invoiceError ? (
-            <View style={{ backgroundColor: "#FFFDF9", borderRadius: 12, padding: 12, marginBottom: 16 }}>
+            <View style={{ backgroundColor: "#F9E8D3", borderRadius: 12, padding: 12, marginBottom: 16 }}>
               <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#F96951", textAlign: "center" }}>
                 {invoiceError}
               </Text>
@@ -770,7 +770,7 @@ export default function InvoiceDetailScreen() {
                 style={{
                   marginTop: 18,
                   padding: 14,
-                  backgroundColor: "#FFFDF9",
+                  backgroundColor: "#F9E8D3",
                   borderRadius: 14,
                   borderWidth: 1,
                   borderColor: "rgba(69, 51, 50, 0.12)",
@@ -871,7 +871,7 @@ export default function InvoiceDetailScreen() {
               onPress={handleShareAsPDF}
               style={({ pressed }) => [
                 styles.modalOption,
-                { backgroundColor: pressed ? "#FFFDF9" : "#FFFDF9" },
+                { backgroundColor: pressed ? "#FFFFFF" : "#FFFFFF" },
               ]}
             >
               <View style={styles.optionIconContainer}>
@@ -888,7 +888,7 @@ export default function InvoiceDetailScreen() {
               onPress={handleShareAsImage}
               style={({ pressed }) => [
                 styles.modalOption,
-                { backgroundColor: pressed ? "#FFFDF9" : "#FFFDF9" },
+                { backgroundColor: pressed ? "#FFFFFF" : "#FFFFFF" },
               ]}
             >
               <View style={styles.optionIconContainer}>
@@ -909,7 +909,7 @@ export default function InvoiceDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -929,9 +929,9 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -945,7 +945,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 28,
     padding: 24,
     shadowColor: "#2B2B2B",
@@ -1044,12 +1044,12 @@ const styles = StyleSheet.create({
   statusPill: {
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
   },
   pendingPill: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   paidPill: {
     backgroundColor: "rgba(69, 51, 50, 0.12)",
@@ -1103,7 +1103,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -1122,7 +1122,7 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
   },
   modalCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 28,
     padding: 24,
     shadowColor: "#2B2B2B",

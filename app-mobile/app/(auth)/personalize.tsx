@@ -275,7 +275,7 @@ export default function PersonalizeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 10,
     paddingVertical: 12,
-    borderRadius: 28,
+    borderRadius: 999,
     borderWidth: 1,
   },
   pillButtonEqual: {

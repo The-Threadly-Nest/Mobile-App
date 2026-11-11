@@ -82,7 +82,7 @@ export default function AdminSettingsScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
-        style={{ flex: 1, backgroundColor: "#F9E8D3" }}
+        style={{ flex: 1, backgroundColor: "#FFFFFF" }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         showsVerticalScrollIndicator={false}
       >
@@ -240,18 +240,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    marginBottom: 16,
+    marginBottom: 24,
   },
   circularBackBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
+
+
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
     ...typeScale.pageTitle,
+    flex: 1,
+    textAlign: "center",
+    paddingRight: 60,
     color: "#FFFDF9",
     letterSpacing: -0.2,
   },
@@ -262,8 +265,11 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   balanceValue: {
-    fontFamily: "InstrumentSans-Bold",
-    fontSize: 34,
+    fontFamily: "InstrumentSans-SemiBold",
+    fontSize: 26,
+    lineHeight: 34,
+    textAlign: "center",
+    alignSelf: "stretch",
     color: "#FFFDF9",
     letterSpacing: -0.5,
     marginBottom: 16,

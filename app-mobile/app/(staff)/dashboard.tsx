@@ -375,7 +375,7 @@ export default function StaffDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
   tabPill: {
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 24,
+    borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
   },

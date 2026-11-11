@@ -36,7 +36,7 @@ export default function BookingConfirmationScreen() {
 
   if (!hasSavedBooking) {
     return (
-      <SafeAreaView className="flex-1 bg-cream" edges={["top", "bottom"]}>
+      <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
         <View className="flex-row items-center px-6 py-3 bg-cream">
           <Pressable
             onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
@@ -70,7 +70,7 @@ export default function BookingConfirmationScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top", "bottom"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       {/* Top Header */}
       <View className="flex-row items-center px-6 py-3 bg-cream">
         <Pressable

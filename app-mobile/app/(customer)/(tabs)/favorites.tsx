@@ -47,7 +47,7 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: "#F9E8D3" }}>
+    <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: 24,

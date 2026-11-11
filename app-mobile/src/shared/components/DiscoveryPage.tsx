@@ -74,7 +74,7 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
   </SafeAreaView>;
 }
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F9E8D3" },
+  screen: { flex: 1, backgroundColor: "#FFFFFF" },
   header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 },
   title: { flex: 1, ...typeScale.pageTitle, color: "#4A403B" },
   backBtn: { width: 36, height: 36, alignItems: "flex-start", justifyContent: "center" },

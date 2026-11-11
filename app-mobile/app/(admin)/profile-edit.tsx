@@ -110,7 +110,7 @@ export default function AdminProfileEditScreen({
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
-        aspect: [1, 1],
+        aspect: [3, 4],
         quality: 0.8,
       });
 
@@ -210,7 +210,7 @@ export default function AdminProfileEditScreen({
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9E8D3" }} edges={embedded ? [] : ["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={embedded ? [] : ["top"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={embedded ? undefined : Platform.OS === "ios" ? "padding" : "height"}
@@ -523,10 +523,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
   },
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   },
   logoPickerBox: {
     height: 120,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.20)",
@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   textInput: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 52,
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   bioInput: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -656,8 +656,8 @@ const styles = StyleSheet.create({
   categoryPill: {
     width: "48%",
     height: 50,
-    borderRadius: 25,
-    backgroundColor: "#FFFDF9",
+    borderRadius: 999,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50,0.1)",
     alignItems: "center",
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   slotsLinkCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 24,
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },

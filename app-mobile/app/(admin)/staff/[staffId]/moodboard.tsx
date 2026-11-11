@@ -98,7 +98,7 @@ export default function AdminStaffMoodBoardScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
       <View style={{ paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 }} className="flex-row items-center px-5 gap-3">
         <Pressable
@@ -153,7 +153,7 @@ export default function AdminStaffMoodBoardScreen() {
             </View>
           }
           renderItem={({ item }) => (
-            <View className="flex-1 mb-4 border border-oxblood bg-white rounded-xl overflow-hidden aspect-square">
+            <View className="flex-1 mb-4 border border-oxblood bg-cream rounded-xl overflow-hidden aspect-square">
               <Image source={{ uri: item.imageUrl }} className="w-full h-3/5" style={{ resizeMode: "cover" }} />
               
               <View className="h-2/5 bg-white px-2 justify-between py-2">

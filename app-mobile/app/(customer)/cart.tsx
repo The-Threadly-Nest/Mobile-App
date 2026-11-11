@@ -233,7 +233,7 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F9E8D3" },
+  safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
   header: {
     paddingHorizontal: 20,
     paddingTop: SCREEN_TOP_SPACING,

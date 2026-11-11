@@ -40,7 +40,7 @@ export default function FlowMessageCard({
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <View style={styles.iconCircle}>
-            <IconComponent size={13} color="#453332" />
+            <IconComponent size={13} color="#F9E8D3" />
           </View>
           {stepBadge && <Text style={styles.badgeText}>{stepBadge}</Text>}
           <Text style={styles.titleText}>{title}</Text>
@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
   },
   titleRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
     gap: 8,
     flex: 1,
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#453332",
+    color: "#FFFFFF",
     backgroundColor: "#453332",
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -137,8 +138,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   titleText: {
-    fontFamily: "InstrumentSans-Regular",
-    fontSize: 15,
+    fontFamily: "InstrumentSans-Medium",
+    fontSize: 16,
+    lineHeight: 22,
+    flexBasis: "100%",
     color: "#4A403B",
     flex: 1,
   },

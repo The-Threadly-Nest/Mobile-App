@@ -292,7 +292,7 @@ export default function AdminOrdersScreen() {
                 No {selectedFilter !== "All" ? selectedFilter.toLowerCase() : ""} orders found
               </Text>
               <Text style={styles.emptySubText}>
-                Assigned bookings will appear here.
+                Orders matching this filter will appear here. Check another filter or pull down to refresh.
               </Text>
             </View>
           }
@@ -368,7 +368,7 @@ export default function AdminOrdersScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     paddingHorizontal: 24,
@@ -390,13 +390,13 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 24,
+    borderRadius: 999,
   },
   filterChipActive: {
     backgroundColor: "#F96951",
   },
   filterChipInactive: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   filterChipText: {
     fontFamily: "InstrumentSans-Medium",
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 22,
     padding: 16,
     marginBottom: 14,
@@ -487,17 +487,24 @@ const styles = StyleSheet.create({
   },
   empty: {
     alignItems: "center",
-    marginTop: 60,
+    marginTop: 24,
+    padding: 24,
+    gap: 6,
+    backgroundColor: "#F9E8D3",
+    borderRadius: 20,
   },
   emptyText: {
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 18,
+    fontSize: 17,
+    textAlign: "center",
     color: "#4A403B",
     marginBottom: 6,
   },
   emptySubText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
+    lineHeight: 21,
+    textAlign: "center",
     color: "#4A403B",
   },
 });

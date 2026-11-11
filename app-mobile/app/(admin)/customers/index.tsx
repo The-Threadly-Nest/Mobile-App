@@ -212,7 +212,7 @@ export default function CustomersScreen() {
                         {selectedCustomer.name}
                       </Text>
                       <View style={{
-                        backgroundColor: selectedCustomer.status === "inactive" ? "#FFFDF9" : "#FFFDF9",
+                        backgroundColor: selectedCustomer.status === "inactive" ? "#FFFFFF" : "#FFFFFF",
                         paddingHorizontal: 8,
                         paddingVertical: 2,
                         borderRadius: 8
@@ -309,7 +309,7 @@ export default function CustomersScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -329,9 +329,9 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   searchBar: {
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   card: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     padding: 18,
     marginBottom: 16,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   ordersBadge: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     padding: 24,
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     padding: 12,
     borderRadius: 14,
     borderWidth: 1,

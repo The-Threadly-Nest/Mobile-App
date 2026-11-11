@@ -90,7 +90,7 @@ export default function AdminWelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   imageContainer: {
     width: "100%",

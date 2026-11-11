@@ -60,7 +60,7 @@ export function ProfileDesignHeader({ balance }: {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 24,
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 16,

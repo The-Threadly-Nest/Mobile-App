@@ -774,7 +774,7 @@ export default function StaffDrawScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F9E8D3" },
+  safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -786,10 +786,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50,0.15)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
   },
@@ -875,7 +875,7 @@ const styles = StyleSheet.create({
     borderColor: "#F96951",
     transform: [{ scale: 1.15 }],
   },
-  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
+  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
   chipActive: { backgroundColor: "#F96951" },
   chipInactive: { backgroundColor: "#FFFDF9" },
   chipText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11 },
@@ -907,7 +907,7 @@ const styles = StyleSheet.create({
   landscapeRoot: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   landscapeErrorBanner: {
     position: "absolute",
@@ -946,7 +946,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     backgroundColor: "rgba(255, 255, 255,0.95)",
-    borderRadius: 28,
+    borderRadius: 999,
     paddingHorizontal: 6,
     paddingVertical: 10,
     shadowColor: "#2B2B2B",

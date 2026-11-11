@@ -6,6 +6,32 @@ const { sendChatMessageSchema } = require("../dist/src/schemas/chat.schema");
 const model = require("../dist/src/lib/gemini");
 const notifications = require("../dist/src/lib/notifications");
 
+test("onboarding validates custom categories and persists them in create and update", async () => {
+  const { adminOnboardingSchema } = require("../dist/src/schemas/admin.schema");
+  const { FashionHouseAdminService } = require("../dist/src/modules/fashion-houses/admin.service");
+  const payload = { shopName: "Atelier", location: "Lagos", categories: [" Leatherwork "], availableSlots: [{ date: "2030-01-01", time: "10:00" }] };
+  const body = adminOnboardingSchema.parse(payload);
+  assert.deepEqual(body.categories, ["Leatherwork"]);
+  assert.equal(adminOnboardingSchema.safeParse({ ...payload, categories: [" "] }).success, false);
+  assert.equal(adminOnboardingSchema.safeParse({ ...payload, categories: ["x".repeat(101)] }).success, false);
+  let saved: any;
+  const tx = {
+    fashionHouse: {
+      upsert: async ({ where, create, update }: any) => {
+        assert.equal(where.adminId, "admin");
+        assert.deepEqual(create.categories, ["Leatherwork"]);
+        assert.deepEqual(update.categories, ["Leatherwork"]);
+        saved = { id: "house", ...update }; return saved;
+      },
+      findUniqueOrThrow: async () => saved,
+    },
+    availableSlot: { findMany: async () => [], deleteMany: async () => ({}), createMany: async () => ({ count: 1 }) },
+  };
+  const service = new FashionHouseAdminService({ client: { $transaction: async (fn: any) => fn(tx) } });
+  const result = await service.putOnboarding({ authUserId: "admin", body });
+  assert.deepEqual(result.fashionHouse.categories, ["Leatherwork"]);
+});
+
 test("house booking accepts one garment and rejects multiple garments", () => {
   const first = "11111111-1111-4111-8111-111111111111", second = "22222222-2222-4222-8222-222222222222";
   const body = { fashionHouseId: "house", message: "Book a measurement", catalogItemIds: [first] };
@@ -60,4 +86,12 @@ test("booking checks garment ownership and stores the selected garment in its me
   assert.equal(saved.styleNotes, "Agbada & Native");
   assert.equal(saved.purpose, "measurement");
   assert.equal(saved.catalogItemId, undefined);
+  // A saved custom specialization follows exactly the same booking contract.
+  house.categories.push("Leatherwork");
+  saved = null;
+  expectedGarment = "Leatherwork";
+  const custom = await service.postMessage({ ...specializationInput, body: { ...specializationInput.body, specialization: "Leatherwork" }, headers: { "idempotency-key": "book:custom-specialization" } });
+  assert.equal(custom.type, "booking_created");
+  assert.equal(saved.styleNotes, "Leatherwork");
+  assert.equal(saved.purpose, "measurement");
 });

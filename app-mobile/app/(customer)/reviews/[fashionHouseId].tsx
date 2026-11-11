@@ -25,7 +25,7 @@ export default function AllReviewsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9E8D3" },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -36,13 +36,13 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: "#F9E8D3",
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
-    borderWidth: 0.5,
-    borderColor: "#453332",
+
+
   },
   headerTitle: { ...typeScale.pageTitle, color: "#4A403B" },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28 },

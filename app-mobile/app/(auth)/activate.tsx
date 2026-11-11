@@ -246,7 +246,7 @@ export default function ActivateAccountScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   content: {
     paddingHorizontal: 24,
@@ -256,18 +256,18 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 38,
     height: 38,
-    borderRadius: 19,
-    backgroundColor: "#F9E8D3",
+
+
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#2B2B2B",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+
+
+
+
+
     marginBottom: 24,
-    borderWidth: 0.5,
-    borderColor: "#453332",
+
+
   },
   iconContainer: {
     marginBottom: 20,
@@ -302,12 +302,12 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   otpBoxEmpty: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
   },
   otpBoxFilled: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
   },
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 14,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     marginBottom: 8,
   },
   passwordInput: {

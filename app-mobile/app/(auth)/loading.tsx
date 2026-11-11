@@ -118,7 +118,7 @@ export default function PostLoginLoading() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     gap: 28,

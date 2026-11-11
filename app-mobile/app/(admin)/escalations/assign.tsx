@@ -239,7 +239,7 @@ export default function AssignStaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -259,9 +259,9 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   sectionCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 14,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.2)",
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   measInput: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.2)",
@@ -361,11 +361,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cardSelected: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderColor: "rgba(69, 51, 50, 0.5)",
   },
   cardUnselected: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderColor: "rgba(69, 51, 50, 0.15)",
   },
   avatar: {

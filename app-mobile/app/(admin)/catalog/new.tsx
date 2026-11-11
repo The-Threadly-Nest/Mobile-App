@@ -45,7 +45,7 @@ export default function AdminNewGarmentScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
-        aspect: [1, 1],
+        aspect: [3, 4],
         quality: 0.8,
       });
 
@@ -273,7 +273,7 @@ export default function AdminNewGarmentScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   topHeader: {
     flexDirection: "row",
@@ -293,10 +293,10 @@ const styles = StyleSheet.create({
   circularBackBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
   },
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputContainer: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -354,11 +354,11 @@ const styles = StyleSheet.create({
   },
   photoPreviewCard: {
     width: 92,
-    height: 92,
+    aspectRatio: 3 / 4,
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
   },
   photoImage: {
     width: "100%",
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   loadingSlot: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
     alignItems: "center",
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   },
   photoAddSlot: {
     width: 92,
-    height: 92,
+    aspectRatio: 3 / 4,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#453332",
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
   priceInputContainer: {
     width: 125,
     height: 50,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   detailsContainer: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "#453332",
     borderRadius: 10,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
     paddingTop: 12,
   },

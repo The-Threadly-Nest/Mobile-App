@@ -5,6 +5,7 @@ import { DatabaseService } from "../../core/database/database.service";
 
 import { isAvailabilityConflictError, isValidTimeZone, slotsOverlap, zonedDateTimeToUtc } from "../../lib/availability";
 import { replaceWeeklyAvailability } from "../../lib/booking-schedule";
+import { revenuePeriodRange } from "../../lib/revenue-period";
 
 // Lightweight figures used by the dashboard's background refresh. Keep this
 // separate from the settings summary so polling does not repeatedly calculate
@@ -24,6 +25,7 @@ export class FashionHouseAdminService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) { }
 
   async getDashboardSummary(input: FashionHouseAdminInput<"getDashboardSummary">) {
+    const period = input.query?.period ?? "this_month";
 
     const fashionHouse = await this.database.client.fashionHouse.findUnique({
       where: { adminId: input.authUserId! },
@@ -38,7 +40,7 @@ export class FashionHouseAdminService {
     const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
     const fashionHouseId = fashionHouse.id;
 
-    const [activeOrdersCount, pendingBookingsCount, revenue] = await Promise.all([
+    const [activeOrdersCount, pendingBookingsCount, revenue, selectedRevenue] = await Promise.all([
       this.database.client.order.count({
         where: {
           fashionHouseId,
@@ -54,12 +56,22 @@ export class FashionHouseAdminService {
           order: { fashionHouseId },
         },
       }),
+      period === "this_month" ? Promise.resolve(null) : this.database.client.invoice.aggregate({
+        _sum: { total: true },
+        where: {
+          paymentStatus: "paid",
+          ...(period === "all_time" ? {} : { createdAt: revenuePeriodRange(period, now) }),
+          order: { fashionHouseId },
+        },
+      }),
     ]);
 
     return {
       activeOrdersCount,
       pendingBookingsCount,
       revenueThisMonth: revenue._sum.total ?? 0,
+      revenue: (selectedRevenue ?? revenue)._sum.total ?? 0,
+      period,
     };
 
   }

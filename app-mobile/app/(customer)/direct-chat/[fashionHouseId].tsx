@@ -1015,7 +1015,7 @@ export default function CustomerDirectChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   headerBar: {
     flexDirection: 'row',
@@ -1023,7 +1023,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 12,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     gap: 8,
   },
   backBtn: {
@@ -1239,7 +1239,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 6,
     paddingBottom: 12,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   recordingContainer: {
     flex: 1,
@@ -1287,7 +1287,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(69, 51, 50, 0.08)',
     paddingHorizontal: 24,
     paddingVertical: 11,
-    borderRadius: 22,
+    borderRadius: 999,
   },
   pausePillText: {
     fontFamily: 'InstrumentSans-SemiBold',
@@ -1373,7 +1373,7 @@ const styles = StyleSheet.create({
   emojiChip: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 999,
     backgroundColor: "#F9E8D3",
     borderWidth: 1,
     borderColor: '#453332',

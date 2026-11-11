@@ -389,7 +389,7 @@ export default function BrowseScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -765,7 +765,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   filterPill: {
-    borderRadius: 16,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: "#453332",
     paddingHorizontal: 14,

@@ -75,7 +75,7 @@ export default function AdminEditGarmentScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
-        aspect: [4, 5],
+        aspect: [3, 4],
         quality: 0.7,
       });
 
@@ -289,7 +289,7 @@ export default function AdminEditGarmentScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -302,10 +302,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -334,12 +334,12 @@ const styles = StyleSheet.create({
   },
   imagePickerBox: {
     width: "100%",
-    height: 280,
+    aspectRatio: 3 / 4,
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: "#F96951",
     borderStyle: "dashed",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     overflow: "hidden",
     marginBottom: 24,
   },
@@ -398,7 +398,7 @@ const styles = StyleSheet.create({
     color: "#FFFDF9",
   },
   textInput: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 52,
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 24,

@@ -242,7 +242,7 @@ export default function UpdateProgressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   headerBar: {
     flexDirection: "row",
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   headerBtn: {
     width: 40,

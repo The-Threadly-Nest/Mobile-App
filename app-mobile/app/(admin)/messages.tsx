@@ -1105,7 +1105,7 @@ export default function AdminMessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   headerBar: {
     flexDirection: 'row',
@@ -1116,7 +1116,7 @@ const styles = StyleSheet.create({
     gap: 12,
     borderBottomWidth: 0,
     borderBottomColor: 'rgba(69, 51, 50, 0.4)',
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   headerBtn: {
     width: 40,
@@ -1124,7 +1124,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#453332',
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1191,7 +1191,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderBottomWidth: 0,
     borderBottomColor: '#453332',
   },
@@ -1385,11 +1385,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 6,
     paddingBottom: 12,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   recordingContainer: {
     flex: 1,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -1433,7 +1433,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(69, 51, 50, 0.08)',
     paddingHorizontal: 24,
     paddingVertical: 11,
-    borderRadius: 22,
+    borderRadius: 999,
   },
   pausePillText: {
     fontFamily: 'InstrumentSans-SemiBold',
@@ -1464,7 +1464,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#453332',
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
@@ -1502,7 +1502,7 @@ const styles = StyleSheet.create({
     bottom: 74,
     left: 16,
     right: 16,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 8,
@@ -1518,7 +1518,7 @@ const styles = StyleSheet.create({
   emojiChip: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 999,
     backgroundColor: "#F9E8D3",
     borderWidth: 1,
     borderColor: '#453332',
@@ -1527,7 +1527,7 @@ const styles = StyleSheet.create({
   },
   segmentedContainer: {
     flexDirection: 'row',
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 32,
     padding: 3,
     marginHorizontal: 24,
@@ -1537,7 +1537,7 @@ const styles = StyleSheet.create({
   segmentedPill: {
     flex: 1,
     height: 44,
-    borderRadius: 22,
+    borderRadius: 999,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

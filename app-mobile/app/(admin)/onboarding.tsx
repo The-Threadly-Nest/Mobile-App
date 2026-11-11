@@ -36,6 +36,17 @@ export default function AdminOnboardingScreen() {
   const [bio, setBio] = useState<string>("");
   const [brandLogoUrl, setBrandLogoUrl] = useState<string>("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["Bespoke Suits"]);
+  const [customCategory, setCustomCategory] = useState("");
+  const addCustomCategory = () => {
+    const category = customCategory.trim().replace(/\s+/g, " ");
+    if (!category || category.length > 100) { setError("Enter a category name, up to 100 characters."); return; }
+    if (selectedCategories.some(value => value.toLowerCase() === category.toLowerCase())) { setCustomCategory(""); setError(""); return; }
+    if (selectedCategories.length >= 30) { setError("Choose up to 30 specializations."); return; }
+    const preset = SPECIALIZATION_CATEGORIES.find(value => value.toLowerCase() === category.toLowerCase());
+    setSelectedCategories(values => [...values, preset || category]);
+    setCustomCategory("");
+    setError("");
+  };
   const [currency, setCurrency] = useState<string>("NGN");
   const [timezone, setTimezone] = useState<string>("Africa/Lagos");
 
@@ -93,6 +104,7 @@ export default function AdminOnboardingScreen() {
       if (selectedCategories.length === 1) return; // Must keep at least 1
       setSelectedCategories((prev) => prev.filter((c) => c !== cat));
     } else {
+      if (selectedCategories.length >= 30) { setError("Choose up to 30 specializations."); return; }
       setSelectedCategories((prev) => [...prev, cat]);
     }
   };
@@ -108,7 +120,7 @@ export default function AdminOnboardingScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
-        aspect: [1, 1],
+        aspect: [3, 4],
         quality: 0.8,
       });
 
@@ -132,6 +144,7 @@ export default function AdminOnboardingScreen() {
 
   const handleNext = () => {
     setError("");
+    if (step === 3 && customCategory.trim()) { setError("Tap + to save your custom specialization before continuing."); return; }
     if (step === 1) {
       if (!shopName.trim()) {
         setError("Please enter your Fashion House name.");
@@ -209,7 +222,9 @@ export default function AdminOnboardingScreen() {
         >
           {/* Top Progress Bar */}
           <View style={[styles.progressTrack, isLandscape && { marginBottom: 8 }]}>
-            <View style={[styles.progressFill, { width: `${(step / 4) * 100}%` }]} />
+            {[1, 2, 3, 4].map(segment => (
+              <View key={segment} accessibilityLabel={`Step ${segment}${segment <= step ? ', reached' : ''}`} style={[styles.progressFill, { flex: 1, backgroundColor: segment <= step ? "#453332" : "rgba(69, 51, 50, 0.15)" }]} />
+            ))}
           </View>
 
           {/* Step Badge */}
@@ -321,7 +336,7 @@ export default function AdminOnboardingScreen() {
               <View style={[styles.inputWrapper, isLandscape && { marginBottom: 14 }]}>
                 <PhoneInputWithCountry
                   label="Official Business Phone (Optional)"
-                  placeholder="801 234 5678"
+                  placeholder=""
                   value={phone}
                   onChangePhone={setPhone}
                 />
@@ -330,7 +345,7 @@ export default function AdminOnboardingScreen() {
           )}
 
           {step === 3 && (
-            <View style={[styles.stepContainer, isLandscape && { marginBottom: 16 }]}>
+            <View style={[styles.stepContainer, { marginBottom: 0 }]}>
               <View style={[styles.iconCircle, isLandscape && { width: 44, height: 44, borderRadius: 22, marginBottom: 10 }]}>
                 <Sparkles size={isLandscape ? 22 : 28} color="#453332" />
               </View>
@@ -340,25 +355,34 @@ export default function AdminOnboardingScreen() {
               </Text>
 
               <View style={styles.pillsContainer}>
-                {SPECIALIZATION_CATEGORIES.map((cat) => {
+                {[...new Set([...SPECIALIZATION_CATEGORIES, ...selectedCategories])].map((cat) => {
                   const selected = selectedCategories.includes(cat);
                   return (
                     <Pressable
                       key={cat}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: selected }}
                       onPress={() => toggleCategory(cat)}
                       style={[
                         styles.pill,
-                        isLandscape && { height: 44 },
                         selected ? styles.pillSelected : styles.pillUnselected,
                       ]}
                     >
-                      {selected && <Check size={16} color="#FFFDF9" style={{ marginRight: 6 }} />}
                       <Text style={selected ? styles.pillTextSelected : styles.pillTextUnselected}>
                         {cat}
                       </Text>
                     </Pressable>
                   );
                 })}
+              </View>
+              <View style={{ marginTop: 20, gap: 10 }}>
+                <Text style={styles.label}>Custom specialization</Text>
+                <View style={{ position: "relative" }}>
+                  <TextInput accessibilityLabel="Custom specialization" placeholder="Ankara suit" value={customCategory} onChangeText={value => { setCustomCategory(value); setError(""); }} maxLength={100} returnKeyType="done" onSubmitEditing={addCustomCategory} style={[styles.input, { paddingRight: 60 }]} />
+                  <Pressable accessibilityRole="button" accessibilityLabel="Add category" disabled={!customCategory.trim()} onPress={addCustomCategory} style={{ position: "absolute", right: 6, top: 6, width: 44, height: 44, alignItems: "center", justifyContent: "center", opacity: customCategory.trim() ? 1 : 0.4 }}>
+                    <Plus size={22} color="#453332" />
+                  </Pressable>
+                </View>
               </View>
             </View>
           )}
@@ -380,7 +404,7 @@ export default function AdminOnboardingScreen() {
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
           {/* Bottom Actions positioned inside ScrollView so they don't cover cards when typing */}
-          <View style={[styles.actionRow, isLandscape && { paddingTop: 6, paddingBottom: 12 }]}>
+          <View style={[styles.actionRow, step === 3 && { marginTop: 16 }, isLandscape && { paddingTop: 6, paddingBottom: 12 }]}>
             {step < 4 ? (
               <Pressable
                 onPress={handleNext}
@@ -415,7 +439,7 @@ export default function AdminOnboardingScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -425,7 +449,8 @@ const styles = StyleSheet.create({
   progressTrack: {
     width: "100%",
     height: 4,
-    backgroundColor: "rgba(69, 51, 50, 0.15)",
+    flexDirection: "row",
+    gap: 8,
     borderRadius: 2,
     marginTop: 4,
     marginBottom: 14,
@@ -449,14 +474,15 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   headline: {
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 28,
+    fontSize: 24,
+    lineHeight: 32,
     color: "#4A403B",
     marginBottom: 8,
   },
@@ -475,7 +501,7 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     borderColor: "rgba(69, 51, 50, 0.20)",
     borderRadius: 18,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     minHeight: 120,
     alignItems: "center",
     justifyContent: "center",
@@ -534,7 +560,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 15,
+    fontSize: 14,
+    lineHeight: 20,
     color: "#4A403B",
     marginBottom: 8,
   },
@@ -545,9 +572,9 @@ const styles = StyleSheet.create({
     height: 56,
     paddingHorizontal: 16,
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 16,
+    fontSize: 14,
     color: "#4A403B",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   charCount: {
     fontFamily: "InstrumentSans-Regular",
@@ -559,17 +586,19 @@ const styles = StyleSheet.create({
   pillsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    justifyContent: "space-between",
+    gap: 12,
+    justifyContent: "flex-start",
   },
   pill: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    width: "48%",
-    height: 52,
+    flexBasis: "46%",
+      flexGrow: 0,
+    minHeight: 52,
+    paddingVertical: 12,
     paddingHorizontal: 12,
-    borderRadius: 14,
+    borderRadius: 999,
     borderWidth: 1,
   },
   pillSelected: {
@@ -583,12 +612,14 @@ const styles = StyleSheet.create({
   pillTextSelected: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#FFFDF9",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
   pillTextUnselected: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
     color: "#4A403B",
+    textAlign: "center",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",

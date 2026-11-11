@@ -431,11 +431,11 @@ export default function OrderDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   containerLandscape: {
     maxWidth: 720,
@@ -458,10 +458,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     justifyContent: "center",
     alignItems: "center",
   },
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heroCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
     color: "#4A403B",
   },
   card: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     color: "#4A403B",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
   stepConnector: {
     flex: 1,
     height: 2,
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
   },
   stepConnectorActive: {
     backgroundColor: "#453332",
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
   },
   measurementItem: {
     width: "48%",
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,

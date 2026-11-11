@@ -329,7 +329,7 @@ export default function AdminFittingSlotsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
@@ -349,10 +349,10 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
-    backgroundColor: "#F9E8D3",
+
+
+
+
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -378,8 +378,8 @@ const styles = StyleSheet.create({
   dateChip: {
     width: 64,
     height: 76,
-    borderRadius: 16,
-    backgroundColor: "#FFFDF9",
+    borderRadius: 999,
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
     borderColor: "rgba(69, 51, 50, 0.08)",
     alignItems: "center",
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   availableBadge: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     color: "#453332",
   },
   bookedBadge: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 24,

@@ -193,7 +193,7 @@ export default function RoleSelectScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flexGrow: 1,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+
     alignItems: "flex-start",
     justifyContent: "center",
   },
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   featurePill: {
     paddingHorizontal: 9,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 999,
     backgroundColor: "rgba(69, 51, 50, 0.06)",
   },
   featurePillText: {

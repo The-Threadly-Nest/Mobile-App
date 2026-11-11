@@ -147,11 +147,13 @@ export default function LoginScreen() {
           <View style={styles.formContainer}>
             {/* Email Input */}
             <View style={[styles.inputContainer, isLandscape && { height: 48, marginBottom: 14 }]}>
+              <View pointerEvents="none" style={styles.labelWrapper}>
+                <Text style={styles.labelText}>Email</Text>
+              </View>
               <TextInput
                 disableFullscreenUI={true}
                 style={styles.textInput}
-                placeholder="Email"
-                placeholderTextColor="rgba(74, 64, 59, 0.5)"
+                accessibilityLabel="Email"
                 value={email}
                 onChangeText={(text) => {
                   setEmail(text);
@@ -164,11 +166,13 @@ export default function LoginScreen() {
 
             {/* Password Input */}
             <View style={[styles.inputContainer, { marginBottom: 8 }, isLandscape && { height: 48, marginBottom: 4 }]}>
+              <View pointerEvents="none" style={styles.labelWrapper}>
+                <Text style={styles.labelText}>Password</Text>
+              </View>
               <TextInput
                 disableFullscreenUI={true}
                 style={styles.textInput}
-                placeholder="Password"
-                placeholderTextColor="rgba(74, 64, 59, 0.5)"
+                accessibilityLabel="Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -299,7 +303,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 104,
     height: 33,
-    tintColor: "#453332",
   },
   headerTitle: {
     ...typeScale.pageTitle,
@@ -310,37 +313,38 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: "relative",
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "rgba(69, 51, 50, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.35)",
     borderRadius: 14,
-    height: 58,
+    height: 56,
     justifyContent: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     marginBottom: 24,
   },
   labelWrapper: {
     position: "absolute",
     top: -10,
     left: 16,
-    backgroundColor: "#F9E8D3",
     paddingHorizontal: 6,
+    backgroundColor: "#FFFFFF",
     zIndex: 1,
   },
   labelText: {
     ...typeScale.label,
+    lineHeight: 20,
     color: "#4A403B",
   },
   textInput: {
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 16,
+    fontSize: 15,
     color: "#4A403B",
     paddingRight: 32,
     height: "100%",
   },
   eyeIconBtn: {
     position: "absolute",
-    right: 16,
+    right: 14,
     top: 18,
   },
   forgotPasswordWrapper: {

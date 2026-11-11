@@ -143,7 +143,7 @@ export default function CustomerMessagesScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F9E8D3" },
+  screen: { flex: 1, backgroundColor: "#FFFFFF" },
   header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 12 },
   back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   backAsset: { width: 39.7906, height: 39.7907 },

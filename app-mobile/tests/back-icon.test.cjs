@@ -5,6 +5,17 @@ const path = require('node:path');
 const Module = require('node:module');
 const ts = require('typescript');
 const filename = path.resolve(__dirname, '../src/shared/components/BackArrowIcon.tsx');
+
+test('verification back control has no circular decoration and its phone glyph is visible', () => {
+  const source = fs.readFileSync(path.resolve(__dirname, '../app/(auth)/verify.tsx'), 'utf8');
+  const back = source.match(/backBtn:\s*\{([^}]+)\}/)[1];
+  assert.doesNotMatch(back, /backgroundColor|borderRadius|borderWidth|shadowColor|elevation/);
+  assert.match(source, /<Rect width=\{56\} height=\{56\} rx=\{28\} fill="#453332"/);
+  assert.match(source, /stroke="#FFFFFF"/);
+  assert.match(source, /iconContainer:\s*\{[^}]*alignSelf: "center"/);
+  assert.match(source, /verifiedIconContainer:\s*\{[^}]*alignSelf: "center"/);
+  assert.match(source, /verifiedContent:\s*\{[^}]*flexGrow: 1/);
+});
 const compiled = new Module(filename, module);
 compiled.paths = Module._nodeModulePaths(path.dirname(filename));
 const originalRequire = compiled.require.bind(compiled);

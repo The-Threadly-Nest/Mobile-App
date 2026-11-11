@@ -506,7 +506,7 @@ export default function BookingChatScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Top Header */}
       <View className="flex-row items-center px-6 py-4 bg-white border-oxblood">
         <Pressable
