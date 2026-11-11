@@ -56,13 +56,13 @@ export function BookingScheduleForm({ value, onChange, timezone, onTimezoneChang
 }
 
 const styles = StyleSheet.create({
-  group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#2B2B2B" },
-  hint: { ...typeScale.caption, color: "#746765" },
+  group: { gap: 12, marginBottom: 20 }, label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#4A403B" },
+  hint: { ...typeScale.caption, color: "#4A403B" },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, row: { flexDirection: "row", alignItems: "center", gap: 10 },
-  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#2B2B2B", backgroundColor: "white" },
-  day: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, borderWidth: 1, borderColor: "#D7CFCD", borderRadius: 12, justifyContent: "center", alignItems: "center" },
-  dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, selectedText: { color: "white" },
-  block: { borderRadius: 10, padding: 10, backgroundColor: "#F6F6F6" }, add: { minHeight: 48, paddingHorizontal: 12, justifyContent: "center", borderRadius: 12, backgroundColor: "#F0ECEB" },
+  field: { flex: 1, gap: 8 }, input: { minHeight: 48, borderWidth: 1, borderColor: "#453332", borderRadius: 12, paddingHorizontal: 12, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#4A403B", backgroundColor: "#FFFFFF" },
+  day: { minHeight: 44, minWidth: 44, paddingHorizontal: 12, borderWidth: 1, borderColor: "#453332", borderRadius: 12, justifyContent: "center", alignItems: "center" },
+  dayText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B" }, selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, selectedText: { color: "white" },
+  block: { borderRadius: 10, padding: 10, backgroundColor: "#FFFFFF" }, add: { minHeight: 48, paddingHorizontal: 12, justifyContent: "center", borderRadius: 12, backgroundColor: "#FFFFFF" },
   primary: { minHeight: 48, alignItems: "center", justifyContent: "center", backgroundColor: "#F96951", borderRadius: 12, padding: 12 }, primaryText: { fontFamily: "InstrumentSans-SemiBold", color: "white", fontSize: 14 },
-  error: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#9F1239" },
+  error: { fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#F96951" },
 });

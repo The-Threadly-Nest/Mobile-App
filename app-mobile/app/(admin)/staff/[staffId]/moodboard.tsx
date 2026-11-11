@@ -98,7 +98,7 @@ export default function AdminStaffMoodBoardScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
       {/* Header */}
       <View style={{ paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 }} className="flex-row items-center px-5 gap-3">
         <Pressable
@@ -108,14 +108,14 @@ export default function AdminStaffMoodBoardScreen() {
             height: 44,
             borderRadius: 22,
             borderWidth: 1,
-            borderColor: "rgba(74, 8, 12, 0.25)",
-            backgroundColor: "#FFFFFF",
+            borderColor: "rgba(69, 51, 50, 0.25)",
+            backgroundColor: "#F9E8D3",
             alignItems: "center",
             justifyContent: "center",
             marginRight: 4,
           }}
         >
-          <BackArrowIcon size={24} color="#3B0508" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
         <View className="flex-1">
           <Text
@@ -123,7 +123,7 @@ export default function AdminStaffMoodBoardScreen() {
               fontFamily: "InstrumentSans-Regular",
               fontSize: 24,
               lineHeight: 28,
-              color: "#2B2B2B",
+              color: "#4A403B",
               letterSpacing: -0.2,
             }}
           >
@@ -146,14 +146,14 @@ export default function AdminStaffMoodBoardScreen() {
           columnWrapperStyle={{ gap: 12 }}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center py-20">
-              <PenTool size={36} color="#A6926B" />
+              <PenTool size={36} color="#453332" />
               <Text className="font-body text-black text-sm mt-3 text-center">
                 This staff member has not uploaded any sketches yet.
               </Text>
             </View>
           }
           renderItem={({ item }) => (
-            <View className="flex-1 mb-4 border border-grey100 bg-white rounded-xl overflow-hidden aspect-square">
+            <View className="flex-1 mb-4 border border-oxblood bg-white rounded-xl overflow-hidden aspect-square">
               <Image source={{ uri: item.imageUrl }} className="w-full h-3/5" style={{ resizeMode: "cover" }} />
               
               <View className="h-2/5 bg-white px-2 justify-between py-2">
@@ -171,8 +171,8 @@ export default function AdminStaffMoodBoardScreen() {
                     onPress={() => openPromoteModal(item)}
                     className="bg-tomato py-1.5 px-2 rounded-lg flex-row items-center justify-center gap-1"
                   >
-                    <Sparkles size={12} color="#C4A763" />
-                    <Text className="font-body-semibold text-cream text-[10px]">Promote</Text>
+                    <Sparkles size={12} color="#453332" />
+                    <Text className="font-body-semibold text-white text-[10px]">Promote</Text>
                   </Pressable>
                 )}
               </View>
@@ -204,7 +204,7 @@ export default function AdminStaffMoodBoardScreen() {
             />
 
             {error ? (
-              <Text className="font-body text-red-500 text-xs mb-3">{error}</Text>
+              <Text className="font-body text-tomato text-xs mb-3">{error}</Text>
             ) : null}
 
             <View className="mt-2 gap-3">

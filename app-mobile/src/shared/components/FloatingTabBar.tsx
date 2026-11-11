@@ -52,7 +52,7 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
           flexDirection: "row",
           alignItems: "center",
           elevation: 6,
-          shadowColor: "#000000",
+          shadowColor: "#2B2B2B",
           shadowOpacity: 0.25,
           shadowRadius: 10,
           shadowOffset: { width: 0, height: 4 },

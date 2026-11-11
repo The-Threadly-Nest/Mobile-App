@@ -275,7 +275,7 @@ export default function StaffLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 54, paddingTop: 0, paddingBottom: 0, borderRadius: 27, borderTopWidth: 0,
-          backgroundColor: "#F96951", elevation: 5, shadowColor: "#000000",
+          backgroundColor: "#F96951", elevation: 5, shadowColor: "#2B2B2B",
           shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 3 },
         },
         tabBarItemStyle: { height: 54 },

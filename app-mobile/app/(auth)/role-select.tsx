@@ -38,7 +38,7 @@ export default function RoleSelectScreen() {
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             hitSlop={8}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
         </View>
 
@@ -193,7 +193,7 @@ export default function RoleSelectScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flexGrow: 1,
@@ -218,18 +218,18 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 1.5,
-    color: "#8A7550",
+    color: "#453332",
     marginBottom: 6,
   },
   title: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 36,
-    color: "#3B0508",
+    color: "#453332",
     marginBottom: 6,
   },
   subtitle: { ...typeScale.caption,
-    color: "#746765",
+    color: "#4A403B",
   },
   cardsContainer: {
     gap: 14,
@@ -242,10 +242,10 @@ const styles = StyleSheet.create({
   },
   roleCardSelected: {
     borderColor: "#453332",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
   },
   roleCardUnselected: {
-    borderColor: "#EBE0D3",
+    borderColor: "#453332",
     backgroundColor: "#FFFFFF",
   },
   cardHeaderRow: {
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   iconCircleUnselected: {
-    backgroundColor: "#F4EEE5",
+    backgroundColor: "#F9E8D3",
   },
   radioCircle: {
     width: 24,
@@ -279,27 +279,27 @@ const styles = StyleSheet.create({
   },
   radioUnselected: {
     borderWidth: 1.5,
-    borderColor: "#C8BEB0",
+    borderColor: "#453332",
     backgroundColor: "transparent",
   },
   cardEyebrow: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     letterSpacing: 1.2,
-    color: "#8A7550",
+    color: "#453332",
     marginBottom: 4,
   },
   cardTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 21,
-    color: "#3B0508",
+    color: "#453332",
     marginBottom: 6,
   },
   cardSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
-    color: "#5A4A48",
+    color: "#4A403B",
     marginBottom: 14,
   },
   featurePillsRow: {
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
   loginText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#746765",
+    color: "#4A403B",
   },
   loginBold: {
     fontFamily: "InstrumentSans-SemiBold",

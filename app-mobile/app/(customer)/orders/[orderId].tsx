@@ -160,7 +160,7 @@ export default function CustomerOrderDetailScreen() {
           onPress={() => router.back()}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={24} color="#3B0508" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
         <Text style={styles.headerTitle}>Order Tracking</Text>
       </View>
@@ -185,15 +185,15 @@ export default function CustomerOrderDetailScreen() {
               <View
                 style={[
                   styles.orderBadge,
-                  isDeclined && { borderColor: "#DC2626", backgroundColor: "#FDEAEA" },
-                  isCancelled && { borderColor: "#E5DFD5", backgroundColor: "#F5EFE6" },
+                  isDeclined && { borderColor: "#453332", backgroundColor: "#FFFFFF" },
+                  isCancelled && { borderColor: "#453332", backgroundColor: "#FFFFFF" },
                 ]}
               >
                 <Text
                   style={[
                     styles.orderBadgeText,
-                    isDeclined && { color: "#DC2626" },
-                    isCancelled && { color: "#2B2B2B" },
+                    isDeclined && { color: "#F96951" },
+                    isCancelled && { color: "#4A403B" },
                   ]}
                 >
                   {orderNumber}
@@ -207,12 +207,12 @@ export default function CustomerOrderDetailScreen() {
               {garmentTitle}
             </Text>
             <View style={styles.dateRow}>
-              {readyToWear ? <Package size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#453332" : "#8A7550"} /> : <Calendar size={13} color={isDeclined ? "#DC2626" : isCancelled ? "#453332" : "#8A7550"} />}
+              {readyToWear ? <Package size={13} color={isDeclined ? "#F96951" : isCancelled ? "#453332" : "#453332"} /> : <Calendar size={13} color={isDeclined ? "#F96951" : isCancelled ? "#453332" : "#453332"} />}
               <Text
                 style={[
                   styles.dateText,
-                  isDeclined && { color: "#DC2626", fontFamily: "InstrumentSans-SemiBold" },
-                  isCancelled && { color: "#2B2B2B", fontFamily: "InstrumentSans-SemiBold" },
+                  isDeclined && { color: "#F96951", fontFamily: "InstrumentSans-SemiBold" },
+                  isCancelled && { color: "#4A403B", fontFamily: "InstrumentSans-SemiBold" },
                 ]}
                 numberOfLines={1}
               >
@@ -342,7 +342,7 @@ export default function CustomerOrderDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1, backgroundColor: "#F9E8D3" },
   headerBar: {
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 14,
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
+  headerTitle: { ...typeScale.pageTitle, fontFamily: "InstrumentSans-Medium", color: "#4A403B" },
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
   heroSection: {
     paddingBottom: 20,
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderBottomWidth: 0,
-    borderBottomColor: "#F4EEE5",
+    borderBottomColor: "#453332",
   },
   compactImage: { width: 88, height: 88, borderRadius: 16 },
   compactContent: { flex: 1, marginLeft: 16, justifyContent: "center", gap: 9 },
@@ -379,11 +379,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#453332",
   },
-  orderBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#2B2B2B" },
-  fhNameText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B", flexShrink: 1, marginLeft: 6 },
-  garmentTitleText: { fontFamily: "InstrumentSans-Bold", fontSize: 17, lineHeight: 22, color: "#2B2B2B" },
+  orderBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#4A403B" },
+  fhNameText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B", flexShrink: 1, marginLeft: 6 },
+  garmentTitleText: { fontFamily: "InstrumentSans-Medium", fontSize: 17, lineHeight: 22, color: "#4A403B" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12.5, lineHeight: 17, color: "#2B2B2B", flexShrink: 1 },
+  dateText: { fontFamily: "InstrumentSans-Medium", fontSize: 12.5, lineHeight: 17, color: "#4A403B", flexShrink: 1 },
   progressSection: {
     marginBottom: 24,
   },
@@ -393,22 +393,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 16,
   },
-  cardHeadline: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B" },
+  cardHeadline: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#4A403B" },
   timelineContainer: { paddingLeft: 4 },
   stepRow: { flexDirection: "row", minHeight: 52 },
   indicatorCol: { alignItems: "center", width: 26, marginRight: 12 },
   circle: { width: 24, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   circleDone: { backgroundColor: "#453332" },
-  circlePending: { backgroundColor: "#EBE6DC" },
-  circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2B2B2B" },
+  circlePending: { backgroundColor: "#F9E8D3" },
+  circleNumber: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#4A403B" },
   connector: { width: 2, flex: 1, marginVertical: 3 },
   connectorDone: { backgroundColor: "#453332" },
-  connectorPending: { backgroundColor: "#EBE6DC" },
+  connectorPending: { backgroundColor: "#FFFFFF" },
   stepInfoCol: { flex: 1, paddingBottom: 14 },
-  stepLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13.5, color: "#2B2B2B" },
-  stepLabelCurrent: { color: "#2B2B2B", fontFamily: "InstrumentSans-Bold" },
-  stepLabelPending: { color: "#A0A0A0" },
-  stepDesc: { fontFamily: "InstrumentSans-Regular", fontSize: 11.5, color: "#2B2B2B", marginTop: 1 },
+  stepLabel: { fontFamily: "InstrumentSans-Medium", fontSize: 13.5, color: "#4A403B" },
+  stepLabelCurrent: { color: "#4A403B", fontFamily: "InstrumentSans-SemiBold" },
+  stepLabelPending: { color: "#4A403B" },
+  stepDesc: { fontFamily: "InstrumentSans-Regular", fontSize: 11.5, color: "#4A403B", marginTop: 1 },
   actionButtonRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -449,6 +449,6 @@ const styles = StyleSheet.create({
   pillBtnSecondaryText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14.5,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });

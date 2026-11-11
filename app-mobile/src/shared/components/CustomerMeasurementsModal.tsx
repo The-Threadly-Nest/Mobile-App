@@ -46,7 +46,7 @@ export default function CustomerMeasurementsModal({ visible, onClose, rows, load
               {selectedGroup ? selectedGroup.name : "My measurements"}
             </Text>
             <Pressable accessibilityRole="button" accessibilityLabel="Close measurements" onPress={onClose} style={styles.iconButton}>
-              <X size={20} color="#000000" />
+              <X size={20} color="#2B2B2B" />
             </Pressable>
           </View>
 
@@ -91,7 +91,7 @@ export default function CustomerMeasurementsModal({ visible, onClose, rows, load
                         {house.rows.length} measurement{house.rows.length !== 1 ? "s" : ""}
                       </Text>
                     </View>
-                    <ChevronRight size={18} color="#8A7550" />
+                    <ChevronRight size={18} color="#453332" />
                   </Pressable>
                 ))}
               </ScrollView>
@@ -125,12 +125,12 @@ export default function CustomerMeasurementsModal({ visible, onClose, rows, load
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", alignItems: "center", justifyContent: "center", paddingHorizontal: 20, paddingVertical: 20 },
+  overlay: { flex: 1, backgroundColor: "rgba(43, 43, 43,0.4)", alignItems: "center", justifyContent: "center", paddingHorizontal: 20, paddingVertical: 20 },
   card: { width: "100%", maxWidth: 440, flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 28, padding: 20, gap: 18 },
   header: { flexDirection: "row", alignItems: "center", gap: 10 },
-  headingIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#FFF1ED", alignItems: "center", justifyContent: "center" },
-  title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 19, color: "#2B2B2B" },
-  iconButton: { minHeight: 44, minWidth: 44, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: "#F5F5F5" },
+  headingIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
+  title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 19, color: "#4A403B" },
+  iconButton: { minHeight: 44, minWidth: 44, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: "#F9E8D3" },
   scroll: { flexShrink: 1 },
   houseList: { gap: 4, paddingBottom: 2 },
   houseRow: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 16 },
@@ -138,21 +138,21 @@ const styles = StyleSheet.create({
   houseAvatarImg: { width: 52, height: 52, borderRadius: 26 },
   houseAvatarLetter: { fontFamily: "InstrumentSans-SemiBold", fontSize: 20, color: "#FFFFFF" },
   houseInfo: { flex: 1 },
-  houseName: { ...typeScale.compactLabel, color: "#2B2B2B" },
-  houseCount: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#8A7550", marginTop: 2 },
+  houseName: { ...typeScale.compactLabel, color: "#4A403B" },
+  houseCount: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#453332", marginTop: 2 },
   content: { gap: 20, paddingBottom: 2 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  metric: { flexBasis: "45%", flexGrow: 1, backgroundColor: "#F7F7F7", borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, minHeight: 94, gap: 10 },
-  label: { fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 18, color: "#2B2B2B" },
+  metric: { flexBasis: "45%", flexGrow: 1, backgroundColor: "#FFFFFF", borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16, minHeight: 94, gap: 10 },
+  label: { fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 18, color: "#4A403B" },
   reading: { flexDirection: "row", alignItems: "baseline", flexWrap: "wrap", gap: 6 },
-  value: { fontFamily: "InstrumentSans-SemiBold", fontSize: 27, lineHeight: 34, color: "#2B2B2B" },
-  unit: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#2B2B2B" },
+  value: { fontFamily: "InstrumentSans-SemiBold", fontSize: 27, lineHeight: 34, color: "#4A403B" },
+  unit: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#4A403B" },
   loading: { paddingVertical: 16 },
-  text: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#2B2B2B", textAlign: "center" },
-  hint: { ...typeScale.caption, color: "#2B2B2B", textAlign: "center", maxWidth: 260 },
+  text: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#4A403B", textAlign: "center" },
+  hint: { ...typeScale.caption, color: "#4A403B", textAlign: "center", maxWidth: 260 },
   empty: { paddingVertical: 18, gap: 12, alignItems: "center" },
-  emptyIcon: { height: 64, width: 64, borderRadius: 20, backgroundColor: "#FFF1ED", justifyContent: "center", alignItems: "center", marginBottom: 4 },
-  emptyTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#2B2B2B" },
+  emptyIcon: { height: 64, width: 64, borderRadius: 20, backgroundColor: "#F9E8D3", justifyContent: "center", alignItems: "center", marginBottom: 4 },
+  emptyTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#4A403B" },
   retry: { minHeight: 44, paddingHorizontal: 20, backgroundColor: "#F96951", borderRadius: 22, justifyContent: "center" },
   done: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
   buttonText: { ...typeScale.button, color: "#FFFFFF" },

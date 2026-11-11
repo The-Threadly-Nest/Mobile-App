@@ -11,7 +11,7 @@ export default function AllReviewsScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
         <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <BackArrowIcon size={24} color="#3A2E1A" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
         <Text style={styles.headerTitle}>Customer Reviews</Text>
       </View>
@@ -25,7 +25,7 @@ export default function AllReviewsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1, backgroundColor: "#F9E8D3" },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -37,26 +37,26 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
     borderWidth: 0.5,
-    borderColor: "#EAE3D2",
+    borderColor: "#453332",
   },
-  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
+  headerTitle: { ...typeScale.pageTitle, color: "#4A403B" },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 28 },
   emptyTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   emptyBody: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 20,
-    color: "#646464",
+    color: "#4A403B",
     textAlign: "center",
   },
 });

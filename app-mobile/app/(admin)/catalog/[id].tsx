@@ -172,7 +172,7 @@ export default function AdminEditGarmentScreen() {
               onPress={() => router.push("/(admin)/catalog" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#3B0508" />
+              <BackArrowIcon size={24} color="#453332" />
             </Pressable>
             <Text style={styles.headerTitle}>Edit Garment</Text>
           </View>
@@ -183,9 +183,9 @@ export default function AdminEditGarmentScreen() {
             style={({ pressed }) => [styles.deleteHeaderBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
             {deleting ? (
-              <ActivityIndicator size="small" color="#D32F2F" />
+              <ActivityIndicator size="small" color="#F96951" />
             ) : (
-              <Trash2 size={20} color="#D32F2F" />
+              <Trash2 size={20} color="#F96951" />
             )}
           </Pressable>
         </View>
@@ -243,7 +243,7 @@ export default function AdminEditGarmentScreen() {
               value={name}
               onChangeText={setName}
               placeholder="e.g. Silk Corset Evening Gown"
-              placeholderTextColor="#8A7550"
+              placeholderTextColor="#453332"
               style={styles.textInput}
             />
 
@@ -253,13 +253,13 @@ export default function AdminEditGarmentScreen() {
               value={priceFrom}
               onChangeText={setPriceFrom}
               placeholder="e.g. 150000 or leave blank for 'Price on request'"
-              placeholderTextColor="#8A7550"
+              placeholderTextColor="#453332"
               keyboardType="numeric"
               style={styles.textInput}
             />
 
             <CatalogOfferingFields type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving || !loaded} />
-            <TextInput accessibilityLabel="Garment details" value={description} onChangeText={setDescription} multiline placeholder="Describe this garment" maxLength={1000} style={{ minHeight: 100, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", color: "#2B2B2B", marginBottom: 20, textAlignVertical: "top" }} />
+            <TextInput accessibilityLabel="Garment details" value={description} onChangeText={setDescription} multiline placeholder="Describe this garment" maxLength={1000} style={{ minHeight: 100, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: "#453332", color: "#4A403B", marginBottom: 20, textAlignVertical: "top" }} />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </KeyboardAwareScrollView>
         )}
@@ -289,7 +289,7 @@ export default function AdminEditGarmentScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   header: {
     flexDirection: "row",
@@ -304,14 +304,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.25)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   deleteHeaderBtn: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     paddingTop: 36,
   },
   fieldLabel: { ...typeScale.label,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   imagePickerBox: {
@@ -350,13 +350,13 @@ const styles = StyleSheet.create({
   pickerTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   pickerSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   loadingBox: {
     flex: 1,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   previewBox: {
     width: "100%",
@@ -402,15 +402,15 @@ const styles = StyleSheet.create({
     height: 52,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.08)",
+    borderColor: "rgba(69, 51, 50,0.08)",
     marginBottom: 24,
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#D32F2F",
+    color: "#F96951",
     marginBottom: 16,
   },
   bottomBar: {
@@ -418,12 +418,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 24,
     borderTopWidth: 0,
-    borderTopColor: "rgba(0,0,0,0.05)",
+    borderTopColor: "rgba(69, 51, 50,0.05)",
   },
   submitBtn: {
     height: 56,

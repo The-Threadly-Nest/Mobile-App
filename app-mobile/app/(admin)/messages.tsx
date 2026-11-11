@@ -112,7 +112,7 @@ const SentTail = () => (
   />
 );
 
-const ReceivedTail = ({ color = 'rgba(74,8,12,0.12)' }: { color?: string }) => (
+const ReceivedTail = ({ color = 'rgba(69, 51, 50,0.12)' }: { color?: string }) => (
   <View
     style={{
       position: 'absolute',
@@ -779,7 +779,7 @@ export default function AdminMessagesScreen() {
                   onPress={() => togglePlayAudio(item.audioUrl!, item.id)}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, minWidth: 180 }}
                 >
-                  <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isFashionHouse ? 'rgba(255,255,255,0.25)' : 'rgba(74,8,12,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: isFashionHouse ? 'rgba(255, 255, 255,0.25)' : 'rgba(69, 51, 50,0.15)', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {playingAudioId === item.id ? (
                       <Pause size={16} color={isFashionHouse ? '#FFFFFF' : '#453332'} />
                     ) : (
@@ -790,12 +790,12 @@ export default function AdminMessagesScreen() {
                     <AnimatedWaveform
                       isAnimating={playingAudioId === item.id}
                       color={isFashionHouse ? '#FFFFFF' : '#453332'}
-                      inactiveColor={isFashionHouse ? 'rgba(255,255,255,0.4)' : 'rgba(74,8,12,0.4)'}
+                      inactiveColor={isFashionHouse ? 'rgba(255, 255, 255,0.4)' : 'rgba(69, 51, 50,0.4)'}
                       barCount={16}
                       height={24}
                     />
                   </View>
-                  <Text style={{ fontFamily: 'InstrumentSans-Medium', fontSize: 12, color: isFashionHouse ? 'rgba(255,255,255,0.85)' : '#8A7550', flexShrink: 0 }}>
+                  <Text style={{ fontFamily: 'InstrumentSans-Medium', fontSize: 12, color: isFashionHouse ? 'rgba(255, 255, 255,0.85)' : '#453332', flexShrink: 0 }}>
                     {formatDuration(item.audioDuration || 0)}
                   </Text>
                 </Pressable>
@@ -809,11 +809,11 @@ export default function AdminMessagesScreen() {
             <Text style={styles.statusText}>{timeStr}</Text>
             {isFashionHouse && (
               item.id.startsWith('temp-') ? (
-                <Check size={14} color="#8A7550" />
+                <Check size={14} color="#453332" />
               ) : item.isRead ? (
                 <CheckCheck size={14} color="#453332" />
               ) : (
-                <Check size={14} color="#8A7550" />
+                <Check size={14} color="#453332" />
               )
             )}
           </View>
@@ -877,7 +877,7 @@ export default function AdminMessagesScreen() {
           ) : threads.length === 0 ? (
             <View style={styles.centerContainer}>
               <View style={styles.emptyIconCircle}>
-                <MessageSquare size={24} color="#8A7550" />
+                <MessageSquare size={24} color="#453332" />
               </View>
               <Text style={styles.emptyTitleText}>No messages yet</Text>
               <Text style={styles.emptySubtext}>
@@ -900,7 +900,7 @@ export default function AdminMessagesScreen() {
           ) : staffList.length === 0 ? (
             <View style={styles.centerContainer}>
               <View style={styles.emptyIconCircle}>
-                <MessageSquare size={24} color="#8A7550" />
+                <MessageSquare size={24} color="#453332" />
               </View>
               <Text style={styles.emptyTitleText}>No staff messages yet</Text>
               <Text style={styles.emptySubtext}>
@@ -1004,7 +1004,7 @@ export default function AdminMessagesScreen() {
                       live
                       metering={recordingState.metering}
                       color="#453332"
-                      inactiveColor="rgba(74, 8, 12, 0.2)"
+                      inactiveColor="rgba(69, 51, 50, 0.2)"
                       barCount={34}
                       height={14}
                     />
@@ -1013,18 +1013,18 @@ export default function AdminMessagesScreen() {
 
                 <View style={styles.recordingBottomRow}>
                   <Pressable onPress={cancelRecording} style={styles.trashCircleBtn}>
-                    <Trash2 size={20} color="#B91C1C" />
+                    <Trash2 size={20} color="#F96951" />
                   </Pressable>
 
                   <Pressable onPress={togglePauseRecording} style={styles.pausePillBtn}>
                     {isPaused ? (
                       <>
-                        <Mic size={16} color="#3A2E1A" />
+                        <Mic size={16} color="#453332" />
                         <Text style={styles.pausePillText}>Resume</Text>
                       </>
                     ) : (
                       <>
-                        <Pause size={16} color="#3A2E1A" />
+                        <Pause size={16} color="#453332" />
                         <Text style={styles.pausePillText}>Pause</Text>
                       </>
                     )}
@@ -1039,7 +1039,7 @@ export default function AdminMessagesScreen() {
               <>
                 <View style={styles.textInputWrapper}>
                   <Pressable onPress={() => { Keyboard.dismiss(); setShowEmojiPicker((prev) => !prev); }} style={styles.composerIconBtn}>
-                    <Smile size={21} color={showEmojiPicker ? '#453332' : '#8A7550'} />
+                    <Smile size={21} color={showEmojiPicker ? '#453332' : '#453332'} />
                   </Pressable>
                   <TextInput
                     style={styles.textInput}
@@ -1050,10 +1050,10 @@ export default function AdminMessagesScreen() {
                     submitBehavior="submit"
                     returnKeyType="send"
                     placeholder="Message"
-                    placeholderTextColor="#8A7550"
+                    placeholderTextColor="#453332"
                   />
                   <Pressable onPress={() => void handlePickImage('library')} disabled={uploadingImage} style={styles.composerIconBtn}>
-                    {uploadingImage ? <ActivityIndicator size="small" color="#8A7550" /> : <Paperclip size={20} color="#8A7550" />}
+                    {uploadingImage ? <ActivityIndicator size="small" color="#453332" /> : <Paperclip size={20} color="#453332" />}
                   </Pressable>
                   <Pressable onPress={() => void handlePickImage('camera')} disabled={uploadingImage} style={styles.composerIconBtn}>
                     <Camera size={20} color="#F96951" />
@@ -1105,7 +1105,7 @@ export default function AdminMessagesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#F9E8D3",
   },
   headerBar: {
     flexDirection: 'row',
@@ -1115,16 +1115,16 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     gap: 12,
     borderBottomWidth: 0,
-    borderBottomColor: 'rgba(228, 213, 183, 0.4)',
-    backgroundColor: '#FFFFFF',
+    borderBottomColor: 'rgba(69, 51, 50, 0.4)',
+    backgroundColor: "#F9E8D3",
   },
   headerBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E4D5B7',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#453332',
+    backgroundColor: "#F9E8D3",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1138,7 +1138,7 @@ const styles = StyleSheet.create({
     color: '#453332',
   },
   headerSubtitleText: { ...typeScale.caption,
-    color: '#8A7550',
+    color: '#453332',
     marginTop: 2,
   },
   centerContainer: {
@@ -1152,7 +1152,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(228, 213, 183, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -1166,7 +1166,7 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 13,
-    color: '#8A7550',
+    color: '#453332',
     textAlign: 'center',
     lineHeight: 18,
   },
@@ -1179,7 +1179,7 @@ const styles = StyleSheet.create({
   timeHeaderText: {
     fontFamily: 'InstrumentSans-Medium',
     fontSize: 13,
-    color: '#8A7550',
+    color: '#453332',
     textAlign: 'center',
   },
   threadsList: {
@@ -1190,9 +1190,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 0,
-    borderBottomColor: '#F0ECE4',
+    borderBottomColor: '#453332',
   },
   avatar: {
     width: 46,
@@ -1220,17 +1220,17 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 15,
-    color: '#3A2E1A',
+    color: '#453332',
   },
   timeText: {
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 11,
-    color: '#8A7550',
+    color: '#453332',
   },
   lastMsgText: {
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 13,
-    color: '#8A7550',
+    color: '#453332',
   },
   unreadBadge: {
     backgroundColor: '#F96951',
@@ -1270,9 +1270,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   historySection: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: 'rgba(196, 167, 99, 0.38)',
+    borderColor: 'rgba(69, 51, 50, 0.38)',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingTop: 14,
@@ -1285,13 +1285,13 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     marginBottom: 14,
     borderBottomWidth: 0,
-    borderBottomColor: 'rgba(196, 167, 99, 0.32)',
+    borderBottomColor: 'rgba(69, 51, 50, 0.32)',
   },
   historyIcon: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#F3E9DE',
+    backgroundColor: "#F9E8D3",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1303,20 +1303,20 @@ const styles = StyleSheet.create({
   historySubtitle: {
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 11,
-    color: '#8A7550',
+    color: '#453332',
     marginTop: 2,
   },
   dividerLine: { display: "none",
     flex: 1,
     height: 1,
-    backgroundColor: '#C4A763',
+    backgroundColor: '#453332',
     opacity: 0.5,
   },
   dividerLabel: { display: "none",
     marginHorizontal: 12,
     fontSize: 10,
     fontFamily: 'InstrumentSans-SemiBold',
-    color: '#C4A763',
+    color: '#453332',
     letterSpacing: 2,
   },
   messageBlock: {
@@ -1325,7 +1325,7 @@ const styles = StyleSheet.create({
   senderNameText: {
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 12,
-    color: '#3A2E1A',
+    color: '#453332',
     marginLeft: 4,
     marginBottom: 4,
   },
@@ -1347,7 +1347,7 @@ const styles = StyleSheet.create({
   },
   receivedBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(74, 8, 12, 0.25)',
+    backgroundColor: 'rgba(69, 51, 50, 0.25)',
     borderBottomLeftRadius: 4,
   },
   bubbleText: {
@@ -1372,7 +1372,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 10,
-    color: '#8A7550',
+    color: '#453332',
   },
   inputToolbarContainer: {
     flexDirection: 'row',
@@ -1381,18 +1381,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 6,
     paddingBottom: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#F9E8D3",
   },
   recordingContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderWidth: 1,
-    borderColor: '#E4D5B7',
+    borderColor: '#453332',
     gap: 12,
-    shadowColor: '#000000',
+    shadowColor: '#2B2B2B',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -1406,7 +1406,7 @@ const styles = StyleSheet.create({
   recordingTimerText: {
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 16,
-    color: '#3A2E1A',
+    color: '#453332',
     minWidth: 42,
   },
   recordingBottomRow: {
@@ -1418,7 +1418,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(185, 28, 28, 0.1)',
+    backgroundColor: 'rgba(249, 105, 81, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1426,7 +1426,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(58, 46, 26, 0.08)',
+    backgroundColor: 'rgba(69, 51, 50, 0.08)',
     paddingHorizontal: 24,
     paddingVertical: 11,
     borderRadius: 22,
@@ -1434,7 +1434,7 @@ const styles = StyleSheet.create({
   pausePillText: {
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 14,
-    color: '#3A2E1A',
+    color: '#453332',
   },
   sendCircleBtn: {
     width: 44,
@@ -1449,8 +1449,8 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: '#E4D5B7',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#453332',
+    backgroundColor: "#F9E8D3",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1459,8 +1459,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#E4D5B7',
-    backgroundColor: '#FFFFFF',
+    borderColor: '#453332',
+    backgroundColor: "#FFFFFF",
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
@@ -1469,7 +1469,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'InstrumentSans-Regular',
     fontSize: 14,
-    color: '#3A2E1A',
+    color: '#453332',
     height: '100%',
     paddingHorizontal: 8,
   },
@@ -1498,13 +1498,13 @@ const styles = StyleSheet.create({
     bottom: 74,
     left: 16,
     right: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: '#E4D5B7',
-    shadowColor: '#000000',
+    borderColor: '#453332',
+    shadowColor: '#2B2B2B',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -1515,15 +1515,15 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: '#E4D5B7',
+    borderColor: '#453332',
     alignItems: 'center',
     justifyContent: 'center',
   },
   segmentedContainer: {
     flexDirection: 'row',
-    backgroundColor: '#EBE0D3',
+    backgroundColor: "#FFFFFF",
     borderRadius: 32,
     padding: 3,
     marginHorizontal: 24,
@@ -1544,7 +1544,7 @@ const styles = StyleSheet.create({
   segmentedText: {
     fontFamily: 'InstrumentSans-SemiBold',
     fontSize: 13,
-    color: '#3A2E1A',
+    color: '#453332',
   },
   segmentedTextActive: {
     color: '#FFFFFF',

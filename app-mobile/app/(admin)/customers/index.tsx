@@ -120,18 +120,18 @@ export default function CustomersScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
           <Text style={styles.headerTitle}>Customers</Text>
         </View>
 
         {/* Search Bar matching mockup */}
         <View style={styles.searchBar}>
-          <Search size={20} color="#7A7265" style={{ marginRight: 12 }} />
+          <Search size={20} color="#2B2B2B" style={{ marginRight: 12 }} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search customers..."
-            placeholderTextColor="#8A7550"
+            placeholderTextColor="#453332"
             value={searchQuery}
             onChangeText={setSearchQuery}
             clearButtonMode="while-editing"
@@ -208,11 +208,11 @@ export default function CustomersScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#2B2B2B" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#4A403B" }}>
                         {selectedCustomer.name}
                       </Text>
                       <View style={{
-                        backgroundColor: selectedCustomer.status === "inactive" ? "#E0E0E0" : "#E6F4EA",
+                        backgroundColor: selectedCustomer.status === "inactive" ? "#FFFFFF" : "#FFFFFF",
                         paddingHorizontal: 8,
                         paddingVertical: 2,
                         borderRadius: 8
@@ -220,13 +220,13 @@ export default function CustomersScreen() {
                         <Text style={{
                           fontFamily: "InstrumentSans-SemiBold",
                           fontSize: 11,
-                          color: selectedCustomer.status === "inactive" ? "#616161" : "#137333"
+                          color: selectedCustomer.status === "inactive" ? "#4A403B" : "#453332"
                         }}>
                           {selectedCustomer.status === "inactive" ? "Inactive" : "Active"}
                         </Text>
                       </View>
                     </View>
-                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#7A7265" }}>
+                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#4A403B" }}>
                       {selectedCustomer.phone}
                     </Text>
                   </View>
@@ -309,7 +309,7 @@ export default function CustomersScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -331,21 +331,19 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   searchBar: {
     height: 54,
     borderRadius: 27,
     backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -356,7 +354,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   listContent: {
     paddingBottom: 32,
@@ -368,7 +366,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 10,
@@ -394,16 +392,16 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   customerPhone: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   ordersBadge: {
-    backgroundColor: "#F4ECEC",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
@@ -411,7 +409,7 @@ const styles = StyleSheet.create({
   ordersBadgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#7A3A3E",
+    color: "#453332",
   },
   emptyContainer: {
     paddingVertical: 40,
@@ -420,11 +418,11 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(43, 43, 43,0.5)",
     justifyContent: "flex-end",
   },
   modalCard: {
@@ -442,7 +440,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   statBox: {
     flexDirection: "row",
@@ -452,12 +450,12 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.1)",
+    borderColor: "rgba(69, 51, 50, 0.1)",
   },
   statBoxText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   measActionBtn: {
     height: 54,

@@ -21,7 +21,7 @@ export function ProfileMenuGroups({ children }: { children: React.ReactNode }) {
   const rows = React.Children.toArray(children).filter(React.isValidElement);
   return <View style={{ paddingHorizontal: 24, gap: 14 }}>
     {Array.from({ length: Math.ceil(rows.length / 2) }, (_, index) => (
-      <View key={index} style={{ backgroundColor: "#F6F6F6", borderRadius: 15, overflow: "hidden" }}>
+      <View key={index} style={{ backgroundColor: "#FFFFFF", borderRadius: 15, overflow: "hidden" }}>
         {rows.slice(index * 2, index * 2 + 2)}
       </View>
     ))}
@@ -33,7 +33,7 @@ export function ProfileDesignIcon({ name }: { name: keyof typeof icons }) {
   const width = name === "chevron" ? 26.5271 : 21.2217;
   const height = width;
   const Icon = icons[name];
-  return <Icon width={width} height={height} color={name === "chevron" ? "#746765" : "#F96951"} strokeWidth={1.6} />;
+  return <Icon width={width} height={height} color={name === "chevron" ? "#2B2B2B" : "#F96951"} strokeWidth={1.6} />;
 }
 
 export function ProfileDesignHeader({ balance }: {
@@ -49,7 +49,7 @@ export function ProfileDesignHeader({ balance }: {
         accessibilityLabel="Withdraw unavailable until wallet is connected"
         style={{ borderWidth: 1, borderColor: "#F96951", borderRadius: 10, paddingHorizontal: 22, minHeight: 38,
           alignItems: "center", justifyContent: "center", marginTop: 14, marginBottom: 8, opacity: 0.65 }}>
-        <Text style={{ color: "#2B2B2B", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
+        <Text style={{ color: "#4A403B", fontFamily: "InstrumentSans-Regular", fontSize: 14 }}>Withdraw</Text>
       </Pressable>
       <Text style={[styles.subtitle, { fontSize: 12, opacity: 0.8 }]}>Wallet balance is not connected yet</Text>
     </View>}
@@ -58,7 +58,7 @@ export function ProfileDesignHeader({ balance }: {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 24,
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 16,
@@ -68,10 +68,10 @@ const styles = StyleSheet.create({
   profileTitle: { ...typeScale.pageTitle,
     alignSelf: "flex-start",
     textAlign: "left",
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 0,
     marginBottom: 16,
   },
-  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#2B2B2B", textAlign: "center", marginTop: 12 },
-  subtitle: { ...typeScale.caption, color: "#2B2B2B", textAlign: "center", marginTop: 6 },
+  name: { fontFamily: "InstrumentSans-SemiBold", fontSize: 25, color: "#4A403B", textAlign: "center", marginTop: 12 },
+  subtitle: { ...typeScale.caption, color: "#4A403B", textAlign: "center", marginTop: 6 },
 });

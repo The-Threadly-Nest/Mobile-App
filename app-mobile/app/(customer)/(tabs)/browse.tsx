@@ -202,7 +202,7 @@ export default function BrowseScreen() {
               { opacity: pressed ? 0.75 : 1 },
             ]}
           >
-            <Bell size={20} color="#1E1E1E" />
+            <Bell size={20} color="#2B2B2B" />
             {unreadCount > 0 && (
               <View style={styles.unreadBadge}>
                 <Text style={styles.unreadBadgeText}>
@@ -213,15 +213,15 @@ export default function BrowseScreen() {
           </Pressable>
         </View>
 
-        {!offline && notificationsError ? <Text style={{ color: "#646464", fontSize: 12, marginBottom: 12 }}>{notificationsError}</Text> : null}
+        {!offline && notificationsError ? <Text style={{ color: "#4A403B", fontSize: 12, marginBottom: 12 }}>{notificationsError}</Text> : null}
         {/* Search & Filter Bar */}
         <View style={styles.searchBarRow}>
           <View style={styles.searchInputWrapper}>
-            <Search size={18} color="#6C7278" />
+            <Search size={18} color="#2B2B2B" />
             <TextInput
               style={styles.searchInput}
               placeholder="Search clothes... "
-              placeholderTextColor="#6C7278"
+              placeholderTextColor="#4A403B"
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
@@ -255,7 +255,7 @@ export default function BrowseScreen() {
             <Text style={styles.sectionTitle}>Fashion Houses</Text>
             <Pressable onPress={() => router.push("/(customer)/fashion-houses")}><Text style={styles.viewAllText}>View All</Text></Pressable>
           </View>
-          {!offline && housesError ? <Text style={{ color: "#9F1239", marginBottom: 12 }}>{housesError}</Text> : !offline && !fashionHouses.length && !loading ? <Text style={{ color: "#746765", marginBottom: 12 }}>No fashion houses are available yet.</Text> : null}
+          {!offline && housesError ? <Text style={{ color: "#F96951", marginBottom: 12 }}>{housesError}</Text> : !offline && !fashionHouses.length && !loading ? <Text style={{ color: "#4A403B", marginBottom: 12 }}>No fashion houses are available yet.</Text> : null}
           <ScrollView
             ref={fashionHouseScrollRef}
             horizontal
@@ -323,8 +323,8 @@ export default function BrowseScreen() {
           </Pressable>
         </View>
         {loading && <ActivityIndicator color="#453332" />}
-        {!offline && error ? <Pressable onPress={() => void loadCatalog()}><Text style={{ color: "#9F1239", paddingVertical: 12 }}>{error} Tap to retry.</Text></Pressable> : null}
-        {!offline && !loading && !error && filteredRecommend.length === 0 && <Text style={{ color: "#646464", paddingVertical: 20 }}>No catalog items match yet. Try another category or check back soon.</Text>}
+        {!offline && error ? <Pressable onPress={() => void loadCatalog()}><Text style={{ color: "#F96951", paddingVertical: 12 }}>{error} Tap to retry.</Text></Pressable> : null}
+        {!offline && !loading && !error && filteredRecommend.length === 0 && <Text style={{ color: "#4A403B", paddingVertical: 20 }}>No catalog items match yet. Try another category or check back soon.</Text>}
         <View style={styles.gridContainer}>
           {filteredRecommend.map((item) => (
             <Pressable
@@ -353,7 +353,7 @@ export default function BrowseScreen() {
                 >
                   <Heart
                     size={14}
-                    color={favorites[item.id] ? "#FFFFFF" : "#746765"}
+                    color={favorites[item.id] ? "#FFFFFF" : "#2B2B2B"}
                     fill={favorites[item.id] ? "#FFFFFF" : "none"}
                   />
                 </Pressable>
@@ -378,7 +378,7 @@ export default function BrowseScreen() {
           ))}
         </View>
 
-        {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#2B2B2B" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
+        {nextPage && <Pressable disabled={refreshing} onPress={() => void loadCatalog(nextPage)} style={{ padding: 16, alignItems: "center" }}><Text style={{ color: "#4A403B" }}>{refreshing ? "Loading..." : "Load more items"}</Text></Pressable>}
       </ScrollView>
 
       <CatalogFilters visible={filtersVisible} onClose={() => { setFiltersVisible(false); scrollRef.current?.scrollTo({ y: catalogOffset.current, animated: true }); }} type={fulfillmentFilter} onTypeChange={setFulfillmentFilter} sort={sort} onSortChange={setSort} />
@@ -389,7 +389,7 @@ export default function BrowseScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -405,25 +405,25 @@ const styles = StyleSheet.create({
   greetingSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#787676",
+    color: "#4A403B",
     marginBottom: 2,
   },
   greetingName: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   bellButton: {
     position: "relative",
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.06)",
-    shadowColor: "#000",
+    borderColor: "rgba(69, 51, 50, 0.06)",
+    shadowColor: "#2B2B2B",
     shadowOpacity: 0.06,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -484,8 +484,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#DFDEDE",
     borderRadius: 24,
     paddingHorizontal: 16,
     height: 48,
@@ -495,7 +493,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#1E1E1E",
+    color: "#4A403B",
     height: "100%",
   },
   filterBtn: {
@@ -536,7 +534,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   shopNowText: { ...typeScale.button,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   bannerImageWrapper: {
     flex: 0.9,
@@ -558,7 +556,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Medium",
@@ -585,11 +583,11 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     borderWidth: 1.5,
     borderColor: "rgba(69, 51, 50, 0.12)",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -602,17 +600,17 @@ const styles = StyleSheet.create({
   fallbackLogo: {
     width: "100%",
     height: "100%",
-    backgroundColor: "#F5EFE6",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
   fallbackInitial: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 22,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   fashionHouseName: { ...typeScale.compactLabel,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
     marginTop: 6,
     maxWidth: 68,
@@ -634,7 +632,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#FFFFFF",
   },
   productImage: {
     width: "100%",
@@ -650,7 +648,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 3,
@@ -660,7 +658,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 24,
     left: 0,
-    backgroundColor: "#006637",
+    backgroundColor: "#453332",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderTopRightRadius: 4,
@@ -675,7 +673,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 6,
     left: 0,
-    backgroundColor: "#E49100",
+    backgroundColor: "#453332",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderTopRightRadius: 4,
@@ -690,10 +688,10 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   productName: { ...typeScale.productName,
-    color: "#2B2B2B",
+    color: "#4A403B",
     },
   productPrice: { ...typeScale.productPrice,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 4,
   },
   ratingBadge: {
@@ -707,7 +705,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 12,
     gap: 3,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -716,7 +714,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   flashSaleHeaderRow: {
     flexDirection: "row",
@@ -736,7 +734,7 @@ const styles = StyleSheet.create({
   closingInText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginRight: 2,
   },
   timerBlock: {
@@ -753,7 +751,7 @@ const styles = StyleSheet.create({
   timerColon: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   filterPillsRow: {
     flexDirection: "row",
@@ -773,7 +771,7 @@ const styles = StyleSheet.create({
   filterPillText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 11,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   filterPillTextActive: {
     color: "#FFFFFF",

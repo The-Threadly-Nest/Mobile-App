@@ -48,7 +48,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-cream">
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -67,7 +67,7 @@ export default function ForgotPasswordScreen() {
 
         <Input placeholder="Email address" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
 
-        {error ? <Text className="font-body text-red-500 text-xs mb-4">{error}</Text> : null}
+        {error ? <Text className="font-body text-tomato text-xs mb-4">{error}</Text> : null}
 
         <View style={{ marginTop: 12 }}>
           <Button label="Send Reset PIN" onPress={handleSubmit} loading={loading} disabled={!email} />

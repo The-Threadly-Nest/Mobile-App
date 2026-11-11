@@ -64,10 +64,10 @@ export default function RootLayout() {
     <AppErrorBoundary>
       <SafeAreaProvider>
         <StatusBar style="dark" />
-        <View style={{ flex: 1, backgroundColor: "#FFFFFF" }} onLayout={onLayoutRootView}>
+        <View style={{ flex: 1, backgroundColor: "#F9E8D3" }} onLayout={onLayoutRootView}>
           <StartupReadyContext.Provider value={!showBrandSplash}>
             <ConnectionFrame>
-              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>
+              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F9E8D3" } }}>
                 <Stack.Screen name="(auth)" options={{ animation: "none" }} />
                 <Stack.Screen name="(customer)" options={{ animation: "none" }} />
                 <Stack.Screen name="(admin)" options={{ animation: "none" }} />

@@ -170,7 +170,7 @@ export default function AdminNewGarmentScreen() {
                   if (error) setError("");
                 }}
                 placeholder="Aso Oke Gown"
-                placeholderTextColor="#9C9BA6"
+                placeholderTextColor="#4A403B"
                 style={styles.textInput}
                 autoCapitalize="words"
               />
@@ -213,7 +213,7 @@ export default function AdminNewGarmentScreen() {
                 onPress={handlePickImage}
                 style={({ pressed }) => [styles.photoAddSlot, { opacity: pressed ? 0.7 : 1 }]}
               >
-                <UploadCloud size={20} color="#9C9BA6" />
+                <UploadCloud size={20} color="#2B2B2B" />
                 <Text style={styles.addText}>Add</Text>
               </Pressable>
             </View>
@@ -236,7 +236,7 @@ export default function AdminNewGarmentScreen() {
                   if (error) setError("");
                 }}
                 placeholder="Hand-woven aso oke, shaped into a gown that carries tradition with ease."
-                placeholderTextColor="#9C9BA6"
+                placeholderTextColor="#4A403B"
                 multiline
                 numberOfLines={4}
                 style={styles.detailsTextInput}
@@ -273,7 +273,7 @@ export default function AdminNewGarmentScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   topHeader: {
     flexDirection: "row",
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     paddingTop: SCREEN_TOP_SPACING,
     paddingBottom: 16,
     borderBottomWidth: 0,
-    borderBottomColor: "#F4F5F7",
+    borderBottomColor: "#453332",
   },
   headerLeft: {
     flexDirection: "row",
@@ -295,13 +295,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.25)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   resetBtn: {
@@ -322,15 +322,15 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   fieldLabel: { ...typeScale.label,
-    color: "#32343E",
+    color: "#4A403B",
     letterSpacing: 0.8,
     textTransform: "uppercase",
     marginBottom: 8,
   },
   inputContainer: {
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E8EAED",
+    borderColor: "#453332",
     borderRadius: 10,
     height: 52,
     justifyContent: "center",
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     fontSize: 14,
-    color: "#32343E",
+    color: "#4A403B",
     paddingVertical: 0,
   },
   photoRow: {
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FFFFFF",
   },
   photoImage: {
     width: "100%",
@@ -369,37 +369,37 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    backgroundColor: "rgba(43, 43, 43, 0.55)",
     alignItems: "center",
     justifyContent: "center",
   },
   loadingSlot: {
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E8EAED",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
   },
   uploadingText: {
     fontSize: 10,
-    color: "#9C9BA6",
+    color: "#4A403B",
   },
   photoAddSlot: {
     width: 92,
     height: 92,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#E8EAED",
+    borderColor: "#453332",
     borderStyle: "dashed",
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
   },
   addText: {
     fontSize: 11,
-    color: "#9C9BA6",
+    color: "#4A403B",
     fontWeight: "500",
   },
   priceRow: {
@@ -409,16 +409,16 @@ const styles = StyleSheet.create({
   priceInputContainer: {
     width: 125,
     height: 50,
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E8EAED",
+    borderColor: "#453332",
     borderRadius: 10,
     justifyContent: "center",
     paddingHorizontal: 14,
   },
   priceTextInput: {
     fontSize: 14,
-    color: "#32343E",
+    color: "#4A403B",
     paddingVertical: 0,
   },
   checkboxOption: {
@@ -432,8 +432,8 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: "#E8EAED",
-    backgroundColor: "#FDFDFD",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -443,17 +443,17 @@ const styles = StyleSheet.create({
   },
   checkboxLabel: {
     fontSize: 12,
-    color: "#9C9BA6",
+    color: "#4A403B",
     marginLeft: 6,
     fontWeight: "500",
   },
   checkboxLabelActive: {
-    color: "#32343E",
+    color: "#4A403B",
   },
   detailsContainer: {
-    backgroundColor: "#FDFDFD",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E8EAED",
+    borderColor: "#453332",
     borderRadius: 10,
     minHeight: 110,
     padding: 14,
@@ -461,12 +461,12 @@ const styles = StyleSheet.create({
   detailsTextInput: {
     fontSize: 13,
     lineHeight: 20,
-    color: "#32343E",
+    color: "#4A403B",
     paddingVertical: 0,
   },
   errorText: {
     fontSize: 13,
-    color: "#D32F2F",
+    color: "#F96951",
     marginBottom: 16,
     textAlign: "center",
   },
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 20,
     paddingTop: 12,
   },

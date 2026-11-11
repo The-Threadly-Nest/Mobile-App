@@ -26,7 +26,7 @@ export default function FloatingCart() {
   </Pressable>;
 }
 const styles = StyleSheet.create({
-  button: { position: "absolute", right: 20, width: 48, height: 48, borderRadius: 24, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center", zIndex: 20, elevation: 7, shadowColor: "#000000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.16, shadowRadius: 7 },
-  badge: { position: "absolute", top: -4, right: -4, minWidth: 22, height: 22, paddingHorizontal: 4, borderRadius: 11, backgroundColor: "#453332", borderWidth: 2, borderColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
+  button: { position: "absolute", right: 20, width: 48, height: 48, borderRadius: 24, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center", zIndex: 20, elevation: 7, shadowColor: "#2B2B2B", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.16, shadowRadius: 7 },
+  badge: { position: "absolute", top: -4, right: -4, minWidth: 22, height: 22, paddingHorizontal: 4, borderRadius: 11, backgroundColor: "#453332", borderWidth: 2, borderColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
   count: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, lineHeight: 14, includeFontPadding: false, color: "#FFFFFF" },
 });

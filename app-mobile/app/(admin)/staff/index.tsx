@@ -27,7 +27,7 @@ function GradientAvatar({ initial }: { initial: string }) {
         <Defs>
           <LinearGradient id="avatarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
             <Stop offset="0%" stopColor="#453332" />
-            <Stop offset="100%" stopColor="#C4A763" />
+            <Stop offset="100%" stopColor="#453332" />
           </LinearGradient>
         </Defs>
         <Rect width="40" height="40" rx="20" fill="url(#avatarGrad)" />
@@ -122,7 +122,7 @@ export default function StaffScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Staff</Text>
@@ -130,11 +130,11 @@ export default function StaffScreen() {
 
         {/* Search Bar */}
         <View style={styles.searchBar}>
-          <Search size={20} color="#7A7265" style={{ marginRight: 12 }} />
+          <Search size={20} color="#2B2B2B" style={{ marginRight: 12 }} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search staff members..."
-            placeholderTextColor="#8A7550"
+            placeholderTextColor="#453332"
             value={searchQuery}
             onChangeText={setSearchQuery}
             clearButtonMode="while-editing"
@@ -260,7 +260,7 @@ export default function StaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -283,21 +283,19 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   searchBar: {
     height: 54,
     borderRadius: 27,
     backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -308,7 +306,7 @@ const styles = StyleSheet.create({
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   loaderContainer: {
     flex: 1,
@@ -331,7 +329,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 10,
@@ -358,19 +356,19 @@ const styles = StyleSheet.create({
   staffName: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   staffEmail: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#404040",
+    color: "#4A403B",
     marginBottom: 2,
   },
   ordersText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#404040",
+    color: "#4A403B",
   },
   badge: {
     width: 53,
@@ -381,20 +379,20 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   badgeActive: {
-    backgroundColor: "rgba(67, 160, 71, 0.25)",
+    backgroundColor: "rgba(69, 51, 50, 0.25)",
   },
   badgePending: {
-    backgroundColor: "rgba(220, 38, 38, 0.2)",
+    backgroundColor: "rgba(249, 105, 81, 0.2)",
   },
   badgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11.5,
   },
   badgeTextActive: {
-    color: "#43A047",
+    color: "#453332",
   },
   badgeTextPending: {
-    color: "#DC2626",
+    color: "#F96951",
   },
   emptyContainer: {
     paddingVertical: 48,
@@ -405,8 +403,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     marginVertical: 12,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.1)",
-    shadowColor: "#000",
+    borderColor: "rgba(69, 51, 50, 0.1)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.03,
     shadowRadius: 8,
@@ -416,9 +414,9 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 14,
@@ -426,7 +424,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
     textAlign: "center",
   },
@@ -434,7 +432,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 19,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
     marginBottom: 20,
     maxWidth: 280,

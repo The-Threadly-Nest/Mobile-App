@@ -49,7 +49,7 @@ export default function OnboardingScreen() {
 
   if (isLandscape) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#2A0406" }} edges={["top", "bottom", "left", "right"]}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#453332" }} edges={["top", "bottom", "left", "right"]}>
         <View style={{ flex: 1, flexDirection: "row", padding: 16, gap: 20, maxWidth: 900, alignSelf: "center", width: "100%" }}>
           {/* Left Column: Inset Image Card */}
           <View style={{ width: "42%", height: "100%", borderRadius: 20, overflow: "hidden", position: "relative" }}>
@@ -59,7 +59,7 @@ export default function OnboardingScreen() {
               style={{ width: "100%", height: "100%" }}
               resizeMode="cover"
             >
-              <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.15)" }]} />
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(43, 43, 43,0.15)" }]} />
             </ImageBackground>
           </View>
 
@@ -84,7 +84,7 @@ export default function OnboardingScreen() {
                 fontFamily: "InstrumentSans-Regular",
                 fontSize: 14,
                 lineHeight: 20,
-                color: "rgba(255,255,255,0.85)",
+                color: "rgba(255, 255, 255,0.85)",
                 marginBottom: 20,
               }}
             >
@@ -107,7 +107,7 @@ export default function OnboardingScreen() {
                     height: 8,
                     width: i === currentIndex ? 36 : 8,
                     borderRadius: 4,
-                    backgroundColor: i === currentIndex ? "#FFFFFF" : "#ABABAB",
+                    backgroundColor: i === currentIndex ? "#FFFFFF" : "#2B2B2B",
                   }}
                 />
               ))}
@@ -123,7 +123,7 @@ export default function OnboardingScreen() {
                   borderRadius: 24,
                   backgroundColor: "#F96951",
                   borderWidth: 1,
-                  borderColor: "rgba(255,255,255,0.2)",
+                  borderColor: "rgba(255, 255, 255,0.2)",
                   alignItems: "center",
                   justifyContent: "center",
                   opacity: pressed ? 0.85 : 1,
@@ -150,7 +150,7 @@ export default function OnboardingScreen() {
                     height: 48,
                     borderRadius: 24,
                     borderWidth: 1,
-                    borderColor: "rgba(255,255,255,0.6)",
+                    borderColor: "rgba(255, 255, 255,0.6)",
                     alignItems: "center",
                     justifyContent: "center",
                     opacity: pressed ? 0.75 : 1,
@@ -177,7 +177,7 @@ export default function OnboardingScreen() {
                     borderRadius: 24,
                     backgroundColor: "#F96951",
                     borderWidth: 1,
-                    borderColor: "rgba(255,255,255,0.2)",
+                    borderColor: "rgba(255, 255, 255,0.2)",
                     alignItems: "center",
                     justifyContent: "center",
                     opacity: pressed ? 0.85 : 1,
@@ -211,7 +211,7 @@ export default function OnboardingScreen() {
     >
       {/* Subtle top darkening */}
       <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.18)" }]}
+        style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(43, 43, 43,0.18)" }]}
       />
 
       {/* Dark overlay for text legibility across all slides */}
@@ -222,7 +222,7 @@ export default function OnboardingScreen() {
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: "rgba(0,0,0,0.50)",
+          backgroundColor: "rgba(43, 43, 43,0.50)",
         }}
       />
 
@@ -259,7 +259,7 @@ export default function OnboardingScreen() {
             width: 308,
             minHeight: 46,
             alignSelf: "center",
-            color: "rgba(255,255,255,0.80)",
+            color: "rgba(255, 255, 255,0.80)",
             textAlign: "center",
             marginBottom: 28,
           }}
@@ -284,7 +284,7 @@ export default function OnboardingScreen() {
                 height: 8,
                 width: i === currentIndex ? 40 : 8,
                 borderRadius: 4,
-                backgroundColor: i === currentIndex ? "#FFFFFF" : "#ABABAB",
+                backgroundColor: i === currentIndex ? "#FFFFFF" : "#2B2B2B",
               }}
             />
           ))}

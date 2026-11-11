@@ -17,7 +17,7 @@ export function ProfileSettingsPopup({ visible, onClose, children }: {
         <View accessibilityViewIsModal style={[styles.card, { height: Math.max(180, Math.min(520, height - insets.top - insets.bottom - 32)) }]}>
           <View style={styles.header}>
             <View style={styles.heading}><ProfileDesignIcon name="settings" /><Text accessibilityRole="header" style={styles.title}>Settings</Text></View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close settings" hitSlop={6} onPress={onClose} style={styles.close}><X size={18} color="#1F1F1F" /></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close settings" hitSlop={6} onPress={onClose} style={styles.close}><X size={18} color="#2B2B2B" /></Pressable>
           </View>
           <View style={styles.body}>{visible ? children : null}</View>
         </View>
@@ -27,12 +27,12 @@ export function ProfileSettingsPopup({ visible, onClose, children }: {
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)" },
+  overlay: { flex: 1, backgroundColor: "rgba(43, 43, 43,0.6)" },
   container: { flex: 1, padding: 16, alignItems: "center", justifyContent: "center" },
-  card: { width: "100%", maxWidth: 440, maxHeight: "100%", flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 24, padding: 20, borderWidth: 1, borderColor: "#E5E0D5" },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingBottom: 12, borderBottomWidth: 0, borderBottomColor: "#EBE7DF" },
+  card: { width: "100%", maxWidth: 440, maxHeight: "100%", flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 24, padding: 20, borderWidth: 1, borderColor: "#453332" },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingBottom: 12, borderBottomWidth: 0, borderBottomColor: "#453332" },
   heading: { flexDirection: "row", alignItems: "center", gap: 10 },
-  title: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B" },
-  close: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#EBE7DF", alignItems: "center", justifyContent: "center" },
+  title: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#4A403B" },
+  close: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
   body: { flex: 1, minHeight: 0, paddingTop: 16 },
 });

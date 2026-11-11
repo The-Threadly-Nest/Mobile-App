@@ -30,18 +30,18 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; bg: string; text: string; step: number }
 > = {
-  order_placed: { label: "Order placed", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
-  pending_admin_review: { label: "Awaiting review", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
-  booked: { label: "Booked", bg: "#F2E0DF", text: "#7C2D32", step: 1 },
-  measurements_confirmed: { label: "Measurements Confirmed", bg: "#EFE6D8", text: "#B28847", step: 2 },
-  fabric_sourced: { label: "Fabric Sourced", bg: "#EFE6D8", text: "#B28847", step: 2 },
-  in_production: { label: "In Production", bg: "#EFE6D8", text: "#B28847", step: 3 },
-  quality_check: { label: "Quality Check", bg: "#EFE6D8", text: "#B28847", step: 3 },
-  ready: { label: "Ready for Pickup", bg: "#D8EFE0", text: "#2E7D47", step: 4 },
-  ready_for_pickup: { label: "Ready for Pickup", bg: "#D8EFE0", text: "#2E7D47", step: 4 },
-  completed: { label: "Completed", bg: "#CEEAD6", text: "#1E8E3E", step: 5 },
-  delivered: { label: "Delivered", bg: "#CEEAD6", text: "#1E8E3E", step: 5 },
-  cancelled: { label: "Cancelled", bg: "#E8E8E8", text: "#5F6368", step: 0 },
+  order_placed: { label: "Order placed", bg: "#FFFFFF", text: "#453332", step: 1 },
+  pending_admin_review: { label: "Awaiting review", bg: "#FFFFFF", text: "#453332", step: 1 },
+  booked: { label: "Booked", bg: "#FFFFFF", text: "#453332", step: 1 },
+  measurements_confirmed: { label: "Measurements Confirmed", bg: "#FFFFFF", text: "#453332", step: 2 },
+  fabric_sourced: { label: "Fabric Sourced", bg: "#FFFFFF", text: "#453332", step: 2 },
+  in_production: { label: "In Production", bg: "#FFFFFF", text: "#453332", step: 3 },
+  quality_check: { label: "Quality Check", bg: "#FFFFFF", text: "#453332", step: 3 },
+  ready: { label: "Ready for Pickup", bg: "#FFFFFF", text: "#453332", step: 4 },
+  ready_for_pickup: { label: "Ready for Pickup", bg: "#FFFFFF", text: "#453332", step: 4 },
+  completed: { label: "Completed", bg: "#FFFFFF", text: "#453332", step: 5 },
+  delivered: { label: "Delivered", bg: "#FFFFFF", text: "#453332", step: 5 },
+  cancelled: { label: "Cancelled", bg: "#FFFFFF", text: "#2B2B2B", step: 0 },
 };
 
 const STAGES = [
@@ -145,8 +145,8 @@ export default function OrderDetailScreen() {
 
   const statusMeta = STATUS_CONFIG[currentStatus] ?? {
     label: currentStatus.replace(/_/g, " "),
-    bg: "#EFE6D8",
-    text: "#B28847",
+    bg: "#FFFFFF",
+    text: "#453332",
     step: 0,
   };
   const progressStep = readyToWear && statusMeta.step === 2 ? 3 : statusMeta.step;
@@ -202,7 +202,7 @@ export default function OrderDetailScreen() {
               onPress={() => router.back()}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#3B0508" />
+              <BackArrowIcon size={24} color="#453332" />
             </Pressable>
             <View>
               <Text style={styles.headerTitle}>Order Details</Text>
@@ -429,11 +429,11 @@ export default function OrderDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   containerLandscape: {
     maxWidth: 720,
@@ -458,24 +458,24 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.25)",
+    backgroundColor: "#F9E8D3",
     justifyContent: "center",
     alignItems: "center",
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   headerSubtitle: { ...typeScale.caption,
-    color: "#7A7265",
+    color: "#4A403B",
     marginTop: 2,
   },
   invoiceHeaderBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#F3EDE2",
+    backgroundColor: "#F9E8D3",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -492,8 +492,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.08)",
-    shadowColor: "#000",
+    borderColor: "rgba(69, 51, 50, 0.08)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -523,12 +523,12 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   garmentTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#6E685E",
+    color: "#4A403B",
     marginTop: 2,
   },
   statusBadge: {
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   },
   heroDivider: { display: "none",
     height: 1,
-    backgroundColor: "rgba(74, 8, 12, 0.08)",
+    backgroundColor: "rgba(69, 51, 50, 0.08)",
     marginVertical: 16,
   },
   heroMetaRow: {
@@ -555,26 +555,26 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
     letterSpacing: 0.8,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   priceValue: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 22,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   dateValue: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#333333",
+    color: "#4A403B",
   },
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.08)",
-    shadowColor: "#000",
+    borderColor: "rgba(69, 51, 50, 0.08)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -587,14 +587,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 14,
   },
   unitBadge: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#2B2B2B",
-    backgroundColor: "#F4ECE1",
+    color: "#4A403B",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
   stepConnector: {
     flex: 1,
     height: 2,
-    backgroundColor: "#E8E4DD",
+    backgroundColor: "#FFFFFF",
   },
   stepConnectorActive: {
     backgroundColor: "#453332",
@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#E8E4DD",
+    backgroundColor: "#F9E8D3",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -637,26 +637,26 @@ const styles = StyleSheet.create({
   stepCircleCurrent: {
     backgroundColor: "#453332",
     borderWidth: 2,
-    borderColor: "#B28847",
+    borderColor: "#453332",
   },
   stepNumText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   stepLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#999",
+    color: "#4A403B",
     marginTop: 6,
     textAlign: "center",
   },
   stepLabelActive: {
-    color: "#2B2B2B",
+    color: "#4A403B",
     fontFamily: "InstrumentSans-SemiBold",
   },
   stepLabelCurrent: {
-    color: "#2B2B2B",
+    color: "#4A403B",
     fontFamily: "InstrumentSans-SemiBold",
   },
   infoRow: {
@@ -664,14 +664,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 10,
     borderBottomWidth: 0,
-    borderBottomColor: "rgba(74, 8, 12, 0.05)",
+    borderBottomColor: "rgba(69, 51, 50, 0.05)",
     gap: 12,
   },
   infoIconBox: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -681,12 +681,12 @@ const styles = StyleSheet.create({
   infoFieldLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   infoFieldValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 2,
   },
   measurementsGrid: {
@@ -700,17 +700,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.06)",
+    borderColor: "rgba(69, 51, 50, 0.06)",
   },
   measurementKey: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   measurementVal: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 4,
   },
   actionContainer: {

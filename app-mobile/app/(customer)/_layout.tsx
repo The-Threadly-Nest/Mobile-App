@@ -4,8 +4,8 @@ import FloatingCart from "@/shared/components/FloatingCart";
 
 export default function CustomerLayout() {
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>
+    <View style={{ flex: 1, backgroundColor: "#F9E8D3" }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#F9E8D3" } }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="fashion-house/[fashionHouseId]" />
       <Stack.Screen name="catalog/[id]" />

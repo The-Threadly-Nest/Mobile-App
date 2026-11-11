@@ -209,7 +209,7 @@ export default function UpdateProgressScreen() {
             value={updateNote}
             onChangeText={setUpdateNote}
             placeholder="Add a note about this update..."
-            placeholderTextColor="#8A7550"
+            placeholderTextColor="#453332"
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -242,7 +242,7 @@ export default function UpdateProgressScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   headerBar: {
     flexDirection: "row",
@@ -250,22 +250,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   headerBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitleText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 22,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -286,8 +286,8 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
-    shadowColor: "#000000",
+    borderColor: "rgba(69, 51, 50, 0.5)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -312,17 +312,17 @@ const styles = StyleSheet.create({
   customerNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   orderNumberText: {
     fontFamily: "InstrumentSans-Medium",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   garmentSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   stagesCard: {
     backgroundColor: "#FFFFFF",
@@ -330,8 +330,8 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
-    shadowColor: "#000000",
+    borderColor: "rgba(69, 51, 50, 0.5)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   stagesHeadline: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 16,
   },
   stepperContainer: {
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     borderWidth: 2,
     borderColor: "#453332",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1,
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "#E4D5B7",
+    backgroundColor: "#F9E8D3",
     zIndex: 1,
   },
   connectorLine: {
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#453332",
   },
   upcomingLine: {
-    backgroundColor: "#E4D5B7",
+    backgroundColor: "#FFFFFF",
   },
   labelColumn: {
     flex: 1,
@@ -411,20 +411,20 @@ const styles = StyleSheet.create({
   },
   completedLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   activeLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   upcomingLabelText: {
     fontFamily: "InstrumentSans-Regular",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   activeSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 2,
   },
   noteSection: {
@@ -433,18 +433,18 @@ const styles = StyleSheet.create({
   noteLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   noteInput: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     padding: 14,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     height: 96,
   },
   submitBtn: {

@@ -266,7 +266,7 @@ export default function AdminOnboardingScreen() {
                   disableFullscreenUI={true}
                   style={[styles.input, isLandscape && { height: 48 }]}
                   placeholder="e.g. Royal Stitch Atelier"
-                  placeholderTextColor="#8A7550"
+                  placeholderTextColor="#453332"
                   value={shopName}
                   onChangeText={(t) => {
                     setShopName(t);
@@ -281,7 +281,7 @@ export default function AdminOnboardingScreen() {
                   disableFullscreenUI={true}
                   style={[styles.input, { height: 60, paddingTop: 12 }, isLandscape && { height: 50, paddingTop: 8 }]}
                   placeholder="Crafting luxury bespoke wear in Lagos since 2018..."
-                  placeholderTextColor="#8A7550"
+                  placeholderTextColor="#453332"
                   multiline
                   numberOfLines={2}
                   maxLength={500}
@@ -309,7 +309,7 @@ export default function AdminOnboardingScreen() {
                   disableFullscreenUI={true}
                   style={[styles.input, isLandscape && { height: 48 }]}
                   placeholder="e.g. 14 Admiralty Way, Lekki Phase 1, Lagos"
-                  placeholderTextColor="#8A7550"
+                  placeholderTextColor="#453332"
                   value={location}
                   onChangeText={(t) => {
                     setLocation(t);
@@ -415,7 +415,7 @@ export default function AdminOnboardingScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   progressTrack: {
     width: "100%",
     height: 4,
-    backgroundColor: "rgba(74, 8, 12, 0.15)",
+    backgroundColor: "rgba(69, 51, 50, 0.15)",
     borderRadius: 2,
     marginTop: 4,
     marginBottom: 14,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 16,
   },
   stepContainer: {
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#EBE0D3",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -457,13 +457,13 @@ const styles = StyleSheet.create({
   headline: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -473,9 +473,9 @@ const styles = StyleSheet.create({
   logoPickerBox: {
     borderWidth: 1.5,
     borderStyle: "dashed",
-    borderColor: "rgba(74, 8, 12, 0.20)",
+    borderColor: "rgba(69, 51, 50, 0.20)",
     borderRadius: 18,
-    backgroundColor: "#F4EFE6",
+    backgroundColor: "#FFFFFF",
     minHeight: 120,
     alignItems: "center",
     justifyContent: "center",
@@ -488,12 +488,12 @@ const styles = StyleSheet.create({
   logoPlaceholderText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   logoSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   logoUploadingWrap: {
     alignItems: "center",
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   logoUploadingText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   logoPreviewWrap: {
     alignItems: "center",
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     borderWidth: 2,
-    borderColor: "#C4A763",
+    borderColor: "#453332",
   },
   logoChangeBadge: {
     flexDirection: "row",
@@ -535,24 +535,24 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.3)",
+    borderColor: "rgba(69, 51, 50, 0.3)",
     borderRadius: 14,
     height: 56,
     paddingHorizontal: 16,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     backgroundColor: "#FFFFFF",
   },
   charCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "right",
     marginTop: 4,
   },
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
   },
   pillUnselected: {
     backgroundColor: "transparent",
-    borderColor: "rgba(74, 8, 12, 0.35)",
+    borderColor: "rgba(69, 51, 50, 0.35)",
   },
   pillTextSelected: {
     fontFamily: "InstrumentSans-Medium",
@@ -588,12 +588,12 @@ const styles = StyleSheet.create({
   pillTextUnselected: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#D32F2F",
+    color: "#F96951",
     marginBottom: 16,
   },
   topBackHeader: {
@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
   },

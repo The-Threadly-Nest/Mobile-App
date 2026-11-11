@@ -8,7 +8,7 @@ import { useAppDataStore } from "@/stores/useAppDataStore";
 import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 import { Heart } from "lucide-react-native";
 
-const TOMATO = "#FF6347";
+const TOMATO = "#F96951";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
   return (
@@ -208,7 +208,7 @@ export default function TabsLayout() {
           borderTopWidth: 0,
           backgroundColor: "#F96951",
           elevation: 5,
-          shadowColor: "#000000",
+          shadowColor: "#2B2B2B",
           shadowOpacity: 0.12,
           shadowRadius: 6,
           shadowOffset: { width: 0, height: 3 },

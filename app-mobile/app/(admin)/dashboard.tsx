@@ -244,7 +244,7 @@ export default function AdminDashboard() {
   const displayedProducts = catalogItems;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8F9" }} edges={["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9E8D3" }} edges={["top"]}>
       <ScrollView
         contentContainerStyle={[
           { paddingHorizontal: 20, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 110 },
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
               style={{
                 fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 16,
-                color: "#32343E",
+                color: "#4A403B",
               }}
               numberOfLines={1}
             >
@@ -300,18 +300,18 @@ export default function AdminDashboard() {
               width: 42,
               height: 42,
               borderRadius: 21,
-              backgroundColor: "#FFFFFF",
+              backgroundColor: "#F9E8D3",
               alignItems: "center",
               justifyContent: "center",
               elevation: 2,
-              shadowColor: "#000000",
+              shadowColor: "#2B2B2B",
               shadowOpacity: 0.08,
               shadowRadius: 6,
               shadowOffset: { width: 0, height: 2 },
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <MessageSquare size={19} color="#32343E" strokeWidth={2} />
+            <MessageSquare size={19} color="#2B2B2B" strokeWidth={2} />
             {unreadCount > 0 && (
               <View
                 style={{
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
               paddingVertical: 18,
               paddingHorizontal: 16,
               elevation: 2,
-              shadowColor: "#000000",
+              shadowColor: "#2B2B2B",
               shadowOpacity: 0.04,
               shadowRadius: 8,
               shadowOffset: { width: 0, height: 2 },
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
               style={{
                 fontFamily: "InstrumentSans-Bold",
                 fontSize: 34,
-                color: "#32343E",
+                color: "#4A403B",
                 marginBottom: 4,
               }}
             >
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
                 fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 10,
                 letterSpacing: 0.8,
-                color: "#838799",
+                color: "#4A403B",
                 textTransform: "uppercase",
               }}
             >
@@ -387,7 +387,7 @@ export default function AdminDashboard() {
               paddingVertical: 18,
               paddingHorizontal: 16,
               elevation: 2,
-              shadowColor: "#000000",
+              shadowColor: "#2B2B2B",
               shadowOpacity: 0.04,
               shadowRadius: 8,
               shadowOffset: { width: 0, height: 2 },
@@ -398,7 +398,7 @@ export default function AdminDashboard() {
               style={{
                 fontFamily: "InstrumentSans-Bold",
                 fontSize: 34,
-                color: "#32343E",
+                color: "#4A403B",
                 marginBottom: 4,
               }}
             >
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                 fontFamily: "InstrumentSans-SemiBold",
                 fontSize: 10,
                 letterSpacing: 0.8,
-                color: "#838799",
+                color: "#4A403B",
                 textTransform: "uppercase",
               }}
             >
@@ -426,7 +426,7 @@ export default function AdminDashboard() {
             padding: 18,
             marginBottom: 16,
             elevation: 2,
-            shadowColor: "#000000",
+            shadowColor: "#2B2B2B",
             shadowOpacity: 0.04,
             shadowRadius: 8,
             shadowOffset: { width: 0, height: 2 },
@@ -434,7 +434,7 @@ export default function AdminDashboard() {
         >
           {/* Revenue Header */}
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-            <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#32343E" }}>
+            <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#4A403B" }}>
               Total Revenue
             </Text>
 
@@ -445,13 +445,13 @@ export default function AdminDashboard() {
                 alignItems: "center",
                 gap: 4,
                 borderWidth: 1,
-                borderColor: "#E8EAED",
+                borderColor: "#453332",
                 borderRadius: 8,
                 paddingHorizontal: 8,
                 paddingVertical: 4,
               }}
             >
-              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#2B2B2B" }}>This month</Text>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B" }}>This month</Text>
               <ChevronDown size={11} color="#453332" />
             </View>
 
@@ -475,21 +475,21 @@ export default function AdminDashboard() {
             style={{
               fontFamily: "InstrumentSans-Bold",
               fontSize: 22,
-              color: "#32343E",
+              color: "#4A403B",
               marginBottom: 10,
             }}
           >
             {loading ? "—" : totalRevenue == null ? "Unavailable" : formatCurrency(totalRevenue)}
           </Text>
 
-          <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#746765", fontSize: 12, marginTop: 12 }}>Revenue from paid invoices this month.</Text>
+          <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#4A403B", fontSize: 12, marginTop: 12 }}>Revenue from paid invoices this month.</Text>
         </View>
 
         {/* ─── 5. Pending Booking Requests (Preserved Admin Actions) ─── */}
         {displayRequests.length > 0 && (
           <View style={{ marginBottom: 18 }}>
             <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 17, color: "#32343E" }}>
+              <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 17, color: "#4A403B" }}>
                 Order requests
               </Text>
               <Pressable onPress={() => router.push("/(admin)/escalations")}>
@@ -512,22 +512,22 @@ export default function AdminDashboard() {
                     padding: 14,
                     marginBottom: 10,
                     elevation: 1,
-                    shadowColor: "#000000",
+                    shadowColor: "#2B2B2B",
                     shadowOpacity: 0.03,
                     shadowRadius: 6,
                   }}
                 >
                   <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#32343E" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#4A403B" }}>
                         {customerName}
                       </Text>
-                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#2B2B2B" }}>
+                      <Text numberOfLines={1} style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#4A403B" }}>
                         {detail}
                       </Text>
                     </View>
-                    <View style={{ backgroundColor: "#F4EFE6", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
-                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#B0966C" }}>Pending</Text>
+                    <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#453332" }}>Pending</Text>
                     </View>
                   </View>
 
@@ -608,7 +608,7 @@ export default function AdminDashboard() {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" }}>Decline</Text>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" }}>Decline</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -631,7 +631,7 @@ export default function AdminDashboard() {
               style={{
                 fontFamily: "InstrumentSans-Bold",
                 fontSize: 15,
-                color: "#32343E",
+                color: "#4A403B",
               }}
             >
               My Listed Items
@@ -672,14 +672,14 @@ export default function AdminDashboard() {
                   borderRadius: 18,
                   overflow: "hidden",
                   elevation: 2,
-                  shadowColor: "#000000",
+                  shadowColor: "#2B2B2B",
                   shadowOpacity: 0.05,
                   shadowRadius: 8,
                   shadowOffset: { width: 0, height: 2 },
                   opacity: pressed ? 0.9 : 1,
                 })}
               >
-                <View style={{ width: "100%", height: 145, backgroundColor: "#EBE0D3" }}>
+                <View style={{ width: "100%", height: 145, backgroundColor: "#FFFFFF" }}>
                   <CachedImage
                     source={{ uri: prod.imageUrl }}
                     style={{ width: "100%", height: "100%" }}
@@ -692,7 +692,7 @@ export default function AdminDashboard() {
                     style={{
                       fontFamily: "InstrumentSans-SemiBold",
                       fontSize: 13,
-                      color: "#32343E",
+                      color: "#4A403B",
                       marginBottom: 2,
                     }}
                   >
@@ -713,7 +713,7 @@ export default function AdminDashboard() {
                       style={{
                         fontFamily: "InstrumentSans-Regular",
                         fontSize: 11,
-                        color: "#2B2B2B",
+                        color: "#4A403B",
                       }}
                     >
                       Price on request
@@ -732,7 +732,7 @@ export default function AdminDashboard() {
                 borderRadius: 18,
                 borderWidth: 1.5,
                 borderStyle: "dashed",
-                borderColor: "#D7CFCD",
+                borderColor: "#453332",
                 backgroundColor: "#FFFFFF",
                 alignItems: "center",
                 justifyContent: "center",
@@ -746,7 +746,7 @@ export default function AdminDashboard() {
                   width: 40,
                   height: 40,
                   borderRadius: 20,
-                  backgroundColor: "#F4EFE6",
+                  backgroundColor: "#F9E8D3",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
@@ -757,7 +757,7 @@ export default function AdminDashboard() {
                 style={{
                   fontFamily: "InstrumentSans-SemiBold",
                   fontSize: 12,
-                  color: "#2B2B2B",
+                  color: "#4A403B",
                   textAlign: "center",
                 }}
               >

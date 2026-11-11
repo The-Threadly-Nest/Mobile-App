@@ -130,7 +130,7 @@ export default function AssignStaffScreen() {
             onPress={() => router.push("/(admin)/escalations" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
           <Text style={styles.headerTitle}>Assign Staff</Text>
         </View>
@@ -154,7 +154,7 @@ export default function AssignStaffScreen() {
                 value={serviceTitleInput}
                 onChangeText={setServiceTitleInput}
                 placeholder="e.g. Aso-Ebi (2 pcs), Senator Kaftan"
-                placeholderTextColor="#8A7550"
+                placeholderTextColor="#453332"
               />
             </View>
           </View>
@@ -173,7 +173,7 @@ export default function AssignStaffScreen() {
                 onChangeText={setPriceInput}
                 keyboardType="numeric"
                 placeholder="e.g. 250,000"
-                placeholderTextColor="#8A7550"
+                placeholderTextColor="#453332"
               />
             </View>
           </View>}
@@ -239,7 +239,7 @@ export default function AssignStaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -261,16 +261,16 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   subtitle: { ...typeScale.caption,
-    color: "#7A7265",
+    color: "#4A403B",
     marginBottom: 20,
     paddingHorizontal: 2,
   },
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.12)",
+    borderColor: "rgba(69, 51, 50, 0.12)",
   },
   sectionHeaderRow: {
     flexDirection: "row",
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   inputContainer: {
     flexDirection: "row",
@@ -300,21 +300,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(69, 51, 50, 0.2)",
     paddingHorizontal: 14,
     height: 48,
   },
   currencyPrefix: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginRight: 6,
   },
   priceInput: {
     flex: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   measurementsGrid: {
     flexDirection: "row",
@@ -326,25 +326,25 @@ const styles = StyleSheet.create({
   measLabel: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#7A7265",
+    color: "#4A403B",
     marginBottom: 4,
   },
   measInput: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(69, 51, 50, 0.2)",
     height: 44,
     paddingHorizontal: 10,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
   },
   selectTailorHeadline: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 4,
     marginBottom: 14,
   },
@@ -358,12 +358,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   cardSelected: {
-    backgroundColor: "#DDE1DA",
-    borderColor: "rgba(74, 8, 12, 0.5)",
+    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.5)",
   },
   cardUnselected: {
     backgroundColor: "#FFFFFF",
-    borderColor: "rgba(74, 8, 12, 0.15)",
+    borderColor: "rgba(69, 51, 50, 0.15)",
   },
   avatar: {
     width: 44,
@@ -383,12 +383,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   ordersCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   bottomBar: {
     paddingTop: 8,

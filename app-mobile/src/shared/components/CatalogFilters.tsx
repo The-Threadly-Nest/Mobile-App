@@ -23,15 +23,15 @@ export default function CatalogFilters({ visible, onClose, type, onTypeChange, s
   </Modal>;
 }
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.35)", justifyContent: "flex-end" },
+  overlay: { flex: 1, backgroundColor: "rgba(43, 43, 43,0.35)", justifyContent: "flex-end" },
   sheet: { backgroundColor: "#FFFFFF", padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24, gap: 18, paddingBottom: 40 },
   header: { flexDirection: "row", alignItems: "center", gap: 12 },
-  title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 24, color: "#2B2B2B" },
+  title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 24, color: "#4A403B" },
   close: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#2B2B2B" },
-  text: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 20, includeFontPadding: false, textAlign: "center", color: "#2B2B2B" },
+  label: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#4A403B" },
+  text: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 20, includeFontPadding: false, textAlign: "center", color: "#4A403B" },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: { borderRadius: 999, minWidth: 72, paddingHorizontal: 18, paddingVertical: 10, minHeight: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#E6E1DF", backgroundColor: "#FFFFFF" },
+  chip: { borderRadius: 999, minWidth: 72, paddingHorizontal: 18, paddingVertical: 10, minHeight: 44, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "#453332", backgroundColor: "#FFFFFF" },
   selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, white: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF" },
   done: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
 });

@@ -163,7 +163,7 @@ export default function AdminFittingSlotsScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
           <Text style={styles.headerTitle}>Fitting Slots</Text>
         </View>
@@ -263,7 +263,7 @@ export default function AdminFittingSlotsScreen() {
                           hitSlop={8}
                           style={styles.deleteBtn}
                         >
-                          <Trash2 size={16} color="#DC2626" />
+                          <Trash2 size={16} color="#F96951" />
                         </Pressable>
                       )}
                     </View>
@@ -329,7 +329,7 @@ export default function AdminFittingSlotsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -351,14 +351,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.25)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 12,
   },
   dateStrip: {
@@ -377,9 +377,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 76,
     borderRadius: 16,
-    backgroundColor: "#F7F5F2",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.08)",
+    borderColor: "rgba(69, 51, 50, 0.08)",
     alignItems: "center",
     justifyContent: "center",
     gap: 2,
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
   dateDayName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textTransform: "uppercase",
   },
   dateDayNameActive: {
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   dateDayNum: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   dateDayNumActive: {
     color: "#FFFFFF",
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
   countText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   countTextActive: {
     color: "rgba(255, 255, 255, 0.9)",
@@ -426,18 +426,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 12,
     borderBottomWidth: 0,
-    borderBottomColor: "rgba(74, 8, 12, 0.08)",
+    borderBottomColor: "rgba(69, 51, 50, 0.08)",
     marginBottom: 8,
   },
   dailyDateTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   dailyTotalCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   emptyDayBox: {
     paddingVertical: 32,
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   emptyDayText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
   },
   slotsList: {
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     borderBottomWidth: 0,
-    borderBottomColor: "#F4EFEA",
+    borderBottomColor: "#453332",
   },
   slotTimeCol: {
     flex: 1,
@@ -465,16 +465,16 @@ const styles = StyleSheet.create({
   slotTimeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   slotDurationText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 2,
   },
   availableBadge: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -483,10 +483,10 @@ const styles = StyleSheet.create({
   availableBadgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
-    color: "#2E7D32",
+    color: "#453332",
   },
   bookedBadge: {
-    backgroundColor: "#F3EDE2",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   bookedBadgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   deleteBtn: {
     padding: 6,
@@ -512,11 +512,11 @@ const styles = StyleSheet.create({
   cancelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   divider: { display: "none",
     height: 1,
-    backgroundColor: "rgba(74, 8, 12, 0.08)",
+    backgroundColor: "rgba(69, 51, 50, 0.08)",
     marginBottom: 20,
   },
   bottomBar: {
@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 24,

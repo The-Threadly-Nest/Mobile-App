@@ -210,7 +210,7 @@ export default function AdminProfileEditScreen({
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#FFFFFF" }} edges={embedded ? [] : ["top"]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#F9E8D3" }} edges={embedded ? [] : ["top"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={embedded ? undefined : Platform.OS === "ios" ? "padding" : "height"}
@@ -223,7 +223,7 @@ export default function AdminProfileEditScreen({
               onPress={handleHeaderBack}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#3B0508" />
+              <BackArrowIcon size={24} color="#453332" />
             </Pressable>
             <Text style={styles.headerTitle}>Personal Info</Text>
           </View>
@@ -295,7 +295,7 @@ export default function AdminProfileEditScreen({
                     <Image source={{ uri: brandLogoUrl }} style={styles.logoImage} />
                   ) : (
                     <View style={{ alignItems: "center" }}>
-                      <Upload size={24} color="#8A7550" style={{ marginBottom: 6 }} />
+                      <Upload size={24} color="#453332" style={{ marginBottom: 6 }} />
                       <Text style={styles.uploadHint}>Tap to upload brand logo</Text>
                     </View>
                   )}
@@ -307,7 +307,7 @@ export default function AdminProfileEditScreen({
                   value={shopName}
                   onChangeText={setShopName}
                   placeholder="e.g. Royal Stitch Atelier"
-                  placeholderTextColor="#B0966C"
+                  placeholderTextColor="#453332"
                   style={styles.textInput}
                 />
 
@@ -317,7 +317,7 @@ export default function AdminProfileEditScreen({
                   value={location}
                   onChangeText={setLocation}
                   placeholder="e.g. Victoria Island, Lagos"
-                  placeholderTextColor="#B0966C"
+                  placeholderTextColor="#453332"
                   style={styles.textInput}
                 />
 
@@ -350,7 +350,7 @@ export default function AdminProfileEditScreen({
                   multiline
                   numberOfLines={3}
                   placeholder="Describe your fashion house craftsmanship style & bespoke heritage..."
-                  placeholderTextColor="#B0966C"
+                  placeholderTextColor="#453332"
                   style={styles.bioInput}
                 />
 
@@ -360,7 +360,7 @@ export default function AdminProfileEditScreen({
                   value={turnaround}
                   onChangeText={setTurnaround}
                   placeholder="e.g. 2-3 week turnaround"
-                  placeholderTextColor="#B0966C"
+                  placeholderTextColor="#453332"
                   style={styles.textInput}
                 />
 
@@ -410,7 +410,7 @@ export default function AdminProfileEditScreen({
                   value={bankName}
                   onChangeText={setBankName}
                   placeholder="e.g. Zenith Bank, GTBank, Access Bank"
-                  placeholderTextColor="#9C9BA6"
+                  placeholderTextColor="#4A403B"
                   style={styles.textInput}
                 />
 
@@ -419,7 +419,7 @@ export default function AdminProfileEditScreen({
                   value={accountNumber}
                   onChangeText={(value) => setAccountNumber(value.replace(/\D/g, "").slice(0, 10))}
                   placeholder="0123456789"
-                  placeholderTextColor="#9C9BA6"
+                  placeholderTextColor="#4A403B"
                   keyboardType="number-pad"
                   maxLength={10}
                   style={styles.textInput}
@@ -430,7 +430,7 @@ export default function AdminProfileEditScreen({
                   value={accountName}
                   onChangeText={setAccountName}
                   placeholder="e.g. Royal Stitch Atelier Ltd"
-                  placeholderTextColor="#9C9BA6"
+                  placeholderTextColor="#4A403B"
                   style={styles.textInput}
                 />
 
@@ -525,13 +525,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.25)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   stepIndicatorContainer: {
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   stepBar: {
     height: 4,
     borderRadius: 2,
-    backgroundColor: "rgba(74, 8, 12, 0.12)",
+    backgroundColor: "rgba(69, 51, 50, 0.12)",
     marginBottom: 6,
   },
   stepBarActive: {
@@ -555,22 +555,22 @@ const styles = StyleSheet.create({
   stepLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   stepLabelActive: {
     fontFamily: "InstrumentSans-SemiBold",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   stepTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   stepSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#4A4E51",
+    color: "#4A403B",
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   fieldLabel: { ...typeScale.label,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   logoPickerBox: {
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: "rgba(74, 8, 12, 0.20)",
+    borderColor: "rgba(69, 51, 50, 0.20)",
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
   uploadHint: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   textInput: {
     backgroundColor: "#FFFFFF",
@@ -615,9 +615,9 @@ const styles = StyleSheet.create({
     height: 52,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.08)",
+    borderColor: "rgba(69, 51, 50,0.08)",
     marginBottom: 20,
   },
   bioHeaderRow: {
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   charCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   bioInput: {
     backgroundColor: "#FFFFFF",
@@ -639,9 +639,9 @@ const styles = StyleSheet.create({
     minHeight: 88,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.08)",
+    borderColor: "rgba(69, 51, 50,0.08)",
     textAlignVertical: "top",
     marginBottom: 20,
   },
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.1)",
+    borderColor: "rgba(69, 51, 50,0.1)",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 12,
@@ -671,7 +671,7 @@ const styles = StyleSheet.create({
   categoryText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   categoryTextActive: {
     color: "#FFFFFF",
@@ -679,31 +679,31 @@ const styles = StyleSheet.create({
   slotsLinkCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F7F5F2",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.10)",
+    borderColor: "rgba(69, 51, 50, 0.10)",
     marginTop: 8,
   },
   slotsLinkIconWrap: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   slotsLinkTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   slotsLinkDesc: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#4A4E51",
+    color: "#4A403B",
     marginTop: 2,
   },
   bottomBar: {
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 24,
@@ -731,7 +731,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 1.5,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
@@ -739,6 +739,6 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });

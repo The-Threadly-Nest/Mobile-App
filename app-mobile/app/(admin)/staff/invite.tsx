@@ -79,7 +79,7 @@ export default function InviteStaffScreen() {
               onPress={() => router.push("/(admin)/staff" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#3B0508" />
+              <BackArrowIcon size={24} color="#453332" />
             </Pressable>
             <Text style={styles.headerTitle}>Invite Staff</Text>
           </View>
@@ -99,7 +99,7 @@ export default function InviteStaffScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="e.g. Ngozi Umeh"
-                placeholderTextColor="#A89E90"
+                placeholderTextColor="#4A403B"
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
@@ -114,7 +114,7 @@ export default function InviteStaffScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="ngozi@atelier.com"
-                placeholderTextColor="#A89E90"
+                placeholderTextColor="#4A403B"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
@@ -125,7 +125,7 @@ export default function InviteStaffScreen() {
             {/* Error message */}
             <View style={styles.fieldWrapper}>
               <View style={styles.labelContainer}><Text style={styles.floatingLabel}>Password (optional)</Text></View>
-              <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoCorrect={false} placeholder="8+ characters, uppercase and number" placeholderTextColor="#A89E90" />
+              <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoCorrect={false} placeholder="8+ characters, uppercase and number" placeholderTextColor="#4A403B" />
             </View>
             <Text style={styles.subtitle}>Share this password privately. The account stays inactive until the invitation is verified.</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -155,7 +155,7 @@ export default function InviteStaffScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -177,17 +177,17 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   subtitle: { ...typeScale.caption,
-    color: "#4A4E51",
+    color: "#4A403B",
     marginBottom: 32,
     paddingHorizontal: 2,
   },
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     height: 58,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.45)",
+    borderColor: "rgba(69, 51, 50, 0.45)",
     backgroundColor: "transparent",
     paddingHorizontal: 16,
     justifyContent: "center",
@@ -215,13 +215,13 @@ const styles = StyleSheet.create({
   floatingLabel: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#4A4E51",
+    color: "#4A403B",
   },
   input: {
     height: "100%",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   passwordRow: {
     flexDirection: "row",
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#DC2626",
+    color: "#F96951",
     marginTop: -4,
   },
   sendBtn: {

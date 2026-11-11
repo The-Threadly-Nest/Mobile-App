@@ -91,7 +91,7 @@ export default function CustomerOrdersScreen() {
         : declinedOrders;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
       <ScrollView
         className="flex-1 px-4"
         style={{ paddingTop: SCREEN_TOP_SPACING }}
@@ -103,7 +103,7 @@ export default function CustomerOrdersScreen() {
       >
         {/* Title */}
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", marginBottom: 4 }, isLandscape && { maxWidth: 600 }]}>
-          <Text style={{ ...typeScale.pageTitle, color: "#2B2B2B" }}>
+          <Text style={{ ...typeScale.pageTitle, fontFamily: "InstrumentSans-Medium", color: "#4A403B" }}>
             My Orders
           </Text>
         </View>
@@ -112,12 +112,12 @@ export default function CustomerOrdersScreen() {
         <View style={[{ width: "100%", maxWidth: 376, alignSelf: "center", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 12 }, isLandscape && { maxWidth: 600 }]}>
           <Pressable
             onPress={() => setActiveTab("active")}
-            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "active" ? "bg-tomato" : "bg-[#E2E2E2]"
+            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "active" ? "bg-tomato" : "bg-white"
               }`}
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
             <Text
-              className={`font-body-semibold text-[13px] ${activeTab === "active" ? "text-white" : "text-[#404040]"
+              className={`font-body-medium text-[13px] ${activeTab === "active" ? "text-white" : "text-[#4A403B]"
                 }`}
             >
               Active ({activeOrders.length})
@@ -126,12 +126,12 @@ export default function CustomerOrdersScreen() {
 
           <Pressable
             onPress={() => setActiveTab("completed")}
-            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "completed" ? "bg-tomato" : "bg-[#E2E2E2]"
+            className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "completed" ? "bg-tomato" : "bg-white"
               }`}
             style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
           >
             <Text
-              className={`font-body-semibold text-[13px] ${activeTab === "completed" ? "text-white" : "text-[#404040]"
+              className={`font-body-medium text-[13px] ${activeTab === "completed" ? "text-white" : "text-[#4A403B]"
                 }`}
             >
               Completed ({completedOrders.length})
@@ -141,12 +141,12 @@ export default function CustomerOrdersScreen() {
           {declinedOrders.length > 0 && (
             <Pressable
               onPress={() => setActiveTab("declined")}
-              className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "declined" ? "bg-tomato" : "bg-[#E2E2E2]"
+              className={`flex-1 h-[44px] rounded-full items-center justify-center ${activeTab === "declined" ? "bg-tomato" : "bg-white"
                 }`}
               style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
             >
               <Text
-                className={`font-body-semibold text-[13px] ${activeTab === "declined" ? "text-white" : "text-[#404040]"
+                className={`font-body-medium text-[13px] ${activeTab === "declined" ? "text-white" : "text-[#4A403B]"
                   }`}
               >
                 Declined ({declinedOrders.length})
@@ -156,8 +156,8 @@ export default function CustomerOrdersScreen() {
         </View>
 
         {/* Orders List */}
-        {error ? <Pressable onPress={() => setReload(value => value + 1)} className="p-4 rounded-xl bg-red-50">
-          <Text className="font-body text-red-800">{error} Tap to retry.</Text>
+        {error ? <Pressable onPress={() => setReload(value => value + 1)} className="p-4 rounded-xl bg-white">
+          <Text className="font-body text-tomato">{error} Tap to retry.</Text>
         </Pressable> : null}
         {loading && displayedOrders.length === 0 ? (
           <View className="py-16 items-center justify-center">
@@ -165,7 +165,7 @@ export default function CustomerOrdersScreen() {
           </View>
         ) : displayedOrders.length === 0 ? (
           <View className="py-12 items-center justify-center">
-            <Text className="font-body text-[15px] text-[#646464]">
+            <Text className="font-body text-[15px] text-[#4A403B]">
               No {activeTab} orders found.
             </Text>
           </View>
@@ -203,11 +203,9 @@ export default function CustomerOrdersScreen() {
                       flexDirection: "row",
                       alignItems: "center",
                       gap: 16,
-                      backgroundColor: isDeclined ? "#FFF5F5" : "#FFFFFF",
+                      backgroundColor: isDeclined ? "#FFFFFF" : "#FFFFFF",
                       borderRadius: 20,
                       padding: 12,
-                      borderWidth: 1,
-                      borderColor: isDeclined ? "#FECDD3" : (isCancelled ? "#E5DFD5" : "#F0EBE1"),
                       transform: [{ scale: pressed ? 0.985 : 1 }],
                     },
                     isLandscape && { width: "49%", maxWidth: undefined },
@@ -225,18 +223,18 @@ export default function CustomerOrdersScreen() {
                   <View className="flex-1 h-20 justify-between py-0.5">
                     <View>
                       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <Text className="font-body-bold text-[15px] text-black" numberOfLines={1}>
+                        <Text className="font-body-medium text-[15px] text-black" numberOfLines={1}>
                           {order.atelierName}
                         </Text>
                         {isDeclined ? (
-                          <View style={{ backgroundColor: "#FDEAEA", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
-                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#DC2626" }}>
+                          <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 }}>
+                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#F96951" }}>
                               Declined
                             </Text>
                           </View>
                         ) : isCancelled ? (
-                          <View style={{ backgroundColor: "#F5EFE6", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#E5DFD5" }}>
-                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2B2B2B" }}>
+                          <View style={{ backgroundColor: "#FFFFFF", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1, borderColor: "#453332" }}>
+                            <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#4A403B" }}>
                               Cancelled
                             </Text>
                           </View>
@@ -249,24 +247,24 @@ export default function CustomerOrdersScreen() {
                     </View>
 
                     {isDeclined ? (
-                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 11.5, color: "#DC2626" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 11.5, color: "#F96951" }}>
                         Appointment request declined
                       </Text>
                     ) : isCancelled ? (
-                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 11.5, color: "#5C4A32" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 11.5, color: "#453332" }}>
                         Order cancelled by you
                       </Text>
                     ) : (
                       <View>
                         {/* Progress Bar */}
-                        <View className="w-full max-w-[200px] h-[4px] bg-[#E0E0E0] rounded-full overflow-hidden mb-1.5">
+                        <View className="w-full max-w-[200px] h-[4px] bg-white rounded-full overflow-hidden mb-1.5">
                           <View
-                            className="h-full bg-[#C4A763] rounded-full"
+                            className="h-full bg-[#453332] rounded-full"
                             style={{ width: `${order.progressPercent}%` }}
                           />
                         </View>
 
-                        <Text className="font-body text-[12px] text-[#646464]">
+                        <Text className="font-body text-[12px] text-[#4A403B]">
                           {isReadyToWear(order) ? READY_CUSTOMER_STAGES[readyCustomerStage(order.rawStatus || order.status)].label : `Estimated ready: ${order.estimatedReady}`}
                         </Text>
                       </View>
@@ -284,7 +282,7 @@ export default function CustomerOrdersScreen() {
                 {loadingMore ? (
                   <ActivityIndicator size="small" color="#453332" />
                 ) : (
-                  <Text style={{ color: "#2B2B2B", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
+                  <Text style={{ color: "#4A403B", fontFamily: "InstrumentSans-SemiBold" }}>Load more orders</Text>
                 )}
               </Pressable>
             ) : null}

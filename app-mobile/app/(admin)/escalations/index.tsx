@@ -434,7 +434,7 @@ export default function BookingsScreen() {
                   {/* Assigned Footer */}
                   {item.status === "assigned" && (
                     <View style={styles.assignedFooter}>
-                      <UserCheck size={14} color="#15803D" />
+                      <UserCheck size={14} color="#453332" />
                       <Text style={styles.assignedFooterText}>
                         Assigned to {item.assignedStaffName || "Lead Tailor"}
                       </Text>
@@ -544,7 +544,7 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -557,7 +557,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   screenTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 20,
     paddingHorizontal: 4,
   },
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   pillInactive: {
-    backgroundColor: "#E2E5DF",
+    backgroundColor: "#FFFFFF",
   },
   pillText: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -587,7 +587,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   pillTextInactive: {
-    color: "#474E51",
+    color: "#4A403B",
   },
   loaderContainer: {
     flex: 1,
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 18,
     marginBottom: 16,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 10,
@@ -632,36 +632,36 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   serviceSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   badge: {
-    backgroundColor: "#F4ECE1",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 12,
   },
   badgeAssigned: {
-    backgroundColor: "#EAF5EA",
+    backgroundColor: "#FFFFFF",
   },
   badgeDeclined: {
-    backgroundColor: "#FDEAEA",
+    backgroundColor: "#FFFFFF",
   },
   badgeText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#A4895C",
+    color: "#453332",
   },
   badgeTextAssigned: {
-    color: "#15803D",
+    color: "#453332",
   },
   badgeTextDeclined: {
-    color: "#DC2626",
+    color: "#F96951",
   },
   actionsRow: {
     flexDirection: "row",
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
   declineBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   assignedFooter: {
     flexDirection: "row",
@@ -701,16 +701,16 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingTop: 10,
     borderTopWidth: 0,
-    borderTopColor: "rgba(74, 8, 12, 0.08)",
+    borderTopColor: "rgba(69, 51, 50, 0.08)",
   },
   assignedFooterText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#15803D",
+    color: "#453332",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(43, 43, 43,0.5)",
     justifyContent: "flex-end",
   },
   modalCard: {
@@ -728,12 +728,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   modalSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#5C4A32",
+    color: "#453332",
     marginBottom: 14,
   },
   staffItem: {
@@ -742,12 +742,12 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.15)",
+    borderColor: "rgba(69, 51, 50, 0.15)",
   },
   staffItemName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   summaryCard: {
     backgroundColor: "#FFFFFF",
@@ -755,25 +755,25 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.1)",
+    borderColor: "rgba(69, 51, 50, 0.1)",
   },
   summaryLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textTransform: "uppercase",
     marginBottom: 4,
   },
   summaryText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     lineHeight: 20,
   },
   transcriptSectionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 10,
   },
   chatBubble: {
@@ -790,7 +790,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.1)",
+    borderColor: "rgba(69, 51, 50, 0.1)",
   },
   chatText: {
     fontFamily: "InstrumentSans-Regular",
@@ -800,6 +800,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   modelChatText: {
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });

@@ -82,7 +82,7 @@ export default function InvoicesListScreen() {
             onPress={() => router.push("/(admin)/settings" as any)}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Invoice</Text>
@@ -162,7 +162,7 @@ export default function InvoicesListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -184,13 +184,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   listContent: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 10,
@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
   invoiceNumber: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   clientDate: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   rightCol: {
     alignItems: "flex-end",
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   amount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   statusPill: {
@@ -245,19 +245,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pendingPill: {
-    backgroundColor: "#F4ECE1",
+    backgroundColor: "#FFFFFF",
   },
   paidPill: {
-    backgroundColor: "#D8EED7",
+    backgroundColor: "#FFFFFF",
   },
   statusText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
   },
   pendingText: {
-    color: "#B57E42",
+    color: "#453332",
   },
   paidText: {
-    color: "#2E7D32",
+    color: "#453332",
   },
 });

@@ -73,7 +73,7 @@ export default function MessageDeleteMenu({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(58,46,26,0.45)",
+    backgroundColor: "rgba(69, 51, 50,0.45)",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingTop: 22,
     paddingBottom: 10,
-    shadowColor: "#3A2E1A",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 16,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   title: {
     paddingHorizontal: 24,
     paddingBottom: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },
@@ -108,12 +108,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   actionText: {
-    color: "#2B2B2B",
+    color: "#4A403B",
     fontFamily: "InstrumentSans-Medium",
     fontSize: 16,
   },
   pressed: {
-    backgroundColor: "rgba(228,213,183,0.45)",
+    backgroundColor: "rgba(255, 255, 255,0.45)",
   },
   loadingRow: {
     minHeight: 130,

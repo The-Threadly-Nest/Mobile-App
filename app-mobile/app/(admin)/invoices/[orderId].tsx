@@ -206,7 +206,7 @@ export default function InvoiceDetailScreen() {
             height: 100%;
             background-color: #FFFFFF;
             font-family: 'Instrument Sans', sans-serif;
-            color: #1A1110;
+            color: #2B2B2B;
           }
           .page-container {
             min-height: 100vh;
@@ -234,7 +234,7 @@ export default function InvoiceDetailScreen() {
             background-color: #FFFFFF;
             border-radius: 28px;
             padding: 36px 32px;
-            border: 1px solid rgba(74, 8, 12, 0.12);
+            border: 1px solid rgba(69, 51, 50, 0.12);
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -257,7 +257,7 @@ export default function InvoiceDetailScreen() {
             height: 48px;
             border-radius: 24px;
             background-color: #453332;
-            border: 1.5px solid #C4A763;
+            border: 1.5px solid #453332;
             color: #FFFFFF;
             font-family: 'Instrument Sans', sans-serif;
             font-size: 22px;
@@ -276,7 +276,7 @@ export default function InvoiceDetailScreen() {
           .app-tag {
             font-size: 12px;
             font-weight: 500;
-            color: #8A7550;
+            color: #453332;
             letter-spacing: 0.4px;
           }
           .status-pill {
@@ -284,11 +284,11 @@ export default function InvoiceDetailScreen() {
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            background-color: ${isPaid ? 'rgba(74, 8, 12, 0.12)' : '#F4ECE1'};
-            color: ${isPaid ? '#453332' : '#B57E42'};
+            background-color: ${isPaid ? 'rgba(69, 51, 50, 0.12)' : '#FFFFFF'};
+            color: ${isPaid ? '#453332' : '#453332'};
           }
           .dashed-line {
-            border-top: 1.5px dashed #E4D5B7;
+            border-top: 1.5px dashed #FFFFFF;
             margin: 24px 0;
           }
           .info-row {
@@ -298,7 +298,7 @@ export default function InvoiceDetailScreen() {
           .field-label {
             font-size: 11px;
             font-weight: 600;
-            color: #8A8275;
+            color: #2B2B2B;
             letter-spacing: 0.8px;
             margin-bottom: 6px;
             text-transform: uppercase;
@@ -321,15 +321,15 @@ export default function InvoiceDetailScreen() {
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid #F4F0E8;
+            border-bottom: 1px solid #FFFFFF;
           }
-          .item-name { font-size: 15px; color: #1A1110; }
-          .item-price { font-size: 15px; font-weight: 600; color: #1A1110; }
+          .item-name { font-size: 15px; color: #2B2B2B; }
+          .item-price { font-size: 15px; font-weight: 600; color: #2B2B2B; }
           .summary-row {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            color: #8A7550;
+            color: #453332;
             margin-top: 14px;
             margin-bottom: 6px;
           }
@@ -347,8 +347,8 @@ export default function InvoiceDetailScreen() {
             color: #453332;
           }
           .payment-card {
-            background-color: #F9F5EE;
-            border: 1px solid rgba(74, 8, 12, 0.12);
+            background-color: #FFFFFF;
+            border: 1px solid rgba(69, 51, 50, 0.12);
             border-radius: 14px;
             padding: 16px;
             margin-top: 18px;
@@ -356,7 +356,7 @@ export default function InvoiceDetailScreen() {
           .payment-title {
             font-size: 11px;
             font-weight: 600;
-            color: #8A7550;
+            color: #453332;
             letter-spacing: 0.8px;
             margin-bottom: 10px;
             text-align: center;
@@ -366,13 +366,13 @@ export default function InvoiceDetailScreen() {
             justify-content: space-between;
             gap: 12px;
           }
-          .payment-col-label { font-size: 10px; color: #8A7550; font-weight: 600; margin-bottom: 2px; }
+          .payment-col-label { font-size: 10px; color: #453332; font-weight: 600; margin-bottom: 2px; }
           .payment-col-val { font-size: 13px; color: #453332; font-weight: 600; }
           .footer-note {
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
-            color: #7A7265;
+            color: #2B2B2B;
             line-height: 1.5;
           }
         </style>
@@ -385,7 +385,7 @@ export default function InvoiceDetailScreen() {
               <div class="atelier-row">
                 <div class="brand-left">
                   ${shopLogo
-                    ? `<img src="${shopLogo}" style="width: 48px; height: 48px; border-radius: 24px; border: 1.5px solid #C4A763; object-fit: cover;" />`
+                    ? `<img src="${shopLogo}" style="width: 48px; height: 48px; border-radius: 24px; border: 1.5px solid #453332; object-fit: cover;" />`
                     : `<div class="logo-badge">${initial}</div>`
                   }
                   <div>
@@ -406,7 +406,7 @@ export default function InvoiceDetailScreen() {
                 <div style="text-align: right;">
                   <div class="field-label">ORDER & DATE</div>
                   <div class="field-value">${invoice.orderNumber}</div>
-                  <div style="font-size: 12px; color: #7A7265; margin-top: 2px;">${invoice.date}</div>
+                  <div style="font-size: 12px; color: #2B2B2B; margin-top: 2px;">${invoice.date}</div>
                 </div>
               </div>
 
@@ -432,11 +432,11 @@ export default function InvoiceDetailScreen() {
 
               <div class="summary-row">
                 <div>Subtotal</div>
-                <div style="font-weight: 600; color: #3A2E1A;">${htmlMoney(subtotal)}</div>
+                <div style="font-weight: 600; color: #453332;">${htmlMoney(subtotal)}</div>
               </div>
               <div class="summary-row">
                 <div>VAT / Tax (${(invoice.taxRate * 100).toLocaleString()}%)</div>
-                <div style="font-weight: 600; color: #3A2E1A;">${htmlMoney(vat)}</div>
+                <div style="font-weight: 600; color: #453332;">${htmlMoney(vat)}</div>
               </div>
 
               <div class="total-row">
@@ -604,7 +604,7 @@ export default function InvoiceDetailScreen() {
             }}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#3B0508" />
+            <BackArrowIcon size={24} color="#453332" />
           </Pressable>
 
           <Text style={styles.headerTitle}>Invoice</Text>
@@ -618,8 +618,8 @@ export default function InvoiceDetailScreen() {
             <ActivityIndicator color="#453332" style={{ marginBottom: 16 }} />
           ) : null}
           {invoiceError ? (
-            <View style={{ backgroundColor: "#FDECEC", borderRadius: 12, padding: 12, marginBottom: 16 }}>
-              <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#9B1C1C", textAlign: "center" }}>
+            <View style={{ backgroundColor: "#FFFFFF", borderRadius: 12, padding: 12, marginBottom: 16 }}>
+              <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#F96951", textAlign: "center" }}>
                 {invoiceError}
               </Text>
             </View>
@@ -643,7 +643,7 @@ export default function InvoiceDetailScreen() {
                   style={{
                     fontFamily: "InstrumentSans-Regular",
                     fontSize: 26,
-                    color: "#2B2B2B",
+                    color: "#4A403B",
                     transform: [{ rotate: "-20deg" }],
                     textAlign: "center",
                   }}
@@ -663,7 +663,7 @@ export default function InvoiceDetailScreen() {
                         height: 44,
                         borderRadius: 22,
                         borderWidth: 1.5,
-                        borderColor: "#C4A763",
+                        borderColor: "#453332",
                       }}
                       resizeMode="cover"
                     />
@@ -675,7 +675,7 @@ export default function InvoiceDetailScreen() {
                         borderRadius: 22,
                         backgroundColor: "#453332",
                         borderWidth: 1.5,
-                        borderColor: "#C4A763",
+                        borderColor: "#453332",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
@@ -723,7 +723,7 @@ export default function InvoiceDetailScreen() {
                 <View style={[styles.infoCol, { alignItems: "flex-end" }]}>
                   <Text style={styles.fieldLabel}>ORDER & DATE</Text>
                   <Text style={styles.fieldValue}>{invoice.orderNumber}</Text>
-                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#7A7265", marginTop: 2 }}>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#4A403B", marginTop: 2 }}>
                     {invoice.date}
                   </Text>
                 </View>
@@ -750,12 +750,12 @@ export default function InvoiceDetailScreen() {
               {/* Tax & Breakdown Calculation Row */}
               <View style={{ marginTop: 14, marginBottom: 12, zIndex: 1 }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#2B2B2B" }}>Subtotal</Text>
-                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#2B2B2B" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#4A403B" }}>Subtotal</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#4A403B" }}>{formatMoney(invoice.subtotal, invoice.currency)}</Text>
                 </View>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#2B2B2B" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
-                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#2B2B2B" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#4A403B" }}>VAT / Tax ({(invoice.taxRate * 100).toLocaleString()}%)</Text>
+                  <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 14, color: "#4A403B" }}>{formatMoney(invoice.taxAmount, invoice.currency)}</Text>
                 </View>
               </View>
 
@@ -770,10 +770,10 @@ export default function InvoiceDetailScreen() {
                 style={{
                   marginTop: 18,
                   padding: 14,
-                  backgroundColor: "#F9F5EE",
+                  backgroundColor: "#FFFFFF",
                   borderRadius: 14,
                   borderWidth: 1,
-                  borderColor: "rgba(74, 8, 12, 0.12)",
+                  borderColor: "rgba(69, 51, 50, 0.12)",
                   zIndex: 1,
                 }}
               >
@@ -781,7 +781,7 @@ export default function InvoiceDetailScreen() {
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
-                    color: "#2B2B2B",
+                    color: "#4A403B",
                     letterSpacing: 0.8,
                     marginBottom: 8,
                     textAlign: "center",
@@ -791,23 +791,23 @@ export default function InvoiceDetailScreen() {
                 </Text>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
                   <View>
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#2B2B2B", marginBottom: 2 }}>BANK</Text>
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" }}>{invoice.bankName || "Not configured"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#4A403B", marginBottom: 2 }}>BANK</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" }}>{invoice.bankName || "Not configured"}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#2B2B2B", marginBottom: 2 }}>ACCOUNT NO.</Text>
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" }}>{invoice.accountNumber || "—"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#4A403B", marginBottom: 2 }}>ACCOUNT NO.</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" }}>{invoice.accountNumber || "—"}</Text>
                   </View>
                   <View>
-                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#2B2B2B", marginBottom: 2 }}>BENEFICIARY</Text>
-                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" }}>{invoice.accountName || "—"}</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#4A403B", marginBottom: 2 }}>BENEFICIARY</Text>
+                    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" }}>{invoice.accountName || "—"}</Text>
                   </View>
                 </View>
               </View>
 
               {/* Footer Tag */}
               <View style={{ marginTop: 16, alignItems: "center", zIndex: 1 }}>
-                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#2B2B2B", textAlign: "center" }}>
+                <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#4A403B", textAlign: "center" }}>
                   Owuja
                 </Text>
               </View>
@@ -861,7 +861,7 @@ export default function InvoiceDetailScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Share Invoice</Text>
               <Pressable onPress={() => setShareModalVisible(false)}>
-                <X size={20} color="#7A7265" />
+                <X size={20} color="#2B2B2B" />
               </Pressable>
             </View>
             <Text style={styles.modalSubtitle}>Choose how you'd like to share this invoice.</Text>
@@ -871,7 +871,7 @@ export default function InvoiceDetailScreen() {
               onPress={handleShareAsPDF}
               style={({ pressed }) => [
                 styles.modalOption,
-                { backgroundColor: pressed ? "#F5EFE6" : "#FFFFFF" },
+                { backgroundColor: pressed ? "#FFFFFF" : "#FFFFFF" },
               ]}
             >
               <View style={styles.optionIconContainer}>
@@ -888,7 +888,7 @@ export default function InvoiceDetailScreen() {
               onPress={handleShareAsImage}
               style={({ pressed }) => [
                 styles.modalOption,
-                { backgroundColor: pressed ? "#F5EFE6" : "#FFFFFF" },
+                { backgroundColor: pressed ? "#FFFFFF" : "#FFFFFF" },
               ]}
             >
               <View style={styles.optionIconContainer}>
@@ -909,7 +909,7 @@ export default function InvoiceDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -931,13 +931,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -947,7 +947,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 12,
@@ -961,18 +961,18 @@ const styles = StyleSheet.create({
   atelierName: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   invoiceSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#7A7265",
+    color: "#4A403B",
   },
   dashedLine: {
     borderStyle: "dashed",
     borderWidth: 0.8,
-    borderColor: "#E2E5DF",
+    borderColor: "#453332",
     marginVertical: 18,
   },
   infoRow: {
@@ -983,14 +983,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fieldLabel: { ...typeScale.label,
-    color: "#8A8275",
+    color: "#4A403B",
     letterSpacing: 0.5,
     marginBottom: 6,
   },
   fieldValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   itemsTable: {
     marginTop: 4,
@@ -1009,14 +1009,14 @@ const styles = StyleSheet.create({
   itemName: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     flex: 1,
     paddingRight: 12,
   },
   itemPrice: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   tableBottomBorder: {
     borderBottomWidth: 0,
@@ -1032,12 +1032,12 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   totalAmount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   statusPill: {
     paddingHorizontal: 12,
@@ -1047,20 +1047,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pendingPill: {
-    backgroundColor: "#F4ECE1",
+    backgroundColor: "#FFFFFF",
   },
   paidPill: {
-    backgroundColor: "rgba(74, 8, 12, 0.12)",
+    backgroundColor: "rgba(69, 51, 50, 0.12)",
   },
   statusText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
   },
   pendingText: {
-    color: "#B57E42",
+    color: "#453332",
   },
   paidText: {
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   actionButtonsContainer: {
     marginTop: 28,
@@ -1094,26 +1094,26 @@ const styles = StyleSheet.create({
   outlineBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   secondaryBtn: {
     width: "100%",
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#F3EDE2",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.12)",
+    borderColor: "rgba(69, 51, 50, 0.12)",
   },
   secondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(20, 5, 5, 0.55)",
+    backgroundColor: "rgba(43, 43, 43, 0.55)",
     justifyContent: "flex-end",
     paddingHorizontal: 16,
     paddingBottom: 28,
@@ -1122,7 +1122,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
     shadowRadius: 16,
@@ -1137,12 +1137,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   modalSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#7A7265",
+    color: "#4A403B",
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -1152,7 +1152,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.12)",
+    borderColor: "rgba(69, 51, 50, 0.12)",
     marginBottom: 12,
     gap: 14,
   },
@@ -1160,19 +1160,19 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(74, 8, 12, 0.08)",
+    backgroundColor: "rgba(69, 51, 50, 0.08)",
     alignItems: "center",
     justifyContent: "center",
   },
   optionTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   optionDesc: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#7A7265",
+    color: "#4A403B",
   },
 });

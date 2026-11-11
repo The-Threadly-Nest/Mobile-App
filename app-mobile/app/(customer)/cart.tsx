@@ -105,7 +105,7 @@ export default function CartScreen() {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerButton} onPress={() => router.back()} activeOpacity={0.75}>
-          <BackArrowIcon size={24} color="#3B0508" />
+          <BackArrowIcon size={24} color="#453332" />
         </TouchableOpacity>
         <View style={styles.headerTitleGroup}>
           <Text style={styles.headerTitle}>My Cart</Text>
@@ -159,7 +159,7 @@ export default function CartScreen() {
                         </TouchableOpacity>
                       </View>
                       <TouchableOpacity disabled={placingOrderFor !== null} accessibilityLabel={`Remove ${item.name}`} onPress={() => removeItem(item.id, item.selectedSize, item.selectedColor)} style={styles.removeButton}>
-                        <Trash2 size={17} color="#9A2C32" />
+                        <Trash2 size={17} color="#F96951" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -233,7 +233,7 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
+  safeArea: { flex: 1, backgroundColor: "#F9E8D3" },
   header: {
     paddingHorizontal: 20,
     paddingTop: SCREEN_TOP_SPACING,
@@ -243,44 +243,44 @@ const styles = StyleSheet.create({
   },
   headerButton: { width: 44, height: 44, alignItems: "flex-start", justifyContent: "center" },
   headerTitleGroup: { flex: 1, alignItems: "center" },
-  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
-  headerSubtitle: { ...typeScale.caption, color: "#2B2B2B", marginTop: 2 },
+  headerTitle: { ...typeScale.pageTitle, color: "#4A403B" },
+  headerSubtitle: { ...typeScale.caption, color: "#4A403B", marginTop: 2 },
   clearButton: { width: 44, height: 44, alignItems: "flex-end", justifyContent: "center" },
-  clearText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#9A2C32" },
+  clearText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#F96951" },
   content: { paddingHorizontal: 20, paddingBottom: 40 },
   groupSection: { marginBottom: 28 },
-  groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 10, borderBottomWidth: 0, borderBottomColor: "#F0E9DF" },
-  groupLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 9, letterSpacing: 1, color: "#2B2B2B" },
-  groupName: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#2B2B2B", marginTop: 2 },
-  groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#2B2B2B" },
-  itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 0, borderBottomColor: "#F4EEE5" },
-  itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#EBE0D3" },
+  groupHeader: { flexDirection: "row", alignItems: "center", paddingBottom: 10, borderBottomWidth: 0, borderBottomColor: "#453332" },
+  groupLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 9, letterSpacing: 1, color: "#4A403B" },
+  groupName: { fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#4A403B", marginTop: 2 },
+  groupSubtotal: { fontFamily: "InstrumentSans-SemiBold", fontSize: 15, color: "#4A403B" },
+  itemRow: { flexDirection: "row", paddingVertical: 14, borderBottomWidth: 0, borderBottomColor: "#453332" },
+  itemImage: { width: 86, height: 102, borderRadius: 14, backgroundColor: "#FFFFFF" },
   itemImageContent: { width: "100%", height: "100%", borderRadius: 14 },
   itemDetails: { flex: 1, marginLeft: 12 },
-  itemName: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, lineHeight: 18, color: "#241719" },
-  itemOptions: { fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#2B2B2B", marginTop: 4 },
-  itemPrice: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B", marginTop: 5 },
+  itemName: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, lineHeight: 18, color: "#4A403B" },
+  itemOptions: { fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B", marginTop: 4 },
+  itemPrice: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B", marginTop: 5 },
   itemActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8 },
-  quantityControl: { flexDirection: "row", alignItems: "center", borderRadius: 14, backgroundColor: "#F6F0E7", padding: 3 },
-  quantityButton: { width: 28, height: 28, borderRadius: 11, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
-  quantityText: { width: 28, textAlign: "center", fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#2B2B2B" },
-  removeButton: { width: 34, height: 34, borderRadius: 17, backgroundColor: "#FFF1F1", alignItems: "center", justifyContent: "center" },
+  quantityControl: { flexDirection: "row", alignItems: "center", borderRadius: 14, backgroundColor: "#FFFFFF", padding: 3 },
+  quantityButton: { width: 28, height: 28, borderRadius: 11, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
+  quantityText: { width: 28, textAlign: "center", fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" },
+  removeButton: { width: 34, height: 34, borderRadius: 17, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center" },
   continueButton: { minHeight: 50, borderRadius: 25, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", paddingHorizontal: 18, marginTop: 14 },
   continueButtonDisabled: { opacity: 0.6 },
   continueButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#FFFFFF", textAlign: "center" },
   totalRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 12, paddingBottom: 4 },
-  totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#2B2B2B" },
-  totalPrice: { fontFamily: "InstrumentSans-Regular", fontSize: 24, color: "#2B2B2B" },
-  multiHouseNote: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#2B2B2B", textAlign: "center", paddingHorizontal: 20 },
+  totalLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#4A403B" },
+  totalPrice: { fontFamily: "InstrumentSans-Regular", fontSize: 24, color: "#4A403B" },
+  multiHouseNote: { fontFamily: "InstrumentSans-Regular", fontSize: 12, lineHeight: 18, color: "#4A403B", textAlign: "center", paddingHorizontal: 20 },
   emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 36 },
-  emptyIcon: { width: 68, height: 68, borderRadius: 34, backgroundColor: "#EBE0D3", alignItems: "center", justifyContent: "center", marginBottom: 18 },
-  emptyTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#2B2B2B" },
-  emptyBody: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#2B2B2B", textAlign: "center", marginTop: 8, marginBottom: 24 },
+  emptyIcon: { width: 68, height: 68, borderRadius: 34, backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center", marginBottom: 18 },
+  emptyTitle: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#4A403B" },
+  emptyBody: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, color: "#4A403B", textAlign: "center", marginTop: 8, marginBottom: 24 },
   browseButton: { height: 52, borderRadius: 26, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center", paddingHorizontal: 30 },
   browseButtonText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(30, 20, 20, 0.55)",
+    backgroundColor: "rgba(43, 43, 43, 0.55)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 28,
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 24,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
     marginBottom: 8,
   },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#746765",
+    color: "#4A403B",
     textAlign: "center",
     marginBottom: 24,
     paddingHorizontal: 4,
@@ -345,6 +345,6 @@ const styles = StyleSheet.create({
   modalSecondaryBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });

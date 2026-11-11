@@ -15,10 +15,26 @@ test("dashboard filters its own catalog rather than navigating away", () => {
 
 test("both discovery pages use the shared back chevron and dashboard image shapes", () => {
   const source = read("src/shared/components/DiscoveryPage.tsx");
-  assert.match(source, /<BackArrowIcon size=\{24\} color="#3B0508"/);
+  assert.match(source, /<BackArrowIcon size=\{24\} color="#453332"/);
   assert.match(source, /paddingTop: SCREEN_TOP_SPACING/);
   assert.match(source, /aspectRatio: 156 \/ 206, borderRadius: 14/);
   assert.match(source, /width: 64, height: 64, borderRadius: 32/);
   assert.match(source, /contentFit="cover"/);
   assert.match(source, /numColumns=\{houses \? 3 : 2\}/);
+});
+
+test("search bars retain rounded white fills without outlines", () => {
+  for (const [file, name] of [
+    ["app/(customer)/(tabs)/browse.tsx", "searchInputWrapper"],
+    ["app/(admin)/customers/index.tsx", "searchBar"],
+    ["app/(admin)/staff/index.tsx", "searchBar"],
+    ["src/shared/components/DiscoveryPage.tsx", "searchInput"],
+    ["src/shared/components/PhoneInputWithCountry.tsx", "searchBox"],
+  ]) {
+    const block = read(file).match(new RegExp(`${name}: \\{([^}]+)\\}`))?.[1];
+    assert.ok(block, `${file} defines ${name}`);
+    assert.match(block, /backgroundColor: "#FFFFFF"/);
+    assert.match(block, /borderRadius:/);
+    assert.doesNotMatch(block, /border(?:Width|Color):/);
+  }
 });

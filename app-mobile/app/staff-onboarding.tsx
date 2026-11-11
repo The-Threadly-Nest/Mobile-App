@@ -140,7 +140,7 @@ export default function StaffOnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000000",
+    backgroundColor: "#2B2B2B",
   },
   bgImage: {
     flex: 1,
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   },
   darkOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
+    backgroundColor: "rgba(43, 43, 43, 0.35)",
   },
   safeArea: {
     flex: 1,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   nextBtn: {
     flex: 1,

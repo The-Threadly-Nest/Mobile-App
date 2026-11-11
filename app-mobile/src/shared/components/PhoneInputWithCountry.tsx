@@ -77,7 +77,7 @@ export function PhoneInputWithCountry({
         >
           <Text style={styles.flagText}>{selectedCountry.flag}</Text>
           <Text style={styles.codeText}>{selectedCountry.code}</Text>
-          <ChevronDown size={14} color="#3B0508" style={{ marginLeft: 2 }} />
+          <ChevronDown size={14} color="#453332" style={{ marginLeft: 2 }} />
         </Pressable>
 
         <View style={styles.divider} />
@@ -87,7 +87,7 @@ export function PhoneInputWithCountry({
           disableFullscreenUI={true}
           style={styles.textInput}
           placeholder={placeholder}
-          placeholderTextColor="#8A7550"
+          placeholderTextColor="#453332"
           keyboardType="phone-pad"
           value={nationalNumber}
           onChangeText={handleTextChange}
@@ -104,18 +104,18 @@ export function PhoneInputWithCountry({
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Country Code</Text>
               <Pressable onPress={() => setModalVisible(false)} style={styles.closeBtn}>
-                <X size={20} color="#3B0508" />
+                <X size={20} color="#453332" />
               </Pressable>
             </View>
 
             {/* Search Input */}
             <View style={styles.searchBox}>
-              <Search size={16} color="#8A7550" style={{ marginRight: 8 }} />
+              <Search size={16} color="#453332" style={{ marginRight: 8 }} />
               <TextInput
                 disableFullscreenUI={true}
                 style={styles.searchInput}
                 placeholder="Search country or code..."
-                placeholderTextColor="#8A7550"
+                placeholderTextColor="#453332"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   inputRow: {
@@ -169,14 +169,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E0D5",
+    borderColor: "#453332",
     borderRadius: 12,
     height: 46,
     paddingHorizontal: 12,
     backgroundColor: "#FFFFFF",
   },
   inputRowError: {
-    borderColor: "#D32F2F",
+    borderColor: "#453332",
   },
   countryBtn: {
     flexDirection: "row",
@@ -190,31 +190,31 @@ const styles = StyleSheet.create({
   codeText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   divider: {
     width: 1,
     height: 20,
-    backgroundColor: "#E5E0D5",
+    backgroundColor: "#FFFFFF",
     marginHorizontal: 8,
   },
   textInput: {
     flex: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     paddingVertical: 0,
     height: "100%",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#D32F2F",
+    color: "#F96951",
     marginTop: 4,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(43, 43, 43,0.4)",
     justifyContent: "flex-end",
   },
   modalContent: {
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   closeBtn: {
     padding: 6,
@@ -245,8 +245,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
     paddingHorizontal: 12,
     height: 46,
     marginBottom: 16,
@@ -255,7 +253,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   countryItem: {
     flexDirection: "row",
@@ -265,7 +263,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   countryItemSelected: {
-    backgroundColor: "#EBE0D3",
+    backgroundColor: "#FFFFFF",
   },
   itemFlag: {
     fontSize: 22,
@@ -275,11 +273,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   itemCode: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });

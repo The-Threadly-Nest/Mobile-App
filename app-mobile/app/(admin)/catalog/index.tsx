@@ -112,7 +112,7 @@ export default function AdminCatalogListScreen() {
           onPress={() => router.push("/(admin)/settings" as any)}
           style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={24} color="#3B0508" />
+          <BackArrowIcon size={24} color="#453332" />
         </Pressable>
         <Text style={styles.headerTitle}>Garment Catalog</Text>
       </View>
@@ -125,7 +125,7 @@ export default function AdminCatalogListScreen() {
         <Text style={styles.subtext}>
           Publish ready-for-pickup clothes or custom-fit styles.
         </Text>
-        {error ? <Text accessibilityRole="alert" style={{ color: "#9F1239", marginBottom: 12 }}>{error}</Text> : null}
+        {error ? <Text accessibilityRole="alert" style={{ color: "#F96951", marginBottom: 12 }}>{error}</Text> : null}
 
         {loading ? (
           <View style={styles.loadingWrap}>
@@ -133,7 +133,7 @@ export default function AdminCatalogListScreen() {
           </View>
         ) : items.length === 0 ? (
           <View style={styles.emptyWrap}>
-            <Tag size={40} color="#C4A763" style={{ marginBottom: 12 }} />
+            <Tag size={40} color="#453332" style={{ marginBottom: 12 }} />
             <Text style={styles.emptyTitle}>No Clothes Uploaded Yet</Text>
             <Text style={styles.emptySub}>
               Tap "Add Clothes" to upload your brand's bespoke garments and designs.
@@ -177,9 +177,9 @@ export default function AdminCatalogListScreen() {
                     style={({ pressed }) => [styles.deleteBtn, { opacity: pressed ? 0.7 : 1 }]}
                   >
                     {deletingId === item.id ? (
-                      <ActivityIndicator size="small" color="#D32F2F" />
+                      <ActivityIndicator size="small" color="#F96951" />
                     ) : (
-                      <Trash2 size={16} color="#D32F2F" />
+                      <Trash2 size={16} color="#F96951" />
                     )}
                   </Pressable>
                 </View>
@@ -190,7 +190,7 @@ export default function AdminCatalogListScreen() {
                   <Text style={styles.cardPrice}>
                     {formatMoney(item.priceFrom)}
                   </Text>
-                  <Text style={{ fontSize: 12, color: "#746765", marginTop: 4 }}>{item.fulfillmentType === "ready_to_wear" ? "Ready for pickup" : "Custom fit"}</Text>
+                  <Text style={{ fontSize: 12, color: "#4A403B", marginTop: 4 }}>{item.fulfillmentType === "ready_to_wear" ? "Ready for pickup" : "Custom fit"}</Text>
                 </View>
               </Pressable>
             ))}
@@ -213,7 +213,7 @@ export default function AdminCatalogListScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   header: {
     flexDirection: "row",
@@ -227,14 +227,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.25)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.2,
   },
   scrollContent: {
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 20,
     lineHeight: 20,
   },
@@ -259,19 +259,19 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#F0EBE1",
+    borderColor: "#453332",
     marginTop: 10,
   },
   emptyTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   emptySub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
     marginBottom: 20,
     lineHeight: 18,
@@ -305,8 +305,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     position: "relative",
-    backgroundColor: "#F4EFE6",
-    shadowColor: "#000",
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
@@ -323,13 +323,13 @@ const styles = StyleSheet.create({
   cardName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     lineHeight: 18,
   },
   cardPrice: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 2,
   },
   deleteBtn: {
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.92)",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.12,
     shadowRadius: 3,

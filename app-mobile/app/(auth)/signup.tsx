@@ -170,7 +170,7 @@ export default function SignupScreen() {
               >
                 <User
                   size={16}
-                  color={role === "customer" ? "#FFFFFF" : "#746765"}
+                  color={role === "customer" ? "#FFFFFF" : "#2B2B2B"}
                   strokeWidth={2}
                 />
                 <Text style={[styles.roleTabText, role === "customer" && styles.roleTabTextActive]}>
@@ -184,7 +184,7 @@ export default function SignupScreen() {
               >
                 <Scissors
                   size={16}
-                  color={role === "admin" ? "#FFFFFF" : "#746765"}
+                  color={role === "admin" ? "#FFFFFF" : "#2B2B2B"}
                   strokeWidth={2}
                 />
                 <Text style={[styles.roleTabText, role === "admin" && styles.roleTabTextActive]}>
@@ -265,9 +265,9 @@ export default function SignupScreen() {
                 style={[styles.eyeIconBtn, isLandscape && { top: 13 }]}
               >
                 {showPassword ? (
-                  <EyeOff size={18} color="#3C3C43" />
+                  <EyeOff size={18} color="#2B2B2B" />
                 ) : (
-                  <Eye size={18} color="#3C3C43" />
+                  <Eye size={18} color="#2B2B2B" />
                 )}
               </Pressable>
             </View>
@@ -330,19 +330,19 @@ export default function SignupScreen() {
                 <>
                   <Svg width={18} height={18} viewBox="0 0 24 24">
                     <Path
-                      fill="#F44336"
+                      fill="#F96951"
                       d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"
                     />
                     <Path
-                      fill="#FFC107"
+                      fill="#453332"
                       d="M1.9 7.3C1.3 8.7 1 10.3 1 12s.3 3.3.9 4.7l3.7-2.9C5.3 13.1 5 12.6 5 12s.3-1.1.6-1.8L1.9 7.3z"
                     />
                     <Path
-                      fill="#448AFF"
+                      fill="#453332"
                       d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"
                     />
                     <Path
-                      fill="#43A047"
+                      fill="#453332"
                       d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16c1.8 3.7 5.6 6.3 10.1 6.3z"
                     />
                   </Svg>
@@ -366,7 +366,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -396,23 +396,23 @@ const styles = StyleSheet.create({
   headerLoginPrompt: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#746765",
+    color: "#4A403B",
   },
   headerLoginLink: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#4A080C",
+    color: "#453332",
     textDecorationLine: "underline",
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   formContainer: {
     width: "100%",
   },
   roleTabContainer: {
     flexDirection: "row",
-    backgroundColor: "#F4EEE5",
+    backgroundColor: "#FFFFFF",
     borderRadius: 999,
     padding: 3.5,
     marginBottom: 26,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
   },
   roleTabActive: {
     backgroundColor: "#F96951",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   roleTabText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13.5,
-    color: "#746765",
+    color: "#4A403B",
   },
   roleTabTextActive: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     position: "relative",
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.35)",
+    borderColor: "rgba(69, 51, 50, 0.35)",
     borderRadius: 12,
     height: 56,
     justifyContent: "center",
@@ -457,17 +457,17 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -9,
     left: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 5,
     zIndex: 1,
   },
   labelText: { ...typeScale.label,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     paddingRight: 32,
     height: "100%",
   },
@@ -477,14 +477,14 @@ const styles = StyleSheet.create({
     top: 18,
   },
   helperText: { ...typeScale.caption,
-    color: "#746765",
+    color: "#4A403B",
     marginBottom: 24,
     marginTop: 0,
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12.5,
-    color: "#D32F2F",
+    color: "#F96951",
     marginBottom: 12,
   },
   roleToggleRow: {
@@ -496,12 +496,12 @@ const styles = StyleSheet.create({
   roleToggleLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   roleToggleValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textDecorationLine: "underline",
   },
   createAccountBtn: {
@@ -528,12 +528,12 @@ const styles = StyleSheet.create({
   dividerLine: { display: "none",
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(74, 8, 12, 0.15)",
+    backgroundColor: "rgba(69, 51, 50, 0.15)",
   },
   dividerText: { display: "none",
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#746765",
+    color: "#4A403B",
     paddingHorizontal: 12,
   },
   googleBtn: {
@@ -552,14 +552,14 @@ const styles = StyleSheet.create({
   googleBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#1A1A1A",
+    color: "#4A403B",
     letterSpacing: 0.2,
   },
   disclaimerText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
     lineHeight: 15,
-    color: "#746765",
+    color: "#4A403B",
     textAlign: "center",
     paddingHorizontal: 12,
   },

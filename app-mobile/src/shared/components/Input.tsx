@@ -25,9 +25,9 @@ export function Input({ label, error, secureTextEntry, ...rest }: InputProps) {
           className={`border rounded-lg px-4 py-3 font-body text-base text-black bg-white ${
             secureTextEntry ? "pr-12" : ""
           } ${
-            error ? "border-red-500" : focused ? "border-oxblood" : "border-grey100"
+            error || focused ? "border-tomato" : "border-oxblood"
           }`}
-          placeholderTextColor="#A6926B"
+          placeholderTextColor="#453332"
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           secureTextEntry={isSecure}
@@ -47,7 +47,7 @@ export function Input({ label, error, secureTextEntry, ...rest }: InputProps) {
           </Pressable>
         ) : null}
       </View>
-      {error ? <Text className="font-body text-red-500 text-xs mt-1">{error}</Text> : null}
+      {error ? <Text className="font-body text-tomato text-xs mt-1">{error}</Text> : null}
     </View>
   );
 }

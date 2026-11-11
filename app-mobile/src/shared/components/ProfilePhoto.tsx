@@ -70,15 +70,15 @@ export function ProfilePhoto() {
   return <View style={{ alignItems: "center", marginTop: 16, marginBottom: 12 }}>
     <Pressable onPress={choosePhoto} disabled={busy} accessibilityRole="button" accessibilityLabel="Upload profile photo"
       accessibilityState={{ disabled: busy, busy }} style={{ width: 88, height: 88 }}>
-      <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: "#F6F6F6", overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 88, height: 88, borderRadius: 44, backgroundColor: "#FFFFFF", overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
         {busy ? <ActivityIndicator color="#453332" /> : photo?.owner === owner
           ? <Image source={{ uri: photo.url }} style={{ width: 88, height: 88 }} resizeMode="cover" />
-          : <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 30, color: "#2B2B2B" }}>{displayName.charAt(0).toUpperCase()}</Text>}
+          : <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 30, color: "#4A403B" }}>{displayName.charAt(0).toUpperCase()}</Text>}
       </View>
       <View style={{ position: "absolute", right: -2, bottom: 0, backgroundColor: "#F96951", borderRadius: 16, width: 32, height: 32, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "white" }}>
         <Camera size={16} color="white" />
       </View>
     </Pressable>
-    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 20, color: "#2B2B2B", marginTop: 12, textAlign: "center" }}>{displayName}</Text>
+    <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 20, color: "#4A403B", marginTop: 12, textAlign: "center" }}>{displayName}</Text>
   </View>;
 }

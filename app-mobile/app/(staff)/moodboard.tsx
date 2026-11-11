@@ -314,7 +314,7 @@ export default function StaffMoodBoardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   container: {
     flex: 1,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   headerActions: {
     flexDirection: "row",
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 20,
   },
   loaderContainer: {
@@ -387,9 +387,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
+    borderColor: "rgba(69, 51, 50, 0.5)",
     position: "relative",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 8,
     left: 8,
-    backgroundColor: "#43A047",
+    backgroundColor: "#453332",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 12,
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(43, 43, 43, 0.6)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
   },
   emptyContainer: {
@@ -448,13 +448,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 20,
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
+    borderColor: "rgba(69, 51, 50, 0.5)",
   },
   emptyIconCircle: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
@@ -462,19 +462,19 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   emptySubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(43, 43, 43, 0.5)",
     justifyContent: "flex-end",
   },
   modalContent: {
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   previewImageWrapper: {
     alignItems: "center",
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#D32F2F",
+    color: "#F96951",
     marginTop: 6,
   },
 });

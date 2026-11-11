@@ -267,21 +267,21 @@ export default function DrawingCanvasModal({
               {bgGuide === "croquis" && (
                 <G opacity={0.35}>
                   {/* Head & Neck */}
-                  <Circle cx={170} cy={55} r={18} stroke="#8A7550" strokeWidth="1.2" fill="none" />
-                  <Path d="M 166 73 L 166 88 M 174 73 L 174 88" stroke="#8A7550" strokeWidth="1.2" />
+                  <Circle cx={170} cy={55} r={18} stroke="#453332" strokeWidth="1.2" fill="none" />
+                  <Path d="M 166 73 L 166 88 M 174 73 L 174 88" stroke="#453332" strokeWidth="1.2" />
 
                   {/* Shoulders & Bust */}
-                  <Path d="M 125 102 C 145 92, 195 92, 215 102" stroke="#8A7550" strokeWidth="1.4" fill="none" />
-                  <Path d="M 125 102 C 122 135, 140 160, 152 175" stroke="#8A7550" strokeWidth="1.2" fill="none" />
-                  <Path d="M 215 102 C 218 135, 200 160, 188 175" stroke="#8A7550" strokeWidth="1.2" fill="none" />
+                  <Path d="M 125 102 C 145 92, 195 92, 215 102" stroke="#453332" strokeWidth="1.4" fill="none" />
+                  <Path d="M 125 102 C 122 135, 140 160, 152 175" stroke="#453332" strokeWidth="1.2" fill="none" />
+                  <Path d="M 215 102 C 218 135, 200 160, 188 175" stroke="#453332" strokeWidth="1.2" fill="none" />
 
                   {/* Waist & Hips */}
-                  <Path d="M 152 175 C 160 178, 180 178, 188 175" stroke="#8A7550" strokeWidth="1.4" fill="none" />
-                  <Path d="M 152 175 C 142 205, 138 240, 148 290" stroke="#8A7550" strokeWidth="1.2" fill="none" />
-                  <Path d="M 188 175 C 198 205, 202 240, 192 290" stroke="#8A7550" strokeWidth="1.2" fill="none" />
+                  <Path d="M 152 175 C 160 178, 180 178, 188 175" stroke="#453332" strokeWidth="1.4" fill="none" />
+                  <Path d="M 152 175 C 142 205, 138 240, 148 290" stroke="#453332" strokeWidth="1.2" fill="none" />
+                  <Path d="M 188 175 C 198 205, 202 240, 192 290" stroke="#453332" strokeWidth="1.2" fill="none" />
 
                   {/* Center Balance Line */}
-                  <Path d="M 170 40 L 170 310" stroke="#C4A763" strokeWidth="0.8" strokeDasharray="4 4" />
+                  <Path d="M 170 40 L 170 310" stroke="#453332" strokeWidth="0.8" strokeDasharray="4 4" />
                 </G>
               )}
 
@@ -290,7 +290,7 @@ export default function DrawingCanvasModal({
                 <G opacity={0.25}>
                   {[40, 90, 140, 190, 240, 290].map((x) =>
                     [40, 90, 140, 190, 240, 290].map((y) => (
-                      <Circle key={`${x}-${y}`} cx={x} cy={y} r={1.5} fill="#8A7550" />
+                      <Circle key={`${x}-${y}`} cx={x} cy={y} r={1.5} fill="#453332" />
                     ))
                   )}
                 </G>
@@ -335,14 +335,14 @@ export default function DrawingCanvasModal({
                   paddingHorizontal: 10,
                   paddingVertical: 5,
                   borderRadius: 12,
-                  backgroundColor: title === chip ? "#F96951" : "#E4D5B7",
+                  backgroundColor: title === chip ? "#F96951" : "#FFFFFF",
                 }}
               >
                 <Text
                   style={{
                     fontFamily: "InstrumentSans-SemiBold",
                     fontSize: 11,
-                    color: title === chip ? "#FFFFFF" : "#2B2B2B",
+                    color: title === chip ? "#FFFFFF" : "#4A403B",
                   }}
                 >
                   + {chip}
@@ -360,14 +360,14 @@ export default function DrawingCanvasModal({
                 disabled={paths.length === 0}
                 style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
               >
-                <Undo2 size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
+                <Undo2 size={16} color={paths.length > 0 ? "#453332" : "#453332"} />
               </Pressable>
               <Pressable
                 onPress={handleClear}
                 disabled={paths.length === 0}
                 style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
               >
-                <RotateCcw size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
+                <RotateCcw size={16} color={paths.length > 0 ? "#453332" : "#453332"} />
               </Pressable>
             </View>
 
@@ -415,7 +415,7 @@ export default function DrawingCanvasModal({
                   ) : isSelected ? (
                     <Check
                       size={14}
-                      color={c === "#FFFFFF" || c === "#C4A763" ? "#453332" : "#FFFFFF"}
+                      color={c === "#FFFFFF" || c === "#453332" ? "#453332" : "#FFFFFF"}
                     />
                   ) : null}
                 </Pressable>
@@ -451,7 +451,7 @@ export default function DrawingCanvasModal({
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(43, 43, 43, 0.6)",
     justifyContent: "flex-end",
   },
   modalContent: {
@@ -473,12 +473,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
-    backgroundColor: "#E4D5B7",
+    backgroundColor: "#FFFFFF",
     padding: 3,
     borderRadius: 14,
   },
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   guideBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   closeBtn: {
     padding: 4,
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     borderWidth: 1.5,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     backgroundColor: "#FFFFFF",
     marginBottom: 12,
   },
@@ -527,8 +527,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -545,8 +545,8 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -581,7 +581,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#D32F2F",
+    color: "#F96951",
     marginTop: 4,
     marginBottom: 4,
   },

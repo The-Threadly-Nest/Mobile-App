@@ -20,37 +20,28 @@ const find = (tree, predicate) => {
   return null;
 };
 
-test('garment picker loads the house custom catalog and replaces the single garment selection', async () => {
-  const state = [], refs = [], effects = [], requests = [], confirmed = [];
-  let cursor = 0, refCursor = 0;
-  const Picker = load('src/shared/components/BookingGarmentPicker.tsx', {
-    react: {
-      useState: initial => { const i = cursor++; if (!(i in state)) state[i] = initial; return [state[i], value => { state[i] = typeof value === 'function' ? value(state[i]) : value; }]; },
-      useRef: initial => { const i = refCursor++; return refs[i] ||= { current: initial }; },
-      useEffect: fn => effects.push(fn),
-    },
+test('house picker uses only admin specializations and allows one selection', () => {
+  let selected = null;
+  const Picker = load('src/shared/components/BookingSpecializationPicker.tsx', {
+    react: { useState: () => [selected, value => { selected = value; }], useEffect() {} },
     'react/jsx-runtime': jsx,
-    'react-native': { ActivityIndicator: 'ActivityIndicator', Pressable: 'Pressable', View: 'View', StyleSheet: { create: x => x } },
-    'lucide-react-native': { Check: 'Check' }, './Typography': { Text: 'Text' }, './CachedImage': 'Image',
-    '../utils/apiClient': { apiFetchCollectionPage: async url => { requests.push(url); return { items: ['Dress', 'Suit', 'Kaftan'].map((name, i) => ({ id: String(i), name, fulfillmentType: 'custom_fit' })), nextPage: null }; } },
-    '../utils/formatters': { formatCurrency: String },
+    'react-native': { Pressable: 'Pressable', View: 'View', StyleSheet: { create: x => x } },
+    'lucide-react-native': { Check: 'Check' }, './Typography': { Text: 'Text' },
   });
-  const props = { fashionHouseId: 'house', disabled: false, onConfirm: items => confirmed.push(items) };
-  const render = () => { cursor = 0; refCursor = 0; return Picker(props); };
-  let tree = render(); effects[0](); await new Promise(resolve => setImmediate(resolve));
-  assert.match(requests[0], /fashion-house\/house\?page=1&limit=50&fulfillmentType=custom_fit/);
+  const confirmed = [];
+  const props = { categories: ['Bespoke Suits', 'Agbada & Native'], disabled: false, onConfirm: value => confirmed.push(value) };
   const item = (tree, name) => find(tree, node => node.type === 'Pressable' && node.props.accessibilityRole === 'radio' && find(node, n => n.type === 'Text' && n.props.children === name));
-  tree = render(); item(tree, 'Dress').props.onPress();
-  tree = render(); item(tree, 'Suit').props.onPress();
-  tree = render(); assert.equal(item(tree, 'Dress').props.accessibilityState.selected, false);
-  assert.equal(item(tree, 'Suit').props.accessibilityState.selected, true);
-  assert.equal(item(tree, 'Kaftan').props.disabled, false);
-  find(tree, node => node.type === 'Pressable' && node.props.children?.props?.children === 'Choose a date').props.onPress();
-  assert.deepEqual(confirmed[0].map(item => item.name), ['Suit']);
-  assert.equal(find(tree, node => node.type === 'Pressable' && node.props.children?.props?.children === 'Choose a date').props.style[0].backgroundColor, '#453332');
-  item(tree, 'Dress').props.onPress(); tree = render();
-  assert.equal(item(tree, 'Dress').props.accessibilityState.selected, true);
-  assert.equal(item(tree, 'Suit').props.accessibilityState.selected, false);
+  let tree = Picker(props);
+  assert.equal(item(tree, 'Evening dress'), null);
+  item(tree, 'Bespoke Suits').props.onPress();
+  tree = Picker(props); item(tree, 'Agbada & Native').props.onPress();
+  tree = Picker(props);
+  assert.equal(item(tree, 'Bespoke Suits').props.accessibilityState.selected, false);
+  assert.equal(item(tree, 'Agbada & Native').props.accessibilityState.selected, true);
+  const button = find(tree, node => node.type === 'Pressable' && node.props.children?.props?.children === 'Choose a date');
+  assert.equal(button.props.style[0].backgroundColor, '#453332');
+  button.props.onPress();
+  assert.deepEqual(confirmed, ['Agbada & Native']);
 });
 
 test('chat uses upright, top-aligned content and does not jump while reading older messages', () => {
@@ -102,5 +93,6 @@ test('house and garment appointment entry points retain distinct flows', () => {
   assert.match(product, /catalogItemId: garmentData.id/);
   assert.match(chat, /!garmentName && startNew && !humanHandoffActive/);
   assert.match(chat, /garmentPicker: true/);
-  assert.match(chat, /garments\?\.length \? garments.map\(item => item.id\)/);
+  assert.match(chat, /BookingSpecializationPicker categories=\{houseCategories\}/);
+  assert.match(chat, /specialization: specialization \|\| selectedSpecialization/);
 });

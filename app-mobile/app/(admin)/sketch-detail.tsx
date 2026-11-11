@@ -105,7 +105,7 @@ export default function AdminSketchDetailScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#000000" />
+            <BackArrowIcon size={24} color="#2B2B2B" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketch Detail</Text>
         </View>
@@ -203,7 +203,7 @@ export default function AdminSketchDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -226,13 +226,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.15)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.15)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   imageCard: {
     width: "100%",
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 14,
     left: 14,
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    backgroundColor: "rgba(43, 43, 43, 0.65)",
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 7,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#404040",
+    color: "#4A403B",
     marginBottom: 28,
     paddingHorizontal: 2,
   },
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#43A047",
+    backgroundColor: "#453332",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(43, 43, 43, 0.6)",
     justifyContent: "center",
     padding: 20,
   },
@@ -312,18 +312,18 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   modalSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#D32F2F",
+    color: "#F96951",
     marginBottom: 8,
   },
 });

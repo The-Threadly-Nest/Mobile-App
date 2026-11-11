@@ -22,14 +22,14 @@ function defaultFamily(style: StyleProp<TextStyle>) {
 // Explicit style and NativeWind font variants still take precedence.
 export type Text = NativeText;
 export const Text = forwardRef<NativeText, TextProps>(({ style, ...props }, ref) => (
-  <NativeText ref={ref} {...props} style={[{ fontFamily: defaultFamily(style) }, style]} />
+  <NativeText ref={ref} {...props} style={[{ fontFamily: defaultFamily(style), color: "#4A403B" }, style]} />
 ));
 Text.displayName = "OwujaText";
 cssInterop(Text, { className: "style" });
 
 export type TextInput = NativeTextInput;
 export const TextInput = forwardRef<NativeTextInput, TextInputProps>(({ style, ...props }, ref) => (
-  <NativeTextInput ref={ref} {...props} style={[{ fontFamily: defaultFamily(style) }, style]} />
+  <NativeTextInput ref={ref} {...props} style={[{ fontFamily: defaultFamily(style), color: "#4A403B" }, style]} />
 ));
 TextInput.displayName = "OwujaTextInput";
 cssInterop(TextInput, { className: "style" });

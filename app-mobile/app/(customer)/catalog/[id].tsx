@@ -163,7 +163,7 @@ export default function CatalogItemDetailScreen() {
         {/* ─── Cloth Details Bottom Sheet (Figma 95:7449) ─── */}
         <View style={styles.sheetCard}>
           {loading && <ActivityIndicator color="#453332" />}
-          {error ? <Pressable onPress={() => setReload(value => value + 1)}><Text style={{ color: "#9F1239", paddingVertical: 16 }}>{error} Tap to retry.</Text></Pressable> : null}
+          {error ? <Pressable onPress={() => setReload(value => value + 1)}><Text style={{ color: "#F96951", paddingVertical: 16 }}>{error} Tap to retry.</Text></Pressable> : null}
           {/* Drag Handle */}
           <View style={styles.dragHandle} />
 
@@ -184,7 +184,7 @@ export default function CatalogItemDetailScreen() {
             >
               <Heart
                 size={22}
-                color={isFavorite ? "#F96951" : "#746765"}
+                color={isFavorite ? "#F96951" : "#2B2B2B"}
                 fill={isFavorite ? "#F96951" : "none"}
               />
             </Pressable>
@@ -192,7 +192,7 @@ export default function CatalogItemDetailScreen() {
 
           <View style={styles.priceRatingRow}><Text style={styles.mainPrice}>{garmentPriceFormatted}</Text></View>
           {!isCustomFit && (
-            <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#746765", marginTop: 4, marginBottom: 8 }}>
+            <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#4A403B", marginTop: 4, marginBottom: 8 }}>
               Ready for pickup
             </Text>
           )}
@@ -304,7 +304,7 @@ export default function CatalogItemDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingBottom: 24,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   heroContainer: {
     width: "100%",
     position: "relative",
-    backgroundColor: "#2C2C2C",
+    backgroundColor: "#2B2B2B",
   },
   heroImage: {
     width: "100%",
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
+    backgroundColor: "rgba(43, 43, 43, 0.35)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   sheetCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     marginTop: -26,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#DCDCDC",
+    backgroundColor: "#FFFFFF",
     alignSelf: "center",
     marginBottom: 16,
   },
@@ -384,29 +384,29 @@ const styles = StyleSheet.create({
   garmentTitle: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 22,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: -0.3,
   },
   categorySubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A8A8A",
+    color: "#4A403B",
     marginTop: 2,
   },
   favoriteCard: {
     width: 46,
     height: 46,
     borderRadius: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
     borderWidth: 1,
-    borderColor: "#F0EBE1",
+    borderColor: "#453332",
   },
   priceRatingRow: {
     flexDirection: "row",
@@ -421,17 +421,17 @@ const styles = StyleSheet.create({
   mainPrice: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   originalPrice: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#8A8A8A",
+    color: "#4A403B",
     textDecorationLine: "line-through",
     marginLeft: 8,
   },
   discountBadge: {
-    backgroundColor: "#006637",
+    backgroundColor: "#453332",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
@@ -450,10 +450,10 @@ const styles = StyleSheet.create({
   ratingScore: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   descriptionText: { ...typeScale.body,
-    color: "#5A5A5A",
+    color: "#4A403B",
     marginBottom: 16,
   },
   socialStatsRow: {
@@ -470,18 +470,18 @@ const styles = StyleSheet.create({
   statText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#4A4A4A",
+    color: "#4A403B",
   },
   divider: { display: "none",
     height: 1,
-    backgroundColor: "#F0EBE1",
+    backgroundColor: "#FFFFFF",
     marginBottom: 18,
   },
   sectionBlock: {
     marginBottom: 20,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 10,
   },
   variantRow: {
@@ -494,30 +494,30 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1,
-    borderColor: "#DCDCDC",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   roundPillActive: {
-    backgroundColor: "#FDEEE9",
+    backgroundColor: "#FFFFFF",
     borderColor: "#F96951",
   },
   roundPillDisabled: {
-    backgroundColor: "#F0F0F0",
+    backgroundColor: "#FFFFFF",
     borderColor: "transparent",
   },
   roundPillText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   roundPillTextActive: {
     fontFamily: "InstrumentSans-Bold",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   roundPillTextDisabled: {
-    color: "#A8A8A8",
+    color: "#4A403B",
   },
   colorRow: {
     flexDirection: "row",
@@ -530,13 +530,13 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: "#DCDCDC",
+    borderColor: "#453332",
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
   colorPillActive: {
-    backgroundColor: "#FDEEE9",
+    backgroundColor: "#FFFFFF",
     borderColor: "#F96951",
   },
   vendorCard: {
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     marginVertical: 12,
   },
@@ -571,16 +571,16 @@ const styles = StyleSheet.create({
   vendorNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   vendorSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 11,
-    color: "#8A7550",
+    color: "#453332",
     marginTop: 1,
   },
   bottomBar: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
       marginTop: 12,
       paddingTop: 0,
     alignItems: "center",
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.12,
     shadowRadius: 5,

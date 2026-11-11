@@ -40,7 +40,7 @@ export default function FlowMessageCard({
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           <View style={styles.iconCircle}>
-            <IconComponent size={13} color="#C4A763" />
+            <IconComponent size={13} color="#453332" />
           </View>
           {stepBadge && <Text style={styles.badgeText}>{stepBadge}</Text>}
           <Text style={styles.titleText}>{title}</Text>
@@ -48,7 +48,7 @@ export default function FlowMessageCard({
 
         {dismissHandler && (
           <Pressable onPress={dismissHandler} style={styles.dismissBtn} hitSlop={8}>
-            <X size={14} color="#8A7550" />
+            <X size={14} color="#453332" />
           </Pressable>
         )}
       </View>
@@ -94,7 +94,7 @@ export default function FlowMessageCard({
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "#FFFFFF",
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     borderWidth: 1.5,
     borderRadius: 20,
     borderTopLeftRadius: 6, // Chat-bubble shape
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 10,
-    color: "#C4A763",
+    color: "#453332",
     backgroundColor: "#453332",
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     flex: 1,
   },
   dismissBtn: {
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     lineHeight: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   stepsContainer: {
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   stepItemText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     flex: 1,
   },
   buttonRow: {
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   primaryBtn: {
     flexDirection: "row",

@@ -52,7 +52,7 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
     return () => { revision.current++; };
   }, [query, type, sort, kind]);
   return <SafeAreaView style={styles.screen} edges={["top", "bottom"]}>
-    <View style={styles.header}><Pressable accessibilityLabel="Back" accessibilityRole="button" hitSlop={4} onPress={() => router.back()} style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}><BackArrowIcon size={24} color="#3B0508" /></Pressable><Text style={styles.title}>{houses ? "Fashion houses" : "Marketplace"}</Text></View>
+    <View style={styles.header}><Pressable accessibilityLabel="Back" accessibilityRole="button" hitSlop={4} onPress={() => router.back()} style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}><BackArrowIcon size={24} color="#453332" /></Pressable><Text style={styles.title}>{houses ? "Fashion houses" : "Marketplace"}</Text></View>
     <View style={styles.searchRow}>
       <TextInput accessibilityLabel={houses ? "Search fashion houses or cities" : "Search clothes or designers"} placeholder={houses ? "Name or city" : "Clothes, style or designer"} value={input} onChangeText={setInput} returnKeyType="search" onSubmitEditing={() => setQuery(input.trim())} style={styles.searchInput} />
       <Pressable accessibilityLabel="Search" onPress={() => setQuery(input.trim())} style={styles.primaryIcon}><Search size={20} color="#FFFFFF" /></Pressable>
@@ -74,22 +74,22 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
   </SafeAreaView>;
 }
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#FFFFFF" },
+  screen: { flex: 1, backgroundColor: "#F9E8D3" },
   header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 16 },
-  title: { flex: 1, ...typeScale.pageTitle, color: "#2B2B2B" },
+  title: { flex: 1, ...typeScale.pageTitle, color: "#4A403B" },
   backBtn: { width: 36, height: 36, alignItems: "flex-start", justifyContent: "center" },
   searchRow: { flexDirection: "row", gap: 8, paddingHorizontal: 20, marginBottom: 18 },
-  searchInput: { flex: 1, borderWidth: 1, borderColor: "#DADADA", borderRadius: 24, paddingHorizontal: 16, color: "#2B2B2B", minHeight: 48 },
+  searchInput: { flex: 1, backgroundColor: "#FFFFFF", borderRadius: 24, paddingHorizontal: 16, color: "#4A403B", minHeight: 48 },
   primaryIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#F96951", justifyContent: "center", alignItems: "center" },
   list: { paddingHorizontal: 16, paddingBottom: 40 }, columns: { justifyContent: "space-between", gap: 14 },
   card: { flex: 1, maxWidth: "48%", marginBottom: 24 },
-  imageFrame: { width: "100%", aspectRatio: 156 / 206, borderRadius: 14, overflow: "hidden", backgroundColor: "#F5F5F5" },
+  imageFrame: { width: "100%", aspectRatio: 156 / 206, borderRadius: 14, overflow: "hidden", backgroundColor: "#FFFFFF" },
   image: { width: "100%", height: "100%" }, copy: { paddingTop: 8, gap: 4 },
-  name: { ...typeScale.productName, color: "#2B2B2B" },
-  price: { ...typeScale.productPrice, color: "#2B2B2B" },
+  name: { ...typeScale.productName, color: "#4A403B" },
+  price: { ...typeScale.productPrice, color: "#4A403B" },
   houseCard: { flex: 1, maxWidth: "30%", alignItems: "center", marginBottom: 24 },
-  houseLogo: { width: 64, height: 64, borderRadius: 32, borderWidth: 1.5, borderColor: "rgba(69, 51, 50, 0.12)", backgroundColor: "#FBF7EF", alignItems: "center", justifyContent: "center", overflow: "hidden" },
-  initial: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#2B2B2B" },
-  houseName: { ...typeScale.compactLabel, color: "#2B2B2B", textAlign: "center", marginTop: 6, maxWidth: 68 },
-  body: { ...typeScale.body, color: "#2B2B2B", }, notice: { padding: 20 },
+  houseLogo: { width: 64, height: 64, borderRadius: 32, borderWidth: 1.5, borderColor: "rgba(69, 51, 50, 0.12)", backgroundColor: "#F9E8D3", alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  initial: { fontFamily: "InstrumentSans-Regular", fontSize: 22, color: "#4A403B" },
+  houseName: { ...typeScale.compactLabel, color: "#4A403B", textAlign: "center", marginTop: 6, maxWidth: 68 },
+  body: { ...typeScale.body, color: "#4A403B", }, notice: { padding: 20 },
 });

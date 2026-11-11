@@ -89,7 +89,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   imageContainer: {
     width: "100%",
@@ -114,11 +114,11 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 36,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 10,
   },
   subtitle: { ...typeScale.caption,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   buttonsContainer: {
     gap: 12,
@@ -152,14 +152,14 @@ const styles = StyleSheet.create({
   logInText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: 0.2,
   },
   disclaimerText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
     lineHeight: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 16,

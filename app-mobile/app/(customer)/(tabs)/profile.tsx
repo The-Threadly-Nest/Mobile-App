@@ -249,7 +249,7 @@ export default function CustomerProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
       <ScrollView
         className="flex-1"
         contentContainerStyle={[
@@ -262,22 +262,22 @@ export default function CustomerProfileScreen() {
 
         <ProfileMenuGroups>
           {/* Settings */}
-          <Pressable onPress={() => { setIsEditingInfo(true); setShowPersonalInfo(true); }} className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]">
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+          <Pressable onPress={() => { setIsEditingInfo(true); setShowPersonalInfo(true); }} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
+            <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
               <ProfileDesignIcon name="settings" />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
               Profile
             </Text>
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
 
           {/* Measurement */}
           <Pressable
             onPress={() => { setIsMeasurementsModalVisible(true); void loadMeasurements(); }}
-            className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
+            className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
               <MeasurementIcon />
             </View>
             <View className="flex-1">
@@ -288,7 +288,7 @@ export default function CustomerProfileScreen() {
                 {savedSetsCount} saved {savedSetsCount === 1 ? "set" : "sets"}
               </Text>
             </View>
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
 
           {/* My Messages */}
@@ -298,9 +298,9 @@ export default function CustomerProfileScreen() {
               // updates unread counts when the actual conversation is read.
               router.push("/(customer)/messages" as const);
             }}
-            className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
+            className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
               <MessagesIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">My Messages</Text>
@@ -321,30 +321,30 @@ export default function CustomerProfileScreen() {
                 </Text>
               </View>
             )}
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
 
 
           {/* Favorite Houses */}
-          <Pressable onPress={() => setShowSavedItems(true)} className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]">
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+          <Pressable onPress={() => setShowSavedItems(true)} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
+            <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
               <FavoritesIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
               Saved Items
             </Text>
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
 
           {/* Notifications */}
-          <Pressable onPress={() => void Linking.openSettings().catch(() => showAlert("Notification settings", "Open your device settings to manage Owuja notification permissions."))} className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]">
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+          <Pressable onPress={() => void Linking.openSettings().catch(() => showAlert("Notification settings", "Open your device settings to manage Owuja notification permissions."))} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
+            <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
               <NotificationsIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
               Notifications
             </Text>
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
 
           {/* Log Out */}
@@ -353,34 +353,34 @@ export default function CustomerProfileScreen() {
               logout();
               router.replace("/");
             }}
-            className="flex-row items-center p-4 bg-[#F6F6F6] rounded-2xl min-h-[78px]"
+            className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >
-            <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+            <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
               <LogOut size={20} color="#F96951" strokeWidth={1.6} />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
               Log Out
             </Text>
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
         </ProfileMenuGroups>
       </ScrollView>
 
       <Modal visible={showSavedItems} animationType="slide" onRequestClose={() => setShowSavedItems(false)}>
-        <SafeAreaView className="flex-1 bg-white px-6">
+        <SafeAreaView className="flex-1 bg-cream px-6">
           <View className="flex-row items-center justify-between py-5">
             <Text className="font-body text-xl text-black">Saved Items</Text>
             <Pressable accessibilityLabel="Close saved items" onPress={() => setShowSavedItems(false)}><X size={24} color="#453332" /></Pressable>
           </View>
           <ScrollView>
-            {!savedItems.length && <Text className="font-body text-[#646464]">Tap the heart on a catalog item to save it here.</Text>}
-            {savedItems.map(item => <Pressable key={item.id} className="flex-row items-center gap-4 p-4 mb-3 bg-[#F6F6F6] rounded-2xl" onPress={() => {
+            {!savedItems.length && <Text className="font-body text-[#4A403B]">Tap the heart on a catalog item to save it here.</Text>}
+            {savedItems.map(item => <Pressable key={item.id} className="flex-row items-center gap-4 p-4 mb-3 bg-white rounded-2xl" onPress={() => {
               setShowSavedItems(false);
               router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } });
             }}>
               <Image source={{ uri: item.imageUrl }} style={{ width: 60, height: 70, borderRadius: 8 }} />
               <Text className="flex-1 font-body text-black">{item.name}</Text>
-            <ChevronRight size={18} color="#746765" />
+            <ChevronRight size={18} color="#2B2B2B" />
             </Pressable>)}
           </ScrollView>
         </SafeAreaView>
@@ -388,18 +388,18 @@ export default function CustomerProfileScreen() {
       <ProfileSettingsPopup visible={showPersonalInfo} onClose={() => { setShowPersonalInfo(false); setIsEditingInfo(false); }}>
           <KeyboardAwareScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         {/* Contact & Location Details Card */}
-        <View className="bg-[#F6F6F6] rounded-2xl p-4 mb-4">
+        <View className="bg-white rounded-2xl p-4 mb-4">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center flex-1">
-              <View className="w-12 h-12 bg-white rounded-full items-center justify-center mr-3.5">
+              <View className="w-12 h-12 bg-cream rounded-full items-center justify-center mr-3.5">
                 <User size={20} color="#F96951" strokeWidth={1.6} />
               </View>
-              <Text className="font-body text-[15px] text-[#333333]">Personal Info</Text>
+              <Text className="font-body text-[15px] text-[#4A403B]">Personal Info</Text>
             </View>
             {!isEditingInfo ? (
               <Pressable
                 onPress={() => setIsEditingInfo(true)}
-                className="flex-row items-center bg-[#F7F4EC] px-3 py-1.5 rounded-full"
+                className="flex-row items-center bg-white px-3 py-1.5 rounded-full"
               >
                 <Edit2 size={13} color="#453332" style={{ marginRight: 4 }} />
                 <Text className="font-body text-[12px] text-black font-medium">Edit</Text>
@@ -420,8 +420,8 @@ export default function CustomerProfileScreen() {
             <View className="gap-2.5">
               {/* Phone Display */}
               <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-[#FFFFFF] items-center justify-center mr-3">
-                  <Phone size={15} color="#3A2E1A" />
+                <View className="w-8 h-8 rounded-full bg-cream items-center justify-center mr-3">
+                  <Phone size={15} color="#453332" />
                 </View>
                 <View className="flex-1">
                   <Text className="font-body text-[11px] text-black uppercase tracking-wide">Phone Number</Text>
@@ -431,12 +431,12 @@ export default function CustomerProfileScreen() {
                 </View>
               </View>
 
-              <View className="h-[1px] bg-[#F5F1E8]" />
+              <View className="h-[1px] bg-white" />
 
               {/* Location Display */}
               <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-full bg-[#FFFFFF] items-center justify-center mr-3">
-                  <MapPin size={15} color="#3A2E1A" />
+                <View className="w-8 h-8 rounded-full bg-cream items-center justify-center mr-3">
+                  <MapPin size={15} color="#453332" />
                 </View>
                 <View className="flex-1">
                   <Text className="font-body text-[11px] text-black uppercase tracking-wide">Location</Text>
@@ -478,7 +478,7 @@ export default function CustomerProfileScreen() {
                   onChangeText={setTempLocation}
                   placeholder="e.g. Lagos, Nigeria"
                   style={{ height: 46, width: "100%", alignSelf: "stretch" }}
-                  className="bg-[#FFFFFF] border border-[#E5E0D5] rounded-xl px-3.5 text-[14px] text-black font-body"
+                  className="bg-white border border-[#FFFFFF] rounded-xl px-3.5 text-[14px] text-black font-body"
                 />
               </View>
             </View>

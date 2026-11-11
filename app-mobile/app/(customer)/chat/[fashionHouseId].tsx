@@ -506,15 +506,15 @@ export default function BookingChatScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <SafeAreaView className="flex-1 bg-cream" edges={["top"]}>
       {/* Top Header */}
-      <View className="flex-row items-center px-6 py-4 bg-white border-grey100">
+      <View className="flex-row items-center px-6 py-4 bg-white border-oxblood">
         <Pressable
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-full border border-[rgba(0,0,0,0.2)] bg-white items-center justify-center mr-3"
+          className="w-10 h-10 rounded-full border border-[rgba(43, 43, 43,0.2)] bg-cream items-center justify-center mr-3"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={24} color="#000000" />
+          <BackArrowIcon size={24} color="#2B2B2B" />
         </Pressable>
 
         <View className="w-10 h-10 rounded-full bg-oxblood items-center justify-center mr-3">
@@ -527,7 +527,7 @@ export default function BookingChatScreen() {
           <Text className="font-body-semibold text-[17px] text-oxblood">
             {fashionHouseName}
           </Text>
-          <Text className="font-body text-[13px] text-grey700">
+          <Text className="font-body text-[13px] text-charcoal">
             {escalatedToHuman ? "Human Support Mode" : "Booking Assistant"}
           </Text>
         </View>
@@ -536,7 +536,7 @@ export default function BookingChatScreen() {
           <Pressable
             onPress={handleManualEscalation}
             disabled={requestingHuman}
-            className="px-3 py-1.5 rounded-full bg-[#EBE0D3] border border-tomato"
+            className="px-3 py-1.5 rounded-full bg-white border border-tomato"
             style={{ opacity: requestingHuman ? 0.5 : 1 }}
           >
             <Text className="font-body-medium text-[11px] text-oxblood">
@@ -571,11 +571,11 @@ export default function BookingChatScreen() {
               if (isSessionEnded) {
                 return (
                   <View key={index} style={{ flexDirection: "row", alignItems: "center", marginVertical: 24, paddingHorizontal: 12 }}>
-                    <View style={{ display: "none", flex: 1, height: 1, backgroundColor: "#C4A763" }} />
+                    <View style={{ display: "none", flex: 1, height: 1, backgroundColor: "#453332" }} />
                     <Text style={{ marginHorizontal: 16, fontFamily: "InstrumentSans-Regular", fontSize: 12, color: "#453332", letterSpacing: 2, textTransform: "uppercase" }}>
                       ENDED
                     </Text>
-                    <View style={{ display: "none", flex: 1, height: 1, backgroundColor: "#C4A763" }} />
+                    <View style={{ display: "none", flex: 1, height: 1, backgroundColor: "#453332" }} />
                   </View>
                 );
               }
@@ -584,7 +584,7 @@ export default function BookingChatScreen() {
               return (
                 <View key={index} className="w-full">
                   {!isUser && (
-                    <Text className="font-body-medium text-[13px] text-[#C4A763] mb-1">
+                    <Text className="font-body-medium text-[13px] text-[#453332] mb-1">
                       Booking Assistant
                     </Text>
                   )}
@@ -598,7 +598,7 @@ export default function BookingChatScreen() {
                       },
                       isUser
                         ? {
-                            backgroundColor: "rgba(74, 8, 12, 0.25)",
+                            backgroundColor: "rgba(69, 51, 50, 0.25)",
                             alignSelf: "flex-end",
                             borderBottomRightRadius: 4,
                           }
@@ -691,7 +691,7 @@ export default function BookingChatScreen() {
 
           {sending && (
             <View className="items-start max-w-[85%]">
-              <Text className="font-body-medium text-[12px] text-gold mb-1">
+              <Text className="font-body-medium text-[12px] text-charcoal mb-1">
                 {fashionHouseName} Assistant
               </Text>
               <View className="bg-oxblood rounded-t-[16px] rounded-r-[16px] rounded-bl-[4px] px-6 py-4">
@@ -744,7 +744,7 @@ export default function BookingChatScreen() {
                 value={draft}
                 onChangeText={setDraft}
                 placeholder="Type a message..."
-                placeholderTextColor="rgba(74, 8, 12, 0.7)"
+                placeholderTextColor="rgba(69, 51, 50, 0.7)"
                 className="flex-1 bg-white border border-oxblood rounded-full px-5 py-3 font-body text-[14px] text-oxblood"
                 onSubmitEditing={() => handleSend()}
                 returnKeyType="send"

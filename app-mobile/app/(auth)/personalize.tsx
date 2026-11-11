@@ -275,7 +275,7 @@ export default function PersonalizeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   progressBarTrack: {
     width: "100%",
     height: 4,
-    backgroundColor: "rgba(74, 8, 12, 0.15)",
+    backgroundColor: "rgba(69, 51, 50, 0.15)",
     borderRadius: 2,
     marginTop: 36,
     marginBottom: 24,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 12,
     textTransform: "uppercase",
   },
@@ -308,27 +308,27 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 30,
     lineHeight: 36,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   subtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 15,
     lineHeight: 22,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 32,
   },
   section: {
     marginBottom: 28,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   sectionSubtitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 16,
   },
   pillsWrapContainer: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   },
   pillUnselected: {
     backgroundColor: "transparent",
-    borderColor: "rgba(74, 8, 12, 0.35)",
+    borderColor: "rgba(69, 51, 50, 0.35)",
   },
   pillSelected: {
     backgroundColor: "#F96951",
@@ -362,14 +362,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   pillTextUnselected: {
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   pillTextSelected: {
     color: "#FFFFFF",
   },
   budgetSegmentContainer: {
     flexDirection: "row",
-    backgroundColor: "#E4E1DB",
+    backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 4,
     height: 60,
@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   budgetTextUnselected: {
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   budgetTextSelected: {
     color: "#FFFFFF",
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
     height: 63,
     borderRadius: 31.5,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.4)",
+    borderColor: "rgba(69, 51, 50, 0.4)",
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   skipBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: 0.2,
   },
 });

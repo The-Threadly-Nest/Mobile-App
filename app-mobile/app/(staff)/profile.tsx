@@ -40,7 +40,7 @@ export default function StaffProfileScreen() {
           <Text style={styles.sectionHeader}>ACCOUNT INFORMATION</Text>
 
           <View style={styles.infoRow}>
-            <Building size={18} color="#8A7550" />
+            <Building size={18} color="#453332" />
             <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Fashion House</Text>
               <Text style={styles.infoValue}>{shopName}</Text>
@@ -50,7 +50,7 @@ export default function StaffProfileScreen() {
           <View style={styles.divider} />
 
           <View style={styles.infoRow}>
-            <Mail size={18} color="#8A7550" />
+            <Mail size={18} color="#453332" />
             <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Email Address</Text>
               <Text style={styles.infoValue}>{email}</Text>
@@ -60,7 +60,7 @@ export default function StaffProfileScreen() {
           <View style={styles.divider} />
 
           <View style={styles.infoRow}>
-            <ShieldCheck size={18} color="#8A7550" />
+            <ShieldCheck size={18} color="#453332" />
             <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Account Status</Text>
               <Text style={styles.infoValue}>Active & Verified</Text>
@@ -76,7 +76,7 @@ export default function StaffProfileScreen() {
             { opacity: pressed ? 0.85 : 1 },
           ]}
         >
-          <LogOut size={18} color="#DC2626" />
+          <LogOut size={18} color="#F96951" />
           <Text style={styles.logoutBtnText}>Log Out</Text>
         </Pressable>
       </ScrollView>
@@ -87,7 +87,7 @@ export default function StaffProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   pageTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 20,
   },
   profileCard: {
@@ -105,8 +105,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
-    shadowColor: "#000",
+    borderColor: "rgba(69, 51, 50, 0.5)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -129,11 +129,11 @@ const styles = StyleSheet.create({
   userName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   roleBadge: {
-    backgroundColor: "#F4EFE6",
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 11,
     letterSpacing: 0.8,
-    color: "#C4A763",
+    color: "#453332",
   },
   infoCard: {
     backgroundColor: "#FFFFFF",
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
-    shadowColor: "#000",
+    borderColor: "rgba(69, 51, 50, 0.5)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: { ...typeScale.sectionTitle,
     letterSpacing: 1,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 16,
   },
   infoRow: {
@@ -173,17 +173,17 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   infoValue: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   divider: { display: "none",
     height: 1,
-    backgroundColor: "#F4EFE6",
+    backgroundColor: "#FFFFFF",
     marginVertical: 14,
   },
   logoutBtn: {
@@ -195,11 +195,11 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     backgroundColor: "#FFFFFF",
     borderWidth: 1.5,
-    borderColor: "rgba(220, 38, 38, 0.3)",
+    borderColor: "rgba(69, 51, 50, 0.3)",
   },
   logoutBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#DC2626",
+    color: "#F96951",
   },
 });

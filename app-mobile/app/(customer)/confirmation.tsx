@@ -36,11 +36,11 @@ export default function BookingConfirmationScreen() {
 
   if (!hasSavedBooking) {
     return (
-      <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top", "bottom"]}>
-        <View className="flex-row items-center px-6 py-3 bg-[#FFFFFF]">
+      <SafeAreaView className="flex-1 bg-cream" edges={["top", "bottom"]}>
+        <View className="flex-row items-center px-6 py-3 bg-cream">
           <Pressable
             onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-            className="w-10 h-10 rounded-full border border-[#E4D5B7] bg-white items-center justify-center mr-4"
+            className="w-10 h-10 rounded-full border border-[#FFFFFF] bg-cream items-center justify-center mr-4"
             style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
           >
             <BackArrowIcon size={24} color="#453332" />
@@ -70,15 +70,15 @@ export default function BookingConfirmationScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFFFFF]" edges={["top", "bottom"]}>
+    <SafeAreaView className="flex-1 bg-cream" edges={["top", "bottom"]}>
       {/* Top Header */}
-      <View className="flex-row items-center px-6 py-3 bg-[#FFFFFF]">
+      <View className="flex-row items-center px-6 py-3 bg-cream">
         <Pressable
           onPress={() => router.replace("/(customer)/(tabs)/browse" as any)}
-          className="w-10 h-10 rounded-full border border-[#D1D1D1] bg-white items-center justify-center mr-4"
+          className="w-10 h-10 rounded-full border border-[#FFFFFF] bg-cream items-center justify-center mr-4"
           style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
         >
-          <BackArrowIcon size={24} color="#000000" />
+          <BackArrowIcon size={24} color="#2B2B2B" />
         </Pressable>
         <Text className="font-display text-[20px] font-bold text-black">
           Confirmation
@@ -93,12 +93,12 @@ export default function BookingConfirmationScreen() {
         {/* Hero Success Icon & Message */}
         <View className="items-center mt-0 mb-2">
           <View className="w-12 h-12 rounded-full bg-[#453332] items-center justify-center mb-3">
-            <Check size={30} color="#C4A763" strokeWidth={3} />
+              <Check size={30} color="#FFFFFF" strokeWidth={3} />
           </View>
           <Text className="font-display text-[24px] font-semibold text-black mb-1.5 text-center">
             Booking Request Received
           </Text>
-          <Text className="font-body text-[14px] font-normal text-[#646464] text-center">
+          <Text className="font-body text-[14px] font-normal text-[#4A403B] text-center">
             Your selected fitting time is held while {fashionHouseName} reviews your request.
           </Text>
         </View>
@@ -106,7 +106,7 @@ export default function BookingConfirmationScreen() {
         {/* Card 1 — Booking Summary (376x184px SVG Spec) */}
         <View className="w-full max-w-[376px] h-[184px] self-center bg-white rounded-[24px] px-6 py-5 shadow-sm justify-between">
           <View className="flex-row items-center justify-between">
-            <Text className="font-body text-[14px] text-[#646464]">
+            <Text className="font-body text-[14px] text-[#4A403B]">
               Fashion House
             </Text>
             <Text className="font-body-semibold text-[14px] text-black">
@@ -115,14 +115,14 @@ export default function BookingConfirmationScreen() {
           </View>
 
           <View className="flex-row items-center justify-between">
-            <Text className="font-body text-[14px] text-[#646464]">Garment</Text>
+            <Text className="font-body text-[14px] text-[#4A403B]">Garment</Text>
             <Text className="font-body-semibold text-[14px] text-black">
               {garment}
             </Text>
           </View>
 
           <View className="flex-row items-center justify-between">
-            <Text className="font-body text-[14px] text-[#646464]">
+            <Text className="font-body text-[14px] text-[#4A403B]">
               Fitting Date
             </Text>
             <Text className="font-body-semibold text-[14px] text-black">
@@ -131,7 +131,7 @@ export default function BookingConfirmationScreen() {
           </View>
 
           <View className="flex-row items-center justify-between">
-            <Text className="font-body text-[14px] text-[#646464]">Estimate</Text>
+            <Text className="font-body text-[14px] text-[#4A403B]">Estimate</Text>
             <Text className="font-body-semibold text-[14px] text-black">
               {estimate}
             </Text>
@@ -145,7 +145,7 @@ export default function BookingConfirmationScreen() {
           </Text>
 
           <View className="flex-row items-start gap-3.5">
-            <View className="w-8 h-8 rounded-full bg-[#D5C4C6] items-center justify-center">
+            <View className="w-8 h-8 rounded-full bg-cream items-center justify-center">
               <Text className="font-body-bold text-[14px] text-black">1</Text>
             </View>
             <Text className="font-body text-[14px] text-black flex-1 leading-[20px] pt-1">
@@ -154,7 +154,7 @@ export default function BookingConfirmationScreen() {
           </View>
 
           <View className="flex-row items-start gap-3.5">
-            <View className="w-8 h-8 rounded-full bg-[#D5C4C6] items-center justify-center">
+            <View className="w-8 h-8 rounded-full bg-cream items-center justify-center">
               <Text className="font-body-bold text-[14px] text-black">2</Text>
             </View>
             <Text className="font-body text-[14px] text-black flex-1 leading-[20px] pt-1">
@@ -163,7 +163,7 @@ export default function BookingConfirmationScreen() {
           </View>
 
           <View className="flex-row items-start gap-3.5">
-            <View className="w-8 h-8 rounded-full bg-[#D5C4C6] items-center justify-center">
+            <View className="w-8 h-8 rounded-full bg-cream items-center justify-center">
               <Text className="font-body-bold text-[14px] text-black">3</Text>
             </View>
             <Text className="font-body text-[14px] text-black flex-1 leading-[20px] pt-1">
@@ -180,8 +180,8 @@ export default function BookingConfirmationScreen() {
           <Switch
             value={isFavourite}
             onValueChange={setIsFavourite}
-            trackColor={{ false: "#E4D5B7", true: "#453332" }}
-            thumbColor={isFavourite ? "#FFFFFF" : "#F4F3F4"}
+            trackColor={{ false: "#FFFFFF", true: "#453332" }}
+            thumbColor={isFavourite ? "#FFFFFF" : "#FFFFFF"}
           />
         </View>
 

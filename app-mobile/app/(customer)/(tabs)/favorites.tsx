@@ -47,7 +47,7 @@ export default function FavoritesScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: "#F9E8D3" }}>
       <ScrollView
         contentContainerStyle={{
           paddingHorizontal: 24,
@@ -61,7 +61,7 @@ export default function FavoritesScreen() {
           accessibilityRole="header"
           style={{
             ...typeScale.pageTitle,
-            color: "#2B2B2B",
+            color: "#4A403B",
             textAlign: "left",
             alignSelf: "flex-start",
             marginBottom: 16,
@@ -69,16 +69,16 @@ export default function FavoritesScreen() {
         >
           Favorites
         </Text>
-        {error ? <Pressable onPress={() => { void load(); }}><Text style={{ color: "#9F1239" }}>{error} Tap to retry.</Text></Pressable> : null}
+        {error ? <Pressable onPress={() => { void load(); }}><Text style={{ color: "#F96951" }}>{error} Tap to retry.</Text></Pressable> : null}
         {loading ? <ActivityIndicator color="#453332" /> : !items.length && !error ? <View style={{ alignItems: "center", paddingVertical: 40, gap: 16 }}>
           <Heart size={36} color="#F96951" />
-          <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#646464", textAlign: "center" }}>Save items with the heart in Discover to find them here.</Text>
+          <Text style={{ fontFamily: "InstrumentSans-Regular", color: "#4A403B", textAlign: "center" }}>Save items with the heart in Discover to find them here.</Text>
         </View> : null}
-        {items.map(item => <View key={item.id} style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#F6F6F6", borderRadius: 15, padding: 14, gap: 12 }}>
+        {items.map(item => <View key={item.id} style={{ flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 15, padding: 14, gap: 12 }}>
           <Pressable onPress={() => router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } })}
             accessibilityRole="button" accessibilityLabel={`View ${item.name}`} style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 14 }}>
             <Image source={{ uri: item.imageUrl }} style={{ width: 64, height: 78, borderRadius: 10 }} resizeMode="cover" />
-            <Text style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#2B2B2B" }}>{item.name}</Text>
+            <Text style={{ flex: 1, fontFamily: "InstrumentSans-Regular", fontSize: 16, color: "#4A403B" }}>{item.name}</Text>
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${item.name} from favorites`} disabled={saving}
             onPress={() => { void remove(item.id); }} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center", opacity: saving ? 0.5 : 1 }}>

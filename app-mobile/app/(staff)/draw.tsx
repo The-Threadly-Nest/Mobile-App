@@ -308,15 +308,15 @@ export default function StaffDrawScreen() {
 
         {bgGuide === "croquis" && (
           <G opacity={0.35}>
-            <Circle cx={1000} cy={140} r={44} stroke="#8A7550" strokeWidth="3" fill="none" />
-            <Path d="M 990 190 L 990 240 M 1010 190 L 1010 240" stroke="#8A7550" strokeWidth="3" />
-            <Path d="M 870 270 C 930 240, 1070 240, 1130 270" stroke="#8A7550" strokeWidth="3.5" fill="none" />
-            <Path d="M 870 270 C 850 370, 920 460, 950 510" stroke="#8A7550" strokeWidth="3" fill="none" />
-            <Path d="M 1130 270 C 1150 370, 1080 460, 1050 510" stroke="#8A7550" strokeWidth="3" fill="none" />
-            <Path d="M 950 510 C 980 520, 1020 520, 1050 510" stroke="#8A7550" strokeWidth="3.5" fill="none" />
-            <Path d="M 950 510 C 920 630, 910 750, 940 920" stroke="#8A7550" strokeWidth="3" fill="none" />
-            <Path d="M 1050 510 C 1080 630, 1090 750, 1060 920" stroke="#8A7550" strokeWidth="3" fill="none" />
-            <Path d="M 1000 80 L 1000 950" stroke="#C4A763" strokeWidth="2" strokeDasharray="10 10" />
+            <Circle cx={1000} cy={140} r={44} stroke="#453332" strokeWidth="3" fill="none" />
+            <Path d="M 990 190 L 990 240 M 1010 190 L 1010 240" stroke="#453332" strokeWidth="3" />
+            <Path d="M 870 270 C 930 240, 1070 240, 1130 270" stroke="#453332" strokeWidth="3.5" fill="none" />
+            <Path d="M 870 270 C 850 370, 920 460, 950 510" stroke="#453332" strokeWidth="3" fill="none" />
+            <Path d="M 1130 270 C 1150 370, 1080 460, 1050 510" stroke="#453332" strokeWidth="3" fill="none" />
+            <Path d="M 950 510 C 980 520, 1020 520, 1050 510" stroke="#453332" strokeWidth="3.5" fill="none" />
+            <Path d="M 950 510 C 920 630, 910 750, 940 920" stroke="#453332" strokeWidth="3" fill="none" />
+            <Path d="M 1050 510 C 1080 630, 1090 750, 1060 920" stroke="#453332" strokeWidth="3" fill="none" />
+            <Path d="M 1000 80 L 1000 950" stroke="#453332" strokeWidth="2" strokeDasharray="10 10" />
           </G>
         )}
 
@@ -327,7 +327,7 @@ export default function StaffDrawScreen() {
               (_, i) => Math.floor(virtualViewBoxX / 100) * 100 + i * 100
             ).map((x) =>
               [100, 200, 300, 400, 500, 600, 700, 800, 900].map((y) => (
-                <Circle key={`${x}-${y}`} cx={x} cy={y} r={4} fill="#8A7550" />
+                <Circle key={`${x}-${y}`} cx={x} cy={y} r={4} fill="#453332" />
               ))
             )}
           </G>
@@ -419,7 +419,7 @@ export default function StaffDrawScreen() {
                     {isEraser ? (
                       <Eraser size={12} color="#453332" />
                     ) : isSelected ? (
-                      <Check size={12} color={c === "#C4A763" ? "#453332" : "#FFF"} />
+                      <Check size={12} color={c === "#453332" ? "#453332" : "#FFFFFF"} />
                     ) : null}
                   </Pressable>
                 );
@@ -440,7 +440,7 @@ export default function StaffDrawScreen() {
                     onPress={() => { setSelectedWidth(w.value); setActivePanel(null); }}
                     style={[styles.panelBtn, isActive && styles.panelBtnActive]}
                   >
-                    <Pen size={penSize} color={isActive ? "#FFF" : "#453332"} />
+                    <Pen size={penSize} color={isActive ? "#FFFFFF" : "#453332"} />
                   </Pressable>
                 );
               })}
@@ -452,9 +452,9 @@ export default function StaffDrawScreen() {
           <View style={[styles.floatPanel, { left: panelLeft }]}>
             <View style={styles.floatPanelCol}>
               {([
-                { key: "croquis" as const, icon: <User size={15} color={bgGuide === "croquis" ? "#FFF" : "#453332"} /> },
-                { key: "grid" as const, icon: <Grid size={15} color={bgGuide === "grid" ? "#FFF" : "#453332"} /> },
-                { key: "blank" as const, icon: <Text style={[styles.panelBtnLabel, bgGuide === "blank" && { color: "#FFF" }]}>—</Text> },
+                { key: "croquis" as const, icon: <User size={15} color={bgGuide === "croquis" ? "#FFFFFF" : "#453332"} /> },
+                { key: "grid" as const, icon: <Grid size={15} color={bgGuide === "grid" ? "#FFFFFF" : "#453332"} /> },
+                { key: "blank" as const, icon: <Text style={[styles.panelBtnLabel, bgGuide === "blank" && { color: "#FFFFFF" }]}>—</Text> },
               ]).map(({ key, icon }) => (
                 <Pressable
                   key={key}
@@ -488,14 +488,14 @@ export default function StaffDrawScreen() {
               onPress={() => togglePanel("color")}
               style={[
                 styles.floatBtn,
-                { backgroundColor: selectedColor === "#FFFFFF" ? "#E4D5B7" : selectedColor },
+                { backgroundColor: selectedColor === "#FFFFFF" ? "#FFFFFF" : selectedColor },
                 activePanel === "color" && styles.floatBtnRing,
               ]}
             >
               {selectedColor === "#FFFFFF" ? (
                 <Eraser size={13} color="#453332" />
               ) : (
-                <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.55)", borderWidth: 1.5, borderColor: "rgba(255,255,255,0.9)" }} />
+                <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: "rgba(255, 255, 255,0.55)", borderWidth: 1.5, borderColor: "rgba(255, 255, 255,0.9)" }} />
               )}
             </Pressable>
 
@@ -505,7 +505,7 @@ export default function StaffDrawScreen() {
             >
               <Pen
                 size={selectedWidth === 2 ? 12 : selectedWidth === 5 ? 16 : 20}
-                color={activePanel === "width" ? "#FFF" : "#453332"}
+                color={activePanel === "width" ? "#FFFFFF" : "#453332"}
               />
             </Pressable>
 
@@ -514,11 +514,11 @@ export default function StaffDrawScreen() {
               style={[styles.floatBtn, activePanel === "guide" && styles.floatBtnActive]}
             >
               {bgGuide === "croquis" ? (
-                <User size={14} color={activePanel === "guide" ? "#FFF" : "#453332"} />
+                <User size={14} color={activePanel === "guide" ? "#FFFFFF" : "#453332"} />
               ) : bgGuide === "grid" ? (
-                <Grid size={14} color={activePanel === "guide" ? "#FFF" : "#453332"} />
+                <Grid size={14} color={activePanel === "guide" ? "#FFFFFF" : "#453332"} />
               ) : (
-                <Text style={[styles.panelBtnLabel, activePanel === "guide" && { color: "#FFF" }]}>—</Text>
+                <Text style={[styles.panelBtnLabel, activePanel === "guide" && { color: "#FFFFFF" }]}>—</Text>
               )}
             </Pressable>
 
@@ -529,7 +529,7 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0}
               style={[styles.floatBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <Undo2 size={14} color={paths.length > 0 ? "#453332" : "#C4A763"} />
+              <Undo2 size={14} color={paths.length > 0 ? "#453332" : "#453332"} />
             </Pressable>
 
             <Pressable
@@ -537,7 +537,7 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0}
               style={[styles.floatBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <RotateCcw size={14} color={paths.length > 0 ? "#453332" : "#C4A763"} />
+              <RotateCcw size={14} color={paths.length > 0 ? "#453332" : "#453332"} />
             </Pressable>
 
             <View style={styles.floatDivider} />
@@ -547,7 +547,7 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0 || saving}
               style={[styles.floatBtn, styles.floatBtnSave, (paths.length === 0 || saving) && styles.disabledBtn]}
             >
-              <Check size={14} color="#FFF" />
+              <Check size={14} color="#FFFFFF" />
             </Pressable>
           </View>
         </View>
@@ -563,7 +563,7 @@ export default function StaffDrawScreen() {
             onPress={() => router.back()}
             style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
           >
-            <BackArrowIcon size={24} color="#000000" />
+            <BackArrowIcon size={24} color="#2B2B2B" />
           </Pressable>
           <Text style={styles.headerTitle}>Sketchpad</Text>
         </View>
@@ -677,14 +677,14 @@ export default function StaffDrawScreen() {
               disabled={paths.length === 0}
               style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <Undo2 size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
+              <Undo2 size={16} color={paths.length > 0 ? "#453332" : "#453332"} />
             </Pressable>
             <Pressable
               onPress={handleClear}
               disabled={paths.length === 0}
               style={[styles.toolIconBtn, paths.length === 0 && styles.disabledBtn]}
             >
-              <RotateCcw size={16} color={paths.length > 0 ? "#453332" : "#A6926B"} />
+              <RotateCcw size={16} color={paths.length > 0 ? "#453332" : "#453332"} />
             </Pressable>
           </View>
 
@@ -724,7 +724,7 @@ export default function StaffDrawScreen() {
                 ) : isSelected ? (
                   <Check
                     size={14}
-                    color={c === "#FFFFFF" || c === "#C4A763" ? "#453332" : "#FFFFFF"}
+                    color={c === "#FFFFFF" || c === "#453332" ? "#453332" : "#FFFFFF"}
                   />
                 ) : null}
               </Pressable>
@@ -744,7 +744,7 @@ export default function StaffDrawScreen() {
               style={[styles.chip, title === chip ? styles.chipActive : styles.chipInactive]}
             >
               <Text
-                style={[styles.chipText, title === chip ? { color: "#FFFFFF" } : { color: "#2B2B2B" }]}
+                style={[styles.chipText, title === chip ? { color: "#FFFFFF" } : { color: "#4A403B" }]}
               >
                 + {chip}
               </Text>
@@ -774,7 +774,7 @@ export default function StaffDrawScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#FFFFFF" },
+  safeArea: { flex: 1, backgroundColor: "#F9E8D3" },
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -788,16 +788,16 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.15)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50,0.15)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { ...typeScale.pageTitle, color: "#2B2B2B" },
+  headerTitle: { ...typeScale.pageTitle, color: "#4A403B" },
   guideToggleRow: {
     flexDirection: "row",
     gap: 4,
-    backgroundColor: "#E4D5B7",
+    backgroundColor: "#FFFFFF",
     padding: 3,
     borderRadius: 14,
   },
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   guideBtnActive: { backgroundColor: "#F96951" },
-  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#2B2B2B" },
+  guideBtnText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 10, color: "#4A403B" },
   portraitCanvasWrapper: { alignItems: "center", paddingTop: 8 },
   portraitToolsScroll: { flex: 1, paddingHorizontal: 16 },
   toolsContent: { paddingBottom: 20 },
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
   },
   centeredModalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    backgroundColor: "rgba(43, 43, 43, 0.45)",
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
@@ -837,8 +837,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -849,8 +849,8 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
-    backgroundColor: "#FFFFFF",
+    borderColor: "#453332",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -866,7 +866,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -877,12 +877,12 @@ const styles = StyleSheet.create({
   },
   chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
   chipActive: { backgroundColor: "#F96951" },
-  chipInactive: { backgroundColor: "#E4D5B7" },
+  chipInactive: { backgroundColor: "#FFFFFF" },
   chipText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11 },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#D32F2F",
+    color: "#F96951",
     marginTop: 4,
     marginBottom: 4,
   },
@@ -890,9 +890,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     borderWidth: 1.5,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -907,20 +907,20 @@ const styles = StyleSheet.create({
   landscapeRoot: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   landscapeErrorBanner: {
     position: "absolute",
     alignSelf: "center",
-    backgroundColor: "#FEE2E2",
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#EF4444",
+    borderColor: "#453332",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,
     maxWidth: "60%",
     zIndex: 40,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
@@ -929,7 +929,7 @@ const styles = StyleSheet.create({
   landscapeErrorText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#B91C1C",
+    color: "#F96951",
     textAlign: "center",
   },
   pillCenterWrapper: {
@@ -945,25 +945,25 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: "rgba(255, 255, 255,0.95)",
     borderRadius: 28,
     paddingHorizontal: 6,
     paddingVertical: 10,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 2, height: 4 },
     shadowOpacity: 0.16,
     shadowRadius: 12,
     elevation: 8,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.07)",
+    borderColor: "rgba(69, 51, 50,0.07)",
   },
   floatBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: "#F5EFE3",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -982,24 +982,24 @@ const styles = StyleSheet.create({
   floatDivider: { display: "none",
     width: 28,
     height: 1,
-    backgroundColor: "#E4D5B7",
+    backgroundColor: "#FFFFFF",
     marginVertical: 1,
   },
   floatPanel: {
     position: "absolute",
     top: "25%",
-    backgroundColor: "rgba(255,255,255,0.97)",
+    backgroundColor: "rgba(255, 255, 255,0.97)",
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 10,
     zIndex: 25,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 2, height: 0 },
     shadowOpacity: 0.14,
     shadowRadius: 10,
     elevation: 10,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.07)",
+    borderColor: "rgba(69, 51, 50,0.07)",
   },
   floatPanelCol: {
     flexDirection: "column",
@@ -1010,9 +1010,9 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "#F5EFE3",
+    backgroundColor: "#F9E8D3",
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1023,14 +1023,14 @@ const styles = StyleSheet.create({
   panelBtnLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   panelColorSwatch: {
     width: 32,
     height: 32,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E4D5B7",
+    borderColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },

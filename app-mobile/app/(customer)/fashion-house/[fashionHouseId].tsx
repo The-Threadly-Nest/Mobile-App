@@ -17,8 +17,8 @@ function renderStars(rating: number) {
     <Star
       key={i}
       size={14}
-      color="#E5A817"
-      fill={i < Math.floor(rating) ? "#E5A817" : "transparent"}
+      color="#453332"
+      fill={i < Math.floor(rating) ? "#453332" : "transparent"}
       style={{ marginRight: 2 }}
     />
   ));
@@ -203,7 +203,7 @@ export default function FashionHouseScreen() {
               contentPosition="top center"
             />
           ) : (
-            <View style={[styles.heroImage, { backgroundColor: "#D8CDBD" }]} />
+            <View style={[styles.heroImage, { backgroundColor: "#FFFFFF" }]} />
           )}
 
           {/* Floating Top Nav (Back Arrow < and More Options) */}
@@ -313,7 +313,7 @@ export default function FashionHouseScreen() {
             </View>
           ) : fhData ? (
             <View style={styles.emptyCatalogCard}>
-              <Store size={24} color="#8A7550" style={{ marginBottom: 6 }} />
+              <Store size={24} color="#453332" style={{ marginBottom: 6 }} />
               <Text style={styles.emptyCatalogTitle}>No catalog items listed yet</Text>
               <Text style={styles.emptyCatalogSubtext}>
                 You can still book a fitting appointment directly with {displayName}!
@@ -342,7 +342,7 @@ export default function FashionHouseScreen() {
               <View
                 key={i}
                 style={{
-                  backgroundColor: "#EBE7E1",
+                  backgroundColor: "#FFFFFF",
                   borderRadius: 14,
                   padding: 14,
                   marginBottom: 10,
@@ -350,13 +350,13 @@ export default function FashionHouseScreen() {
               >
                 <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 8 }}>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#000000", alignItems: "center", justifyContent: "center" }}>
+                    <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: "#2B2B2B", alignItems: "center", justifyContent: "center" }}>
                       <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFFFF" }}>
                         {review.name.charAt(0).toUpperCase()}
                       </Text>
                     </View>
                     <View>
-                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#2B2B2B" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#4A403B" }}>
                         {review.name}
                       </Text>
                       <View style={{ flexDirection: "row", gap: 2, marginTop: 2 }}>
@@ -365,12 +365,12 @@ export default function FashionHouseScreen() {
                     </View>
                   </View>
                   {review.date ? (
-                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#746765" }}>
+                    <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 11, color: "#4A403B" }}>
                       {review.date}
                     </Text>
                   ) : null}
                 </View>
-                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 19, color: "#2B2B2B" }}>
+                <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 19, color: "#4A403B" }}>
                   {review.text}
                 </Text>
               </View>
@@ -399,12 +399,12 @@ export default function FashionHouseScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   heroContainer: {
     width: "100%",
     position: "relative",
-    backgroundColor: "#2C2C2C",
+    backgroundColor: "#2B2B2B",
   },
   heroImage: {
     width: "100%",
@@ -423,12 +423,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.35)",
+    backgroundColor: "rgba(43, 43, 43, 0.35)",
     alignItems: "center",
     justifyContent: "center",
   },
   sheetCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     marginTop: -26,
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#DCDCDC",
+    backgroundColor: "#FFFFFF",
     alignSelf: "center",
     marginBottom: 16,
   },
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   displayName: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   heroRatingRow: {
@@ -461,20 +461,20 @@ const styles = StyleSheet.create({
   heroRatingScore: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   heroRatingDot: {
-    color: "#8A7550",
+    color: "#453332",
     fontSize: 13,
   },
   heroOrdersCount: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#746765",
+    color: "#4A403B",
   },
   statsCard: {
     flexDirection: "row",
-    backgroundColor: "#FBF7EF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     paddingVertical: 18,
     marginTop: 14,
@@ -490,14 +490,14 @@ const styles = StyleSheet.create({
   statValue: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
     textAlign: "center",
   },
   statLabel: {
     fontFamily: "InstrumentSans-Bold",
     fontSize: 10,
-    color: "#8A7550",
+    color: "#453332",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
@@ -516,18 +516,18 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: { ...typeScale.sectionTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     letterSpacing: 1.2,
   },
   viewAllText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   aboutText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     lineHeight: 22,
   },
   portfolioGrid: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#F0EBE1",
+    borderColor: "#453332",
   },
   catalogImage: {
     width: "100%",
@@ -562,12 +562,12 @@ const styles = StyleSheet.create({
   catalogTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   catalogPrice: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 2,
   },
   emptyCatalogCard: {
@@ -577,18 +577,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#EBE0D3",
+    borderColor: "#453332",
   },
   emptyCatalogTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   emptyCatalogSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textAlign: "center",
   },
   reviewsCard: {
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 16,
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
@@ -608,7 +608,7 @@ const styles = StyleSheet.create({
   },
   reviewDashedDivider: { display: "none",
     borderBottomWidth: 1,
-    borderBottomColor: "#C8BFB0",
+    borderBottomColor: "#453332",
     borderStyle: "dashed",
     marginVertical: 2,
   },
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
   reviewName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   reviewStars: {
     flexDirection: "row",
@@ -629,20 +629,20 @@ const styles = StyleSheet.create({
   reviewText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     lineHeight: 20,
   },
   seeAllBtn: {
     marginTop: 8,
     paddingVertical: 14,
-    backgroundColor: "#E8E1D5",
+    backgroundColor: "#FFFFFF",
     borderRadius: 50,
     alignItems: "center",
   },
   seeAllText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   bookingBtn: {
     backgroundColor: "#F96951",

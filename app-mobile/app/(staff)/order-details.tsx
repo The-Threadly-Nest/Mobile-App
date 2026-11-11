@@ -132,7 +132,7 @@ export default function StaffOrderDetailScreen() {
               onPress={() => Linking.openURL(`tel:${customerPhone}`)}
               style={styles.phoneRow}
             >
-              <Phone size={15} color="#8A7550" />
+              <Phone size={15} color="#453332" />
               <Text style={styles.phoneText}>{customerPhone}</Text>
             </Pressable>
           ) : null}
@@ -193,7 +193,7 @@ export default function StaffOrderDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1, backgroundColor: "#F9E8D3" },
   headerBar: {
     height: 52,
     paddingHorizontal: 20,
@@ -201,17 +201,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 0,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    borderBottomColor: "rgba(69, 51, 50,0.05)",
   },
   headerBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitleText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#2B2B2B" },
+  headerTitleText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 17, color: "#4A403B" },
   scrollContent: { paddingHorizontal: 20, paddingVertical: 20, paddingBottom: 40 },
   heroCard: {
     flexDirection: "row",
@@ -232,24 +232,24 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#FFFFFF" },
   heroInfoCol: { flex: 1 },
-  customerNameText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#2B2B2B" },
-  orderNumberText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B", marginTop: 2 },
+  customerNameText: { fontFamily: "InstrumentSans-Bold", fontSize: 18, color: "#4A403B" },
+  orderNumberText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B", marginTop: 2 },
   card: { backgroundColor: "#FFFFFF", borderRadius: 20, padding: 18, marginBottom: 16 },
   cardHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
-  cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#2B2B2B" },
+  cardHeadline: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#4A403B" },
   statusBadge: { backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#453332", paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
-  statusBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#2B2B2B" },
-  progressTrack: { height: 8, backgroundColor: "rgba(0,0,0,0.06)", borderRadius: 4, overflow: "hidden", marginBottom: 6 },
-  progressFill: { height: "100%", backgroundColor: "#C4A763", borderRadius: 4 },
-  percentSubtext: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#2B2B2B" },
-  garmentTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#2B2B2B", marginBottom: 8 },
+  statusBadgeText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#4A403B" },
+  progressTrack: { height: 8, backgroundColor: "rgba(43, 43, 43,0.06)", borderRadius: 4, overflow: "hidden", marginBottom: 6 },
+  progressFill: { height: "100%", backgroundColor: "#453332", borderRadius: 4 },
+  percentSubtext: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#4A403B" },
+  garmentTitle: { fontFamily: "InstrumentSans-SemiBold", fontSize: 16, color: "#4A403B", marginBottom: 8 },
   phoneRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  phoneText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" },
+  phoneText: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B" },
   measurementsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   measurementItem: { width: "47%", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 10 },
-  measurementLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#2B2B2B", marginBottom: 2 },
-  measurementVal: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#2B2B2B" },
-  noMeasurementsText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#2B2B2B", fontStyle: "italic", lineHeight: 20 },
+  measurementLabel: { fontFamily: "InstrumentSans-SemiBold", fontSize: 11, color: "#4A403B", marginBottom: 2 },
+  measurementVal: { fontFamily: "InstrumentSans-Bold", fontSize: 15, color: "#4A403B" },
+  noMeasurementsText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#4A403B", fontStyle: "italic", lineHeight: 20 },
   actionBtn: {
     backgroundColor: "#F96951",
     height: 52,

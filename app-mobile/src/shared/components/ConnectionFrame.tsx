@@ -51,9 +51,9 @@ export default function ConnectionFrame({ children }: { children: ReactNode }) {
   </View>;
 }
 const styles = StyleSheet.create({
-  frame: { flex: 1 }, banner: { position: "absolute", left: 16, right: 16, zIndex: 100, elevation: 12, borderRadius: 18, backgroundColor: "#2B2B2B", paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 10, shadowColor: "#000000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 8 },
+  frame: { flex: 1 }, banner: { position: "absolute", left: 16, right: 16, zIndex: 100, elevation: 12, borderRadius: 18, backgroundColor: "#2B2B2B", paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 10, shadowColor: "#2B2B2B", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.15, shadowRadius: 8 },
   copy: { flex: 1 }, title: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF", fontSize: 13 },
-  body: { fontFamily: "InstrumentSans-Regular", color: "#E6E1DF", fontSize: 12, lineHeight: 17, marginTop: 2 },
+  body: { fontFamily: "InstrumentSans-Regular", color: "#FFFFFF", fontSize: 12, lineHeight: 17, marginTop: 2 },
   retry: { minWidth: 44, minHeight: 44, justifyContent: "center", alignItems: "center" }, retryText: { fontFamily: "InstrumentSans-SemiBold", color: "#FFFFFF", fontSize: 12 },
   dismiss: { width: 36, height: 44, alignItems: "center", justifyContent: "center" },
 });

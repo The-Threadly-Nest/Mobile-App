@@ -7,17 +7,20 @@ module.exports = {
       colors: {
         charcoal: "#2B2B2B",
         tomato: "#F96951",
-        cream: "#FBF7EF",
+        mocha: "#453332",
+        white: "#FFFFFF",
+        // Legacy utility aliases stay compatible, using only the brand palette.
+        cream: "#F9E8D3",
         oxblood: "#453332",
-        gold: "#C4A763",
-        ink: "#3A2E1A",
-        grey100: "#E4D5B7",
-        grey300: "#D9C7A8",
-        grey500: "#A6926B",
-        grey700: "#8A7550",
+        gold: "#453332",
+        ink: "#453332",
+        grey100: "#FFFFFF",
+        grey300: "#FFFFFF",
+        grey500: "#453332",
+        grey700: "#453332",
       },
       // Soften text-black without changing black backgrounds, borders or shadows.
-      textColor: { black: "#2B2B2B" },
+      textColor: { black: "#4A403B", charcoal: "#4A403B" },
       fontFamily: {
         // Preserve existing utility names while using one font family everywhere.
         display: ["InstrumentSans-Regular"],

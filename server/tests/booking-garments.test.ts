@@ -21,7 +21,7 @@ test("booking checks garment ownership and stores the selected garment in its me
   t.after(() => { model.getModel = oldModel; notifications.sendNotificationToAdmin = oldNotify; });
   const garments = [{ id: "dress", name: "Evening dress", fulfillmentType: "custom_fit", imageUrl: "https://example.invalid/dress.png", priceFrom: 20000 }];
   const slot = { id: "slot", fashionHouseId: "house", date: "2030-01-01", time: "10:00", startsAt: new Date("2030-01-01T09:00:00Z"), durationMinutes: 60 };
-  const house = { id: "house", shopName: "Atelier", categories: [], catalogItems: [], availableSlots: [slot], timezone: "Africa/Lagos" };
+  const house = { id: "house", shopName: "Atelier", categories: ["Agbada & Native"], catalogItems: [], availableSlots: [slot], timezone: "Africa/Lagos" };
   let availableGarments = garments, saved: any = null, providerCalls = 0;
   const db = { client: {
     chatSession: { upsert: async () => ({ id: "session", history: [] }), update: async () => ({}) },
@@ -32,8 +32,9 @@ test("booking checks garment ownership and stores the selected garment in its me
     booking: { findFirst: async () => saved },
     $transaction: async (fn: any) => fn({ availableSlot: { findFirst: async () => slot, updateMany: async () => ({ count: 1 }) }, booking: { create: async ({ data }: any) => { saved = { id: "booking", ...data, availableSlot: slot }; return saved; } } }),
   } };
+  let expectedGarment = "Evening dress";
   model.getModel = () => ({ startChat: ({ systemInstruction }: any) => {
-    providerCalls++; assert.ok(systemInstruction.parts[0].text.includes("Evening dress"));
+    providerCalls++; assert.ok(systemInstruction.parts[0].text.includes(expectedGarment));
     return { sendMessage: async () => ({ response: { functionCalls: () => [{ name: "create_booking", args: { styleNotes: "An invented garment", preferredDate: "2099-01-01", preferredTime: "invented" } }], text: () => "" } }) };
   } });
   const service = new ChatService(db);
@@ -49,4 +50,14 @@ test("booking checks garment ownership and stores the selected garment in its me
   assert.equal(saved.catalogItemId, "dress");
   assert.equal(saved.catalogSnapshot.id, "dress");
   assert.equal(saved.availableSlotId, "slot");
+  await assert.rejects(service.postMessage({ ...input, body: { ...input.body, specialization: "Agbada & Native" } }), (e: any) => e.getStatus() === 400);
+  saved = null;
+  expectedGarment = "Agbada & Native";
+  const specializationInput = { ...input, body: { fashionHouseId: "house", message: "Book this time", specialization: "Agbada & Native", availableSlotId: "slot" }, headers: { "idempotency-key": "book:specialization" } };
+  await assert.rejects(service.postMessage({ ...specializationInput, body: { ...specializationInput.body, specialization: "Bridal" } }), (e: any) => e.getStatus() === 400);
+  const specialized = await service.postMessage(specializationInput);
+  assert.equal(specialized.type, "booking_created");
+  assert.equal(saved.styleNotes, "Agbada & Native");
+  assert.equal(saved.purpose, "measurement");
+  assert.equal(saved.catalogItemId, undefined);
 });

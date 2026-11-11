@@ -270,7 +270,7 @@ export default function NewMeasurementScreen() {
               onPress={() => router.push("/(admin)/settings" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#3B0508" />
+              <BackArrowIcon size={24} color="#453332" />
             </Pressable>
 
             <Text style={[styles.headerTitle, isLandscape && { fontSize: 22 }]}>
@@ -286,7 +286,7 @@ export default function NewMeasurementScreen() {
                 disableFullscreenUI={true}
                 style={styles.textInput}
                 placeholder="e.g. Chiamaka O."
-                placeholderTextColor="#8A7550"
+                placeholderTextColor="#453332"
                 value={customerName}
                 onChangeText={setCustomerName}
               />
@@ -381,7 +381,7 @@ export default function NewMeasurementScreen() {
                         style={styles.gridInput}
                         keyboardType="numeric"
                         placeholder={item.placeholder}
-                        placeholderTextColor="#8A7550"
+                        placeholderTextColor="#453332"
                         value={values[item.key] || ""}
                         onChangeText={(v) => handleValueChange(item.key, v)}
                       />
@@ -395,7 +395,7 @@ export default function NewMeasurementScreen() {
                     <View style={styles.customLabelRow}>
                       <Text style={styles.gridLabel}>{field.label}</Text>
                       <Pressable onPress={() => handleRemoveCustomField(field.id)}>
-                        <Trash2 size={14} color="#D32F2F" />
+                        <Trash2 size={14} color="#F96951" />
                       </Pressable>
                     </View>
                     <View style={styles.gridInputBox}>
@@ -404,7 +404,7 @@ export default function NewMeasurementScreen() {
                         style={styles.gridInput}
                         keyboardType="numeric"
                         placeholder="0"
-                        placeholderTextColor="#8A7550"
+                        placeholderTextColor="#453332"
                         value={field.value}
                         onChangeText={(v) => handleCustomValueChange(field.id, v)}
                       />
@@ -422,7 +422,7 @@ export default function NewMeasurementScreen() {
                       disableFullscreenUI={true}
                       style={styles.addCustomInput}
                       placeholder="e.g. Neck, Ankle, Thigh"
-                      placeholderTextColor="#8A7550"
+                      placeholderTextColor="#453332"
                       value={customLabelInput}
                       onChangeText={setCustomLabelInput}
                       autoFocus
@@ -475,7 +475,7 @@ export default function NewMeasurementScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -492,13 +492,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
     flex: 1,
   },
   sectionGroup: {
@@ -507,14 +507,14 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 8,
   },
   inputContainer: {
     height: 54,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.3)",
+    borderColor: "rgba(69, 51, 50, 0.3)",
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     justifyContent: "center",
@@ -522,14 +522,14 @@ const styles = StyleSheet.create({
   textInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     height: "100%",
   },
   segmentContainer: {
     flexDirection: "row",
     height: 54,
     borderRadius: 27,
-    backgroundColor: "#E4E1DB",
+    backgroundColor: "#FFFFFF",
     padding: 4,
     alignItems: "center",
   },
@@ -554,13 +554,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   segmentTextInactive: {
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   badgeText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
     letterSpacing: 1.2,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 8,
     marginBottom: 16,
   },
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
   gridLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   customLabelRow: {
@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.3)",
+    borderColor: "rgba(69, 51, 50, 0.3)",
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
     justifyContent: "center",
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   gridInput: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     height: "100%",
   },
   addCustomBtn: {
@@ -609,20 +609,20 @@ const styles = StyleSheet.create({
   addCustomBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   addCustomBox: {
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(69, 51, 50, 0.2)",
     marginBottom: 24,
   },
   addCustomTitle: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   addCustomRow: {
@@ -635,11 +635,11 @@ const styles = StyleSheet.create({
     height: 42,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.25)",
+    borderColor: "rgba(69, 51, 50, 0.25)",
     paddingHorizontal: 12,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   addCustomConfirmBtn: {
     width: 42,
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
   voiceRecordPill: {
     height: 56,
     borderRadius: 28,
-    backgroundColor: "rgba(74, 8, 12, 0.25)",
+    backgroundColor: "rgba(69, 51, 50, 0.25)",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
   voiceRecordText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   voiceRecordTextActive: {
     color: "#FFFFFF",
@@ -678,13 +678,13 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(74, 8, 12, 0.2)",
+    borderColor: "rgba(69, 51, 50, 0.2)",
     marginBottom: 16,
   },
   transcriptLabel: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 4,
@@ -692,13 +692,13 @@ const styles = StyleSheet.create({
   transcriptText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   saveBtnWrapper: {
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   saveBtn: {
     width: "100%",

@@ -22,7 +22,7 @@ import { formatCurrency } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 
-const TOMATO = "#FF6347";
+const TOMATO = "#F96951";
 
 export default function AdminSettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -82,7 +82,7 @@ export default function AdminSettingsScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
-        style={{ flex: 1, backgroundColor: "#FFFFFF" }}
+        style={{ flex: 1, backgroundColor: "#F9E8D3" }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         showsVerticalScrollIndicator={false}
       >
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   withdrawBtnText: {
     fontFamily: "InstrumentSans-Medium",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   menuContainer: {
     paddingTop: 20,
@@ -295,12 +295,12 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
     elevation: 1,
-    shadowColor: "#000000",
+    shadowColor: "#2B2B2B",
     shadowOpacity: 0.04,
     shadowRadius: 4,
     shadowOffset: { width: 0, height: 1 },
@@ -309,6 +309,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: "InstrumentSans-Medium",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });

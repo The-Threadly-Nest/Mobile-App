@@ -177,7 +177,7 @@ export default function AdminMoodBoardRedesignScreen() {
               onPress={() => router.push("/(admin)/settings" as any)}
               style={({ pressed }) => [styles.backBtn, { opacity: pressed ? 0.7 : 1 }]}
             >
-              <BackArrowIcon size={24} color="#000000" />
+              <BackArrowIcon size={24} color="#2B2B2B" />
             </Pressable>
             <Text style={styles.headerTitle}>Moodboards</Text>
           </View>
@@ -311,7 +311,7 @@ export default function AdminMoodBoardRedesignScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -339,13 +339,13 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.15)",
-    backgroundColor: "#FFFFFF",
+    borderColor: "rgba(69, 51, 50, 0.15)",
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: { ...typeScale.pageTitle,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   drawBtn: {
     height: 38,
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#404040",
+    color: "#4A403B",
     marginBottom: 28,
   },
   loaderContainer: {
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#5C1518",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   tailorName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   sketchGrid: {
     flexDirection: "row",
@@ -423,13 +423,13 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#43A047",
+    backgroundColor: "#453332",
     alignItems: "center",
     justifyContent: "center",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(43, 43, 43, 0.6)",
     justifyContent: "center",
     padding: 20,
   },
@@ -441,18 +441,18 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 20,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   modalSub: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   errorText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#D32F2F",
+    color: "#F96951",
     marginBottom: 8,
   },
 });

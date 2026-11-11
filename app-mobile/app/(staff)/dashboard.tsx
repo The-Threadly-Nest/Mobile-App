@@ -375,7 +375,7 @@ export default function StaffDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -394,14 +394,14 @@ const styles = StyleSheet.create({
   atelierTag: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 4,
   },
   greetingTitle: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 28,
     lineHeight: 34,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   tabsRow: {
     flexDirection: "row",
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   inactiveTabPill: {
-    backgroundColor: "#EBE0D3",
+    backgroundColor: "#FFFFFF",
   },
   tabText: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   inactiveTabText: {
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   loadingContainer: {
     paddingVertical: 40,
@@ -441,8 +441,8 @@ const styles = StyleSheet.create({
     padding: 18,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "rgba(228, 213, 183, 0.5)",
-    shadowColor: "#000000",
+    borderColor: "rgba(69, 51, 50, 0.5)",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
@@ -473,34 +473,34 @@ const styles = StyleSheet.create({
   customerNameText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 2,
   },
   orderNumberText: {
     fontFamily: "InstrumentSans-Medium",
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   garmentSubtext: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   progressTrack: {
     height: 6,
-    backgroundColor: "rgba(228, 213, 183, 0.6)",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
     borderRadius: 3,
     overflow: "hidden",
     marginBottom: 10,
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#C4A763",
+    backgroundColor: "#453332",
     borderRadius: 3,
   },
   statusLabelText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 13,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 14,
   },
   actionBtn: {

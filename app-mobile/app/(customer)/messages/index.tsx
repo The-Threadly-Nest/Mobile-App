@@ -132,7 +132,7 @@ export default function CustomerMessagesScreen() {
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { void fetchThreads(true); }} tintColor="#453332" />}
         ListEmptyComponent={loading ? <ActivityIndicator color="#453332" accessibilityLabel="Loading conversations" /> : !error ? <View style={styles.empty}>
-          {tab === "notifications" ? <Bell size={28} color="#A5A7B9" /> : <MessageSquare size={28} color="#A5A7B9" />}
+          {tab === "notifications" ? <Bell size={28} color="#2B2B2B" /> : <MessageSquare size={28} color="#2B2B2B" />}
           <Text style={styles.emptyTitle}>{tab === "notifications" ? "You're all caught up" : "No messages yet"}</Text>
           <Text style={styles.emptyText}>{tab === "notifications" ? "Unread conversation alerts appear here." : "Your conversations with fashion houses will appear here."}</Text>
         </View> : null} />
@@ -141,40 +141,40 @@ export default function CustomerMessagesScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#FFFFFF" },
+  screen: { flex: 1, backgroundColor: "#F9E8D3" },
   header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 22, paddingTop: SCREEN_TOP_SPACING, paddingBottom: 12 },
   back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   backAsset: { width: 39.7906, height: 39.7907 },
-  title: { fontFamily: "InstrumentSans-Regular", fontSize: 17, color: "#181C2E" },
+  title: { fontFamily: "InstrumentSans-Regular", fontSize: 17, color: "#4A403B" },
   tabs: { flexDirection: "row", height: 48, marginBottom: 12 },
   tab: { flex: 1, alignItems: "center", justifyContent: "center", paddingBottom: 2 },
-  tabText: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#A5A7B9" },
+  tabText: { fontFamily: "InstrumentSans-Regular", fontSize: 14, color: "#4A403B" },
   activeText: { fontFamily: "InstrumentSans-SemiBold", color: "#F96951" },
   tabDivider: { display: "none", position: "absolute", bottom: 0, alignSelf: "center", width: 332.473, height: 0.884236 },
   activeLine: { position: "absolute", bottom: 0, width: 129.099, height: 1.76847 },
   list: { paddingHorizontal: 24, paddingBottom: 28 },
   row: { flexDirection: "row", alignItems: "center", minHeight: 78, gap: 14, paddingVertical: 15 },
   pressed: { opacity: 0.65 },
-  avatar: { width: 32, height: 32, borderRadius: 16, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: "#F0F4F9" },
+  avatar: { width: 32, height: 32, borderRadius: 16, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: "#F9E8D3" },
   avatarImage: { width: 32, height: 32 },
   initials: { fontFamily: "InstrumentSans-Medium", fontSize: 12, color: "#453332" },
   content: { flex: 1, minWidth: 0, gap: 5 },
-  name: { fontFamily: "InstrumentSans-Regular", fontSize: 16, letterSpacing: 0.3, color: "#32343E" },
-  preview: { fontFamily: "InstrumentSans-Regular", fontSize: 12, letterSpacing: 0.25, color: "#AFAFAF" },
-  unreadPreview: { color: "#373738" },
+  name: { fontFamily: "InstrumentSans-Regular", fontSize: 16, letterSpacing: 0.3, color: "#4A403B" },
+  preview: { fontFamily: "InstrumentSans-Regular", fontSize: 12, letterSpacing: 0.25, color: "#4A403B" },
+  unreadPreview: { color: "#4A403B" },
   trailing: { alignItems: "flex-end", gap: 6, maxWidth: 64 },
-  time: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#AFAFAF" },
+  time: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#4A403B" },
   badge: { minWidth: 20, height: 20, paddingHorizontal: 4, borderRadius: 10, backgroundColor: "#F96951", alignItems: "center", justifyContent: "center" },
   badgeAsset: { position: "absolute", width: 19.4532, height: 19.4532 },
-  badgeText: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#F6F7FC" },
+  badgeText: { fontFamily: "InstrumentSans-Regular", fontSize: 10, color: "#4A403B" },
   badgeSpacer: { height: 19.4532 },
-  separator: { display: "none", height: 1, backgroundColor: "#F0F4F9" },
+  separator: { display: "none", height: 1, backgroundColor: "#FFFFFF" },
   emptyList: { flexGrow: 1, justifyContent: "center" },
   empty: { alignItems: "center", gap: 12, paddingHorizontal: 24, paddingBottom: 80 },
-  emptyTitle: { fontFamily: "InstrumentSans-Medium", fontSize: 18, color: "#32343E" },
-  emptyText: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, textAlign: "center", color: "#746765" },
+  emptyTitle: { fontFamily: "InstrumentSans-Medium", fontSize: 18, color: "#4A403B" },
+  emptyText: { fontFamily: "InstrumentSans-Regular", fontSize: 14, lineHeight: 21, textAlign: "center", color: "#4A403B" },
   error: { paddingHorizontal: 24, paddingVertical: 12, gap: 6 },
-  errorText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#9F1239" },
+  errorText: { fontFamily: "InstrumentSans-Regular", fontSize: 13, color: "#F96951" },
   retry: { minHeight: 44, justifyContent: "center", alignSelf: "flex-start", paddingRight: 16 },
   retryText: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#453332" },
 });

@@ -71,11 +71,11 @@ function VideoWelcomeScreen() {
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
         <Defs>
           <LinearGradient id="scrim" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0%" stopColor="#1A1110" stopOpacity="0.5" />
-            <Stop offset="12%" stopColor="#1A1110" stopOpacity="0.2" />
-            <Stop offset="40%" stopColor="#1A1110" stopOpacity="0.4" />
-            <Stop offset="65%" stopColor="#1A1110" stopOpacity="0.75" />
-            <Stop offset="100%" stopColor="#1A1110" stopOpacity="0.95" />
+            <Stop offset="0%" stopColor="#2B2B2B" stopOpacity="0.5" />
+            <Stop offset="12%" stopColor="#2B2B2B" stopOpacity="0.2" />
+            <Stop offset="40%" stopColor="#2B2B2B" stopOpacity="0.4" />
+            <Stop offset="65%" stopColor="#2B2B2B" stopOpacity="0.75" />
+            <Stop offset="100%" stopColor="#2B2B2B" stopOpacity="0.95" />
           </LinearGradient>
         </Defs>
         <Rect x="0" y="0" width="100%" height="100%" fill="url(#scrim)" />
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   loadingName: { fontFamily: "InstrumentSans-Medium", fontSize: 36, lineHeight: 44, color: "#FFFFFF" },
   container: {
     flex: 1,
-    backgroundColor: "#1A1110",
+    backgroundColor: "#2B2B2B",
     overflow: "hidden",
   },
   content: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontFamily: "InstrumentSans-Regular",
     fontSize: 26,
     lineHeight: 34,
-    color: "#FBF7EF",
+    color: "#FFFFFF",
     marginBottom: 8,
   },
   actionSection: {
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   loginText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#FBF7EF",
+    color: "#FFFFFF",
   },
   loginBold: {
     fontFamily: "InstrumentSans-SemiBold",

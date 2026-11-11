@@ -6,9 +6,9 @@ type Status = "order_placed" | "in_production" | "ready" | "delivered";
 
 const config: Record<Status, { label: string; bg: string; text: string }> = {
   order_placed: { label: "Order Placed", bg: "bg-white border border-tomato", text: "text-black" },
-  in_production: { label: "In Production", bg: "bg-gold", text: "text-black" },
-  ready: { label: "Ready", bg: "bg-oxblood", text: "text-cream" },
-  delivered: { label: "Delivered", bg: "bg-ink", text: "text-cream" },
+  in_production: { label: "In Production", bg: "bg-oxblood", text: "text-white" },
+  ready: { label: "Ready", bg: "bg-oxblood", text: "text-white" },
+  delivered: { label: "Delivered", bg: "bg-oxblood", text: "text-white" },
 };
 
 export function StatusBadge({ status }: { status: Status }) {

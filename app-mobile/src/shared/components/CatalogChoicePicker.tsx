@@ -14,7 +14,7 @@ export function CatalogChoicePicker({ label, value, choices, onChange, multiple 
   const options = [...new Set([...choices, ...selected])];
   return <>
     <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ expanded: open, disabled }} disabled={disabled} onPress={() => setOpen(true)} style={[styles.input, disabled && { opacity: 0.5 }]}>
-      <Text style={[styles.value, !value && { color: "#746765" }]}>{value || "Select " + label.toLowerCase()}</Text><ChevronDown size={18} color="#746765" />
+      <Text style={[styles.value, !value && { color: "#4A403B" }]}>{value || "Select " + label.toLowerCase()}</Text><ChevronDown size={18} color="#2B2B2B" />
     </Pressable>
     <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
       <View style={styles.overlay}>
@@ -39,15 +39,15 @@ export function CatalogChoicePicker({ label, value, choices, onChange, multiple 
   </>;
 }
 const styles = StyleSheet.create({
-  input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", padding: 12, backgroundColor: "white", flexDirection: "row", alignItems: "center", gap: 10 },
-  value: { flex: 1, fontSize: 15, fontFamily: "InstrumentSans-Regular", color: "#2B2B2B" },
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingVertical: 36 },
-  modal: { width: "100%", maxWidth: 480, maxHeight: "100%", flexShrink: 1, backgroundColor: "white", borderRadius: 24, padding: 20, gap: 12 },
-  heading: { flexDirection: "row", alignItems: "center", gap: 12 }, title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#2B2B2B" },
+  input: { minHeight: 48, borderRadius: 12, borderWidth: 1, borderColor: "#453332", padding: 12, backgroundColor: "#FFFFFF", flexDirection: "row", alignItems: "center", gap: 10 },
+  value: { flex: 1, fontSize: 15, fontFamily: "InstrumentSans-Regular", color: "#4A403B" },
+  overlay: { flex: 1, backgroundColor: "rgba(43, 43, 43,0.4)", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, paddingVertical: 36 },
+  modal: { width: "100%", maxWidth: 480, maxHeight: "100%", flexShrink: 1, backgroundColor: "#FFFFFF", borderRadius: 24, padding: 20, gap: 12 },
+  heading: { flexDirection: "row", alignItems: "center", gap: 12 }, title: { flex: 1, fontFamily: "InstrumentSans-SemiBold", fontSize: 18, color: "#4A403B" },
   close: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" },
   choices: { flexDirection: "row", flexWrap: "wrap", gap: 8, paddingBottom: 8 },
-  choice: { minHeight: 44, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: "#D7CFCD", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
+  choice: { minHeight: 44, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: "#453332", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
   selected: { backgroundColor: "#F96951", borderColor: "#F96951" }, white: { color: "white" },
-  text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#2B2B2B" }, hint: { ...typeScale.caption, color: "#746765" },
+  text: { fontFamily: "InstrumentSans-Medium", fontSize: 13, color: "#4A403B" }, hint: { ...typeScale.caption, color: "#4A403B" },
   done: { flex: 1, minHeight: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
 });

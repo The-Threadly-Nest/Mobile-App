@@ -27,74 +27,74 @@ const STATUS_CONFIG: Record<
 > = {
   order_placed: {
     label: "Booked",
-    bg: "#F2E0DF",
-    text: "#7C2D32",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Booked",
   },
   pending_admin_review: {
     label: "Booked",
-    bg: "#F2E0DF",
-    text: "#7C2D32",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Booked",
   },
   booked: {
     label: "Booked",
-    bg: "#F2E0DF",
-    text: "#7C2D32",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Booked",
   },
   measurements_confirmed: {
     label: "Measurements Confirmed",
-    bg: "#EFE6D8",
-    text: "#B28847",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "In Production",
   },
   fabric_sourced: {
     label: "Fabric Sourced",
-    bg: "#EFE6D8",
-    text: "#B28847",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "In Production",
   },
   in_production: {
     label: "In Production",
-    bg: "#EFE6D8",
-    text: "#B28847",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "In Production",
   },
   quality_check: {
     label: "Quality Check",
-    bg: "#EFE6D8",
-    text: "#B28847",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "In Production",
   },
   ready: {
     label: "Ready",
-    bg: "#D8EFE0",
-    text: "#2E7D47",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Ready",
   },
   ready_for_pickup: {
     label: "Ready",
-    bg: "#D8EFE0",
-    text: "#2E7D47",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Ready",
   },
   completed: {
     label: "Completed",
-    bg: "#CEEAD6",
-    text: "#1E8E3E",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Completed",
   },
   delivered: {
     label: "Delivered",
-    bg: "#CEEAD6",
-    text: "#1E8E3E",
+    bg: "#FFFFFF",
+    text: "#453332",
     filterKey: "Delivered",
   },
   cancelled: {
     label: "Cancelled",
-    bg: "#FDEAEA",
-    text: "#DC2626",
+    bg: "#FFFFFF",
+    text: "#F96951",
     filterKey: "Cancelled",
   },
 };
@@ -299,8 +299,8 @@ export default function AdminOrdersScreen() {
           renderItem={({ item }) => {
             const meta = STATUS_CONFIG[normalizeStatus(item.status)] ?? {
               label: "In Production",
-              bg: "#EFE6D8",
-              text: "#B28847",
+              bg: "#FFFFFF",
+              text: "#453332",
               filterKey: "In Production",
             };
             const initial = item.customer ? item.customer[0].toUpperCase() : "C";
@@ -368,7 +368,7 @@ export default function AdminOrdersScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F9E8D3",
   },
   header: {
     paddingHorizontal: 24,
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 32,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   filterContainer: {
     marginBottom: 16,
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F96951",
   },
   filterChipInactive: {
-    backgroundColor: "#EBE7E1",
+    backgroundColor: "#FFFFFF",
   },
   filterChipText: {
     fontFamily: "InstrumentSans-Medium",
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   filterChipTextInactive: {
-    color: "#4A453E",
+    color: "#4A403B",
   },
   list: {
     paddingHorizontal: 24,
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.04,
     shadowRadius: 10,
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   customerName: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#2B2B2B",
+    color: "#4A403B",
     flex: 1,
     marginRight: 8,
   },
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginTop: 2,
     marginBottom: 6,
   },
@@ -476,14 +476,14 @@ const styles = StyleSheet.create({
   itemText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
     flex: 1,
     marginRight: 8,
   },
   assignedText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 12,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
   empty: {
     alignItems: "center",
@@ -492,12 +492,12 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
-    color: "#2B2B2B",
+    color: "#4A403B",
     marginBottom: 6,
   },
   emptySubText: {
     fontFamily: "InstrumentSans-Regular",
     fontSize: 14,
-    color: "#2B2B2B",
+    color: "#4A403B",
   },
 });
