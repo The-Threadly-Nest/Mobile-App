@@ -14,6 +14,8 @@ export default function ResetPasswordScreen() {
   const { token, email, firstTimeStaff } = useLocalSearchParams<{ token: string; email: string; firstTimeStaff?: string }>();
   const sessionToken = useAuthStore((s) => s.token);
   const setSessionToken = useAuthStore((s) => s.setToken);
+  const requiresPasswordChange = useAuthStore((s) => s.requiresPasswordChange);
+  const setSession = useAuthStore((s) => s.setSession);
   const setOnboardingCompleted = useAuthStore((s) => s.setOnboardingCompleted);
   const [inputEmail, setInputEmail] = useState(email || "");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -26,7 +28,7 @@ export default function ResetPasswordScreen() {
 
   const passwordValid = newPassword.length >= 8 && /[A-Z]/.test(newPassword) && /[0-9]/.test(newPassword);
   const matches = newPassword === confirmPassword && confirmPassword.length > 0;
-  const isFirstTimeStaff = firstTimeStaff === "true";
+  const isFirstTimeStaff = firstTimeStaff === "true" || requiresPasswordChange;
   const formComplete = inputEmail.trim().length > 0 && (isFirstTimeStaff ? currentPassword.length > 0 : inputToken.trim().length === 4) && passwordValid && matches;
 
   const handleReset = async () => {
@@ -43,9 +45,9 @@ export default function ResetPasswordScreen() {
           }),
         });
         if (!body.token) throw new Error("Please log in again to continue.");
-        setSessionToken(body.token);
+        setSession({ token: body.token, requiresPasswordChange: false, isVerified: true });
         setOnboardingCompleted(true);
-        router.replace("/(staff)/dashboard");
+        router.replace("/(auth)/loading");
         return;
       }
 
@@ -68,6 +70,11 @@ export default function ResetPasswordScreen() {
   };
 
   const handleBack = () => {
+    if (isFirstTimeStaff) {
+      useAuthStore.getState().logout();
+      router.replace("/(auth)/login");
+      return;
+    }
     if (router.canGoBack()) {
       router.back();
     } else {

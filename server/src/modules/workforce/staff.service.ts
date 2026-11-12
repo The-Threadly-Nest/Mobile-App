@@ -5,8 +5,9 @@ import type { StaffInput } from "./staff.dto";
 import { result, rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
 
-import { generateResetToken, hashResetToken, hashPassword } from "../../lib/password";
-import { sendStaffActivationEmail } from "../../lib/mailer";
+import { hashPassword } from "../../lib/password";
+import { randomBytes } from "crypto";
+import { sendStaffInviteEmail } from "../../lib/mailer";
 
 @Injectable()
 export class StaffService {
@@ -63,9 +64,8 @@ export class StaffService {
       }, 400);
     }
 
-    const activationCode = generateResetToken();
-    const resetTokenHash = hashResetToken(activationCode);
-    const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    const temporaryPassword = password || `Ow9!${randomBytes(18).toString("base64url")}`;
+    const resetTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // Credential writes use the identity connection after checking house ownership.
     // The runtime RLS insert policy intentionally forbids password hashes.
@@ -73,26 +73,26 @@ export class StaffService {
       data: {
         name: name ? name.trim() : null,
         email,
-        passwordHash: password ? await hashPassword(password) : null,
+        passwordHash: await hashPassword(temporaryPassword),
         role: "staff",
         fashionHouseId: fh.id,
         active: false,
-        resetTokenHash,
+        resetTokenHash: null,
         resetTokenExpiresAt,
-        resetTokenPurpose: "staff_activation",
+        resetTokenPurpose: "staff_temporary_password",
         resetTokenSentAt: new Date(),
       },
     });
 
     let emailSent = true;
     try {
-      await sendStaffActivationEmail(email, name.trim(), fh.shopName, activationCode);
+      await sendStaffInviteEmail({ to: email, name: name.trim(), fashionHouseName: fh.shopName, tempPassword: temporaryPassword });
     } catch (err) {
       emailSent = false;
       logFailure("The staff account was created, but its invitation email could not be sent.", err);
     }
 
-    return result({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, emailSent, message: emailSent ? "Staff activation invitation sent." : "Staff account created, but the email could not be sent. Open Staff and resend the activation invitation." }, 201);
+    return result({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, emailSent, message: emailSent ? "Staff temporary password sent." : "Staff account created, but the email could not be sent. Open Staff and resend the invitation." }, 201);
 
   }
 
@@ -167,19 +167,19 @@ export class StaffService {
     const staffUser = await this.database.client.user.findFirst({ where: { id: routeParam(input, "staffId"), fashionHouseId: fh.id, role: "staff", active: false } });
     if (!staffUser) return rejectRequest({ error: "Pending staff invitation not found." }, 404);
 
-    const rawToken = generateResetToken();
-    const resetTokenHash = hashResetToken(rawToken);
-    const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
-    await this.database.client.user.update({ where: { id: staffUser.id, fashionHouseId: fh.id, role: "staff" },
-      data: { resetTokenHash, resetTokenExpiresAt, resetTokenPurpose: "staff_activation", resetTokenAttempts: 0, resetTokenSentAt: new Date() } });
+    const temporaryPassword = `Ow9!${randomBytes(18).toString("base64url")}`;
+    const resetTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const updated = await this.database.identityClient.user.updateMany({ where: { id: staffUser.id, fashionHouseId: fh.id, role: "staff", active: false },
+      data: { passwordHash: await hashPassword(temporaryPassword), resetTokenHash: null, resetTokenExpiresAt, resetTokenPurpose: "staff_temporary_password", resetTokenAttempts: 0, resetTokenSentAt: new Date() } });
+    if (!updated.count) return rejectRequest({ error: "This staff account has already been activated." }, 409);
 
     try {
-      await sendStaffActivationEmail(staffUser.email, staffUser.name || staffUser.email, fh.shopName, rawToken);
+      await sendStaffInviteEmail({ to: staffUser.email, name: staffUser.name || staffUser.email, fashionHouseName: fh.shopName, tempPassword: temporaryPassword });
     } catch (err) {
       logFailure("The staff activation email could not be sent.", err);
       return rejectRequest({ error: "We couldn't send the activation email. Your staff account is saved. Please try resending shortly." }, 503);
     }
-    return { message: "Activation code resent." };
+    return { message: "A new temporary password has been sent. The previous password no longer works." };
 
   }
 

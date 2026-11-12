@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { AppState } from "react-native";
+import { router, usePathname } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "../utils/apiClient";
 import { getConnectionStatus, subscribeConnectionStatus } from "../services/connectionStatus";
@@ -7,6 +8,12 @@ import { retryAccountCleanup } from "../services/accountCleanup";
 
 export default function SessionMonitor() {
   const token = useAuthStore(state => state.token);
+  const requiresPasswordChange = useAuthStore(state => state.requiresPasswordChange);
+  const email = useAuthStore(state => state.email);
+  const pathname = usePathname();
+  useEffect(() => {
+    if (token && requiresPasswordChange && pathname !== "/reset-password") router.replace({ pathname: "/(auth)/reset-password", params: { firstTimeStaff: "true", email } });
+  }, [token, requiresPasswordChange, pathname, email]);
   useEffect(() => {
     void retryAccountCleanup().catch(() => {});
     if (!token) return;

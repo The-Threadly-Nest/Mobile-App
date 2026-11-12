@@ -4,6 +4,7 @@ import { RequestInput } from "../../core/http/endpoint-input";
 import { staffInputs, type StaffInput } from "./staff.dto";
 
 import { SessionGuard, RolesGuard, AllowedRoles } from "../../core/auth/access.guards";
+import { EndpointRateGuard, RateLimit } from "../../core/http/endpoint-rate.guard";
 
 @Controller("api/staff")
 export class StaffController {
@@ -17,7 +18,8 @@ export class StaffController {
   }
 
   @Post("invite")
-  @UseGuards(SessionGuard, RolesGuard)
+  @UseGuards(SessionGuard, RolesGuard, EndpointRateGuard)
+  @RateLimit("staff-invite", 20, 3600000, true)
   @AllowedRoles("admin")
   @HttpCode(200)
   postInvite(@RequestInput(staffInputs.postInvite) input: StaffInput<"postInvite">) {
@@ -33,7 +35,8 @@ export class StaffController {
   }
 
   @Post(":staffId/resend-activation")
-  @UseGuards(SessionGuard, RolesGuard)
+  @UseGuards(SessionGuard, RolesGuard, EndpointRateGuard)
+  @RateLimit("staff-resend", 10, 3600000, true)
   @AllowedRoles("admin")
   @HttpCode(200)
   postByStaffIdResendActivation(@RequestInput(staffInputs.postByStaffIdResendActivation) input: StaffInput<"postByStaffIdResendActivation">) {

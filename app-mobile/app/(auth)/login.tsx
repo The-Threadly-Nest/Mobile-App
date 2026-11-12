@@ -75,7 +75,13 @@ export default function LoginScreen() {
         createdAt: body.user.createdAt ?? null,
         isVerified: userVerified,
         onboardingCompleted: userOnboardingCompleted,
+        requiresPasswordChange: body.requiresPasswordChange === true,
       });
+
+      if (body.requiresPasswordChange) {
+        router.replace({ pathname: "/(auth)/reset-password", params: { firstTimeStaff: "true", email: body.user.email } });
+        return;
+      }
 
       // Register push token asynchronously so notifications work immediately without cold start
       registerPushToken(body.token).catch((err) =>

@@ -35,12 +35,16 @@ export class SessionGuard implements CanActivate {
     const user = await this.database.identityClient.user.findUnique({
       where: { id: decoded.sub },
       select: { id: true, email: true, role: true, active: true, passwordHash: true, emailVerifiedAt: true,
-        fashionHouseId: true, fashionHouseOwned: { select: { id: true } } },
+        fashionHouseId: true, resetTokenPurpose: true, resetTokenExpiresAt: true, fashionHouseOwned: { select: { id: true } } },
     });
-    if (!user?.active || !["admin", "staff", "customer"].includes(user.role) ||
+    const staffSetup = Boolean(user && decoded.staffSetup === true && user.role === "staff" && !user.active && user.resetTokenPurpose === "staff_temporary_password" && user.resetTokenExpiresAt && user.resetTokenExpiresAt > new Date());
+    if (!user || (!user.active && !staffSetup) || !["admin", "staff", "customer"].includes(user.role) ||
         decoded.role !== user.role || decoded.credentialVersion !== credentialVersion(user.id, user.passwordHash, secret)) {
       throw new UnauthorizedException({ error: "Please log in again." });
     }
+    if (decoded.staffSetup === true && !staffSetup) throw new UnauthorizedException({ error: "Please log in again." });
+    const setupRoute = (request.method === "POST" && request.path === "/api/auth/change-password") || (request.method === "GET" && request.path === "/api/auth/session");
+    if (staffSetup && !setupRoute) throw new ForbiddenException({ error: "Set your new password before continuing.", code: "STAFF_PASSWORD_CHANGE_REQUIRED" });
     if (user.role === "admin" && !user.emailVerifiedAt) {
       throw new ForbiddenException({ error: "Verify your email before continuing.", code: "EMAIL_NOT_VERIFIED" });
     }

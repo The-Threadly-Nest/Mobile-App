@@ -72,12 +72,14 @@ export default function PostLoginLoading() {
   const email = useAuthStore((s) => s.email);
   const isVerified = useAuthStore((s) => s.isVerified);
   const onboardingCompleted = useAuthStore((s) => s.onboardingCompleted);
+  const requiresPasswordChange = useAuthStore((s) => s.requiresPasswordChange);
   const navigated = useRef(false);
 
   useEffect(() => {
     let active = true;
     const run = async () => {
       if (!token || !role) { router.replace("/(auth)/login"); return; }
+      if (requiresPasswordChange) { router.replace({ pathname: "/(auth)/reset-password", params: { firstTimeStaff: "true", email } }); return; }
       if (navigated.current) return;
       void registerPushToken(token).catch(() => {});
 
@@ -104,7 +106,7 @@ export default function PostLoginLoading() {
 
     void run();
     return () => { active = false; };
-  }, [token, role, email, isVerified, onboardingCompleted]);
+  }, [token, role, email, isVerified, onboardingCompleted, requiresPasswordChange]);
 
   return (
     <SafeAreaView style={styles.screen}>

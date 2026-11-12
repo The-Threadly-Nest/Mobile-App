@@ -10,6 +10,7 @@ import Svg, { Rect, Defs, LinearGradient, Stop } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { createPageCacheOwner, readPageCache, writePageCache } from "@/shared/services/pageCache";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 interface StaffMember {
   id: string;
@@ -55,6 +56,18 @@ function FloatingAddCircle({ onPress }: { onPress: () => void }) {
 }
 
 export default function StaffScreen() {
+  const { showAlert } = useAppAlert();
+  const [resending, setResending] = useState<string | null>(null);
+  const resendInvitation = async (member: StaffMember) => {
+    if (resending) return;
+    setResending(member.id);
+    try {
+      const response = await apiFetch<{ message: string }>(`/api/staff/${member.id}/resend-activation`, { method: "POST", silent: true });
+      showAlert("Invitation sent", response.message);
+    } catch (error) {
+      showAlert("Couldn't send invitation", error instanceof Error ? error.message : "Please try again shortly.");
+    } finally { setResending(null); }
+  };
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
@@ -205,6 +218,7 @@ export default function StaffScreen() {
                         {item.active ? "Active" : "Pending"}
                       </Text>
                     </View>
+                    {!item.active && <Pressable accessibilityRole="button" accessibilityLabel={`Resend invitation to ${item.name}`} disabled={resending !== null} onPress={event => { event.stopPropagation(); void resendInvitation(item); }} style={{ borderRadius: 999, backgroundColor: "#453332", paddingHorizontal: 12, paddingVertical: 9 }}><Text style={{ color: "#FFFFFF", fontSize: 12 }}>{resending === item.id ? "Sending…" : "Resend"}</Text></Pressable>}
                   </View>
                 </Pressable>
               );

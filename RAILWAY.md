@@ -145,6 +145,15 @@ References: [Railpack configuration](https://railpack.com/config/file/),
 
 ### Account deletion and uploaded-file cleanup
 
+Staff invitations now email a temporary password, not an activation code. The
+optional invite-form password is temporary; leaving it blank generates a random
+password. It expires after 24 hours. Password login issues a 15-minute setup-only
+session until staff choose a different password. Resending rotates the temporary
+password; use Resend on pending staff to replace old code invitations. Existing
+matching verified Google invitations remain supported. Deploy the server and
+updated mobile client together. This password flow reuses existing database
+fields and needs no additional migration beyond the cleanup migration below.
+
 - Run `npm run db:deploy` on the **server service** before starting the new code.
   Migration `20261112000000_media_cleanup_queue` creates private, RLS-enabled
   media ownership and deletion-outbox tables. The private identity login needs

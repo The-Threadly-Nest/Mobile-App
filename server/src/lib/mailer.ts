@@ -99,7 +99,7 @@ export async function sendStaffActivationEmail(to: string, name: string, fashion
 }
 
 export async function sendStaffInviteEmail({ to, name, fashionHouseName, tempPassword }: {
-  to: string; name: string; fashionHouseName: string; tempPassword?: string;
+  to: string; name: string; fashionHouseName: string; tempPassword: string;
 }) {
   const credentials = tempPassword
     ? `<div style="background:#FBF7EF;border:1px solid #E4D5B7;padding:14px;border-radius:8px;margin:16px 0;"><p><strong>Email:</strong> ${escapeHtml(to)}</p><p><strong>Temporary password:</strong> ${escapeHtml(tempPassword)}</p></div>`
@@ -107,9 +107,9 @@ export async function sendStaffInviteEmail({ to, name, fashionHouseName, tempPas
   return sendEmail({
     to,
     subject: `You've been added to ${fashionHouseName} on ${BRAND_NAME}`,
-    text: `Hi ${name}, you have been added as a staff member at ${fashionHouseName}. Open ${BRAND_NAME}, choose Log In, and use your staff email and temporary password.`,
+    text: `Hi ${name}, you have been added as a staff member at ${fashionHouseName}. Email: ${to}. Temporary password: ${tempPassword}. Open ${BRAND_NAME} and choose Log In. This temporary password expires in 24 hours. You must choose a different private password before accessing the app. Do not share this email.`,
     html: emailShell(`<p>Hi <strong>${escapeHtml(name)}</strong>,</p><p>You have been added as a staff member at <strong>${escapeHtml(fashionHouseName)}</strong>.</p>${credentials}
-      <ol style="font-size:13px;line-height:1.7;padding-left:20px;"><li>Open <strong>${BRAND_NAME}</strong>.</li><li>Select <strong>Log In</strong>.</li><li>Enter your staff email and temporary password.</li><li>Set your new private password.</li></ol>`),
+      <ol style="font-size:13px;line-height:1.7;padding-left:20px;"><li>Open <strong>${BRAND_NAME}</strong>.</li><li>Select <strong>Log In</strong>.</li><li>Enter your staff email and temporary password.</li><li>Set a different private password before accessing the app.</li></ol><p>This temporary password expires in 24 hours. Do not share this email.</p>`),
   });
 }
 

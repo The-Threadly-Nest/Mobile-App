@@ -13,12 +13,13 @@ import { sendPasswordResetEmail, sendWelcomeEmail } from "../../lib/mailer";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-function issueToken(userId: string, email: string, role: string, fashionHouseId: string | null | undefined, passwordHash: string | null) {
+function issueToken(userId: string, email: string, role: string, fashionHouseId: string | null | undefined, passwordHash: string | null, staffSetup = false) {
   const JWT_SECRET = process.env.JWT_SECRET;
   if (!JWT_SECRET) throw Object.assign(new Error("Server misconfiguration"), { status: 500 });
   const payload: Record<string, unknown> = { sub: userId, email, role, credentialVersion: credentialVersion(userId, passwordHash, JWT_SECRET) };
   if (fashionHouseId) payload.fashionHouseId = fashionHouseId;
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  if (staffSetup) payload.staffSetup = true;
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: staffSetup ? "15m" : "7d" });
 }
 
 // Only Admin and Customer self-register. Staff accounts are created
@@ -110,10 +111,15 @@ export class AuthService {
     const { email, password } = input.body;
     const user = await this.database.identityClient.user.findUnique({ where: { email } });
     if (!user || !user.passwordHash) return rejectRequest({ error: "Incorrect email or password." }, 401);
-    if (!user.active) return rejectRequest({ error: "This account hasn't been activated yet. Check your email for the activation link." }, 403);
-
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) return rejectRequest({ error: "Incorrect email or password." }, 401);
+
+    if (!user.active && user.role === "staff" && user.resetTokenPurpose === "staff_temporary_password") {
+      if (!user.resetTokenExpiresAt || user.resetTokenExpiresAt <= new Date()) return rejectRequest({ error: "Your temporary password has expired. Ask your admin to resend the invitation." }, 403);
+      return { token: issueToken(user.id, user.email, user.role, user.fashionHouseId, user.passwordHash, true), requiresPasswordChange: true,
+        user: { id: user.id, email: user.email, name: user.name || "", role: user.role, isVerified: false, onboardingCompleted: false } };
+    }
+    if (!user.active) return rejectRequest({ error: "This account hasn't been activated yet. Ask your admin to resend the invitation." }, 403);
 
     // Resolve fashionHouseId before token signing so it's embedded in the JWT
     let loginFashionHouseId: string | null = user.fashionHouseId ?? null;
@@ -208,11 +214,16 @@ export class AuthService {
       return rejectRequest({ error: "Incorrect current password." }, 401);
     }
 
+    const staffSetup = user.role === "staff" && !user.active && user.resetTokenPurpose === "staff_temporary_password";
+    if (staffSetup && (!user.resetTokenExpiresAt || user.resetTokenExpiresAt <= new Date())) return rejectRequest({ error: "Your temporary password has expired. Ask your admin for a new invitation." }, 403);
+    if (staffSetup && await verifyPassword(newPassword, user.passwordHash)) return rejectRequest({ error: "Choose a new password different from your temporary password." }, 400);
+
     const newPasswordHash = await hashPassword(newPassword);
-    await this.database.identityClient.user.update({
-      where: { id: user.id },
-      data: { passwordHash: newPasswordHash, resetTokenHash: null, resetTokenExpiresAt: null, resetTokenPurpose: null, resetTokenAttempts: 0 },
+    const updated = await this.database.identityClient.user.updateMany({
+      where: { id: user.id, passwordHash: user.passwordHash, ...(staffSetup ? { active: false, resetTokenPurpose: "staff_temporary_password", resetTokenExpiresAt: { gt: new Date() } } : { active: true }) },
+      data: { passwordHash: newPasswordHash, ...(staffSetup ? { active: true, emailVerifiedAt: new Date() } : {}), resetTokenHash: null, resetTokenExpiresAt: null, resetTokenPurpose: null, resetTokenAttempts: 0 },
     });
+    if (!updated.count) return rejectRequest({ error: "This session has changed. Please log in again." }, 401);
 
     return { message: "Password updated successfully.", token: issueToken(user.id, user.email, user.role, input.authFashionHouseId, newPasswordHash) };
 
@@ -322,10 +333,10 @@ export class AuthService {
       include: { fashionHouseOwned: true },
     });
 
-    if (user && user.email.toLowerCase() === email && !user.active && user.role === "staff" && user.resetTokenPurpose === "staff_activation" && user.resetTokenExpiresAt && user.resetTokenExpiresAt > new Date() && (!user.googleId || user.googleId === googleId)) {
+    if (user && user.email.toLowerCase() === email && !user.active && user.role === "staff" && ["staff_activation", "staff_temporary_password"].includes(user.resetTokenPurpose || "") && user.resetTokenExpiresAt && user.resetTokenExpiresAt > new Date() && (!user.googleId || user.googleId === googleId)) {
       const activated = await this.database.identityClient.user.updateMany({
-        where: { id: user.id, email: user.email, googleId: user.googleId, role: "staff", active: false, resetTokenPurpose: "staff_activation", resetTokenExpiresAt: { gt: new Date() } },
-        data: { active: true, googleId, emailVerifiedAt: new Date(), resetTokenHash: null, resetTokenExpiresAt: null, resetTokenPurpose: null, resetTokenAttempts: 0 },
+        where: { id: user.id, email: user.email, googleId: user.googleId, role: "staff", active: false, resetTokenPurpose: user.resetTokenPurpose, passwordHash: user.passwordHash, resetTokenExpiresAt: { gt: new Date() } },
+        data: { active: true, googleId, ...(user.resetTokenPurpose === "staff_temporary_password" ? { passwordHash: null } : {}), emailVerifiedAt: new Date(), resetTokenHash: null, resetTokenExpiresAt: null, resetTokenPurpose: null, resetTokenAttempts: 0 },
       });
       if (!activated.count) return rejectRequest({ error: "This invitation has expired. Ask your admin for a new invitation." }, 403);
       user = await this.database.identityClient.user.findUnique({ where: { id: user.id }, include: { fashionHouseOwned: true } });

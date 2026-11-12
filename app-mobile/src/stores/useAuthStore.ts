@@ -20,6 +20,7 @@ interface AuthState {
   location: string;
   token: string | null;
   isVerified: boolean;
+  requiresPasswordChange: boolean;
   onboardingCompleted: boolean;
   hasSeenSketchpadGuide: boolean;
   resendAvailableAt: number | null;
@@ -38,7 +39,7 @@ interface AuthState {
   setResendAvailableAt: (timestamp: number | null) => void;
   setCreatedAt: (dateStr: string | null) => void;
   setSession: (session: Partial<Pick<AuthState,
-    "token" | "email" | "name" | "shopName" | "role" | "createdAt" | "isVerified" | "onboardingCompleted" | "userId"
+    "token" | "email" | "name" | "shopName" | "role" | "createdAt" | "isVerified" | "onboardingCompleted" | "userId" | "requiresPasswordChange"
   >>) => void;
   logout: () => void;
 }
@@ -62,6 +63,7 @@ export const useAuthStore = create<AuthState>()(
       location: "Lagos, Nigeria",
       token: null,
       isVerified: false,
+      requiresPasswordChange: false,
       onboardingCompleted: false,
       hasSeenSketchpadGuide: false,
       resendAvailableAt: null,
@@ -87,7 +89,7 @@ export const useAuthStore = create<AuthState>()(
         if (email && role) {
           useAppDataStore.getState().activateCache(`${role}:${email.trim().toLowerCase()}`);
         }
-        set(session);
+        set({ ...session, ...(session.token ? { requiresPasswordChange: session.requiresPasswordChange ?? false } : {}) });
       },
       logout: () => {
         try {
@@ -109,6 +111,7 @@ export const useAuthStore = create<AuthState>()(
           location: "Lagos, Nigeria",
           token: null,
           isVerified: false,
+          requiresPasswordChange: false,
           onboardingCompleted: false,
           hasSeenSketchpadGuide: false,
           resendAvailableAt: null,

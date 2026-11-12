@@ -48,7 +48,7 @@ export default function InviteStaffScreen() {
         }),
       });
 
-      showAlert(invitation.emailSent === false ? "Staff account created" : "Invite Sent", invitation.emailSent === false ? invitation.message || "Open Staff to resend the activation email." : `An activation code has been sent to ${email.trim().toLowerCase()}.`);
+      showAlert(invitation.emailSent === false ? "Staff account created" : "Invite Sent", invitation.emailSent === false ? invitation.message || "Open Staff to resend the invitation." : `A temporary password has been sent to ${email.trim().toLowerCase()}.`);
       setTimeout(() => {
         router.push("/(admin)/staff" as any);
       }, 1200);
@@ -86,7 +86,7 @@ export default function InviteStaffScreen() {
 
           {/* Subtitle Message */}
           <Text style={styles.subtitle}>
-            They'll receive an activation code. Set an optional password for them, or let them choose one. They can also activate with their invited Google email.
+            They’ll receive a temporary password by email and choose a new one when they log in. Leave the password blank to generate one.
           </Text>
 
           {/* Form Fields */}
@@ -124,10 +124,10 @@ export default function InviteStaffScreen() {
 
             {/* Error message */}
             <View style={styles.fieldWrapper}>
-              <View style={styles.labelContainer}><Text style={styles.floatingLabel}>Password (optional)</Text></View>
+              <View style={styles.labelContainer}><Text style={styles.floatingLabel}>Temporary password (optional)</Text></View>
               <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoCorrect={false} placeholder="8+ characters, uppercase and number" placeholderTextColor="#4A403B" />
             </View>
-            <Text style={styles.subtitle}>Share this password privately. The account stays inactive until the invitation is verified.</Text>
+            <Text style={styles.subtitle}>Emailed to staff. Expires in 24 hours; they must replace it before accessing their work.</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
             {/* Send Invite Button */}
