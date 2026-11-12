@@ -50,6 +50,9 @@ export function invalidateReadCache() {
   responseCache.clear();
   requestsInFlight.clear();
 }
+useAuthStore.subscribe((state, previous) => {
+  if (state.token !== previous.token) invalidateReadCache();
+});
 function syncCacheIdentity() {
   const token = useAuthStore.getState().token;
   if (token !== cacheToken) { cacheToken = token; cacheVersion++; responseCache.clear(); requestsInFlight.clear(); }
@@ -168,7 +171,11 @@ async function fetchNetwork<T>(endpoint: string, options: RequestOptions = {}): 
 
     if (response.ok) {
       if (response.status === 204) return undefined as T;
-      return (await response.json()) as T;
+      const value = await response.json();
+      if (token && useAuthStore.getState().token !== token) {
+        throw new ApiError({ status: 401, code: "SESSION_CHANGED", message: "This session has ended." });
+      }
+      return value as T;
     }
 
     // Capture structured error format

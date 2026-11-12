@@ -142,3 +142,23 @@ change is performed by adding these files.
 References: [Railpack configuration](https://railpack.com/config/file/),
 [Railway monorepos](https://docs.railway.com/deployments/monorepo),
 [Railway client-IP headers](https://docs.railway.com/networking/public-networking/specs-and-limits).
+
+### Account deletion and uploaded-file cleanup
+
+- Run `npm run db:deploy` on the **server service** before starting the new code.
+  Migration `20261112000000_media_cleanup_queue` creates private, RLS-enabled
+  media ownership and deletion-outbox tables. The private identity login needs
+  owner/bypass access; do not give the runtime login access.
+- Existing server-side R2 credentials need bucket-list and object-delete access.
+  No new public variables are needed. The worker retries jobs every 30 seconds
+  and sweeps again after 15 minutes to catch expiring presigned uploads.
+- Deploy the web and distribute an updated mobile build. The new mobile client
+  checks sessions on foreground, reconnect and every minute while active. A 401
+  clears authentication, saved app state, chats, pages, images and temporary files.
+  Interrupted local cleanup is retried at launch; network failures alone do not
+  erase offline content.
+- Offline devices cannot be erased remotely. External downloads, backups,
+  bucket versions and CDN copies need separate retention/purge handling. Shared
+  live catalog images are preserved when deleting an individual staff account.
+  Old unreferenced staff uploads cannot be attributed in the shared house prefix;
+  house deletion removes that entire prefix. New uploads are individually tracked.

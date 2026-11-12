@@ -46,10 +46,30 @@ model User {
   receivedDirectMessages DirectMessage[] @relation("ReceivedDirectMessages")
   directMessageThreadStates DirectMessageThreadState[]
   directMessageDeletions DirectMessageUserDeletion[]
+  uploadedMedia UploadedMedia[]
 
   @@index([fashionHouseId])
   @@index([fashionHouseId, role])
   @@map("users")
+}
+
+model MediaCleanupJob {
+  id String @id
+  prefix String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  nextAttemptAt DateTime @default(now()) @db.Timestamptz(6)
+  attempts Int @default(0)
+  @@index([nextAttemptAt], map: "media_cleanup_jobs_due_idx")
+  @@map("media_cleanup_jobs")
+}
+
+model UploadedMedia {
+  key String @id
+  ownerId String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  @@index([ownerId], map: "uploaded_media_owner_idx")
+  @@map("uploaded_media")
 }
 
 model WaitlistEntry {

@@ -32,6 +32,14 @@ export class UploadService {
     const key = `${requiresProcessing ? "pending/" : ""}${prefix}/${fileUuid}-${safeName}`;
 
     const presignedData = await generatePresignedUploadUrl(key, contentType, fileSize);
+    // Record both keys before issuing an upload capability. This also tracks
+    // abandoned uploads and lets us clean up a staff member's individual files.
+    const keys = requiresProcessing ? [key, key.replace(/^pending\//, "").replace(/\.[^.\/]+$/, "") + ".webp"] : [key];
+    await this.database.identityClient.$transaction(async tx => {
+      for (const storedKey of keys) {
+        await tx.$executeRaw`INSERT INTO uploaded_media (key, "ownerId") VALUES (${storedKey}, ${user.id})`;
+      }
+    });
 
     return {
       uploadUrl: presignedData.uploadUrl,

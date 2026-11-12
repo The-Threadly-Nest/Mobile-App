@@ -39,7 +39,7 @@ export default function InviteStaffScreen() {
     }
     setLoading(true);
     try {
-      await apiFetch("/api/staff/invite", {
+      const invitation = await apiFetch<{ emailSent?: boolean; message?: string }>("/api/staff/invite", {
         method: "POST",
         body: JSON.stringify({
           name: name.trim(),
@@ -48,7 +48,7 @@ export default function InviteStaffScreen() {
         }),
       });
 
-      showAlert("Invite Sent", `An activation code has been sent to ${email.trim().toLowerCase()}.`);
+      showAlert(invitation.emailSent === false ? "Staff account created" : "Invite Sent", invitation.emailSent === false ? invitation.message || "Open Staff to resend the activation email." : `An activation code has been sent to ${email.trim().toLowerCase()}.`);
       setTimeout(() => {
         router.push("/(admin)/staff" as any);
       }, 1200);

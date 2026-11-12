@@ -1,4 +1,4 @@
-import { Controller, HttpCode, Inject, UseGuards, Post } from "@nestjs/common";
+import { Controller, HttpCode, Inject, UseGuards, Post, Get } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RequestInput } from "../../core/http/endpoint-input";
 import { authInputs, type AuthInput } from "./auth.dto";
@@ -8,6 +8,10 @@ import { SessionGuard } from "../../core/auth/access.guards";
 @Controller("api/auth")
 export class AuthController {
   constructor(@Inject(AuthService) private readonly service: AuthService) { }
+
+  @Get("session")
+  @UseGuards(SessionGuard)
+  getSession() { return { active: true }; }
 
   @Post("signup")
   @HttpCode(200)

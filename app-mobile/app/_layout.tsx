@@ -13,6 +13,7 @@ import { StartupReadyContext } from "@/shared/components/StartupContext";
 import * as SplashScreen from "expo-splash-screen";
 import { isRunningInExpoGo } from "expo";
 import { useAuthStore } from "@/stores/useAuthStore";
+import SessionMonitor from "@/shared/components/SessionMonitor";
 
 SplashScreen.preventAutoHideAsync();
 let brandSplashShown = false;
@@ -64,6 +65,7 @@ export default function RootLayout() {
   return (
     <AppErrorBoundary>
       <SafeAreaProvider>
+        <SessionMonitor />
         <StatusBar style="dark" />
         <View style={{ flex: 1, backgroundColor: "#FFFFFF" }} onLayout={onLayoutRootView}>
           <StartupReadyContext.Provider value={!showBrandSplash}>

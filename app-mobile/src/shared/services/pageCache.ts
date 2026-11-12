@@ -4,6 +4,7 @@ const MAX_ENTRIES_PER_OWNER = 150;
 type CacheRow = { payload: string; updated_at: number };
 
 let databasePromise: ReturnType<typeof initializeDatabase> | null = null;
+let cacheGeneration = 0;
 
 async function initializeDatabase() {
   const SQLite = await import("expo-sqlite");
@@ -51,8 +52,10 @@ export async function readPageCache<T>(ownerKey: string | null, cacheKey: string
 
 export async function writePageCache<T>(ownerKey: string | null, cacheKey: string, payload: T) {
   if (!ownerKey) return;
+  const generation = cacheGeneration;
   try {
     const database = await getDatabase();
+    if (generation !== cacheGeneration) return;
     await database.runAsync(
       `INSERT INTO page_cache (owner_key, cache_key, payload, updated_at)
        VALUES (?, ?, ?, ?)
@@ -80,10 +83,12 @@ export async function writePageCache<T>(ownerKey: string | null, cacheKey: strin
 }
 
 export async function clearPageCache() {
+  cacheGeneration++;
   try {
     const database = await getDatabase();
     await database.runAsync("DELETE FROM page_cache");
   } catch (error) {
     console.warn("Failed to clear cached page data:", error);
+    throw error;
   }
 }

@@ -22,6 +22,12 @@ function getDatabase() {
   return databasePromise;
 }
 
+export async function clearPersistedAccountState() {
+  const database = await getDatabase();
+  await database.runAsync("DELETE FROM persisted_state WHERE key IN (?, ?, ?)",
+    "tfh-cart-storage", "threadly-nest-customer-orders", "threadly-nest-app-data-cache");
+}
+
 export const sqliteStateStorage: StateStorage = {
   async getItem(name) {
     try {

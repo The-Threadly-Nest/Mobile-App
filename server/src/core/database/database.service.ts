@@ -4,8 +4,9 @@ import { databasePool, identityPool, identityPrisma, prisma } from "../../lib/pr
 @Injectable()
 export class DatabaseService implements OnApplicationShutdown {
   readonly client = prisma;
-  // Only credential/verification, platform waitlist and internal notification
-  // code may use the privileged identity connection. Never expose it to clients.
+  // Credential/verification, guarded platform administration, private media
+  // manifests/cleanup and internal notifications use this connection.
+  // Never expose it to clients or use it for ordinary tenant queries.
   readonly identityClient = identityPrisma;
 
   async onApplicationShutdown() {

@@ -46,7 +46,7 @@ export class StaffService {
     const fh = await this.getOwnFashionHouse(input.authUserId!);
     const { name, email, password } = input.body;
 
-    const existing = await this.database.client.user.findUnique({ where: { email } });
+    const existing = await this.database.identityClient.user.findUnique({ where: { email } });
     if (existing) {
       if (existing.role === "admin") {
         return rejectRequest({
@@ -67,7 +67,9 @@ export class StaffService {
     const resetTokenHash = hashResetToken(activationCode);
     const resetTokenExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    const staffUser = await this.database.client.user.create({
+    // Credential writes use the identity connection after checking house ownership.
+    // The runtime RLS insert policy intentionally forbids password hashes.
+    const staffUser = await this.database.identityClient.user.create({
       data: {
         name: name ? name.trim() : null,
         email,
@@ -82,11 +84,15 @@ export class StaffService {
       },
     });
 
-    sendStaffActivationEmail(email, name.trim(), fh.shopName, activationCode).catch((err) => {
+    let emailSent = true;
+    try {
+      await sendStaffActivationEmail(email, name.trim(), fh.shopName, activationCode);
+    } catch (err) {
+      emailSent = false;
       logFailure("The staff account was created, but its invitation email could not be sent.", err);
-    });
+    }
 
-    return result({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, message: "Staff activation invitation sent." }, 201);
+    return result({ id: staffUser.id, name: staffUser.name, email: staffUser.email, active: staffUser.active, emailSent, message: emailSent ? "Staff activation invitation sent." : "Staff account created, but the email could not be sent. Open Staff and resend the activation invitation." }, 201);
 
   }
 
@@ -167,10 +173,13 @@ export class StaffService {
     await this.database.client.user.update({ where: { id: staffUser.id, fashionHouseId: fh.id, role: "staff" },
       data: { resetTokenHash, resetTokenExpiresAt, resetTokenPurpose: "staff_activation", resetTokenAttempts: 0, resetTokenSentAt: new Date() } });
 
-    sendStaffActivationEmail(staffUser.email, staffUser.email, fh.shopName, rawToken).catch((err) => {
+    try {
+      await sendStaffActivationEmail(staffUser.email, staffUser.name || staffUser.email, fh.shopName, rawToken);
+    } catch (err) {
       logFailure("The staff activation email could not be sent.", err);
-    });
-    return { message: "Activation link resent." };
+      return rejectRequest({ error: "We couldn't send the activation email. Your staff account is saved. Please try resending shortly." }, 503);
+    }
+    return { message: "Activation code resent." };
 
   }
 

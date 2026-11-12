@@ -6,6 +6,7 @@ type CacheRow = {
 };
 
 let initializedDatabasePromise: ReturnType<typeof initializeDatabase> | null = null;
+let cacheGeneration = 0;
 
 async function initializeDatabase() {
   // Dynamic loading keeps chat usable in an older development build that does
@@ -78,9 +79,11 @@ export async function writeChatCache<T>(
   payload: T
 ): Promise<void> {
   if (!ownerKey || !conversationId) return;
+  const generation = cacheGeneration;
 
   try {
     const database = await getDatabase();
+    if (generation !== cacheGeneration) return;
     const serializedPayload = JSON.stringify(payload);
     const updatedAt = Date.now();
 
@@ -118,11 +121,13 @@ export async function writeChatCache<T>(
 }
 
 export async function clearChatCache(): Promise<void> {
+  cacheGeneration++;
   try {
     const database = await getDatabase();
     await database.runAsync("DELETE FROM chat_cache");
   } catch (error) {
     console.warn("Failed to clear cached chat history:", error);
+    throw error;
   }
 }
 

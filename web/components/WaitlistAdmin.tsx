@@ -147,7 +147,7 @@ export default function WaitlistAdmin() {
           </section>
         </div>
       ) : ( <main className="admin-shell">
-      <header className="admin-header"><div><a className="wordmark dark" href="/">Owuja</a></div><button className="text-button" disabled={busy} onClick={signOut}>Sign out</button></header>
+      <header className="admin-header"><div><a className="wordmark dark" href="/">Owuja</a></div><a href="/admin/users">Manage users</a><button className="text-button" disabled={busy} onClick={signOut}>Sign out</button></header>
       <section className="summary-grid" aria-label="Waitlist summary">
         {([ ["total", "Total"], ["customers", "Customers"], ["fashionHouses", "Fashion houses"], ["waiting", "Waiting"], ["invited", "Invited"], ["joined", "Joined"] ] as const).map(([key, label]) => <article key={key}><span>{label}</span><strong>{data.summary[key]}</strong></article>)}
       </section>

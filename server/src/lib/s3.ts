@@ -1,4 +1,4 @@
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const R2_ENDPOINT = process.env.R2_ENDPOINT;
@@ -87,4 +87,35 @@ export async function storeProcessedImage(key: string, body: Buffer): Promise<st
 
 export async function deleteStoredObject(key: string): Promise<void> {
   await getS3Client().send(new DeleteObjectCommand({ Bucket: R2_BUCKET_NAME!, Key: key }));
+}
+
+export async function deleteStoragePrefix(prefix: string): Promise<void> {
+  if (prefix.startsWith("key:")) {
+    const key = prefix.slice(4);
+    if (!/^(pending\/)?(customers|houses)\/[a-f0-9-]{36}\/[a-f0-9-]{36}-[a-zA-Z0-9._-]+$/.test(key)) throw new Error("Invalid cleanup key");
+    await deleteStoredObject(key);
+    return;
+  }
+  // Never accept a bucket root, loose substring, or client-provided URL.
+  if (!/^(pending\/)?(customers|houses)\/[a-f0-9-]{36}\/$/.test(prefix)) throw new Error("Invalid cleanup scope");
+  let continuation: string | undefined;
+  do {
+    const page = await getS3Client().send(new ListObjectsV2Command({ Bucket: R2_BUCKET_NAME!, Prefix: prefix, ContinuationToken: continuation }));
+    for (const object of page.Contents || []) {
+      if (object.Key?.startsWith(prefix)) await deleteStoredObject(object.Key);
+    }
+    continuation = page.IsTruncated ? page.NextContinuationToken : undefined;
+  } while (continuation);
+}
+
+export function storedKeyFromUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  if (/^(pending\/)?(customers|houses)\/[a-f0-9-]{36}\/[a-f0-9-]{36}-[a-zA-Z0-9._-]+$/.test(value)) return value;
+  try {
+    const base = new URL(getPublicFileUrl(""));
+    const url = new URL(value);
+    if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) return null;
+    const key = decodeURIComponent(url.pathname.slice(base.pathname.length));
+    return /^(pending\/)?(customers|houses)\/[a-f0-9-]{36}\/[a-f0-9-]{36}-[a-zA-Z0-9._-]+$/.test(key) ? key : null;
+  } catch { return null; }
 }
