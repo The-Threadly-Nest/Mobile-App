@@ -1,9 +1,9 @@
 import { typeScale } from "@/shared/utils/typeScale";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { View, ScrollView, Pressable, Modal, StyleSheet, useWindowDimensions, ActivityIndicator, Image } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Share2, FileText, Image as ImageIcon, X, Printer, Check } from "lucide-react-native";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
 import ViewShot from "react-native-view-shot";
@@ -120,7 +120,7 @@ export default function InvoiceDetailScreen() {
   const [invoiceLoaded, setInvoiceLoaded] = useState(false);
   const [invoiceError, setInvoiceError] = useState("");
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     let active = true;
 
     if (!orderId) {
@@ -164,7 +164,7 @@ export default function InvoiceDetailScreen() {
     return () => {
       active = false;
     };
-  }, [orderId]);
+  }, [orderId]));
 
   const isPaid = isPaymentPaid(invoice.status);
   const canExport =

@@ -108,6 +108,7 @@ export default function ResetPasswordScreen() {
       </Subtext>
 
       <Input
+        variant="outlined"
         placeholder="Email address"
         keyboardType="email-address"
         autoCapitalize="none"
@@ -118,13 +119,15 @@ export default function ResetPasswordScreen() {
 
       {isFirstTimeStaff ? (
         <Input
-          placeholder="Current / Temporary Password"
+          variant="outlined"
+          placeholder="Temporary password"
           secureTextEntry
           value={currentPassword}
           onChangeText={setCurrentPassword}
         />
       ) : (
         <Input
+          variant="outlined"
           placeholder="4-DIGIT PIN"
           autoCapitalize="characters"
           maxLength={4}
@@ -133,8 +136,8 @@ export default function ResetPasswordScreen() {
         />
       )}
 
-      <Input placeholder="New password" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
-      <Input placeholder="Confirm new password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
+      <Input variant="outlined" placeholder="New password" secureTextEntry value={newPassword} onChangeText={setNewPassword} />
+      <Input variant="outlined" placeholder="Confirm new password" secureTextEntry value={confirmPassword} onChangeText={setConfirmPassword} />
       <Text className="font-body text-black text-xs mb-4">At least 8 characters, one uppercase letter, one number</Text>
 
       {error ? <Text className="font-body text-tomato text-xs mb-4">{error}</Text> : null}

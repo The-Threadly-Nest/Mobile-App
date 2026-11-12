@@ -35,6 +35,8 @@ export default function AdminNewGarmentScreen() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const submitBusy = useRef(false);
+  const [formVersion, setFormVersion] = useState(0);
 
   const handlePickImage = async () => {
     if (imagePickerBusy.current || saving) return;
@@ -76,8 +78,7 @@ export default function AdminNewGarmentScreen() {
     }
   };
 
-  const handleReset = () => {
-    if (imagePickerBusy.current || saving) return;
+  const clearForm = () => {
     setName("");
     setPrice("");
     setDetails("");
@@ -85,6 +86,10 @@ export default function AdminNewGarmentScreen() {
     setImagePreviewUri("");
     setFulfillmentType("custom_fit"); setSizesText(""); setColorsText(""); setCategory("");
     setError("");
+    setFormVersion(value => value + 1);
+  };
+  const handleReset = () => {
+    if (!imagePickerBusy.current && !saving) clearForm();
   };
 
   const handleBack = () => {
@@ -92,6 +97,7 @@ export default function AdminNewGarmentScreen() {
   };
 
   const handleSubmit = async () => {
+    if (submitBusy.current || uploadingImage || imagePickerBusy.current) return;
     setError("");
 
     const garmentName = name.trim();
@@ -103,6 +109,7 @@ export default function AdminNewGarmentScreen() {
     if (fulfillmentType === "ready_to_wear" && (!parsedPrice || !sizes.length)) { setError("Ready-for-pickup clothes need a price and available sizes."); return; }
     const garmentDetails = details.trim();
 
+    submitBusy.current = true;
     setSaving(true);
     try {
       await apiFetch("/api/catalog", {
@@ -116,13 +123,13 @@ export default function AdminNewGarmentScreen() {
         }),
       });
 
+      clearForm();
       showAlert("Success", "Garment added to your catalog successfully!");
-      setTimeout(() => {
-        router.replace("/(admin)/dashboard" as any);
-      }, 700);
+      router.replace("/(admin)/dashboard" as any);
     } catch (err: any) {
       setError(err.message || "Could not save garment. Please try again.");
     } finally {
+      submitBusy.current = false;
       setSaving(false);
     }
   };
@@ -236,7 +243,7 @@ export default function AdminNewGarmentScreen() {
             <Text style={styles.fieldLabel}>{fulfillmentType === "ready_to_wear" ? "PRICE" : "STARTING PRICE (OPTIONAL)"}</Text>
             <View style={styles.inputContainer}><TextInput value={price} onChangeText={setPrice} placeholder="Enter price" keyboardType="numeric" style={styles.textInput} /></View>
           </View>
-          <CatalogOfferingFields type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving} />
+          <CatalogOfferingFields key={formVersion} type={fulfillmentType} onTypeChange={setFulfillmentType} sizes={sizesText} onSizesChange={setSizesText} colors={colorsText} onColorsChange={setColorsText} category={category} onCategoryChange={setCategory} disabled={saving} />
 
           {/* 4. DETAILS Multiline Text Area (Figma node 208:4456) */}
           <View style={styles.fieldSection}>

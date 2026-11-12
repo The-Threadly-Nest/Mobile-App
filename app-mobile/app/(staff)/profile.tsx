@@ -1,17 +1,29 @@
 import { typeScale } from "@/shared/utils/typeScale";
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Pressable, StyleSheet, ScrollView } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { LogOut, Mail, ShieldCheck, Building } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { apiFetch } from "@/shared/utils/apiClient";
 
 export default function StaffProfileScreen() {
   const logout = useAuthStore((s) => s.logout);
-  const name = useAuthStore((s) => s.name) || "Staff Member";
-  const email = useAuthStore((s) => s.email) || "";
-  const shopName = useAuthStore((s) => s.shopName) || "Luxury Fashion House";
+  const storedName = useAuthStore((s) => s.name);
+  const storedEmail = useAuthStore((s) => s.email);
+  const storedShop = useAuthStore((s) => s.shopName);
+  const isVerified = useAuthStore((s) => s.isVerified);
+  const token = useAuthStore((s) => s.token);
+  const [profile, setProfile] = useState<{ name?: string; email?: string; shopName?: string } | null>(null);
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    if (token) void apiFetch<{ name?: string; email?: string; shopName?: string }>("/api/staff/me", { cache: "reload", silent: true }).then(value => { if (active) setProfile(value); }).catch(() => {});
+    return () => { active = false; };
+  }, [token]));
+  const name = profile?.name || storedName || "Staff member";
+  const email = profile?.email || storedEmail || "";
+  const shopName = profile?.shopName || storedShop || "Not available";
   const initial = name.charAt(0).toUpperCase();
 
   const handleLogout = () => {
@@ -63,7 +75,7 @@ export default function StaffProfileScreen() {
             <ShieldCheck size={18} color="#453332" />
             <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Account Status</Text>
-              <Text style={styles.infoValue}>Active & Verified</Text>
+              <Text style={styles.infoValue}>{isVerified ? "Verified staff account" : "Staff account"}</Text>
             </View>
           </View>
         </View>
@@ -76,7 +88,7 @@ export default function StaffProfileScreen() {
             { opacity: pressed ? 0.85 : 1 },
           ]}
         >
-          <LogOut size={18} color="#F96951" />
+          <LogOut size={18} color="#FFFFFF" />
           <Text style={styles.logoutBtnText}>Log Out</Text>
         </Pressable>
       </ScrollView>
@@ -92,7 +104,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
     paddingTop: 36,
-    paddingBottom: 40,
+    paddingBottom: 120,
   },
   pageTitle: {
     ...typeScale.pageTitle,
@@ -100,32 +112,32 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   profileCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     padding: 24,
     alignItems: "center",
     marginBottom: 20,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: "rgba(69, 51, 50, 0.5)",
     shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
   },
   avatarCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "#453332",
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: "#F9E8D3",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
   },
   avatarText: {
     fontFamily: "InstrumentSans-Regular",
-    fontSize: 26,
-    color: "#FFFDF9",
+    fontSize: 32,
+    color: "#453332",
   },
   userName: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -134,10 +146,10 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   roleBadge: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 999,
   },
   roleBadgeText: {
     fontFamily: "InstrumentSans-SemiBold",
@@ -146,23 +158,24 @@ const styles = StyleSheet.create({
     color: "#453332",
   },
   infoCard: {
-    backgroundColor: "#FFFDF9",
+    backgroundColor: "#F9E8D3",
     borderRadius: 24,
     padding: 20,
     marginBottom: 24,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: "rgba(69, 51, 50, 0.5)",
     shadowColor: "#2B2B2B",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
+    gap: 20,
   },
   sectionHeader: {
     ...typeScale.sectionTitle,
     letterSpacing: 1,
     color: "#4A403B",
-    marginBottom: 16,
+    marginBottom: 0,
   },
   infoRow: {
     flexDirection: "row",
@@ -196,13 +209,13 @@ const styles = StyleSheet.create({
     gap: 8,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#FFFDF9",
-    borderWidth: 1.5,
+    backgroundColor: "#F96951",
+    borderWidth: 0,
     borderColor: "rgba(69, 51, 50, 0.3)",
   },
   logoutBtnText: {
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 15,
-    color: "#F96951",
+    color: "#FFFFFF",
   },
 });

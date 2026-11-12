@@ -46,14 +46,15 @@ export class InvoicesService {
 
     const { bankName, accountNumber, accountName } = order.fashionHouse;
 
-    // Existing invoices keep their original payment snapshot. Legacy invoices
-    // without a snapshot may be completed once from the current tenant profile.
+    // Paid invoices retain their historical snapshot. Reopening an unpaid
+    // invoice refreshes payment instructions from the saved house profile.
     const existing = await this.database.client.invoice.findFirst({
       where: { orderId, order: { fashionHouseId: fhId } },
       include: invoiceInclude,
     });
     if (existing) {
-      if (existing.bankName && existing.accountNumber && existing.accountName) {
+      if (existing.paymentStatus === "paid" && existing.bankName && existing.accountNumber && existing.accountName) return existing;
+      if (existing.bankName === bankName && existing.accountNumber === accountNumber && existing.accountName === accountName && bankName && accountNumber && accountName) {
         return existing;
       }
       if (!bankName || !accountNumber || !accountName) {
@@ -63,17 +64,15 @@ export class InvoicesService {
         }, 409);
       }
 
-      const completedLegacyInvoice = await this.database.client.invoice.update({
-        where: { id: existing.id },
+      await this.database.client.invoice.updateMany({
+        where: { id: existing.id, paymentStatus: existing.paymentStatus, order: { fashionHouseId: fhId } },
         data: {
-          currency: order.fashionHouse.currency,
           bankName,
           accountNumber,
           accountName,
         },
-        include: invoiceInclude,
       });
-      return completedLegacyInvoice;
+      return this.database.client.invoice.findUniqueOrThrow({ where: { id: existing.id }, include: invoiceInclude });
     }
 
     if (!bankName || !accountNumber || !accountName) {

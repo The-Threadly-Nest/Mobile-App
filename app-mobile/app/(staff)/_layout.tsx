@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { View } from "react-native";
 import { Text } from "@/shared/components/Typography";
-import { Tabs, usePathname } from "expo-router";
+import { Tabs, usePathname, Redirect } from "expo-router";
 import { NavigationBar } from "expo-navigation-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle } from "react-native-svg";
@@ -11,7 +11,7 @@ import { FloatingTabBar } from "@/shared/components/FloatingTabBar";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 
 function FloatingTabIcon({ focused, children }: { focused: boolean; children: React.ReactNode }) {
-  return <View style={{ width: 36, height: 36, borderRadius: 18, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#F96951" : "transparent" }}>{children}</View>;
+  return <View style={{ width: 38, height: 38, borderRadius: 19, overflow: "hidden", alignItems: "center", justifyContent: "center", backgroundColor: focused ? "#453332" : "transparent" }}>{children}</View>;
 }
 
 // ─── Schedule a local tray notification for a new incoming chat message ───────
@@ -83,44 +83,14 @@ function OrdersIcon({ color, focused }: { color: string; focused: boolean }) {
   );
 }
 
-function ChatIcon({ color, focused, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
-  const activeColor = focused ? "#453332" : color;
-
-  return (
-    <View style={{ width: 24, height: 24, justifyContent: "center", alignItems: "center" }}>
-      <Svg width="22" height="21" viewBox="0 0 22 21" fill="none">
-        <Path
-          d="M20.4158 16.4143C20.7909 16.0392 21.0016 15.5305 21.0016 15.0001V3.00001C21.0016 2.46957 20.7909 1.96086 20.4158 1.58579C20.0407 1.21071 19.5319 1 19.0014 1H3.00016C2.46968 1 1.96094 1.21071 1.58583 1.58579C1.21073 1.96086 1 2.46957 1 3.00001V19.2861C1.00002 19.4265 1.04167 19.5638 1.1197 19.6805C1.19772 19.7972 1.30861 19.8882 1.43834 19.942C1.56808 19.9957 1.71083 20.0098 1.84856 19.9824C1.98628 19.955 2.11279 19.8874 2.2121 19.7881L4.41427 17.5861C4.78929 17.211 5.29795 17.0002 5.82839 17.0001H19.0014C19.5319 17.0001 20.0407 16.7894 20.4158 16.4143Z"
-          stroke={activeColor}
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill={focused ? activeColor : "none"}
-        />
-      </Svg>
-      {unreadCount > 0 ? (
-        <View
-          style={{
-            position: "absolute",
-            top: -2,
-            right: -4,
-            backgroundColor: "#F96951",
-            minWidth: 14,
-            height: 14,
-            borderRadius: 7,
-            paddingHorizontal: 3,
-            alignItems: "center",
-            justifyContent: "center",
-            borderWidth: 1.5,
-            borderColor: "#FFFDF9",
-          }}
-        >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFDF9", textAlign: "center" }}>
-            {unreadCount}
-          </Text>
-        </View>
-      ) : null}
-    </View>
-  );
+function ChatIcon({ color, unreadCount }: { color: string; focused: boolean; unreadCount: number }) {
+  return <View style={{ width: 24, height: 24 }}>
+    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+      <Path d="M8.5 19H8C4 19 2 18 2 13V8C2 4 4 2 8 2H16C20 2 22 4 22 8V13C22 17 20 19 16 19H15.5C15.19 19 14.89 19.15 14.7 19.4L13.2 21.4C12.54 22.28 11.46 22.28 10.8 21.4L9.3 19.4C9.14 19.18 8.77 19 8.5 19Z" stroke={color} strokeWidth={1.5} strokeMiterlimit={10} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M15.9965 11H16.0054M11.9955 11H12.0045M7.99451 11H8.00349" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+    {unreadCount > 0 && <View style={{ position: "absolute", top: -5, right: -7, minWidth: 15, height: 15, borderRadius: 8, paddingHorizontal: 3, backgroundColor: "#453332", alignItems: "center", justifyContent: "center" }}><Text style={{ color: "#FFFFFF", fontSize: 9 }}>{unreadCount > 99 ? "99+" : unreadCount}</Text></View>}
+  </View>;
 }
 
 function MoodboardIcon({ color, focused }: { color: string; focused: boolean }) {
@@ -264,10 +234,12 @@ export default function StaffLayout() {
     return () => clearInterval(interval);
   }, [token]);
 
+  if (!token) return <Redirect href="/(auth)/login" />;
   return (
     <Tabs
-      backBehavior="history"
-      tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
+      initialRouteName="dashboard"
+      backBehavior="initialRoute"
+      tabBar={(props) => props.state.routes[props.state.index]?.name === "chat" ? null : <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#FFFDF9",
@@ -296,8 +268,7 @@ export default function StaffLayout() {
       <Tabs.Screen
         name="chat"
         options={{
-          title: "Chat",
-          tabBarStyle: { display: "none" },
+          title: "Message admin",
           tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ChatIcon color={String(color)} focused={focused} unreadCount={unreadCount} /></FloatingTabIcon>,
         }}
       />

@@ -316,6 +316,11 @@ export default function StaffDashboard() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator color="#453332" size="large" />
           </View>
+        ) : displayedOrders.length === 0 ? (
+          <View style={{ backgroundColor: "#F9E8D3", borderRadius: 20, padding: 24, gap: 8 }}>
+            <Text style={{ ...typeScale.sectionTitle, color: "#4A403B" }}>{orders.length === 0 ? "No assigned orders yet" : activeTab === "completed" ? "No completed orders yet" : "No orders in progress"}</Text>
+            <Text style={{ ...typeScale.body, color: "#4A403B" }}>{orders.length === 0 ? "Orders will appear here when your admin assigns them to you." : "Your orders will appear here as their status changes."}</Text>
+          </View>
         ) : (
           displayedOrders.map((order) => {
             const initial = order.customerName.charAt(0).toUpperCase();
@@ -519,3 +524,4 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
+import { typeScale } from "@/shared/utils/typeScale";
