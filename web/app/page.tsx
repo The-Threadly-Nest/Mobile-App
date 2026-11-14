@@ -867,24 +867,24 @@ export default function WaitlistPage() {
     const displayReferral = referral;
 
     return (
-      <div className="flex flex-col items-center gap-5 py-5 text-center">
+      <div className="flex flex-col items-center gap-3.5 py-1 text-center">
         {/* Landing Page Official Logo */}
-        <div className="flex items-center justify-center py-1">
-          <img src="/assets/logo.svg" alt="Owuja" className="h-10 w-auto" />
+        <div className="flex items-center justify-center">
+          <img src="/assets/logo.svg" alt="Owuja" className="h-8 w-auto" />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <h2 className="font-['Hedvig_Letters_Serif'] text-[28px] font-normal leading-tight text-[#453332] sm:text-[32px]">
+        <div className="flex flex-col gap-1.5">
+          <h2 className="font-['Hedvig_Letters_Serif'] text-[24px] font-normal leading-tight text-[#453332] sm:text-[27px]">
             {step === "already" ? "You're already on the waitlist" : "You're on the waitlist"}
           </h2>
-          <p className="mx-auto max-w-sm text-[15px] font-medium leading-relaxed text-[#746765]">
+          <p className="mx-auto max-w-xs text-[13.5px] font-medium leading-relaxed text-[#746765]">
             {step === "already" ? "No need to register again. We'll be in touch when early access opens." : "Your spot is saved. We'll be in touch when early access opens."}
           </p>
         </div>
 
         {displayReferral && <>
           {/* Responsive Referral Link Box: stacked on mobile so link is fully visible, inline pill on desktop */}
-          <div className="flex w-full max-w-[430px] flex-col gap-2 rounded-2xl border border-black/10 bg-[#f4f4f4] p-2.5 shadow-inner sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:p-1.5 sm:pl-5 sm:gap-0">
+          <div className="flex w-full max-w-[380px] flex-col gap-2 rounded-2xl border border-black/10 bg-[#f4f4f4] p-2 shadow-inner sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:p-1.5 sm:pl-4 sm:gap-0">
             <input
               type="text"
               aria-label="Your referral link"
@@ -896,7 +896,7 @@ export default function WaitlistPage() {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
               }}
-              className="min-w-0 w-full cursor-pointer bg-transparent px-2 py-1 text-[13.5px] text-[#453332] outline-none sm:flex-1 sm:px-0 sm:py-0 sm:text-[14px]"
+              className="min-w-0 w-full cursor-pointer bg-transparent px-2 py-0.5 text-[13px] text-[#453332] outline-none sm:flex-1 sm:px-0 sm:py-0 sm:text-[13.5px]"
             />
             <button
               type="button"
@@ -906,7 +906,7 @@ export default function WaitlistPage() {
                 setTimeout(() => setCopied(false), 2000);
               }}
               title="Copy referral link"
-              className={`flex h-10 w-full shrink-0 items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-medium transition sm:h-9 sm:w-auto ${copied
+              className={`flex h-9 w-full shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 text-[12.5px] font-medium transition sm:w-auto ${copied
                 ? "bg-[#25D366] text-white"
                 : "bg-[#1a1a1a] text-white hover:bg-black"
                 }`}
@@ -926,18 +926,18 @@ export default function WaitlistPage() {
           </div>
 
           {/* "Or" separator */}
-          <p className="text-[14px] font-medium text-[#746765]">Or</p>
+          <p className="text-[13px] font-medium text-[#746765]">Or</p>
 
-          {/* Social Share & Follow Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          {/* Social Share Buttons (Refined & Compact) */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             {/* Facebook */}
             <a
               href="https://www.facebook.com/share/19iPKjWUAb/"
               target="_blank"
               rel="noreferrer"
-              className="flex h-[42px] items-center gap-2 rounded-full bg-[#1877F2] px-5 text-[14px] font-medium text-white shadow-sm transition hover:bg-[#166fe5]"
+              className="flex h-[38px] items-center gap-2 rounded-full bg-[#1877F2] px-4 text-[13px] font-medium text-white shadow-sm transition hover:bg-[#166fe5]"
             >
-              <FacebookIcon className="h-4 w-4 fill-current" />
+              <FacebookIcon className="h-3.5 w-3.5 fill-current" />
               <span>Facebook</span>
             </a>
 
@@ -946,9 +946,9 @@ export default function WaitlistPage() {
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("I just joined the Owuja waitlist — the marketplace for custom African fashion. Join me!")}&url=${encodeURIComponent(displayReferral)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex h-[42px] items-center gap-2 rounded-full bg-[#1c1c1c] px-5 text-[14px] font-medium text-white transition hover:bg-black"
+              className="flex h-[38px] items-center gap-2 rounded-full bg-[#1c1c1c] px-4 text-[13px] font-medium text-white transition hover:bg-black"
             >
-              <XIcon className="h-3.5 w-3.5 fill-current" />
+              <XIcon className="h-3 w-3 fill-current" />
               <span>Share</span>
             </a>
 
@@ -957,9 +957,9 @@ export default function WaitlistPage() {
               href={`https://wa.me/?text=${encodeURIComponent("I just joined the Owuja waitlist — custom African fashion, all in one place. Join me: " + displayReferral)}`}
               target="_blank"
               rel="noreferrer"
-              className="flex h-[42px] items-center gap-2 rounded-full bg-[#25D366] px-5 text-[14px] font-medium text-white transition hover:bg-[#20bd5a]"
+              className="flex h-[38px] items-center gap-2 rounded-full bg-[#25D366] px-4 text-[13px] font-medium text-white transition hover:bg-[#20bd5a]"
             >
-              <WhatsAppIcon className="h-4 w-4 fill-current" />
+              <WhatsAppIcon className="h-3.5 w-3.5 fill-current" />
               <span>Share</span>
             </a>
 
@@ -968,25 +968,39 @@ export default function WaitlistPage() {
               href="https://www.instagram.com/useowuja?xtok=MTluNDdiaHdsZWVuMg%3D%3D"
               target="_blank"
               rel="noreferrer"
-              className="flex h-[42px] items-center gap-2 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] px-5 text-[14px] font-medium text-white shadow-sm transition hover:opacity-95"
+              className="flex h-[38px] items-center gap-2 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] px-4 text-[13px] font-medium text-white shadow-sm transition hover:opacity-95"
             >
-              <InstagramIcon className="h-4 w-4" />
+              <InstagramIcon className="h-3.5 w-3.5" />
               <span>Instagram</span>
             </a>
           </div>
 
-          {/* Follow us on Instagram direct link */}
+          {/* Option A: Follow us on Instagram & Facebook */}
         </>}
-        <div className="pt-2 text-[14px] text-[#746765]">
-          Follow us on Instagram:{" "}
-          <a
-            href="https://www.instagram.com/useowuja?xtok=MTluNDdiaHdsZWVuMg%3D%3D"
-            target="_blank"
-            rel="noreferrer"
-            className="font-semibold text-[#f96951] underline underline-offset-4 hover:opacity-80"
-          >
-            @useowuja
-          </a>
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-1.5 text-[13px] text-[#746765]">
+          <div>
+            Follow us on Instagram:{" "}
+            <a
+              href="https://www.instagram.com/useowuja?xtok=MTluNDdiaHdsZWVuMg%3D%3D"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-[#f96951] underline underline-offset-4 hover:opacity-80"
+            >
+              @useowuja
+            </a>
+          </div>
+          <span className="hidden text-black/20 sm:inline">•</span>
+          <div>
+            Follow us on Facebook:{" "}
+            <a
+              href="https://www.facebook.com/share/19iPKjWUAb/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-[#f96951] underline underline-offset-4 hover:opacity-80"
+            >
+              Owuja
+            </a>
+          </div>
         </div>
       </div>
     );
@@ -1297,7 +1311,11 @@ export default function WaitlistPage() {
             aria-modal="true"
             aria-label={step === "join" ? "Join the waitlist" : step === "already" ? "You're already on the waitlist" : "Waitlist registration confirmed"}
             tabIndex={-1}
-            className="no-scrollbar relative max-h-[min(85dvh,760px)] w-full max-w-[520px] overflow-y-auto rounded-[24px] border border-white/60 bg-white p-5 pt-14 shadow-2xl shadow-[#453332]/25 outline-none sm:p-6 sm:pt-14"
+            className={`no-scrollbar relative max-h-[min(85dvh,760px)] w-full overflow-y-auto rounded-[28px] border border-white/60 bg-white shadow-2xl shadow-[#453332]/25 outline-none ${
+              step === "join"
+                ? "max-w-[520px] p-5 pt-14 sm:p-6 sm:pt-14"
+                : "max-w-[430px] p-5 pt-10 sm:p-6 sm:pt-11"
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Glass Close Button */}
