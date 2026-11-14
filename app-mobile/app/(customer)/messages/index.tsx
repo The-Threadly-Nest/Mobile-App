@@ -3,7 +3,7 @@ import { View, FlatList, Pressable, ActivityIndicator, RefreshControl, Image, St
 import { Text } from "@/shared/components/Typography";
 import { Image as AssetImage } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { MessageSquare, Bell } from "lucide-react-native";
 import { apiFetch } from "@/shared/utils/apiClient";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -30,11 +30,13 @@ function formatThreadTime(value: string | null): string {
 }
 
 export default function CustomerMessagesScreen() {
+  const { tab: requestedTab } = useLocalSearchParams<{ tab?: string }>();
   const role = useAuthStore(state => state.role);
   const email = useAuthStore(state => state.email);
   const cacheOwner = createPageCacheOwner(role, email);
   const [threads, setThreads] = useState<MessageThread[]>([]);
   const [tab, setTab] = useState<"messages" | "notifications">("messages");
+  useFocusEffect(useCallback(() => { setTab(requestedTab === "notifications" ? "notifications" : "messages"); }, [requestedTab]));
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -137,7 +139,7 @@ export default function CustomerMessagesScreen() {
           {tab === "notifications" ? <Bell size={28} color="#2B2B2B" /> : <MessageSquare size={28} color="#2B2B2B" />}
           <Text style={styles.emptyTitle}>{tab === "notifications" ? "You're all caught up" : "No messages yet"}</Text>
           <Text style={styles.emptyText}>{tab === "notifications" ? "Unread conversation alerts appear here." : "Your conversations with fashion houses will appear here."}</Text>
-        </View> : null} />
+        </View> : undefined} />
     </SafeAreaView>
   );
 }

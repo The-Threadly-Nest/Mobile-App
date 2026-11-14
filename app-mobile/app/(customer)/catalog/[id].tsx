@@ -291,7 +291,7 @@ export default function CatalogItemDetailScreen() {
           <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
             {isCustomFit ? <Pressable disabled={!garmentData || loading || Boolean(error)} style={styles.addToCartBtn} onPress={handleBookMeasurement}><Text style={styles.addToCartText}>Book measurement</Text></Pressable>
               : <View style={{ flexDirection: "row", gap: 10, width: "100%" }}>
-                <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#453332" }]} onPress={() => handleAddToCart()}><Text style={styles.addToCartText}>Add to cart</Text></Pressable>
+                <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#F9E8D3", elevation: 0, shadowOpacity: 0 }]} onPress={() => handleAddToCart()}><Text style={[styles.addToCartText, { color: "#F96951" }]}>Add to cart</Text></Pressable>
                 <Pressable disabled={!garmentData || loading || Boolean(error)} style={[styles.addToCartBtn, { flex: 1, width: undefined, backgroundColor: "#F96951" }]} onPress={() => handleAddToCart(true)}><Text style={styles.addToCartText}>Buy now</Text></Pressable>
               </View>}
           </View>

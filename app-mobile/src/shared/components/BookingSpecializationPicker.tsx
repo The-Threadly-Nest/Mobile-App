@@ -10,11 +10,10 @@ export default function BookingSpecializationPicker({ categories, disabled, onCo
   const options = [...new Set(categories.map(category => category.trim()).filter(Boolean))];
   useEffect(() => { if (selected && !options.includes(selected)) setSelected(null); }, [categories, selected]);
   return <View style={styles.picker}>
-    {options.map(category => <Pressable key={category} accessibilityRole="radio" accessibilityState={{ selected: selected === category, disabled }}
+    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>{options.map(category => <Pressable key={category} accessibilityRole="radio" accessibilityState={{ selected: selected === category, disabled }}
       onPress={() => setSelected(category)} disabled={disabled} style={[styles.option, selected === category && styles.selected]}>
-      <Text style={styles.label}>{category}</Text>
-      {selected === category ? <Check size={18} color="#453332" /> : null}
-    </Pressable>)}
+      <Text style={[styles.label, selected === category && { color: "#FFFFFF" }]}>{category}</Text>
+    </Pressable>)}</View>
     {!options.length ? <Text style={styles.hint}>This fashion house hasn't added its specializations yet. Talk to the admin for help.</Text> : null}
     <Pressable accessibilityRole="button" disabled={disabled || !selected || !options.includes(selected)}
       onPress={() => { if (selected && options.includes(selected)) onConfirm(selected); }} style={[styles.continue, (disabled || !selected) && { opacity: 0.4 }]}>
@@ -23,8 +22,8 @@ export default function BookingSpecializationPicker({ categories, disabled, onCo
   </View>;
 }
 const styles = StyleSheet.create({
-  picker: { gap: 10, marginTop: 12 }, option: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 14, borderRadius: 999, backgroundColor: "#FFFDF9", borderWidth: 1, borderColor: "transparent" },
-  selected: { borderColor: "#453332" }, label: { flex: 1, fontFamily: "InstrumentSans-Medium", fontSize: 14, lineHeight: 20, color: "#4A403B" },
+  picker: { gap: 10, marginTop: 12 }, option: { width: "48%", minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", padding: 12, borderRadius: 999, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#453332" },
+  selected: { borderColor: "#F96951", backgroundColor: "#F96951" }, label: { flexShrink: 1, textAlign: "center", fontFamily: "InstrumentSans-Medium", fontSize: 14, lineHeight: 20, color: "#4A403B" },
   hint: { fontFamily: "InstrumentSans-Regular", fontSize: 13, lineHeight: 18, color: "#4A403B" },
   continue: { minHeight: 46, borderRadius: 23, backgroundColor: "#453332", alignItems: "center", justifyContent: "center" }, white: { fontFamily: "InstrumentSans-SemiBold", fontSize: 14, color: "#FFFDF9" },
 });

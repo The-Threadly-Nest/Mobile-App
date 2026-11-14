@@ -78,7 +78,7 @@ function getDrawingBounds(paths: PathData[]) {
 }
 
 export default function StaffDrawScreen() {
-  const canvasCaptureRef = useRef<View>(null);
+  const canvasCaptureRef = useRef<React.ComponentRef<typeof View>>(null);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const isLandscape = width > height;

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Modal, View, Pressable, Animated, StyleSheet, useWindowDimensions } from "react-native";
-import { Text } from "@/shared/components/Typography";
+import { Modal, View, Pressable, Animated, StyleSheet, useWindowDimensions, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, TextInput } from "@/shared/components/Typography";
 import { ShoppingBag } from "lucide-react-native";
 import { alertEmitter, AlertPayload } from "@/shared/utils/alertEmitter";
 
@@ -16,11 +16,13 @@ import { alertEmitter, AlertPayload } from "@/shared/utils/alertEmitter";
  */
 export default function AppAlert() {
   const [visible, setVisible] = useState(false);
+  const [input, setInput] = useState("");
   const [payload, setPayload] = useState<AlertPayload>({ title: "", message: "" });
   const anim = useRef(new Animated.Value(0)).current;
 
   const open = useCallback((p: AlertPayload) => {
     setPayload(p);
+    setInput("");
     setVisible(true);
     anim.setValue(0);
     Animated.spring(anim, {
@@ -52,14 +54,14 @@ export default function AppAlert() {
     return unsub;
   }, [open]);
 
-  const isConfirm = !!(payload.onConfirm || payload.confirmLabel);
+  const isConfirm = !!(payload.onConfirm || payload.onInputConfirm || payload.confirmLabel);
   const isCartAlert = payload.variant === "cart";
   const { width, fontScale } = useWindowDimensions();
   const stackActions = isConfirm && ((payload.confirmLabel || "OK").length > 12 || width < 360 || fontScale > 1.2);
 
   return (
     <Modal transparent animationType="none" visible={visible} onRequestClose={() => close(payload.onCancel)}>
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.overlay}>
         <Pressable
           accessibilityLabel="Close dialog"
           style={StyleSheet.absoluteFill}
@@ -91,6 +93,7 @@ export default function AppAlert() {
 
             <Text style={[styles.title, isCartAlert && styles.centeredText]}>{payload.title}</Text>
             <Text style={[styles.message, isCartAlert && styles.centeredText]}>{payload.message}</Text>
+            {payload.inputLabel && <TextInput accessibilityLabel={payload.inputLabel} placeholder={payload.inputLabel} value={input} onChangeText={setInput} maxLength={500} multiline style={{ minHeight: 80, maxHeight: 140, borderWidth: 1, borderColor: "#453332", borderRadius: 14, padding: 12, marginBottom: 16, color: "#4A403B", backgroundColor: "#FFFFFF", textAlignVertical: "top" }} />}
 
             <View style={[styles.actions, isConfirm && styles.actionsRow, stackActions && styles.actionsStack]}>
               {isConfirm && (
@@ -113,14 +116,15 @@ export default function AppAlert() {
                   stackActions && styles.btnStack,
                   { opacity: pressed ? 0.85 : 1 },
                 ]}
-                onPress={() => close(payload.onConfirm)}
+                disabled={Boolean(payload.inputLabel) && input.trim().length < 3}
+                onPress={() => close(payload.onInputConfirm ? () => payload.onInputConfirm!(input.trim()) : payload.onConfirm)}
               >
                 <Text style={styles.confirmText}>{payload.confirmLabel ?? "OK"}</Text>
               </Pressable>
             </View>
           </View>
         </Animated.View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

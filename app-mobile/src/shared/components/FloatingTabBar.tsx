@@ -5,12 +5,13 @@ import { Text } from "@/shared/components/Typography";
 type FloatingTabBarProps = {
   state: any;
   descriptors: any;
-  navigation: any;
+  emitter: { emit: (event: any) => any };
+  navigateToTab: (routeKey: string) => void;
   bottomInset: number;
   allowedRoutes?: string[];
 };
 
-export function FloatingTabBar({ bottomInset, state, descriptors, navigation, allowedRoutes }: FloatingTabBarProps) {
+export function FloatingTabBar({ bottomInset, state, descriptors, emitter, navigateToTab, allowedRoutes }: FloatingTabBarProps) {
   const { width: screenWidth } = useWindowDimensions();
   const width = Math.min(330, screenWidth - 36);
   const focusedRoute = state.routes[state.index];
@@ -71,12 +72,12 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
               accessibilityRole="button"
               accessibilityState={focused ? { selected: true } : {}}
               accessibilityLabel={options.tabBarAccessibilityLabel ?? options.title ?? route.name}
-              android_ripple={null}
+              android_ripple={undefined}
               onPress={() => {
-                const event = navigation.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
-                if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
+                const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
+                if (!focused && !event.defaultPrevented) navigateToTab(route.key);
               }}
-              onLongPress={() => navigation.emit({ type: "tabLongPress", target: route.key })}
+              onLongPress={() => emitter.emit({ type: "tabLongPress", target: route.key })}
               style={({ pressed }) => [
                 {
                   flex: 1,
@@ -89,8 +90,8 @@ export function FloatingTabBar({ bottomInset, state, descriptors, navigation, al
             >
               {icon}
               {badge != null ? (
-                <View style={{ position: "absolute", top: 5, right: 16, minWidth: 16, height: 16, paddingHorizontal: 3, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F96951" }}>
-                  <Text style={{ color: "#FFFDF9", fontSize: 9, fontWeight: "700" }}>{String(badge)}</Text>
+                <View style={{ position: "absolute", top: 1, right: 8, minWidth: 24, height: 24, paddingHorizontal: 5, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "#453332" }}>
+                  <Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "700" }}>{Number(badge) > 99 ? "99+" : String(badge)}</Text>
                 </View>
               ) : null}
             </Pressable>

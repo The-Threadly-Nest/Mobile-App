@@ -61,9 +61,9 @@ export default function DiscoveryPage({ kind }: { kind: "marketplace" | "houses"
     {!offline && error ? <Pressable onPress={() => void load(1, revision.current)} style={styles.notice}><Text style={styles.body}>{error} Tap to retry.</Text></Pressable> : null}
     {loading && !items.length ? <ActivityIndicator color="#F96951" style={styles.notice} /> : null}
     <FlatList key={houses ? "houses" : "products"} data={houses ? items : filterCatalogItems(items, type, sort)} numColumns={houses ? 3 : 2} keyExtractor={item => item.id} contentContainerStyle={styles.list} columnWrapperStyle={styles.columns}
-      ListEmptyComponent={!offline && !loading && !error ? <Text style={styles.body}>No matches. Try another search or filter.</Text> : null}
+      ListEmptyComponent={!offline && !loading && !error ? <Text style={styles.body}>No matches. Try another search or filter.</Text> : undefined}
       onEndReached={() => { if (!offline && nextPage && !loading && !more && !moreLock.current) { moreLock.current = true; void load(nextPage, revision.current); } }} onEndReachedThreshold={0.5}
-      ListFooterComponent={more ? <ActivityIndicator color="#F96951" /> : null}
+      ListFooterComponent={more ? <ActivityIndicator color="#F96951" /> : undefined}
       renderItem={({ item }) => <Pressable accessibilityRole="button" style={houses ? styles.houseCard : styles.card} onPress={() => houses ? router.push({ pathname: "/(customer)/fashion-house/[fashionHouseId]", params: { fashionHouseId: item.id, initialName: item.name, initialImage: item.image || item.brandLogoUrl || "", initialLocation: item.location || "" } }) : router.push({ pathname: "/(customer)/catalog/[id]", params: { id: item.id } })}>
         <View style={houses ? styles.houseLogo : styles.imageFrame}>
           {item.imageUrl || item.image || item.brandLogoUrl ? <CachedImage source={houses ? item.image || item.brandLogoUrl : item.imageUrl} style={styles.image} contentFit="cover" /> : houses ? <Text style={styles.initial}>{item.name?.charAt(0).toUpperCase() || "A"}</Text> : null}

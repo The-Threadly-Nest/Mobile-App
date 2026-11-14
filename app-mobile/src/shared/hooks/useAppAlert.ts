@@ -23,6 +23,8 @@ export function useAppAlert() {
         cancelLabel?: string;
         onConfirm?: () => void;
         onCancel?: () => void;
+        inputLabel?: string;
+        onInputConfirm?: (value: string) => void | Promise<void>;
       } = {}
     ) => {
       alertEmitter.emit({ title, message, ...opts });

@@ -71,7 +71,7 @@ export default function DrawingCanvasModal({
   onClose,
   onSave,
 }: DrawingCanvasModalProps) {
-  const canvasCaptureRef = useRef<View>(null);
+  const canvasCaptureRef = useRef<React.ComponentRef<typeof View>>(null);
   const [paths, setPaths] = useState<PathData[]>([]);
   const [currentPath, setCurrentPath] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("#453332");

@@ -7,8 +7,10 @@ import { router, useFocusEffect } from "expo-router";
 import { LogOut, Mail, ShieldCheck, Building } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/shared/utils/apiClient";
+import { useAppAlert } from "@/shared/hooks/useAppAlert";
 
 export default function StaffProfileScreen() {
+  const { showConfirm } = useAppAlert();
   const logout = useAuthStore((s) => s.logout);
   const storedName = useAuthStore((s) => s.name);
   const storedEmail = useAuthStore((s) => s.email);
@@ -27,8 +29,14 @@ export default function StaffProfileScreen() {
   const initial = name.charAt(0).toUpperCase();
 
   const handleLogout = () => {
-    logout();
-    router.replace("/(auth)/login");
+    showConfirm("Log Out", "Are you sure you want to log out of your Owuja account?", {
+      confirmLabel: "Log Out",
+      cancelLabel: "Cancel",
+      onConfirm: () => {
+        logout();
+        router.replace("/(auth)/login");
+      },
+    });
   };
 
   return (

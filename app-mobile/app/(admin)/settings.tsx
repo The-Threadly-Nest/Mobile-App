@@ -13,6 +13,7 @@ import {
   FileText,
   Calendar,
   LogOut,
+  MessageSquare,
 } from "lucide-react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi } from "@/shared/utils/apiClient";
@@ -21,10 +22,12 @@ import { ProfileDesignIcon, ProfileMenuGroups } from "@/shared/components/Profil
 import { formatCurrency } from "@/shared/utils/formatters";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import BackArrowIcon from "@/shared/components/BackArrowIcon";
+import { ActivityBadge, useActivityBadges } from "@/shared/components/ActivityBadges";
 
 const TOMATO = "#F96951";
 
 export default function AdminSettingsScreen() {
+  const { messages, requests } = useActivityBadges();
   const insets = useSafeAreaInsets();
   const { showAlert, showConfirm } = useAppAlert();
 
@@ -129,6 +132,14 @@ export default function AdminSettingsScreen() {
             </Pressable>
 
             {/* 2. Catalog */}
+            <Pressable onPress={() => router.push("/(admin)/decline-history" as any)} style={styles.menuRow}><View style={styles.iconCircle}><FileText size={22} color={TOMATO} /></View><Text style={styles.menuRowTitle}>Decline history</Text><ProfileDesignIcon name="chevron" /></Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push("/(admin)/escalations")} style={styles.menuRow}>
+              <View style={styles.iconCircle}><Calendar size={22} color={TOMATO} /></View><Text style={styles.menuRowTitle}>Order requests</Text><ActivityBadge count={requests} /><ProfileDesignIcon name="chevron" />
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push("/(admin)/messages")} style={styles.menuRow}>
+              <View style={styles.iconCircle}><MessageSquare size={22} color={TOMATO} /></View>
+              <Text style={styles.menuRowTitle}>Messages</Text><ActivityBadge count={messages} /><ProfileDesignIcon name="chevron" />
+            </Pressable>
             <Pressable
               onPress={() => router.push("/(admin)/catalog")}
               style={({ pressed }) => [styles.menuRow, { opacity: pressed ? 0.75 : 1 }]}

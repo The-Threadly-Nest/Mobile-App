@@ -149,7 +149,7 @@ export default function CustomersScreen() {
             contentContainerStyle={styles.listContent}
             onEndReached={() => void loadMoreCustomers()}
             onEndReachedThreshold={0.4}
-            ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
+            ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : undefined}
             renderItem={({ item }) => {
               const initial = (item.name || "C").charAt(0).toUpperCase();
 

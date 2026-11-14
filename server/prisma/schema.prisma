@@ -105,6 +105,18 @@ model WaitlistEntry {
   @@map("waitlist_entries")
 }
 
+model DeclineRecord {
+  id String @id
+  fashionHouseId String
+  targetId String
+  actorId String
+  comment String
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  fashionHouse FashionHouse @relation(fields: [fashionHouseId], references: [id], onDelete: Cascade)
+  @@index([fashionHouseId, targetId], map: "decline_records_house_target_idx")
+  @@map("decline_records")
+}
+
 model RateLimitBucket {
   key     String   @id
   hits    Int
@@ -135,6 +147,7 @@ model FashionHouse {
   updatedAt           DateTime @updatedAt
 
   admin           User             @relation("FashionHouseAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+  declineRecords DeclineRecord[]
   staff           User[]           @relation("FashionHouseStaff")
   customers       Customer[]
   catalogItems    CatalogItem[]

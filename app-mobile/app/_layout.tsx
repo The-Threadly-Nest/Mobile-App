@@ -14,6 +14,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { isRunningInExpoGo } from "expo";
 import { useAuthStore } from "@/stores/useAuthStore";
 import SessionMonitor from "@/shared/components/SessionMonitor";
+import { ActivityBadgesProvider } from "@/shared/components/ActivityBadges";
 
 SplashScreen.preventAutoHideAsync();
 let brandSplashShown = false;
@@ -69,14 +70,14 @@ export default function RootLayout() {
         <StatusBar style="dark" />
         <View style={{ flex: 1, backgroundColor: "#FFFFFF" }} onLayout={onLayoutRootView}>
           <StartupReadyContext.Provider value={!showBrandSplash}>
-            <ConnectionFrame>
+            <ActivityBadgesProvider><ConnectionFrame>
               <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#FFFFFF" } }}>
                 <Stack.Screen name="(auth)" options={{ animation: "none" }} />
                 <Stack.Screen name="(customer)" options={{ animation: "none", gestureEnabled: false }} />
                 <Stack.Screen name="(admin)" options={{ animation: "none", gestureEnabled: false }} />
                 <Stack.Screen name="(staff)" options={{ animation: "none" }} />
               </Stack>
-            </ConnectionFrame>
+            </ConnectionFrame></ActivityBadgesProvider>
           </StartupReadyContext.Provider>
           {showBrandSplash && (
             <View style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}>

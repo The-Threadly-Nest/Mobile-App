@@ -170,16 +170,10 @@ export default function InvoiceDetailScreen() {
   const canExport =
     invoiceLoaded && Boolean(invoice.bankName && invoice.accountNumber && invoice.accountName);
 
-  const handleMarkAsPaid = async () => {
-    showAlert(
-      "Payment Confirmation Unavailable",
-      "Payment cannot be marked as paid until an authorized, auditable payment workflow is configured."
-    );
-  };
 
   const getHTMLContent = () => {
     if (!canExport) {
-      throw new Error("A verified server invoice with payment details is required before export.");
+      throw new Error("A saved invoice with complete bank details is required before exporting.");
     }
     const subtotal = invoice.subtotal;
     const vat = invoice.taxAmount;
@@ -204,7 +198,7 @@ export default function InvoiceDetailScreen() {
           * { box-sizing: border-box; margin: 0; padding: 0; }
           html, body {
             height: 100%;
-            background-color: #FFFDF9;
+            background-color: #FFFFFF;
             font-family: 'Instrument Sans', sans-serif;
             color: #2B2B2B;
           }
@@ -231,7 +225,7 @@ export default function InvoiceDetailScreen() {
             line-height: 1.2;
           }
           .card {
-            background-color: #FFFDF9;
+            background-color: #FFFFFF;
             border-radius: 28px;
             padding: 36px 32px;
             border: 1px solid rgba(69, 51, 50, 0.12);
@@ -258,7 +252,7 @@ export default function InvoiceDetailScreen() {
             border-radius: 24px;
             background-color: #453332;
             border: 1.5px solid #453332;
-            color: #FFFDF9;
+            color: #FFFFFF;
             font-family: 'Instrument Sans', sans-serif;
             font-size: 22px;
             font-weight: 700;
@@ -284,11 +278,11 @@ export default function InvoiceDetailScreen() {
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
-            background-color: ${isPaid ? 'rgba(69, 51, 50, 0.12)' : '#FFFDF9'};
+            background-color: ${isPaid ? 'rgba(69, 51, 50, 0.12)' : '#FFFFFF'};
             color: ${isPaid ? '#453332' : '#453332'};
           }
           .dashed-line {
-            border-top: 1.5px dashed #FFFDF9;
+            border-top: 1.5px dashed #FFFFFF;
             margin: 24px 0;
           }
           .info-row {
@@ -321,7 +315,7 @@ export default function InvoiceDetailScreen() {
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid #FFFDF9;
+            border-bottom: 1px solid #FFFFFF;
           }
           .item-name { font-size: 15px; color: #2B2B2B; }
           .item-price { font-size: 15px; font-weight: 600; color: #2B2B2B; }
@@ -347,7 +341,7 @@ export default function InvoiceDetailScreen() {
             color: #453332;
           }
           .payment-card {
-            background-color: #FFFDF9;
+            background-color: #FFFFFF;
             border: 1px solid rgba(69, 51, 50, 0.12);
             border-radius: 14px;
             padding: 16px;
@@ -367,7 +361,10 @@ export default function InvoiceDetailScreen() {
             gap: 12px;
           }
           .payment-col-label { font-size: 10px; color: #453332; font-weight: 600; margin-bottom: 2px; }
-          .payment-col-val { font-size: 13px; color: #453332; font-weight: 600; }
+          .payment-grid > div { flex: 1 1 0; min-width: 0; }
+          .payment-col-val { font-size: 13px; color: #453332; font-weight: 600; overflow-wrap: anywhere; word-break: break-word; }
+          .card { overflow-wrap: anywhere; }
+          .brand-left { min-width: 0; flex: 1; }
           .footer-note {
             text-align: center;
             margin-top: 20px;
@@ -618,7 +615,7 @@ export default function InvoiceDetailScreen() {
             <ActivityIndicator color="#453332" style={{ marginBottom: 16 }} />
           ) : null}
           {invoiceError ? (
-            <View style={{ backgroundColor: "#F9E8D3", borderRadius: 12, padding: 12, marginBottom: 16 }}>
+            <View style={{ backgroundColor: "#FFFFFF", borderRadius: 12, padding: 12, marginBottom: 16 }}>
               <Text style={{ fontFamily: "InstrumentSans-Medium", color: "#F96951", textAlign: "center" }}>
                 {invoiceError}
               </Text>
@@ -680,12 +677,12 @@ export default function InvoiceDetailScreen() {
                         justifyContent: "center",
                       }}
                     >
-                      <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#FFFDF9" }}>
+                      <Text style={{ fontFamily: "InstrumentSans-Regular", fontSize: 20, color: "#FFFFFF" }}>
                         {invoice.atelierName ? invoice.atelierName.charAt(0).toUpperCase() : "A"}
                       </Text>
                     </View>
                   )}
-                  <View style={{ flex: 1 }}>
+                  <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={styles.atelierName}>{invoice.atelierName}</Text>
                     <Text style={styles.invoiceSubtitle}>
                       Owuja • {invoice.invoiceNumber}
@@ -770,7 +767,7 @@ export default function InvoiceDetailScreen() {
                 style={{
                   marginTop: 18,
                   padding: 14,
-                  backgroundColor: "#F9E8D3",
+                  backgroundColor: "#FFFFFF",
                   borderRadius: 14,
                   borderWidth: 1,
                   borderColor: "rgba(69, 51, 50, 0.12)",
@@ -789,7 +786,7 @@ export default function InvoiceDetailScreen() {
                 >
                   PAYMENT INFORMATION
                 </Text>
-                <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+                <View style={{ gap: 14, width: "100%" }}>
                   <View>
                     <Text style={{ fontFamily: "InstrumentSans-Medium", fontSize: 10, color: "#4A403B", marginBottom: 2 }}>BANK</Text>
                     <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 13, color: "#4A403B" }}>{invoice.bankName || "Not configured"}</Text>
@@ -834,14 +831,14 @@ export default function InvoiceDetailScreen() {
 
               {/* Mark as Paid Pill */}
               <Pressable
-                onPress={handleMarkAsPaid}
-                disabled={isPaid}
+                onPress={handleDownloadPDF}
+                disabled={isGenerating || !canExport}
                 style={({ pressed }) => [
                   styles.primaryBtn,
                   { opacity: pressed ? 0.75 : isPaid ? 0.5 : 1 },
                 ]}
               >
-                <Text style={styles.primaryBtnText}>{isPaid ? "Paid" : "Payment Pending"}</Text>
+                <Text style={styles.primaryBtnText}>{isGenerating ? "Generating…" : "Generate invoice"}</Text>
               </Pressable>
             </View>
           </View>
@@ -945,7 +942,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 24,
     shadowColor: "#2B2B2B",
@@ -960,6 +957,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   atelierName: {
+    flexShrink: 1,
     fontFamily: "InstrumentSans-Regular",
     fontSize: 18,
     color: "#4A403B",
@@ -990,6 +988,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   fieldValue: {
+    flexShrink: 1,
     fontFamily: "InstrumentSans-SemiBold",
     fontSize: 16,
     color: "#4A403B",
@@ -1082,7 +1081,7 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: {
     ...typeScale.button,
-    color: "#FFFDF9",
+    color: "#FFFFFF",
   },
   outlineBtn: {
     flex: 1,
@@ -1122,7 +1121,7 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
   },
   modalCard: {
-    backgroundColor: "#F9E8D3",
+    backgroundColor: "#FFFFFF",
     borderRadius: 28,
     padding: 24,
     shadowColor: "#2B2B2B",

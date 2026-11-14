@@ -3,9 +3,9 @@ import { Keyboard, ScrollView, View, TextInput, type ScrollViewProps } from "rea
 import { keyboardScrollAdjustment } from "../utils/keyboardVisibility";
 
 /** Measures the actual visible scroll area, including inside a centered modal. */
-export const KeyboardAwareScrollView = forwardRef<ScrollView, ScrollViewProps & { keyboardGap?: number }>(
+export const KeyboardAwareScrollView = forwardRef<React.ComponentRef<typeof ScrollView>, ScrollViewProps & { keyboardGap?: number }>(
   function KeyboardAwareScrollView({ children, keyboardGap = 24, onFocus, onBlur, onScroll, onLayout, ...props }, forwardedRef) {
-    const scroll = useRef<ScrollView | null>(null);
+    const scroll = useRef<React.ComponentRef<typeof ScrollView> | null>(null);
     const offset = useRef(0);
     const keyboardTop = useRef<number | null>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);

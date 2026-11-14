@@ -293,7 +293,7 @@ export default function AdminOrdersScreen() {
           showsVerticalScrollIndicator={false}
           onEndReached={() => void loadMoreOrders()}
           onEndReachedThreshold={0.4}
-          ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : null}
+          ListFooterComponent={loadingMore ? <ActivityIndicator color="#453332" style={{ margin: 16 }} /> : undefined}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

@@ -1,3 +1,5 @@
+export const unstable_settings = { initialRouteName: "browse" };
+import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import React, { useEffect } from "react";
 import { Tabs } from "expo-router";
 import { NavigationBar } from "expo-navigation-bar";
@@ -184,6 +186,7 @@ function ProfileTabIcon({ color, focused }: { color: string; focused: boolean })
 }
 
 export default function TabsLayout() {
+  const { messages: activityCount } = useActivityBadges();
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
   const unreadMessageCount = useAppDataStore((s) => s.unreadMessageCount);
@@ -194,7 +197,6 @@ export default function TabsLayout() {
 
   return (
     <Tabs
-      initialRouteName="browse"
       backBehavior="initialRoute"
       tabBar={(props) => <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
@@ -266,14 +268,14 @@ export default function TabsLayout() {
               <ProfileTabIcon color="#FFFDF9" focused={focused} />
             </FloatingTabIcon>
           ),
-          tabBarBadge: unreadMessageCount > 0 ? (unreadMessageCount > 99 ? "99+" : unreadMessageCount) : undefined,
+          tabBarBadge: activityCount > 0 ? (activityCount > 99 ? "99+" : activityCount) : undefined,
           tabBarBadgeStyle: {
             backgroundColor: "#453332",
             color: "#FFFDF9",
-            fontSize: 9,
-            minWidth: 16,
-            height: 16,
-            borderRadius: 8,
+            fontSize: 12,
+            minWidth: 24,
+            height: 24,
+            borderRadius: 12,
           },
         }}
       />

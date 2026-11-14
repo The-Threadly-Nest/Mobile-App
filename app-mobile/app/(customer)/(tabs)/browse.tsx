@@ -1,3 +1,4 @@
+import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import { useDashboardBack } from "@/shared/hooks/useDashboardBack";
 import { typeScale } from "@/shared/utils/typeScale";
 import React, { useState, useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
@@ -52,6 +53,7 @@ interface FashionHouseSummary {
 
 
 export default function BrowseScreen() {
+  const { messages: activityCount } = useActivityBadges();
   useDashboardBack();
   const connection = useSyncExternalStore(subscribeConnectionStatus, getConnectionStatus);
   const offline = connection === "offline";
@@ -102,9 +104,9 @@ export default function BrowseScreen() {
   const [error, setError] = useState("");
   const { showAlert } = useAppAlert();
   const favoriteLock = React.useRef(false);
-  const scrollRef = React.useRef<ScrollView>(null);
+  const scrollRef = React.useRef<React.ComponentRef<typeof ScrollView>>(null);
   const catalogOffset = React.useRef(0);
-  const fashionHouseScrollRef = React.useRef<ScrollView>(null);
+  const fashionHouseScrollRef = React.useRef<React.ComponentRef<typeof ScrollView>>(null);
   const houseMotion = React.useRef({ offset: 0, viewport: 0, content: 0, direction: 1, resumeAt: 0 });
   // Animate the real row back and forth; never clone records to fill the strip.
   useFocusEffect(useCallback(() => {
@@ -197,18 +199,18 @@ export default function BrowseScreen() {
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Notifications, ${unreadCount} unread messages`}
-            onPress={() => router.push("/(customer)/messages")}
+            accessibilityLabel={`Notifications, ${activityCount} unread messages`}
+            onPress={() => router.push({ pathname: "/(customer)/messages", params: { tab: "notifications" } })}
             style={({ pressed }) => [
               styles.bellButton,
               { opacity: pressed ? 0.75 : 1 },
             ]}
           >
             <Bell size={20} color="#2B2B2B" />
-            {unreadCount > 0 && (
+            {activityCount > 0 && (
               <View style={styles.unreadBadge}>
                 <Text style={styles.unreadBadgeText}>
-                  {unreadCount > 99 ? "99+" : unreadCount}
+                  {activityCount > 99 ? "99+" : activityCount}
                 </Text>
               </View>
             )}
@@ -239,7 +241,7 @@ export default function BrowseScreen() {
             <Text style={styles.bannerTitle}>New Collection</Text>
             <Text style={styles.bannerSubtitle}>Discover clothing from{"\n"}independent fashion houses</Text>
             <Pressable onPress={() => router.push("/(customer)/marketplace")} style={styles.shopNowBtn}>
-              <Text style={styles.shopNowText}>Shop Now</Text>
+              <Text numberOfLines={1} adjustsFontSizeToFit style={styles.shopNowText}>Shop Now</Text>
             </Pressable>
           </View>
           <View style={styles.bannerImageWrapper}>
@@ -411,7 +413,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   greetingName: {
-    fontFamily: "InstrumentSans-Regular",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 26,
     color: "#4A403B",
   },
@@ -435,10 +437,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -2,
     right: -2,
-    backgroundColor: "#F96951",
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
+    backgroundColor: "#453332",
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     paddingHorizontal: 3,
     alignItems: "center",
     justifyContent: "center",
@@ -447,7 +449,7 @@ const styles = StyleSheet.create({
   },
   unreadBadgeText: {
     color: "#FFFDF9",
-    fontSize: 9,
+    fontSize: 12,
     fontFamily: "InstrumentSans-Bold",
   },
   bellBadgeDot: {
@@ -482,6 +484,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   searchInputWrapper: {
+    borderWidth: 1,
+    borderColor: "rgba(69, 51, 50, 0.3)",
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -530,6 +534,11 @@ const styles = StyleSheet.create({
     color: "#FFFDF9",
   },
   shopNowBtn: {
+    minWidth: 110,
+    minHeight: 36,
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
     backgroundColor: "#FFFDF9",
     borderRadius: 999,
     paddingVertical: 6,
@@ -537,6 +546,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   shopNowText: {
+    flexShrink: 0,
     ...typeScale.button,
     color: "#4A403B",
   },

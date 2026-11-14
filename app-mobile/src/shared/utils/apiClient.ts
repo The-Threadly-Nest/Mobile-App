@@ -400,8 +400,8 @@ export const escalationsApi = {
       silent: true,
     });
   },
-  declineBooking: async (escalationId: string) => {
-    return apiFetch<any>(`/api/escalations/${escalationId}/decline`, {
+  declineBooking: async (escalationId: string, comment: string) => {
+    return apiFetch<any>(`/api/escalations/${escalationId}/decline`, { body: JSON.stringify({ comment }),
       method: "PATCH",
       silent: true,
     });

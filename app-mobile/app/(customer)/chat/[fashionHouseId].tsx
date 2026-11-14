@@ -198,7 +198,7 @@ export default function BookingChatScreen() {
                 role: "model",
                 text: serverSlots.length
                   ? `Welcome! Let's book your measurement for ${garmentName}${garmentPrice ? ` (${garmentPrice})` : ""}. Choose a date, then a time below.`
-                  : `Welcome! There are no available appointments for ${garmentName} right now. Use Talk to Admin for help.`,
+                  : `Welcome! There are no available appointments for ${garmentName} right now. Use Consultation for help.`,
                 slots: serverSlots,
               }];
               setHistory(welcome);
@@ -455,7 +455,7 @@ export default function BookingChatScreen() {
           role: "model",
           text: responseSlots.length
             ? "Let's book your measurement appointment. Choose an available date, then a time below."
-            : "There are no available appointments right now. Use Talk to Admin for help.",
+            : "There are no available appointments right now. Use Consultation for help.",
           slots: responseSlots.length ? responseSlots : undefined,
         }
         : {
@@ -469,7 +469,7 @@ export default function BookingChatScreen() {
       if (specialization) setHistory(previous => previous.map(turn => turn.garmentPicker ? { ...turn, garmentPickerComplete: false } : turn));
       const responseTurn: Turn = {
         role: "model",
-        text: "We couldn't reach the booking assistant. Please try again, or use Talk to Admin.",
+        text: "We couldn't reach the booking assistant. Please try again, or use Consultation.",
       };
 
       setHistory((prev) => [...prev, responseTurn]);
@@ -561,8 +561,8 @@ export default function BookingChatScreen() {
             className="px-3 py-1.5 rounded-full bg-white border border-tomato"
             style={{ opacity: requestingHuman ? 0.5 : 1 }}
           >
-            <Text className="font-body-medium text-[11px] text-oxblood">
-              {requestingHuman ? "Requesting..." : "Talk to Admin"}
+            <Text className="text-[11px] text-oxblood" style={{ fontFamily: "InstrumentSans-Bold" }}>
+              {requestingHuman ? "Requesting..." : "Consultation"}
             </Text>
           </Pressable>
         )}

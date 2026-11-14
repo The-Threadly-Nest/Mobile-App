@@ -1,3 +1,5 @@
+export const unstable_settings = { initialRouteName: "dashboard" };
+import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import { useEffect, useState, useRef } from "react";
 import { View } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -150,6 +152,7 @@ function ProfileIcon({ color, focused }: { color: string; focused: boolean }) {
 }
 
 export default function StaffLayout() {
+  const { messages: activityCount } = useActivityBadges();
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
   const token = useAuthStore((s) => s.token);
@@ -237,7 +240,6 @@ export default function StaffLayout() {
   if (!token) return <Redirect href="/(auth)/login" />;
   return (
     <Tabs
-      initialRouteName="dashboard"
       backBehavior="initialRoute"
       tabBar={(props) => props.state.routes[props.state.index]?.name === "chat" ? null : <FloatingTabBar {...props} bottomInset={extraBottom} />}
       screenOptions={{
@@ -269,7 +271,7 @@ export default function StaffLayout() {
         name="chat"
         options={{
           title: "Message admin",
-          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ChatIcon color={String(color)} focused={focused} unreadCount={unreadCount} /></FloatingTabIcon>,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><ChatIcon color={String(color)} focused={focused} unreadCount={activityCount} /></FloatingTabIcon>,
         }}
       />
       <Tabs.Screen

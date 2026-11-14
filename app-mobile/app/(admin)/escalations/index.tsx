@@ -20,6 +20,7 @@ interface BookingItem {
   appointmentTime: string;
   summary: string;
   status: "pending" | "assigned" | "declined";
+  declineComment?: string;
   assignedStaffName?: string;
   createdAt: string;
   readyToWear?: boolean;
@@ -175,6 +176,7 @@ export default function BookingsScreen() {
                   hour: "numeric",
                   minute: "2-digit",
                 }),
+              declineComment: item.declineComment,
               summary: item.summary || "Client scheduled fitting appointment via AI Concierge.",
               status:
                 normalizeStatus(item.bookingStatus) === "declined" || normalizeStatus(item.status) === "declined"
@@ -291,15 +293,15 @@ export default function BookingsScreen() {
       {
         confirmLabel: "Decline",
         cancelLabel: "Cancel",
-        onConfirm: async () => {
+        inputLabel: "Internal reason for declining", onInputConfirm: async (comment) => {
           // Optimistic local update first
           setBookings((prev) =>
             prev.map((b) => (b.id === booking.id ? { ...b, status: "declined" } : b))
           );
           try {
-            if (booking.orderId) await apiFetch(`/api/orders/${booking.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "cancelled" }) });
-            else await escalationsApi.declineBooking(booking.id);
-            setBookings(prev => prev.filter(item => item.id !== booking.id));
+            if (booking.orderId) await apiFetch(`/api/orders/${booking.orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "declined", comment }) });
+            else await escalationsApi.declineBooking(booking.id, comment);
+            setBookings(prev => prev.map(item => item.id === booking.id ? { ...item, declineComment: comment } : item));
             showAlert("Booking Declined", `Appointment for ${booking.customerName} moved to Declined.`);
           } catch {
             // Revert optimistic update on failure
@@ -414,6 +416,7 @@ export default function BookingsScreen() {
                   </View>
 
                   {/* Action Buttons for Pending */}
+                  {item.declineComment && <Text style={{ color: "#4A403B", marginTop: 12 }}>Internal reason: {item.declineComment}</Text>}
                   {item.status === "pending" && (
                     <View style={styles.actionsRow}>
                       <Pressable

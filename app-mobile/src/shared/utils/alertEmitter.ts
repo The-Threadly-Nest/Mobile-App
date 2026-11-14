@@ -18,6 +18,8 @@ export type AlertPayload = {
   cancelLabel?: string;
   onConfirm?: () => void | Promise<void>;
   onCancel?: () => void | Promise<void>;
+  inputLabel?: string;
+  onInputConfirm?: (value: string) => void | Promise<void>;
 };
 
 type Listener = (payload: AlertPayload) => void;

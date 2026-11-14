@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { saveDecline } from "../../lib/decline-record";
 import { routeParam } from "../../core/http/route-param";
 import type { OrdersInput } from "./orders.dto";
 import { result, rejectRequest } from "../../core/http/endpoint-result";
@@ -685,6 +686,7 @@ export class OrdersService {
 
     const fhId = getOwnFashionHouseId(input);
     const { status } = input.body;
+    if (status === "declined" && input.authRole !== "admin") return rejectRequest({ error: "Only the fashion house admin can decline an order." }, 403);
 
     // Tenant Isolation: Verify order belongs to this tenant — also pull customer & fashion house for notification
     const order = await this.database.client.order.findFirst({
@@ -703,30 +705,33 @@ export class OrdersService {
       return rejectRequest({ error: "You can update only custom-fit orders assigned to you." }, 403);
     }
 
-    const updated = await this.database.client.order.update({
-      where: { id: routeParam(input, "id"), fashionHouseId: fhId },
-      data: { status },
-    });
-
-    if (order.bookingId) {
-      await this.database.client.booking.update({
-        where: { id: order.bookingId, fashionHouseId: fhId },
+    if (order.status === status) return order;
+    const { updated, changed } = await this.database.client.$transaction(async tx => {
+      const claim = await tx.order.updateMany({
+        where: { id: order.id, fashionHouseId: fhId, status: order.status, staffId: order.staffId },
         data: { status },
-      }).catch(() => { });
-    }
+      });
+      const updated = await tx.order.findUniqueOrThrow({ where: { id: order.id } });
+      if (claim.count && status === "declined") await saveDecline(tx, fhId, order.id, input.authUserId!, input.body.comment || "Declined by fashion house");
+      if (claim.count && order.bookingId) await tx.booking.updateMany({ where: { id: order.bookingId, fashionHouseId: fhId }, data: { status } });
+      return { updated, changed: claim.count > 0 };
+    });
+    if (!changed) return updated;
 
     // Fire push notification to the customer (non-blocking)
     const notif = readyToWear && status === "in_production"
       ? { title: "Order accepted", body: "Your ready-to-wear order is being prepared for pickup." }
       : STATUS_LABELS[status];
     const customerUserId = order.customer?.userId;
-    if (notif && customerUserId) {
+    const alreadyCompleted = ["completed", "delivered"].includes(order.status);
+    const completing = ["completed", "delivered"].includes(status);
+    if (notif && customerUserId && !(alreadyCompleted && completing)) {
       const shopName = order.fashionHouse?.shopName || "The Fashion House";
       sendNotificationToUser(
         customerUserId,
         notif.title,
-        `${shopName}: ${notif.body}`,
-        { orderId: order.id, status }
+        completing ? `Your order from ${shopName} is complete. Thank you for choosing Owuja!` : `${shopName}: ${notif.body}`,
+        { screen: "order-details", orderId: order.id, status }
       );
     }
 

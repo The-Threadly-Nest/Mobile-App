@@ -1,3 +1,4 @@
+import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import React, { useState, useEffect, useCallback } from "react";
 import { formatMonthYear } from "@/shared/utils/formatters";
 import { View, ScrollView, Pressable, ActivityIndicator, useWindowDimensions, Modal, Linking, Image } from "react-native";
@@ -89,7 +90,8 @@ function LogOutIcon() {
 }
 
 export default function CustomerProfileScreen() {
-  const { showAlert } = useAppAlert();
+  const { messages: activityCount } = useActivityBadges();
+  const { showAlert, showConfirm } = useAppAlert();
   const [savingContact, setSavingContact] = useState(false);
   const [showSavedItems, setShowSavedItems] = useState(false);
   const [savedItems, setSavedItems] = useState<{ id: string; name: string; imageUrl: string }[]>([]);
@@ -303,7 +305,7 @@ export default function CustomerProfileScreen() {
             <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <MessagesIcon />
             </View>
-            <Text className="font-body text-[14px] text-black flex-1">My Messages</Text>
+            <Text className="font-body text-[14px] text-black flex-1">My Messages</Text><ActivityBadge count={activityCount} />
             {totalUnread > 0 && (
               <View
                 style={{
@@ -337,21 +339,27 @@ export default function CustomerProfileScreen() {
           </Pressable>
 
           {/* Notifications */}
-          <Pressable onPress={() => void Linking.openSettings().catch(() => showAlert("Notification settings", "Open your device settings to manage Owuja notification permissions."))} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
+          <Pressable onPress={() => router.push({ pathname: "/(customer)/messages", params: { tab: "notifications" } })} className="flex-row items-center p-4 rounded-2xl min-h-[78px]">
             <View className="w-12 h-12 bg-white border border-oxblood/20 rounded-full items-center justify-center mr-3.5">
               <NotificationsIcon />
             </View>
             <Text className="font-body text-[14px] text-black flex-1">
               Notifications
-            </Text>
+            </Text><ActivityBadge count={activityCount} />
             <ChevronRight size={18} color="#2B2B2B" />
           </Pressable>
 
           {/* Log Out */}
           <Pressable
             onPress={() => {
-              logout();
-              router.replace("/(auth)/login");
+              showConfirm("Log Out", "Are you sure you want to log out of your Owuja account?", {
+                confirmLabel: "Log Out",
+                cancelLabel: "Cancel",
+                onConfirm: () => {
+                  logout();
+                  router.replace("/(auth)/login");
+                },
+              });
             }}
             className="flex-row items-center p-4 rounded-2xl min-h-[78px]"
           >

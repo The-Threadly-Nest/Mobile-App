@@ -55,7 +55,7 @@ export default function AdminOnboardingScreen() {
   const [error, setError] = useState<string>("");
 
 
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
   useEffect(() => {

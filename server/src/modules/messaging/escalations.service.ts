@@ -3,6 +3,7 @@ import { routeParam } from "../../core/http/route-param";
 import type { EscalationsInput } from "./escalations.dto";
 import { rejectRequest } from "../../core/http/endpoint-result";
 import { DatabaseService } from "../../core/database/database.service";
+import { saveDecline } from "../../lib/decline-record";
 
 // PATCH /api/escalations/:escalationId/decline
 // Works for both Booking records (sets status="declined") and ChatEscalation records (sets resolved=true as a fallback).
@@ -10,6 +11,10 @@ import { DatabaseService } from "../../core/database/database.service";
 @Injectable()
 export class EscalationsService {
   constructor(@Inject(DatabaseService) private readonly database: DatabaseService) { }
+  async getDeclineRecords(input: EscalationsInput<"get">) {
+    const house = await this.getAdminFashionHouseOrThrow(input.authUserId!);
+    return this.database.client.$queryRaw`SELECT d.id, d."targetId", d.comment, d."createdAt", u.name AS "actorName" FROM decline_records d LEFT JOIN users u ON u.id = d."actorId" WHERE d."fashionHouseId" = ${house.id} ORDER BY d."createdAt" DESC LIMIT 200`;
+  }
 
   async get(input: EscalationsInput<"get">) {
 
@@ -90,7 +95,8 @@ export class EscalationsService {
       return true;
     });
 
-    return deduplicated;
+    const records = await this.database.client.$queryRaw<Array<{ targetId: string; comment: string }>>`SELECT DISTINCT ON ("targetId") "targetId", comment FROM decline_records WHERE "fashionHouseId" = ${fh.id} ORDER BY "targetId", "createdAt" DESC`;
+    return deduplicated.map(item => ({ ...item, declineComment: records.find(record => record.targetId === item.id)?.comment || null }));
 
   }
 
@@ -155,6 +161,7 @@ export class EscalationsService {
 
     if (booking) {
       await this.database.client.$transaction(async (transaction) => {
+        await saveDecline(transaction, fh.id, booking.id, input.authUserId!, input.body.comment);
         await transaction.booking.update({
           where: { id: booking.id },
           data: { status: "declined", availableSlotId: null },
@@ -174,9 +181,13 @@ export class EscalationsService {
     }
 
     // 2. Fall back to resolving a ChatEscalation (no dedicated declined state in schema)
-    const escalationResult = await this.database.client.chatEscalation.updateMany({
+    const escalationResult = await this.database.client.$transaction(async tx => {
+      const changed = await tx.chatEscalation.updateMany({
       where: { id: escalationId, fashionHouseId: fh.id },
-      data: { resolved: true, status: "resolved", activeKey: null },
+      data: { resolved: true, status: "declined", activeKey: null },
+      });
+      if (changed.count) await saveDecline(tx, fh.id, escalationId, input.authUserId!, input.body.comment);
+      return changed;
     });
 
     if (escalationResult.count > 0) {

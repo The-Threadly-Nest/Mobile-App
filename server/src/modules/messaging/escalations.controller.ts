@@ -7,6 +7,10 @@ import { SessionGuard, RolesGuard, AllowedRoles } from "../../core/auth/access.g
 
 @Controller("api/escalations")
 export class EscalationsController {
+  @Get("decline-records")
+  @UseGuards(SessionGuard, RolesGuard)
+  @AllowedRoles("admin")
+  declineRecords(@RequestInput({}) input: EscalationsInput<"get">) { return this.service.getDeclineRecords(input); }
   constructor(@Inject(EscalationsService) private readonly service: EscalationsService) { }
 
   @Get("")

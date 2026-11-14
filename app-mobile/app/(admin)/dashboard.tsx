@@ -1,3 +1,4 @@
+import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import { useDashboardBack } from "@/shared/hooks/useDashboardBack";
 import React, { useState, useEffect, useCallback } from "react";
 import { View, ScrollView, Pressable, Modal, ActivityIndicator, RefreshControl, Image, useWindowDimensions } from "react-native";
@@ -48,6 +49,7 @@ interface EscalationItem {
 }
 
 export default function AdminDashboard() {
+  const { messages: activityCount } = useActivityBadges();
   useDashboardBack();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
@@ -227,9 +229,9 @@ export default function AdminDashboard() {
       {
         confirmLabel: "Decline",
         cancelLabel: "Cancel",
-        onConfirm: async () => {
+        inputLabel: "Internal reason for declining", onInputConfirm: async (comment) => {
           try {
-            await escalationsApi.declineBooking(id);
+            await escalationsApi.declineBooking(id, comment);
             setEscalations((prev) =>
               prev.map((item) =>
                 item.id === id ? { ...item, resolved: true, bookingStatus: "declined" } : item
@@ -325,7 +327,7 @@ export default function AdminDashboard() {
           <Pressable
             onPress={() => router.push("/(admin)/messages" as any)}
             accessibilityRole="button"
-            accessibilityLabel="Messages and notifications"
+            hitSlop={12} accessibilityLabel="Messages"
             style={({ pressed }) => ({
               width: 42,
               height: 42,
@@ -342,14 +344,14 @@ export default function AdminDashboard() {
             })}
           >
             <MessageSquare size={19} color="#2B2B2B" strokeWidth={2} />
-            {unreadCount > 0 && (
+            {activityCount > 0 && (
               <View
                 style={{
                   position: "absolute",
                   top: -3,
                   right: -3,
-                  minWidth: 19,
-                  height: 19,
+                  minWidth: 24,
+                  height: 24,
                   borderRadius: 9.5,
                   backgroundColor: "#F96951",
                   alignItems: "center",
@@ -358,7 +360,7 @@ export default function AdminDashboard() {
                 }}
               >
                 <Text style={{ fontFamily: "InstrumentSans-Bold", fontSize: 10.5, color: "#FFFDF9" }}>
-                  {unreadCount > 99 ? "99+" : unreadCount}
+                  {activityCount > 99 ? "99+" : activityCount}
                 </Text>
               </View>
             )}
@@ -378,8 +380,8 @@ export default function AdminDashboard() {
               paddingHorizontal: 16,
               elevation: 2,
               shadowColor: "#2B2B2B",
-              shadowOpacity: 0.04,
-              shadowRadius: 8,
+              shadowOpacity: 0.10,
+              shadowRadius: 12,
               shadowOffset: { width: 0, height: 2 },
               opacity: pressed ? 0.85 : 1,
             })}
@@ -418,8 +420,8 @@ export default function AdminDashboard() {
               paddingHorizontal: 16,
               elevation: 2,
               shadowColor: "#2B2B2B",
-              shadowOpacity: 0.04,
-              shadowRadius: 8,
+              shadowOpacity: 0.10,
+              shadowRadius: 12,
               shadowOffset: { width: 0, height: 2 },
               opacity: pressed ? 0.85 : 1,
             })}
@@ -457,8 +459,8 @@ export default function AdminDashboard() {
             marginBottom: 16,
             elevation: 2,
             shadowColor: "#2B2B2B",
-            shadowOpacity: 0.04,
-            shadowRadius: 8,
+            shadowOpacity: 0.10,
+            shadowRadius: 12,
             shadowOffset: { width: 0, height: 2 },
           }}
         >
@@ -708,12 +710,12 @@ export default function AdminDashboard() {
                   elevation: 2,
                   shadowColor: "#2B2B2B",
                   shadowOpacity: 0.05,
-                  shadowRadius: 8,
+                  shadowRadius: 12,
                   shadowOffset: { width: 0, height: 2 },
                   opacity: pressed ? 0.9 : 1,
                 })}
               >
-                <View style={{ width: "100%", height: 145, backgroundColor: "#FFFFFF" }}>
+                <View style={{ width: "100%", height: 245, backgroundColor: "#FFFFFF" }}>
                   <CachedImage
                     source={{ uri: prod.imageUrl }}
                     style={{ width: "100%", height: "100%" }}

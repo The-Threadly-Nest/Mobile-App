@@ -38,7 +38,9 @@ async function handleMessageAction(response: any) {
     return;
   }
 
-  if (data.screen === "messages") {
+  if (data.screen === "order-details" && data.orderId && useAuthStore.getState().role === "customer") {
+    router.push({ pathname: "/(customer)/orders/[orderId]", params: { orderId: String(data.orderId) } } as any);
+  } else if (data.screen === "messages") {
     router.push({ pathname: "/(admin)/messages", params: { customerId: String(data.customerId ?? "") } } as any);
   } else if (data.screen === "direct-chat" && data.fashionHouseId) {
     router.push(`/(customer)/direct-chat/${data.fashionHouseId}` as any);

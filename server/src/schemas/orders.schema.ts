@@ -18,6 +18,7 @@ export const catalogCheckoutSchema = z.object({
 });
 
 export const updateOrderStatusSchema = z.object({
+  comment: z.string().trim().min(3).max(500).optional(),
   status: z.enum([
     "order_placed", "pending_admin_review", "booked", "assigned",
     "measurements_confirmed", "fabric_sourced", "in_production", "quality_check",

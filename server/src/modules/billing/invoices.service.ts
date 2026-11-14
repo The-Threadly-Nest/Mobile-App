@@ -58,10 +58,7 @@ export class InvoicesService {
         return existing;
       }
       if (!bankName || !accountNumber || !accountName) {
-        return rejectRequest({
-          code: "PAYMENT_DETAILS_REQUIRED",
-          error: "Add the fashion house payment details before generating an invoice.",
-        }, 409);
+        return rejectRequest({ code: "PAYMENT_DETAILS_REQUIRED", error: "Save your bank name, account number and account name in your profile before generating an invoice." }, 409);
       }
 
       await this.database.client.invoice.updateMany({
@@ -75,11 +72,10 @@ export class InvoicesService {
       return this.database.client.invoice.findUniqueOrThrow({ where: { id: existing.id }, include: invoiceInclude });
     }
 
+
+
     if (!bankName || !accountNumber || !accountName) {
-      return rejectRequest({
-        code: "PAYMENT_DETAILS_REQUIRED",
-        error: "Add the fashion house payment details before generating an invoice.",
-      }, 409);
+      return rejectRequest({ code: "PAYMENT_DETAILS_REQUIRED", error: "Save your bank name, account number and account name in your profile before generating an invoice." }, 409);
     }
 
     // Server-Side Recalculation: Calculate Subtotal, 7.5% VAT, and Grand Total

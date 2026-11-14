@@ -47,7 +47,7 @@ export default function FashionHouseScreen() {
   const role = useAuthStore((state) => state.role);
   const email = useAuthStore((state) => state.email);
   const cacheOwner = createPageCacheOwner(role, email);
-  const scrollRef = React.useRef<ScrollView>(null);
+  const scrollRef = React.useRef<React.ComponentRef<typeof ScrollView>>(null);
   const portfolioOffset = React.useRef(0);
 
   const [fhData, setFhData] = useState<any>(null);
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   displayName: {
-    fontFamily: "InstrumentSans-Regular",
+    fontFamily: "InstrumentSans-Bold",
     fontSize: 26,
     color: "#4A403B",
     marginBottom: 6,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   heroRatingScore: {
-    fontFamily: "InstrumentSans-Bold",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 13,
     color: "#4A403B",
   },
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   statLabel: {
-    fontFamily: "InstrumentSans-Bold",
+    fontFamily: "InstrumentSans-Regular",
     fontSize: 10,
     color: "#453332",
     letterSpacing: 0.8,

@@ -1,3 +1,5 @@
+export const unstable_settings = { initialRouteName: "dashboard" };
+import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import { useEffect, useState, useRef } from "react";
 import { AppState, View } from "react-native";
 import { Text } from "@/shared/components/Typography";
@@ -126,15 +128,15 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
             top: -2,
             right: -4,
             backgroundColor: "#453332",
-            minWidth: 14,
-            height: 14,
-            borderRadius: 7,
+            minWidth: 24,
+            height: 24,
+            borderRadius: 12,
             paddingHorizontal: 3,
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 8, color: "#FFFDF9", textAlign: "center" }}>
+          <Text style={{ fontFamily: "InstrumentSans-SemiBold", fontSize: 12, color: "#FFFDF9", textAlign: "center" }}>
             {unreadCount}
           </Text>
         </View>
@@ -146,6 +148,7 @@ function MoreIcon({ color, unreadCount }: { color: string; focused: boolean; unr
 const ADMIN_ALLOWED_TAB_ROUTES = ["dashboard", "escalations/index", "orders", "settings"];
 
 export default function AdminLayout() {
+  const { messages: activityCount, requests: requestCount } = useActivityBadges();
   const insets = useSafeAreaInsets();
   const extraBottom = insets.bottom;
   const token = useAuthStore((s) => s.token);
@@ -240,7 +243,6 @@ export default function AdminLayout() {
   if (!token) return <Redirect href="/(auth)/login" />;
   return (
     <Tabs
-      initialRouteName="dashboard"
       backBehavior="initialRoute"
       tabBar={(props) => (
         <FloatingTabBar
@@ -308,7 +310,7 @@ export default function AdminLayout() {
         name="settings"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><MoreIcon color={String(color)} focused={focused} unreadCount={unreadCount} /></FloatingTabIcon>,
+          tabBarIcon: ({ color, focused }) => <FloatingTabIcon focused={focused}><MoreIcon color={String(color)} focused={focused} unreadCount={activityCount + requestCount} /></FloatingTabIcon>,
         }}
       />
 
