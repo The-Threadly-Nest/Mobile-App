@@ -119,6 +119,14 @@ function InstagramIcon({ className = "size-4" }: { className?: string }) {
   );
 }
 
+function FacebookIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
 function ArrowRightIcon({ className = "size-4" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -875,8 +883,8 @@ export default function WaitlistPage() {
         </div>
 
         {displayReferral && <>
-          {/* Only show a real referral code issued to this browser. */}
-          <div className="flex w-full max-w-[430px] items-center justify-between rounded-full border border-black/10 bg-[#f4f4f4] p-1.5 pl-5 shadow-inner">
+          {/* Responsive Referral Link Box: stacked on mobile so link is fully visible, inline pill on desktop */}
+          <div className="flex w-full max-w-[430px] flex-col gap-2 rounded-2xl border border-black/10 bg-[#f4f4f4] p-2.5 shadow-inner sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:p-1.5 sm:pl-5 sm:gap-0">
             <input
               type="text"
               aria-label="Your referral link"
@@ -888,7 +896,7 @@ export default function WaitlistPage() {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
               }}
-              className="min-w-0 flex-1 cursor-pointer bg-transparent text-[14px] text-[#453332] outline-none"
+              className="min-w-0 w-full cursor-pointer bg-transparent px-2 py-1 text-[13.5px] text-[#453332] outline-none sm:flex-1 sm:px-0 sm:py-0 sm:text-[14px]"
             />
             <button
               type="button"
@@ -898,7 +906,7 @@ export default function WaitlistPage() {
                 setTimeout(() => setCopied(false), 2000);
               }}
               title="Copy referral link"
-              className={`flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition ${copied
+              className={`flex h-10 w-full shrink-0 items-center justify-center gap-1.5 rounded-full px-4 text-[13px] font-medium transition sm:h-9 sm:w-auto ${copied
                 ? "bg-[#25D366] text-white"
                 : "bg-[#1a1a1a] text-white hover:bg-black"
                 }`}
@@ -922,6 +930,17 @@ export default function WaitlistPage() {
 
           {/* Social Share & Follow Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3">
+            {/* Facebook */}
+            <a
+              href="https://www.facebook.com/share/19iPKjWUAb/"
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-[42px] items-center gap-2 rounded-full bg-[#1877F2] px-5 text-[14px] font-medium text-white shadow-sm transition hover:bg-[#166fe5]"
+            >
+              <FacebookIcon className="h-4 w-4 fill-current" />
+              <span>Facebook</span>
+            </a>
+
             {/* X (Twitter) */}
             <a
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("I just joined the Owuja waitlist — the marketplace for custom African fashion. Join me!")}&url=${encodeURIComponent(displayReferral)}`}
@@ -1232,6 +1251,14 @@ export default function WaitlistPage() {
                 className="text-[16px] font-medium text-[#f96951] transition hover:text-[#f96951]/80 sm:text-[18px]"
               >
                 Instagram
+              </a>
+              <a
+                href="https://www.facebook.com/share/19iPKjWUAb/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[16px] font-medium text-[#f96951] transition hover:text-[#f96951]/80 sm:text-[18px]"
+              >
+                Facebook
               </a>
             </div>
 
