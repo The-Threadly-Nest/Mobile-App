@@ -45,6 +45,8 @@ interface StaffMember {
   role: string;
   initial: string;
   unreadCount?: number;
+  online?: boolean;
+  lastSeenAt?: string | null;
 }
 
 interface ChatMessage {
@@ -99,7 +101,6 @@ const ReceivedTail = ({ color = "rgba(69, 51, 50,0.12)" }: { color?: string }) =
 export default function AdminStaffChatScreen() {
   const params = useLocalSearchParams<{ staffId?: string }>();
   const token = useAuthStore((s) => s.token);
-  const adminName = useAuthStore((s) => s.name) || "Admin";
   const role = useAuthStore((s) => s.role);
   const email = useAuthStore((s) => s.email);
   const cacheOwner = createChatCacheOwner(role, email);
@@ -145,7 +146,7 @@ export default function AdminStaffChatScreen() {
       time: rawTime
         ? new Date(rawTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         : "",
-      status: isMe ? (index < historyLength - 1 || turn.read === true ? "Read" : "Delivered") : undefined,
+      status: isMe ? (turn.read === true ? "Read" : "Delivered") : undefined,
     };
   };
 
@@ -164,6 +165,8 @@ export default function AdminStaffChatScreen() {
               role: st.lastMessage || "Atelier Floor Staff",
               initial: name.charAt(0).toUpperCase(),
               unreadCount: typeof st.unreadCount === "number" ? st.unreadCount : (idx === 0 ? 1 : 0),
+              online: st.online === true,
+              lastSeenAt: typeof st.lastSeenAt === "string" ? st.lastSeenAt : null,
             };
           });
           setStaffList(mapped);
@@ -525,6 +528,12 @@ export default function AdminStaffChatScreen() {
     );
   }
 
+  const lastSeenLabel = selectedStaff.online
+    ? "Online"
+    : selectedStaff.lastSeenAt
+      ? `Last seen ${new Date(selectedStaff.lastSeenAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`
+      : "Offline";
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header Bar */}
@@ -540,7 +549,11 @@ export default function AdminStaffChatScreen() {
         </Pressable>
 
         <View style={styles.headerInfoCol}>
-          <Text style={styles.headerNameText}>{adminName}</Text>
+          <Text style={styles.headerNameText}>{selectedStaff.name}</Text>
+          <View style={styles.presenceRow}>
+            <View style={[styles.presenceDot, selectedStaff.online && styles.presenceDotOnline]} />
+            <Text style={styles.headerSubtitleText}>{lastSeenLabel}</Text>
+          </View>
         </View>
       </View>
 
@@ -664,7 +677,7 @@ export default function AdminStaffChatScreen() {
                         ) : msg.status === "Read" ? (
                           <CheckCheck size={14} color="#453332" />
                         ) : (
-                          <CheckCheck size={14} color="#453332" />
+                          <Check size={14} color="#453332" />
                         )
                       )}
                     </View>
@@ -860,6 +873,21 @@ const styles = StyleSheet.create({
     ...typeScale.caption,
     color: "#453332",
     marginTop: 2,
+  },
+  presenceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 2,
+  },
+  presenceDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#8A7550",
+  },
+  presenceDotOnline: {
+    backgroundColor: "#C4A763",
   },
   staffSelectorWrapper: {
     paddingVertical: 10,

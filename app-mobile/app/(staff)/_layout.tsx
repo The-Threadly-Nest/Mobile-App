@@ -1,7 +1,7 @@
-export const unstable_settings = { initialRouteName: "dashboard" };
+export const unstable_settings = { anchor: "dashboard" };
 import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import { useEffect, useState, useRef } from "react";
-import { View } from "react-native";
+import { AppState, View } from "react-native";
 import { Text } from "@/shared/components/Typography";
 import { Tabs, usePathname, Redirect } from "expo-router";
 import { NavigationBar } from "expo-navigation-bar";
@@ -235,6 +235,24 @@ export default function StaffLayout() {
     fetchUnread();
     const interval = setInterval(fetchUnread, 15_000);
     return () => clearInterval(interval);
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    const sendPresence = () => {
+      if (AppState.currentState === "active") {
+        void apiFetch("/api/staff/presence", { method: "POST", silent: true });
+      }
+    };
+    sendPresence();
+    const interval = setInterval(sendPresence, 30_000);
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") sendPresence();
+    });
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
   }, [token]);
 
   if (!token) return <Redirect href="/(auth)/login" />;

@@ -5,6 +5,7 @@ export const staffInputs = {
   getMe: {},
   postInvite: { body: inviteStaffSchema },
   get: {},
+  postPresence: {},
   postByStaffIdResendActivation: {},
 } as const;
 

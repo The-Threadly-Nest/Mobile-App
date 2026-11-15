@@ -16,6 +16,7 @@
     "@react-native-community/netinfo": "12.0.1",
     "@react-native-google-signin/google-signin": "^16.1.4",
     "expo": "~58.0.25",
+    "expo-asset": "~58.0.21",
     "expo-audio": "~58.0.12",
     "expo-auth-session": "~58.0.18",
     "expo-constants": "~58.0.16",

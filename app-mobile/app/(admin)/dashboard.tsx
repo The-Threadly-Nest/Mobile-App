@@ -6,7 +6,7 @@ import { Text } from "@/shared/components/Typography";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SCREEN_TOP_SPACING } from "@/shared/utils/screenSpacing";
 import { router, useFocusEffect } from "expo-router";
-import { Menu, ChevronDown, Star, Plus, MessageSquare } from "lucide-react-native";
+import { Menu, ChevronDown, Star, Plus, Bell } from "lucide-react-native";
 import Svg, { Path, Defs, LinearGradient, Stop, Circle as SvgCircle } from "react-native-svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { APP_DATA_CACHE_TTL_MS, useAppDataStore } from "@/stores/useAppDataStore";
@@ -323,11 +323,11 @@ export default function AdminDashboard() {
             </Text>
           </Pressable>
 
-          {/* Right: Message & Notification Icon with Badge */}
+          {/* Right: Notification Icon with Badge */}
           <Pressable
-            onPress={() => router.push("/(admin)/messages" as any)}
+            onPress={() => router.push("/admin-notifications")}
             accessibilityRole="button"
-            hitSlop={12} accessibilityLabel="Messages"
+            hitSlop={12} accessibilityLabel="Notifications"
             style={({ pressed }) => ({
               width: 42,
               height: 42,
@@ -343,7 +343,7 @@ export default function AdminDashboard() {
               opacity: pressed ? 0.8 : 1,
             })}
           >
-            <MessageSquare size={19} color="#2B2B2B" strokeWidth={2} />
+            <Bell size={20} color="#2B2B2B" strokeWidth={2} />
             {activityCount > 0 && (
               <View
                 style={{

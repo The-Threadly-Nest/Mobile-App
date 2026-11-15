@@ -21,7 +21,7 @@ import {
   Pause,
   Trash2,
 } from 'lucide-react-native';
-import { useAudioRecorder, useAudioRecorderState, AudioModule, setAudioModeAsync } from 'expo-audio';
+import { useAudioRecorder, AudioModule, setAudioModeAsync } from 'expo-audio';
 import AnimatedWaveform from "@/shared/components/AudioWaveform";
 import { VOICE_RECORDING_OPTIONS, voiceAttachment } from '@/shared/utils/voiceRecording';
 import * as ImagePicker from 'expo-image-picker';
@@ -163,8 +163,7 @@ export default function AdminMessagesScreen() {
   } | null>(null);
 
   // Audio Recording & Playback
-  const audioRecorder = useAudioRecorder(VOICE_RECORDING_OPTIONS);
-  const recordingState = useAudioRecorderState(audioRecorder, 100);
+  const audioRecorderRef = useRef<ReturnType<typeof useAudioRecorder> | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -515,6 +514,10 @@ export default function AdminMessagesScreen() {
         return;
       }
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      if (!audioRecorderRef.current) {
+        audioRecorderRef.current = new AudioModule.AudioRecorder(VOICE_RECORDING_OPTIONS);
+      }
+      const audioRecorder = audioRecorderRef.current;
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
       setIsRecording(true);
@@ -532,7 +535,7 @@ export default function AdminMessagesScreen() {
   const cancelRecording = async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     try {
-      await audioRecorder.stop();
+      await audioRecorderRef.current?.stop();
     } catch { }
     await setAudioModeAsync({ allowsRecording: false }).catch(() => { });
     setIsRecording(false);
@@ -544,14 +547,14 @@ export default function AdminMessagesScreen() {
     if (!isRecording) return;
     try {
       if (isPaused) {
-        audioRecorder.record();
+        audioRecorderRef.current?.record();
         setIsPaused(false);
         timerRef.current = setInterval(() => {
           setRecordingDuration((prev) => prev + 1);
         }, 1000);
       } else {
         if (timerRef.current) clearInterval(timerRef.current);
-        audioRecorder.pause();
+        audioRecorderRef.current?.pause();
         setIsPaused(true);
       }
     } catch (err: any) {
@@ -567,6 +570,8 @@ export default function AdminMessagesScreen() {
     if (timerRef.current) clearInterval(timerRef.current);
 
     try {
+      const audioRecorder = audioRecorderRef.current;
+      if (!audioRecorder) throw new Error('No audio recorder is available. Please try again.');
       await audioRecorder.stop();
       const uri = audioRecorder.uri;
       const finalDuration = recordingDuration;
@@ -856,7 +861,6 @@ export default function AdminMessagesScreen() {
               Customers
             </Text>
           </Pressable>
-
           <Pressable
             onPress={() => setActiveTab('staff')}
             style={[styles.segmentedPill, activeTab === 'staff' && styles.segmentedPillActive]}
@@ -917,7 +921,7 @@ export default function AdminMessagesScreen() {
                 return (
                   <Pressable
                     style={styles.threadCard}
-                    onPress={() => router.push({ pathname: '/(admin)/chat', params: { staffId: item.id } })}
+                    onPress={() => router.push({ pathname: '/admin-staff-chat', params: { staffId: item.id } })}
                   >
                     <View style={styles.avatar}>
                       <Text style={styles.avatarText}>{initial}</Text>
@@ -1002,7 +1006,7 @@ export default function AdminMessagesScreen() {
                     <AnimatedWaveform
                       isAnimating={!isPaused}
                       live
-                      metering={recordingState.metering}
+
                       color="#453332"
                       inactiveColor="rgba(69, 51, 50, 0.2)"
                       barCount={34}

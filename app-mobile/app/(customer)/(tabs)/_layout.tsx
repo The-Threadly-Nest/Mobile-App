@@ -1,4 +1,4 @@
-export const unstable_settings = { initialRouteName: "browse" };
+export const unstable_settings = { anchor: "browse" };
 import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import React, { useEffect } from "react";
 import { Tabs } from "expo-router";

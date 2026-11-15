@@ -97,6 +97,8 @@ export default function StaffChatScreen() {
 
   const [staffName, setStaffName] = useState(params.staffName || "Staff");
   const [adminName, setAdminName] = useState("Fashion House Admin");
+  const [adminOnline, setAdminOnline] = useState(false);
+  const [adminLastSeenAt, setAdminLastSeenAt] = useState<string | null>(null);
   const [fashionHouseName, setFashionHouseName] = useState(params.fashionHouseName || "Atelier");
   const [fashionHouseId, setFashionHouseId] = useState(params.fashionHouseId || "default");
 
@@ -139,7 +141,7 @@ export default function StaffChatScreen() {
       time: rawTime
         ? new Date(rawTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         : "",
-      status: isMe ? (index < historyLength - 1 || turn.read === true ? "Read" : "Delivered") : undefined,
+      status: isMe ? (turn.read === true ? "Read" : "Delivered") : undefined,
     };
   };
 
@@ -162,6 +164,8 @@ export default function StaffChatScreen() {
         if (body.adminName) {
           setAdminName(body.adminName);
         }
+        setAdminOnline(body.adminOnline === true);
+        setAdminLastSeenAt(typeof body.adminLastSeenAt === "string" ? body.adminLastSeenAt : null);
         if (fetchedShopName) {
           setFashionHouseName(fetchedShopName);
         }
@@ -519,7 +523,7 @@ export default function StaffChatScreen() {
         <Pressable
           onPress={() => {
             if (router.canGoBack()) router.back();
-            else router.replace("/(staff)/my-orders" as any);
+            else router.replace("/(staff)/dashboard");
           }}
           style={({ pressed }) => [styles.headerBtn, { opacity: pressed ? 0.7 : 1 }]}
         >
@@ -530,7 +534,16 @@ export default function StaffChatScreen() {
           <View style={styles.headerNameRow}>
             <Text style={styles.headerNameText}>{staffName}</Text>
           </View>
-          <Text style={styles.headerSubtitleText}>{fashionHouseName}</Text>
+          <View style={styles.presenceRow}>
+            <View style={[styles.presenceDot, adminOnline && styles.presenceDotOnline]} />
+            <Text style={styles.headerSubtitleText}>
+              {adminOnline
+                ? "Online"
+                : adminLastSeenAt
+                  ? `Last seen ${new Date(adminLastSeenAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}`
+                  : "Offline"}
+            </Text>
+          </View>
         </View>
       </View>
 
@@ -656,7 +669,7 @@ export default function StaffChatScreen() {
                         ) : msg.status === "Read" ? (
                           <CheckCheck size={14} color="#453332" />
                         ) : (
-                          <CheckCheck size={14} color="#453332" />
+                          <Check size={14} color="#453332" />
                         )
                       )}
                     </View>
@@ -858,6 +871,21 @@ const styles = StyleSheet.create({
     ...typeScale.caption,
     color: "#453332",
     marginTop: 2,
+  },
+  presenceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 2,
+  },
+  presenceDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#8A7550",
+  },
+  presenceDotOnline: {
+    backgroundColor: "#C4A763",
   },
   scrollContent: {
     flexGrow: 1,

@@ -26,6 +26,10 @@ type StoredChatTurn = ChatTurn & {
   deletedForUserIds?: string[];
 };
 
+function isReadByRecipient(turn: StoredChatTurn, userId: string): boolean {
+  return turn.senderId === userId || turn.read === true;
+}
+
 class SlotUnavailableError extends Error {
   constructor() {
     super("This fitting slot is no longer available.");
@@ -139,7 +143,14 @@ export class ChatService {
 
       const rawHistory = (session?.history as unknown as ChatTurn[]) ?? [];
       const { history, changed } = normalizeStoredHistory(rawHistory);
-      if (session && changed) {
+      let readChanged = false;
+      for (const turn of history) {
+        if (!isReadByRecipient(turn, authUserId) && turn.role !== "model") {
+          turn.read = true;
+          readChanged = true;
+        }
+      }
+      if (session && (changed || readChanged)) {
         await this.database.client.chatSession.update({
           where: { id: session.id },
           data: { history: history as unknown as Prisma.InputJsonValue },
@@ -758,4 +769,3 @@ export class ChatService {
     return escalation;
   }
 }
-

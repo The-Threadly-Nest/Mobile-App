@@ -136,7 +136,7 @@ export default function AdminSettingsScreen() {
             <Pressable accessibilityRole="button" onPress={() => router.push("/(admin)/escalations")} style={styles.menuRow}>
               <View style={styles.iconCircle}><Calendar size={22} color={TOMATO} /></View><Text style={styles.menuRowTitle}>Order requests</Text><ActivityBadge count={requests} /><ProfileDesignIcon name="chevron" />
             </Pressable>
-            <Pressable accessibilityRole="button" onPress={() => router.push("/(admin)/messages")} style={styles.menuRow}>
+            <Pressable accessibilityRole="button" onPress={() => router.push("/admin-messages")} style={styles.menuRow}>
               <View style={styles.iconCircle}><MessageSquare size={22} color={TOMATO} /></View>
               <Text style={styles.menuRowTitle}>Messages</Text><ActivityBadge count={messages} /><ProfileDesignIcon name="chevron" />
             </Pressable>

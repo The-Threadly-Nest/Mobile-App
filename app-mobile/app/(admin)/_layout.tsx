@@ -1,4 +1,4 @@
-export const unstable_settings = { initialRouteName: "dashboard" };
+export const unstable_settings = { anchor: "dashboard" };
 import { useActivityBadges, ActivityBadge } from "@/shared/components/ActivityBadges";
 import { useEffect, useState, useRef } from "react";
 import { AppState, View } from "react-native";
@@ -166,6 +166,24 @@ export default function AdminLayout() {
   useEffect(() => {
     NavigationBar.setStyle("light");
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    const sendPresence = () => {
+      if (AppState.currentState === "active") {
+        void apiFetch("/api/staff/presence", { method: "POST", silent: true });
+      }
+    };
+    sendPresence();
+    const interval = setInterval(sendPresence, 30_000);
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") sendPresence();
+    });
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
+  }, [token]);
 
   // ── Clear badge immediately when admin views customer messages or escalations ──────
   useEffect(() => {

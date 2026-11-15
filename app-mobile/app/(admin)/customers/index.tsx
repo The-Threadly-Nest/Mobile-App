@@ -246,7 +246,7 @@ export default function CustomersScreen() {
               onPress={() => {
                 setModalVisible(false);
                 router.push({
-                  pathname: "/(admin)/messages",
+                  pathname: "/admin-messages",
                   params: { customerId: selectedCustomer?.userId || selectedCustomer?.id, customerName: selectedCustomer?.name, activeTab: "customers", openChat: String(Date.now()) },
                 } as any);
               }}

@@ -20,7 +20,7 @@ export class StaffService {
       include: {
         fashionHouse: {
           include: {
-            admin: { select: { id: true, name: true, email: true } },
+            admin: { select: { id: true, name: true, email: true, updatedAt: true } },
           },
         },
       },
@@ -38,6 +38,8 @@ export class StaffService {
       fashionHouseId: user.fashionHouseId,
       shopName: user.fashionHouse?.shopName || "Luxury Atelier",
       adminName,
+      adminOnline: Date.now() - (user.fashionHouse?.admin?.updatedAt?.getTime() ?? 0) <= 90_000,
+      adminLastSeenAt: user.fashionHouse?.admin?.updatedAt?.toISOString() ?? null,
     };
 
   }
@@ -108,6 +110,7 @@ export class StaffService {
         email: true,
         active: true,
         createdAt: true,
+        updatedAt: true,
         _count: {
           select: {
             delegatedOrders: {
@@ -152,6 +155,8 @@ export class StaffService {
         active: st.active,
         activeOrders: st._count?.delegatedOrders ?? 0,
         createdAt: st.createdAt,
+        lastSeenAt: st.updatedAt,
+        online: Date.now() - st.updatedAt.getTime() <= 90_000,
         lastMessage: lastTurn ? lastTurn.text : null,
         unreadCount,
       };
@@ -159,6 +164,15 @@ export class StaffService {
 
     return formatted;
 
+  }
+
+  async postPresence(input: StaffInput<"postPresence">) {
+    const now = new Date();
+    await this.database.client.user.update({
+      where: { id: input.authUserId! },
+      data: { updatedAt: now },
+    });
+    return { online: true, lastSeenAt: now.toISOString() };
   }
 
   async postByStaffIdResendActivation(input: StaffInput<"postByStaffIdResendActivation">) {
@@ -189,4 +203,3 @@ export class StaffService {
     return fh;
   }
 }
-

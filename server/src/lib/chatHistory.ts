@@ -7,6 +7,7 @@ export interface ChatTurn {
   audioUrl?: string;
   audioDuration?: number;
   createdAt?: string;
+  read?: boolean;
   deletedForEveryoneAt?: string;
   deletedForUserIds?: string[];
 }

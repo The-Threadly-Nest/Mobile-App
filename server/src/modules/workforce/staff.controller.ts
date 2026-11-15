@@ -34,6 +34,14 @@ export class StaffController {
     return this.service.get(input);
   }
 
+  @Post("presence")
+  @UseGuards(SessionGuard, RolesGuard)
+  @AllowedRoles("staff", "admin")
+  @HttpCode(200)
+  postPresence(@RequestInput(staffInputs.postPresence) input: StaffInput<"postPresence">) {
+    return this.service.postPresence(input);
+  }
+
   @Post(":staffId/resend-activation")
   @UseGuards(SessionGuard, RolesGuard, EndpointRateGuard)
   @RateLimit("staff-resend", 10, 3600000, true)
@@ -43,4 +51,3 @@ export class StaffController {
     return this.service.postByStaffIdResendActivation(input);
   }
 }
-

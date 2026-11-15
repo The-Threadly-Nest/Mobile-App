@@ -172,8 +172,8 @@ export default function StaffScreen() {
                 <Pressable
                   onPress={() =>
                     router.push({
-                      pathname: "/(admin)/messages",
-                      params: { activeTab: "staff", staffId: item.id },
+                      pathname: "/admin-staff-chat",
+                      params: { staffId: item.id },
                     })
                   }
                   style={({ pressed }) => [
